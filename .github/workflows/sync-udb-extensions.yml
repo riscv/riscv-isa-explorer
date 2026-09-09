@@ -95,7 +95,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.changes.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           commit-message: 'feat: sync extension data from riscv-unified-db'
           # The DCO gate matches the Signed-off-by trailer against the commit
@@ -106,6 +106,16 @@ jobs:
           # being attributed to whoever happened to click "Run workflow".
           author: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
           committer: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
+          # sign-commits, because `main` carries a required_signatures rule and
+          # this action does NOT sign by default (`sign-commits` defaults to
+          # false, and v6 had no such input at all — it was added in v7). Every
+          # automated PR was therefore opened with an unsigned commit and could
+          # not be merged, while the DCO check stayed green and made it look
+          # fine. Sign-off and signature are different things: `signoff` writes a
+          # Signed-off-by trailer, which is plain text; required_signatures wants
+          # a cryptographic one. With sign-commits the action commits through the
+          # GitHub API and GitHub signs with its own key.
+          sign-commits: true
           signoff: true
           title: 'feat: sync extension data from UDB'
           body: |
