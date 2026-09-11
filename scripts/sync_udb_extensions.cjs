@@ -21,6 +21,11 @@
 
 const fs = require('fs');
 const path = require('path');
+// Real YAML parser (the `yaml` package). Used everywhere a CSR's nested
+// structure matters — the minimal parser below cannot see into `fields:`.
+// Required at the top so pass 1 (findCsrs) can use it too; `const` is not
+// hoisted, so a later require would be in the TDZ when pass 1 runs.
+const YAML = require('yaml');
 
 const workspaceRoot = process.cwd();
 const catalogPath = path.join(workspaceRoot, 'src', 'riscv_extensions.json');
@@ -197,13 +202,71 @@ function csrDefinedBy(raw, extId) {
   return false;
 }
 
+// Schema A bit-field extraction (issue #243). Emits, per field:
+//   bits  — a string ("12-11", "0"), or {rv32, rv64} ONLY when the field's
+//           placement depends on XLEN (location_rv32/location_rv64). 145 fields
+//           across UDB are split this way; all 145 genuinely differ.
+//   type  — the scalar access string ("RW", "RO-H", ...) when static, or the
+//           literal "dynamic" when UDB gives a `type()` IDL function.
+//   reset — the scalar reset ("0", "1", "UNDEFINED_LEGAL", ...) when static, or
+//           "dynamic" when UDB gives a `reset_value()` IDL function.
+// Deliberately NOT emitted: per-field description, dependsOn, raw IDL. The IDL
+// resolves only against a concrete config we do not run, so summarising it to a
+// value would be a lie; "dynamic" is the honest static label.
+//
+// Field order is preserved exactly as authored in the YAML (the `yaml` parser
+// keeps mapping order), which is the MSB-to-LSB source order a diagram wants.
+// Fields are never sorted.
+//
+// Returns null ONLY when UDB provides no `fields:` map at all (a non-object,
+// e.g. the minimal parser never produces one — the reason pass 1 is routed
+// through the real parser). When UDB gives an empty map (`fields: {}`, used by
+// the `*h` high-half aliases and CSRs whose bits UDB has not populated, such as
+// medelegh/hedelegh/mseccfg), an empty object is returned and preserved, so
+// every CSR that has a UDB definition carries a `fields` map (possibly empty).
+// buildCsrEntry omits the key only for the null case.
+function buildCsrFields(fields) {
+  if (!fields || typeof fields !== 'object') return null;
+  const out = {};
+  for (const [name, fld] of Object.entries(fields)) {
+    if (!fld || typeof fld !== 'object') continue;
+    let bits;
+    if ('location_rv32' in fld || 'location_rv64' in fld) {
+      bits = { rv32: String(fld.location_rv32 ?? ''), rv64: String(fld.location_rv64 ?? '') };
+    } else {
+      bits = String(fld.location ?? '');
+    }
+    const type = 'type' in fld ? String(fld.type) : 'dynamic';
+    const reset = 'reset_value' in fld ? String(fld.reset_value) : 'dynamic';
+    out[name] = { bits, type, reset };
+  }
+  return out;
+}
+
+// Order-sensitive deep comparison of two `fields` maps. Field order is
+// meaningful (MSB-to-LSB source order a diagram wants) and each value is a flat
+// {bits, type, reset} record where `bits` is a string or a {rv32, rv64} object,
+// both produced in a fixed key order by buildCsrFields. A serialised compare
+// therefore catches every real divergence — changed bits, marker, value, an
+// added/removed field, or a reordering — while treating a byte-identical map as
+// unchanged. Used by the bit-field pass to write only on an actual correction.
+function fieldsMapsEqual(a, b) {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
 function buildCsrEntry(csr) {
-  return {
+  // The four existing keys, unchanged. `fields` is appended last (and only when
+  // present) so an additive backfill leaves these four byte-identical in the
+  // diff — the only change to an existing entry is a trailing comma on `desc`.
+  const entry = {
     address: String(csr.address || ''),
     priv_mode: csr.priv_mode || '',
     length: normalizeCsrLength(csr.length),
     desc: csr.long_name || ''
   };
+  const fields = buildCsrFields(csr.fields);
+  if (fields) entry.fields = fields;
+  return entry;
 }
 
 function findCsrs(extId) {
@@ -214,8 +277,12 @@ function findCsrs(extId) {
   if (fs.existsSync(subdir) && fs.statSync(subdir).isDirectory()) {
     for (const f of fs.readdirSync(subdir).filter(f => f.endsWith('.yaml'))) {
       try {
-        const csr = parseYaml(path.join(subdir, f));
-        if (csr.name) csrs[csr.name] = buildCsrEntry(csr);
+        // Real parser, not the minimal one: buildCsrEntry now reads `fields:`,
+        // which the minimal parser cannot see. A minimal parse here would give
+        // these CSRs no fields, and pass 2's guard would then skip the whole
+        // extension (it already "has csrs"), leaving them permanently field-less.
+        const csr = YAML.parse(fs.readFileSync(path.join(subdir, f), 'utf8'));
+        if (csr && csr.name) csrs[csr.name] = buildCsrEntry(csr);
       } catch (err) {
         parseFailures++;
         console.warn('  warning: could not parse ' + path.join(subdir, f) + ': ' + err.message);
@@ -232,8 +299,9 @@ function findCsrs(extId) {
       const filepath = path.join(UDB_CSR_DIR, f);
       const raw = fs.readFileSync(filepath, 'utf8');
       if (csrDefinedBy(raw, extId)) {
-        const csr = parseYaml(filepath);
-        if (csr.name) csrs[csr.name] = buildCsrEntry(csr);
+        // Real parser (see the subdir branch above): needed so `fields:` is read.
+        const csr = YAML.parse(raw);
+        if (csr && csr.name) csrs[csr.name] = buildCsrEntry(csr);
       }
     } catch (err) {
       parseFailures++;
@@ -467,7 +535,7 @@ if (parseFailures > 0) {
 //
 // Uses a real YAML parse rather than the minimal one, because versions[] is a
 // list of maps and picking the wrong entry silently mislabels an extension.
-const YAML_EXT = require('yaml');
+// (The `yaml` parser is required once at the top of the file as YAML.)
 
 // UDB models the base integer ISA as one extension, I, parameterised by XLEN.
 // We list the concrete bases a reader looks for. Without this mapping all five
@@ -494,7 +562,7 @@ for (const [id, loc] of entryIndex) {
 
   let doc;
   try {
-    doc = YAML_EXT.parse(fs.readFileSync(yamlPath, 'utf8'));
+    doc = YAML.parse(fs.readFileSync(yamlPath, 'utf8'));
   } catch (err) {
     parseFailures++;
     console.warn('  warning: could not parse ' + yamlPath + ': ' + err.message);
@@ -561,7 +629,7 @@ const CSR_EXT_REMAP = { Zvl32b: 'V' };
 // `definedBy: {extension: {name: Zicntr}}`, and may carry anyOf/allOf/oneOf.
 // Reading definedBy.name alone silently yields nothing, which reads as "UDB has
 // no CSR data" rather than as a bug.
-const YAML = require('yaml');
+// (The `yaml` parser is required once at the top of the file as YAML.)
 
 function csrOwners(node, out = new Set()) {
   if (node == null) return out;
@@ -589,6 +657,10 @@ function walkCsrFiles(dir) {
 }
 
 const csrIndex = new Map();
+// Bit-field data is a property of the CSR itself, independent of which extension
+// lists it, so index it once by CSR name. The backfill pass below uses this to
+// add `fields` to CSRs that already exist in the catalog (issue #243).
+const csrFieldsByName = {};
 for (const filepath of walkCsrFiles(UDB_CSR_DIR)) {
   let doc;
   try {
@@ -601,6 +673,7 @@ for (const filepath of walkCsrFiles(UDB_CSR_DIR)) {
   if (!doc || !doc.name) continue;
 
   const entry = buildCsrEntry(doc);
+  if (entry.fields) csrFieldsByName[doc.name] = entry.fields;
   for (const owner of csrOwners(doc.definedBy)) {
     const id = CSR_EXT_REMAP[owner] || owner;
     if (!entryIndex.has(id)) continue;
@@ -629,6 +702,63 @@ for (const [id, found] of csrIndex) {
 console.log('');
 console.log('CSR coverage pass: ' + extsGainedCsrs + ' extension(s) gained ' + csrsAdded + ' CSR(s)');
 console.log('Version pass: ' + versionsWritten + ' extension(s) gained a version');
+
+// ---- Pass 3: bit-field backfill (issue #243) ----
+//
+// The passes above populate `csrs` only for extensions that had none — the
+// coverage pass explicitly skips any extension that already carries CSRs
+// (guard at "Fill gaps only" above), and that guard is intentionally left
+// intact: it exists to avoid discarding curated/synced CSR entries.
+//
+// But every extension in the committed catalog ALREADY carries its CSRs from
+// earlier runs, so with the guard in place nothing above would ever add the new
+// `fields` map to them. This pass closes that gap: for each CSR, it sets ONLY
+// `entry.fields`, looked up by CSR name from the index built above. The four
+// existing keys (address, priv_mode, length, desc) are never touched, so they
+// stay byte-identical in the diff.
+//
+// Field data is machine-extracted from UDB end to end — unlike `csrs`, which may
+// hold a hand-curated entry, `fields` has no curation path, so there is nothing
+// to protect from being overwritten. Rather than write once and never touch
+// again (which strands the catalog on stale values when upstream corrects a bit
+// range, adds a field, or fixes a type), this compares the committed map against
+// the freshly extracted one and writes only when they DIFFER. An unchanged run
+// therefore writes nothing and reports zero, so the sync stays idempotent, while
+// a genuine upstream correction flows through on the next sync.
+let fieldsBackfilled = 0; // CSRs that had no map and gained one
+let fieldsCorrected = 0; // CSRs whose existing map diverged from UDB and was rewritten
+const csrsWithoutFields = [];
+for (const [id, loc] of entryIndex) {
+  const entry = loc.entries[loc.index];
+  if (!entry.csrs || typeof entry.csrs !== 'object') continue;
+  for (const [csrName, csrEntry] of Object.entries(entry.csrs)) {
+    if (!csrEntry || typeof csrEntry !== 'object') continue;
+    const fields = csrFieldsByName[csrName];
+    if (!fields) {
+      // No UDB fields for this CSR. Leave any existing map untouched — its
+      // presence is judged against the checkout by tests, not corrected here.
+      if (!csrEntry.fields) csrsWithoutFields.push(id + '/' + csrName);
+      continue;
+    }
+    if (!csrEntry.fields) {
+      csrEntry.fields = fields;
+      fieldsBackfilled++;
+    } else if (!fieldsMapsEqual(csrEntry.fields, fields)) {
+      csrEntry.fields = fields;
+      fieldsCorrected++;
+    }
+    // else: identical to UDB — leave byte-identical, no write, stays idempotent.
+  }
+}
+if (fieldsBackfilled > 0 || fieldsCorrected > 0) updated++;
+
+console.log(
+  'Bit-field pass: ' + fieldsBackfilled + ' CSR(s) gained a fields map, ' +
+  fieldsCorrected + ' corrected to match UDB'
+);
+if (csrsWithoutFields.length) {
+  console.log('  no UDB fields found for: ' + csrsWithoutFields.join(', '));
+}
 
 // This guard runs BEFORE the write: past the threshold, the in-memory catalog is
 // half-synced (real fields silently dropped), so persisting it would corrupt the
