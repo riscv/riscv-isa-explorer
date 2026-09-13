@@ -13,15 +13,16 @@
  *   copy of the same prose is how the previous one went stale.
  */
 
+import { COMPILER_COMPAT_NOTES } from './marchUtils.js';
 import {
   buildMarchString,
   BASE_ISA_IDS,
   BASE_ISA_PREFIX_MAP,
-  SHORTHAND_BUNDLES,
-  COMPILER_COMPAT_NOTES,
+  absorbedByShorthand,
 } from './marchUtils.js';
 import { buildCombinedCatalog } from './marchUtils.js';
 import { resolveParams } from './isaGraph.js';
+import { parameterDefinition, schemaSummary } from './isaParams.js';
 import { DEPENDENCY_GRAPH } from './isaGraph.js';
 
 // Tokens that are not valid ISA string entries (e.g. K, P are retired/placeholder)
@@ -83,8 +84,18 @@ function riscvConfigSort(a, b) {
  * implies. Transcribed from the configs riscv-arch-test ships, which are the
  * working examples of what a complete one looks like.
  *
- * The hint beside each is the vocabulary UDB accepts, so the file tells a
- * reader what may go there without sending them to the schema.
+ * WHY THIS LIST IS NOT DERIVED FROM THE SELECTION
+ *
+ * Every one of these is defined by Sm in UDB, which makes deriving them from the
+ * chosen extensions look obvious and makes it wrong: isa-dependency-graph.json
+ * gives RV32I and RV64I `requires: []`, Sm is a separate node, and no node
+ * requires Sm. A derived list is therefore EMPTY for a bare RV32I selection and
+ * the export would silently drop every param riscv-arch-test needs. These stay
+ * unconditional; anything derived from a selection is additive on top.
+ *
+ * The hint beside each is a FALLBACK. When UDB defines the param the hint comes
+ * from its real schema instead, so the file describes what may go there in UDB's
+ * own terms rather than in ours.
  */
 const UDB_REQUIRED_PARAMS = [
   ['PHYS_ADDR_WIDTH', 'physical address width in bits'],
@@ -137,12 +148,12 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
 
   // 2. Partition extensions
   const singleLetters = [];
-  const zExts        = [];
-  const privExts     = [];
+  const zExts = [];
+  const privExts = [];
   const allExtTokens = []; // ordered list for the extensions: block
 
   let hasZicsrOrZifencei = false;
-  let hasSupervisor      = false;
+  let hasSupervisor = false;
 
   for (const id of selectedIds) {
     if (BASE_ISA_IDS.has(id)) continue;
@@ -184,13 +195,31 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
   }
 
   // 3. Sort single letters canonically (RISC-V Unprivileged ISA §27)
-  const CANONICAL_ORDER = ['I','E','M','A','F','D','Q','L','C','J','T','V','N','H','S','U'];
+  const CANONICAL_ORDER = [
+    'I',
+    'E',
+    'M',
+    'A',
+    'F',
+    'D',
+    'Q',
+    'L',
+    'C',
+    'J',
+    'T',
+    'V',
+    'N',
+    'H',
+    'S',
+    'U',
+  ];
   const canonMap = Object.fromEntries(CANONICAL_ORDER.map((c, i) => [c, i]));
   singleLetters.sort((a, b) => {
-    const ia = canonMap[a] ?? 999, ib = canonMap[b] ?? 999;
+    const ia = canonMap[a] ?? 999,
+      ib = canonMap[b] ?? 999;
     return ia !== ib ? ia - ib : a.localeCompare(b);
   });
-  const filteredSingles = singleLetters.filter(l => l !== baseInfo.base.toUpperCase());
+  const filteredSingles = singleLetters.filter((l) => l !== baseInfo.base.toUpperCase());
 
   // 4. Sort Z-extensions alphabetically
   zExts.sort((a, b) => a.localeCompare(b));
@@ -198,19 +227,19 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
   // 5. Build the ISA march-like string
   const basePrefix = `RV${baseInfo.xlen}${baseInfo.base.toUpperCase()}`;
   const singlesStr = filteredSingles.join('');
-  const zStr       = zExts.length > 0 ? zExts.join('_') : '';
-  const isaString  = `${basePrefix}${singlesStr}${zStr ? (singlesStr ? '_' : '') + zStr : ''}`;
+  const zStr = zExts.length > 0 ? zExts.join('_') : '';
+  const isaString = `${basePrefix}${singlesStr}${zStr ? (singlesStr ? '_' : '') + zStr : ''}`;
 
   // 6. Infer spec-version annotations
   // These are informational annotations derived from which extensions are
   // present. They are NOT enum-validated fields for any specific tool.
-  const userSpecVersion  = hasZicsrOrZifencei ? '2.3' : '2.2';
-  const privSpecVersion  = hasSupervisor      ? '1.11' : '1.10';
+  const userSpecVersion = hasZicsrOrZifencei ? '2.3' : '2.2';
+  const privSpecVersion = hasSupervisor ? '1.11' : '1.10';
 
   // 7. Build -march string (compiler flag)
   // Compatibility: scalar crypto ~GCC12-13/LLVM14-15; vector crypto GCC14+/LLVM18+;
   // Zve/Zvl version floor unconfirmed. See marchUtils.js COMPILER VERIFICATION SCOPE.
-  const marchRes    = buildMarchString(selectedIds, allExts);
+  const marchRes = buildMarchString(selectedIds, allExts);
   const marchString = marchRes.march || 'none';
 
   // 8. Build all extensions list for YAML
@@ -282,7 +311,7 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       if (notRatified) unratified.push(id);
       u.push(
         `  - { name: ${udbName}, version: "= ${v}" }` +
-        (notRatified ? `   # ${stateOf.get(id).toUpperCase()} — version may still change` : '')
+          (notRatified ? `   # ${stateOf.get(id).toUpperCase()} — version may still change` : ''),
       );
     }
 
@@ -304,6 +333,14 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
         }
         const from = `required by ${prm.from.join(', ')}`;
         const why = prm.reason ? `${prm.reason}; ${from}` : from;
+        // What the param IS, in UDB's words, above what this selection makes it.
+        // Without it a reader meets a bare name and a number and cannot tell
+        // whether the number is even the right shape without opening unified-db.
+        const def = parameterDefinition(prm.name);
+        if (def) {
+          const label = def.long_name ? `${def.long_name}: ` : '';
+          u.push(`  # ${label}${schemaSummary(def.schema)}`);
+        }
         if (prm.kind === 'equal') {
           u.push(`  ${prm.name}: ${prm.value}   # ${why}`);
         } else if (prm.kind === 'greaterThanOrEqual') {
@@ -315,7 +352,16 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
           u.push(`  ${prm.name}:   # TODO a list including ${must}; ${why}`);
         } else if (prm.kind === 'oneOf') {
           const allowed = [].concat(prm.value).join(', ');
-          u.push(`  ${prm.name}:   # TODO one of [${allowed}]; ${why}`);
+          // The builder lets a user pick one of these, and the landscape export
+          // has always recorded that pick. Emitting TODO here regardless threw
+          // the choice away and asked them to make it again in a text editor.
+          if (Object.prototype.hasOwnProperty.call(paramChoices, prm.name)) {
+            const picked = paramChoices[prm.name];
+            const rendered = typeof picked === 'string' ? JSON.stringify(picked) : picked;
+            u.push(`  ${prm.name}: ${rendered}   # your choice of [${allowed}]; ${why}`);
+          } else {
+            u.push(`  ${prm.name}:   # TODO one of [${allowed}]; ${why}`);
+          }
         } else {
           const allowed = [].concat(prm.value).join(', ');
           u.push(`  ${prm.name}:   # TODO ${prm.kind}: ${allowed}; ${why}`);
@@ -327,23 +373,34 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     u.push(`  # TODO — implementation choices. No extension list implies these, and`);
     u.push(`  # they are what makes the difference between a config that reflects your`);
     u.push(`  # core and one that merely parses. Values come from your design document.`);
-    for (const [name, hint] of UDB_REQUIRED_PARAMS) {
-      u.push(`  ${name}:   # ${hint}`);
+    // Latent rather than live: no graph constraint currently names one of the
+    // floor params. If one ever does, the same key would be emitted in both the
+    // CONSTRAINED and TODO blocks, and duplicate keys make the document invalid
+    // YAML rather than merely untidy. Cheaper to make impossible than to detect.
+    const alreadyEmitted = new Set(constrained.map((prm) => prm.name));
+    for (const [name, fallback] of UDB_REQUIRED_PARAMS) {
+      if (alreadyEmitted.has(name)) continue;
+      const def = parameterDefinition(name);
+      const hint = def ? schemaSummary(def.schema) : fallback;
+      const label = def?.long_name ? `${def.long_name}; ` : '';
+      u.push(`  ${name}:   # ${label}${hint}`);
     }
 
     if (unversioned.length) {
       warnings.push(
         `${unversioned.length} extension(s) have no UDB version and were emitted as comments: ` +
-        unversioned.join(', ')
+          unversioned.join(', '),
       );
     }
     if (unratified.length) {
       warnings.push(
         `${unratified.length} extension(s) are not ratified; their pinned versions may change: ` +
-        unratified.join(', ')
+          unratified.join(', '),
       );
     }
-    warnings.push('Params under TODO must be filled from your design document before running tests.');
+    warnings.push(
+      'Params under TODO must be filled from your design document before running tests.',
+    );
 
     return { yaml: u.join('\n') + '\n', warnings };
   }
@@ -382,33 +439,41 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     // it, but this format must not. Same rule as Zkn absorbing Zbkb.
     // riscv-config orders the single letters IEMAFDQLCBJKTPVNSHU — S before H,
     // where our -march order (ISA manual §27) puts H first. Emitting our order
-    // gets "Alphabet 'H' should occur after 'S'".
+    // gets "Alphabet 'H' should occur after 'S'". Clamps unknown letters to rank 99
+    // so they sort to the end rather than letting -1 sort ahead of recognised letters (#311).
+    const singleRank = (x) => {
+      const i = RC_LETTER_ORDER.indexOf(x);
+      return i === -1 ? 99 : i;
+    };
     const rcSingles = [...filteredSingles]
-      .sort((a, b) => RC_LETTER_ORDER.indexOf(a) - RC_LETTER_ORDER.indexOf(b))
+      .sort((a, b) => singleRank(a) - singleRank(b) || a.localeCompare(b))
       .join('');
     const vPresent = rcSingles.includes('V');
-    const shorthandAbsorbed = new Map();
-    for (const [shorthand, members] of Object.entries(SHORTHAND_BUNDLES)) {
-      if (selectedIds.includes(shorthand)) {
-        for (const member of members) shorthandAbsorbed.set(member, shorthand);
-      }
-    }
+    const shorthandAbsorbed = absorbedByShorthand(selectedIds);
     const rcCandidates = zExts.filter((z) => {
       if (vPresent && /^Zv(e|l)/i.test(z)) return false;
       if (shorthandAbsorbed.has(z)) return false;
       return true;
     });
-    const rcKnown = rcCandidates.filter((z) => RISCV_CONFIG_SUB_EXTENSIONS.has(z)).sort(riscvConfigSort);
+    const rcKnown = rcCandidates
+      .filter((z) => RISCV_CONFIG_SUB_EXTENSIONS.has(z))
+      .sort(riscvConfigSort);
     const rcDropped = rcCandidates.filter((z) => !RISCV_CONFIG_SUB_EXTENSIONS.has(z)).sort();
-    const rcAbsorbed = vPresent ? zExts.filter((z) => /^Zv(e|l)/i.test(z)).sort() : [];
-    const rcIsa = `${basePrefix}${rcSingles}${rcKnown.length ? rcKnown[0] : ''}`
-      + rcKnown.slice(1).map((z) => `_${z}`).join('');
+    const rcAbsorbed = vPresent ? zExts.filter((z) => /^Zv(e|l)/i.test(z)) : [];
+    const rcIsa =
+      `${basePrefix}${rcSingles}${rcKnown.length ? rcKnown[0] : ''}` +
+      rcKnown
+        .slice(1)
+        .map((z) => `_${z}`)
+        .join('');
 
     rc.push(`  # riscv-config Capitalises sub-extensions, attaches the first directly to`);
     rc.push(`  # the base letters, and orders them by the canonical letter of the second`);
     rc.push(`  # character — Zicsr before Zca — none of which matches -march.`);
     rc.push(`  ISA: ${rcIsa}`);
-    rc.push(`  physical_addr_sz: 32          # TODO physical address width for your implementation`);
+    rc.push(
+      `  physical_addr_sz: 32          # TODO physical address width for your implementation`,
+    );
     rc.push(`  User_Spec_Version: "${userSpecVersion}"        # inferred from the selection`);
     rc.push(`  Privilege_Spec_Version: "${privSpecVersion}"   # inferred from the selection`);
     rc.push(`  supported_xlen: [${baseInfo.xlen}]`);
@@ -420,15 +485,24 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       rc.push(`# carrying both: ${rcAbsorbed.join(', ')}`);
     }
 
-    for (const [shorthand, members] of Object.entries(SHORTHAND_BUNDLES)) {
-      if (!selectedIds.includes(shorthand)) continue;
-      const covered = members.filter((m) => zExts.includes(m)).sort();
-      if (covered.length) {
-        rc.push(``);
-        rc.push(`# ${covered.length} sub-extension(s) folded into ${shorthand}, which is a shorthand`);
-        rc.push(`# for its member subsets. riscv-config rejects a string`);
-        rc.push(`# carrying both: ${covered.join(', ')}`);
-      }
+    // Report the fold from the map that performed it. Grouping the bundles
+    // separately contradicted it: with Zk and Zkn both selected, Zbkb was
+    // absorbed once, by Zk, yet reported as folded into Zkn and again into Zk.
+    const foldedBy = new Map(); // shorthand -> the members it actually absorbed
+    for (const z of zExts) {
+      const shorthand = shorthandAbsorbed.get(z);
+      if (!shorthand) continue;
+      if (!foldedBy.has(shorthand)) foldedBy.set(shorthand, []);
+      foldedBy.get(shorthand).push(z);
+    }
+    for (const [shorthand, covered] of [...foldedBy].sort((a, b) => a[0].localeCompare(b[0]))) {
+      covered.sort();
+      rc.push(``);
+      rc.push(
+        `# ${covered.length} sub-extension(s) folded into ${shorthand}, which is a shorthand`,
+      );
+      rc.push(`# for its member subsets. riscv-config rejects a string`);
+      rc.push(`# carrying both: ${covered.join(', ')}`);
     }
 
     if (rcDropped.length) {
@@ -510,7 +584,9 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       lines.push(`    constraint: ${prm.kind}`);
       const value = Array.isArray(prm.value)
         ? `[${prm.value.map((v) => (typeof v === 'string' ? JSON.stringify(v) : v)).join(', ')}]`
-        : (typeof prm.value === 'string' ? JSON.stringify(prm.value) : prm.value);
+        : typeof prm.value === 'string'
+          ? JSON.stringify(prm.value)
+          : prm.value;
       lines.push(`    value: ${value}`);
       lines.push(`    required_by: [${prm.from.join(', ')}]`);
       if (prm.kind === 'oneOf' && Object.prototype.hasOwnProperty.call(paramChoices, prm.name)) {
@@ -562,7 +638,7 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       if (instr.variable_fields && instr.variable_fields.length > 0) {
         lines.push(`    variable_fields: [${instr.variable_fields.join(', ')}]`);
       }
-      lines.push(`    defined_by: [${instr.sources.map(s => s.extId).join(', ')}]`);
+      lines.push(`    defined_by: [${instr.sources.map((s) => s.extId).join(', ')}]`);
     }
   }
 

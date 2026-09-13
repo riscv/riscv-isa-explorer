@@ -295,7 +295,84 @@ test('the compiler compatibility comment is emitted from marchUtils, not a local
 test('the vector crypto note names its family by prefix, not by enumeration', () => {
   // Naming four of the 21 Zvk* entries in riscv_extensions.json is what went
   // stale. A prefix cannot.
-  const note = COMPILER_COMPAT_NOTES.find((n) => /vector crypto/i.test(n));
+  const note = COMPILER_COMPAT_NOTES.find((n) =\\u003e /vector crypto/i.test(n));
   assert.ok(note, 'a vector crypto note should exist');
-  assert.match(note, /Zvk\*/, 'name the family by prefix so it cannot drift as members are added');
+  assert.match(note, /Zvk\\*/, 'name the family by prefix so it cannot drift as members are added');
+});
+
+test('an absorbed extension is reported once, by the bundle that absorbed it', () => {
+  // The fold and the comment describing it used to be computed separately, so
+  // with Zk and Zkn both selected Zbkb was absorbed once, by Zk, and reported
+  // twice: as folded into Zkn and again into Zk. Two answers, one question.
+  const { yaml } = buildIsaConfigYaml(
+    ['RV64I', 'Zk', 'Zkn', 'Zbkb', 'Zbkc', 'Zbkx', 'Zknd', 'Zkne', 'Zknh', 'Zkr', 'Zkt'],
+    ALL,
+    { format: 'riscv-config' },
+  );
+  const blocks = [...yaml.matchAll(/folded into (\\w+)[\\s\\S]*?carrying both: ([^\\n]+)/g)];
+  assert.equal(
+    blocks.length,
+    1,
+    `overlapping bundles must yield one fold comment, got ${blocks.length}`,
+  );
+  assert.equal(blocks[0][1], 'Zk', 'the wider bundle is the one that absorbed them');
+  const listed = blocks[0][2].split(',').map((t) => t.trim());
+  assert.equal(new Set(listed).size, listed.length, 'no extension listed twice');
+  assert.ok(listed.includes('Zbkb'), `Zbkb should be reported as folded: ${listed.join(', ')}`);
+});
+
+test('the UDB export keeps its required params for a bare base ISA', () => {
+  // The floor. Every one of these is defined by Sm in unified-db, which makes
+  // deriving them from the selected extensions look like the obvious cleanup and
+  // makes it wrong: isa-dependency-graph.json gives RV32I and RV64I `requires: []`,
+  // Sm is a separate node, and nothing requires Sm. An export for a bare base ISA
+  // would drop every param riscv-arch-test needs without saying so.
+  const { yaml } = buildIsaConfigYaml(['RV32I'], ALL, { format: 'udb' });
+  assert.match(yaml, /PHYS_ADDR_WIDTH:/);
+  assert.match(yaml, /PRECISE_SYNCHRONOUS_EXCEPTIONS:/);
+  assert.match(yaml, /M_MODE_ENDIANNESS:/);
+});
+
+test('the UDB export explains what each constrained param is', () => {
+  // A reader meeting a bare name and a number cannot tell whether the number is
+  // even the right shape without opening unified-db. An export that does not say
+  // what its rows mean is half an answer.
+  const { yaml } = buildIsaConfigYaml(resolve(['RV64I', 'V']), ALL, { format: 'udb' });
+  assert.match(yaml, /# VLEN:.*Vector register length in bits/);
+  assert.match(yaml, /# VLEN:.*integer, 128 to 65536/);
+});
+
+test('the UDB export preserves a chosen oneOf value rather than falling back to TODO', () => {
+  // The builder lets a user pick one of these and records it in paramChoices.
+  // The landscape export has always carried that pick; the UDB export threw it
+  // away and emitted a TODO comment instead, making them choose again in a text
+  // editor. A choice made in the UI must survive export.
+  const picked = buildIsaConfigYaml(resolve(['RV64I', 'Zic64b']), ALL, {
+    format: 'udb',
+    paramChoices: { LRSC_RESERVATION_STRATEGY: 'aligned' },
+  }).yaml;
+  assert.match(
+    picked,
+    /LRSC_RESERVATION_STRATEGY: "aligned"\s+# your choice of/,
+    'a picked value should appear with its alternatives noted',
+  );
+  assert.ok(
+    !picked.includes('TODO one of [aligned'),
+    'a picked value must not be emitted as a TODO',
+  );
+
+  const unpicked = buildIsaConfigYaml(resolve(['RV64I', 'Zic64b']), ALL, { format: 'udb' }).yaml;
+  assert.match(
+    unpicked,
+    /# TODO one of \[aligned/,
+    'an unpicked value should still be flagged as TODO',
+  );
+});
+
+test('unrecognised single-letter extensions sort after recognised ones in riscv-config format', () => {
+  // Array.prototype.indexOf returns -1 for unrecognised letters; clamping to a high rank
+  // prevents an unrecognised single-letter extension from sorting ahead of standard letters (#311).
+  const { yaml } = buildIsaConfigYaml(['RV64I', 'M', 'C', 'X'], ALL, { format: 'riscv-config' });
+  const isa = yaml.match(/^ {2}ISA: (\S+)/m)[1];
+  assert.match(isa, /^RV64IMCX/, `standard extensions must lead before unrecognised single letters: ${isa}`);
 });
