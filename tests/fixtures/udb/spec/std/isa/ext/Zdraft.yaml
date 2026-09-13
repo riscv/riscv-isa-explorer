@@ -1,0 +1,9 @@
+# Fixture: in development, so nothing here is a completeness gap.
+$schema: "ext_schema.json#"
+kind: extension
+name: Zdraft
+type: unprivileged
+versions:
+  - version: "0.1.0"
+    state: development
+    ratification_date: null

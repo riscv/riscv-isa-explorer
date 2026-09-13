@@ -19,6 +19,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {
   DEPENDENCY_GRAPH,
+  EDGE_SOURCES,
   SMART_DEPENDENCIES,
   INCOMPATIBLE_WITH,
   validateGraph,
@@ -88,7 +89,9 @@ test('every edge cites a source', () => {
   for (const [id, node] of Object.entries(DEPENDENCY_GRAPH.nodes)) {
     for (const edge of node.requires ?? []) {
       assert.ok(edge.ref?.trim(), `${id} -> ${edge.ext} has no citation`);
-      assert.ok(['udb', 'isa-manual', 'clang'].includes(edge.src), `${id} -> ${edge.ext} has src "${edge.src}"`);
+      // Read the permitted set from the module rather than restating it, so
+      // adding a source in one place cannot leave the other behind.
+      assert.ok(EDGE_SOURCES.has(edge.src), `${id} -> ${edge.ext} has src "${edge.src}"`);
     }
   }
 });

@@ -11,17 +11,24 @@
  * shallow compare sees new objects and re-renders all 227 tiles whenever any one
  * of them moves. Asking instead "did membership change for THIS id" means
  * selecting D repaints the D tile and nothing else.
+ *
+ * The same principle applies to search: the tile is passed the ANSWER
+ * (matchesSearch) rather than the question (searchQuery), so typing only
+ * re-renders tiles whose match state changed.
  */
 
 /** True when the tile can be skipped. */
 export function tilePropsAreEqual(prev, next) {
   if (prev.data !== next.data) return false;
   if (prev.colorClass !== next.colorClass) return false;
-  if (prev.searchQuery !== next.searchQuery) return false;
+  // A boolean, not the query string. Comparing the raw query meant every tile
+  // failed this check on every keystroke, so all 219 re-rendered even though
+  // only the handful whose match state actually flipped had anything new to
+  // show. The parent computes the match once; the tile is told the answer.
+  if (prev.matchesSearch !== next.matchesSearch) return false;
   if (prev.builderMode !== next.builderMode) return false;
   if (prev.compareMode !== next.compareMode) return false;
   if (prev.selectedExtId !== next.selectedExtId) return false;
-  if (prev.searchIndex !== next.searchIndex) return false;
   if (prev.onSelect !== next.onSelect) return false;
   if (prev.onToggleWorkspace !== next.onToggleWorkspace) return false;
   if (prev.onToggleCompare !== next.onToggleCompare) return false;

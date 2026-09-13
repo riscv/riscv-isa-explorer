@@ -43,6 +43,7 @@ import {
 } from './marchUtils.js';
 import { buildIsaConfigYaml } from './exportUtils.js';
 import { resolveParams, impliedVlen, vlenExtension } from './isaGraph.js';
+import { describeParameter } from './isaParams.js';
 import { PROFILES } from './profiles.js';
 import EncodingDiagram from './EncodingDiagram.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
@@ -1925,6 +1926,28 @@ export default function WorkspacePanel({
                               </span>
                             </div>
 
+                            {(() => {
+                              // What the parameter IS, from unified-db, under what this
+                              // selection makes it. The row above shows a name and a value;
+                              // on its own that does not say whether the value is a count, a
+                              // mode, or a list, which is what a reader needs before deciding
+                              // whether it looks right.
+                              const def = describeParameter(prm.name);
+                              if (!def) return null;
+                              return (
+                                <div
+                                  title={def.description ?? undefined}
+                                  style={{
+                                    fontSize: 10,
+                                    color: 'var(--riscv-text-3)',
+                                    marginTop: 3,
+                                  }}
+                                >
+                                  {def.longName ? `${def.longName} · ` : ''}
+                                  {def.summary}
+                                </div>
+                              );
+                            })()}
                             {prm.kind === 'oneOf' &&
                               Array.isArray(prm.value) &&
                               prm.value.length > 1 && (

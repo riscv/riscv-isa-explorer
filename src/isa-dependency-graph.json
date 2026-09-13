@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "45924b13080fa52cd6f2ff4d934332fa62ac77e0",
+      "commit": "ef208d765a4061d7e172ad412c8e1036d2e5ce22",
       "branch": "main",
       "path": "spec/std/isa/ext"
     },
@@ -15,6 +15,9 @@
     "clang": {
       "repo": "llvm/llvm-project",
       "note": "RISCVISAInfo implication, cited per edge; weaker backing than udb or isa-manual"
+    },
+    "spec": {
+      "note": "standalone ratified specification; document and section cited per edge"
     }
   },
   "nodes": {
@@ -242,6 +245,20 @@
       "requires": [],
       "verified": "udb"
     },
+    "Shlcofideleg": {
+      "requires": [
+        {
+          "ext": "H",
+          "src": "udb",
+          "ref": "Shlcofideleg.yaml requirements.extension"
+        },
+        {
+          "ext": "Sscofpmf",
+          "src": "udb",
+          "ref": "Shlcofideleg.yaml requirements.extension"
+        }
+      ]
+    },
     "Shtvala": {
       "requires": [
         {
@@ -378,6 +395,20 @@
       "requires": [],
       "verified": "udb"
     },
+    "Smpmpdeleg": {
+      "requires": [
+        {
+          "ext": "Smcsrind",
+          "src": "spec",
+          "ref": "SPMP v1.0 §4 — \"The Smcsrind extension for indirect CSR access must be implemented.\""
+        },
+        {
+          "ext": "Sspmp",
+          "src": "spec",
+          "ref": "SPMP v1.0 §4.1 — delegates PMP entries to S-mode, \"thereby creating SPMP entries\""
+        }
+      ]
+    },
     "Smpmpmt": {
       "requires": [],
       "verified": "udb"
@@ -502,6 +533,24 @@
           "ext": "Smnpm",
           "src": "udb",
           "ref": "Sspm.yaml requirements.extension"
+        }
+      ]
+    },
+    "Sspmp": {
+      "requires": [
+        {
+          "ext": "Sscsrind",
+          "src": "spec",
+          "ref": "SPMP v1.0 §2.1 — \"The Sscsrind extension for indirect CSR access must be implemented.\""
+        }
+      ]
+    },
+    "Sspmpen": {
+      "requires": [
+        {
+          "ext": "Sspmp",
+          "src": "spec",
+          "ref": "SPMP v1.0 §3 — an SPMP entry is active only when spmpen[i] is set and spmpcfg[i].A is non-zero"
         }
       ]
     },
@@ -924,8 +973,13 @@
       "verified": "udb"
     },
     "Zbc": {
-      "requires": [],
-      "verified": "udb"
+      "requires": [
+        {
+          "ext": "Zbkc",
+          "src": "udb",
+          "ref": "Zbc.yaml requirements.extension"
+        }
+      ]
     },
     "Zbkb": {
       "requires": [],

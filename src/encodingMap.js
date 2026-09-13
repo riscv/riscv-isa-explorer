@@ -137,7 +137,7 @@ export function distinctInstructions(catalog) {
   const byMnemonic = new Map();
   for (const ext of entries) {
     for (const [mnemonic, details] of Object.entries(ext.instructions || {})) {
-      if (!details || !details.match || !details.mask) continue;
+      if (!details || details.match == null || details.mask == null) continue;
       const existing = byMnemonic.get(mnemonic);
       if (existing) {
         if (!existing.extensions.includes(ext.id)) existing.extensions.push(ext.id);
@@ -170,8 +170,22 @@ export function isThirtyTwoBit(match) {
 }
 
 /** Build the 32-slot opcode map plus the three compressed quadrants. */
-export function buildEncodingMap(catalog) {
+export function buildEncodingMap(catalog, sandboxExtensions = []) {
   const instructions = distinctInstructions(catalog);
+
+  // Inject custom sandbox instructions
+  for (const ext of sandboxExtensions) {
+    for (const instr of ext.instructions || []) {
+      if (instr.match == null || instr.mask == null) continue;
+      instructions.push({
+        mnemonic: instr.mnemonic || '(unnamed sandbox)',
+        match: BigInt(instr.match),
+        mask: BigInt(instr.mask),
+        extensions: [ext.id],
+        isSandbox: true,
+      });
+    }
+  }
 
   const slots = new Map(); // inst[6:0] -> instructions
   const quadrants = new Map([

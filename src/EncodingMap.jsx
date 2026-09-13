@@ -87,8 +87,18 @@ function Cell({ cell, total, selected, onSelect }) {
   );
 }
 
-export default function EncodingMap({ open, onClose, catalog, onSelectExtension }) {
-  const map = React.useMemo(() => (open ? buildEncodingMap(catalog) : null), [open, catalog]);
+export default function EncodingMap({
+  open,
+  onClose,
+  catalog,
+  sandboxExtensions = [],
+  onSelectExtension,
+  onOpenSandbox,
+}) {
+  const map = React.useMemo(
+    () => (open ? buildEncodingMap(catalog, sandboxExtensions) : null),
+    [open, catalog, sandboxExtensions],
+  );
   const [selected, setSelected] = React.useState(null);
   const dialogRef = React.useRef(null);
   const triggerRef = React.useRef(null);
@@ -376,16 +386,37 @@ export default function EncodingMap({ open, onClose, catalog, onSelectExtension 
                 </div>
 
                 {selected.count === 0 ? (
-                  <p className="text-[12px]" style={{ color: 'var(--riscv-text-2)' }}>
-                    <span
-                      className="font-mono"
-                      style={{ color: CATEGORY_COLOUR[selected.category] }}
-                    >
-                      {CATEGORY_LABEL[selected.category]}
-                    </span>
-                    {'. '}
-                    {FREE_SLOT_KINDS[selected.category] ?? 'Not allocated by the specification.'}
-                  </p>
+                  <div>
+                    <p className="text-[12px]" style={{ color: 'var(--riscv-text-2)' }}>
+                      <span
+                        className="font-mono"
+                        style={{ color: CATEGORY_COLOUR[selected.category] }}
+                      >
+                        {CATEGORY_LABEL[selected.category]}
+                      </span>
+                      {'. '}
+                      {FREE_SLOT_KINDS[selected.category] ?? 'Not allocated by the specification.'}
+                    </p>
+                    {selected.category === 'vendor' && onOpenSandbox && (
+                      <div
+                        className="mt-2.5 pt-2.5 border-t"
+                        style={{ borderColor: 'var(--riscv-border)' }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => onOpenSandbox()}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-semibold border transition-all"
+                          style={{
+                            background: 'rgba(59,130,246,0.1)',
+                            borderColor: 'rgba(59,130,246,0.3)',
+                            color: 'var(--riscv-accent-4, #60a5fa)',
+                          }}
+                        >
+                          Design custom instruction in Extension Sandbox →
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <>
                     <div className="flex flex-wrap gap-1 mb-2">
@@ -414,11 +445,20 @@ export default function EncodingMap({ open, onClose, catalog, onSelectExtension 
                         <span
                           key={i.mnemonic}
                           className="px-1.5 py-0.5 rounded border font-mono text-[11px]"
-                          style={{
-                            background: 'var(--riscv-tint-2)',
-                            borderColor: 'var(--riscv-border)',
-                            color: 'var(--riscv-text-2)',
-                          }}
+                          title={i.isSandbox ? 'Sandbox Instruction' : undefined}
+                          style={
+                            i.isSandbox
+                              ? {
+                                  background: 'rgba(59,130,246,0.1)',
+                                  borderColor: 'rgba(59,130,246,0.3)',
+                                  color: 'var(--riscv-accent-4, #60a5fa)',
+                                }
+                              : {
+                                  background: 'var(--riscv-tint-2)',
+                                  borderColor: 'var(--riscv-border)',
+                                  color: 'var(--riscv-text-2)',
+                                }
+                          }
                         >
                           {i.mnemonic}
                         </span>

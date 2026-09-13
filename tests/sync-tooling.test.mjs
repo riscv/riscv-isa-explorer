@@ -139,6 +139,34 @@ test('--dry-run leaves the UDB sync catalogue alone', () => {
   assert.equal(hashCatalog(), before);
 });
 
+test('extensions UDB does not carry stay on the watchlist', (t) => {
+  /*
+   * The report's watchlist is derived — an entry carrying a long_name is taken
+   * to be already synced and dropped from it. That rule assumes UDB is always
+   * ahead of us. SPMP is where it is not: ratified in its own specification,
+   * absent from UDB entirely, and described here from that PDF, which is
+   * exactly what would remove it from the list.
+   *
+   * So the one part of the catalogue UDB is behind on would be the one part the
+   * weekly report never mentions. ALWAYS_WATCH holds them there.
+   */
+  const udb = path.resolve(root, '..', 'riscv-unified-db');
+  if (!fs.existsSync(path.join(udb, 'spec', 'std', 'isa', 'ext'))) {
+    t.skip('no riscv-unified-db checkout beside this repo');
+    return;
+  }
+
+  const { status, stdout } = run('sync_udb_extensions.cjs', [udb, '--dry-run']);
+  assert.equal(status, 0, stdout);
+  for (const id of ['Sspmp', 'Sspmpen', 'Smpmpdeleg']) {
+    assert.match(
+      stdout,
+      new RegExp(`^\\s+- ${id}$`, 'm'),
+      `${id} should be reported as still missing from UDB:\n${stdout}`,
+    );
+  }
+});
+
 test('the graph seeder fails loudly when pointed somewhere wrong', () => {
   const { status } = run('seed-dependency-graph.mjs', ['--check', '--udb', '/nonexistent-udb-path']);
   assert.equal(status, 1, 'a missing UDB checkout must be a failure');

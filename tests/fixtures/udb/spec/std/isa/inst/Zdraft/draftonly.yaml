@@ -1,0 +1,9 @@
+# Fixture: owned solely by an unratified extension.
+$schema: "inst_schema.json#"
+kind: instruction
+name: draftonly
+definedBy:
+  extension:
+    name: Zdraft
+encoding:
+  match: 0000001----------001-----0001011

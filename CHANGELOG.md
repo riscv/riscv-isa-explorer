@@ -13,6 +13,23 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-09-05
+
+Catalogue: 219 entries, unchanged from 1.4.0. No saved selection or `-march`
+string is invalidated by this release.
+
+### Added
+
+- **The Ask AI assistant now opens with a question about whatever is on
+  screen.** Looking at an extension asks about that extension; selecting an
+  instruction inside it asks about that instruction; opening the ISA
+  Configuration Builder opens a sentence to finish. The first two are sent
+  automatically, so a click produces an answer rather than an empty box. Built
+  on kapa's documented `open({ mode, query, submit })`, so nothing reaches into
+  the widget's DOM
+- The launcher gives a short buzz when the context changes, so a reader who has
+  just opened an extension notices the assistant can now answer about it
+
 ### Changed
 
 - Comparing extensions now lists every instruction each one carries, not just a
@@ -35,6 +52,55 @@ someone silently. Each release below records its catalogue size.
   California Gold on dark, the two UC Berkeley colours, in place of the previous
   gold gradient. The wordmark beside it is sized so the words never stand taller
   than the mark
+
+- The Selected Details panel is no longer rendered while nothing is selected,
+  and the catalogue takes the full width until then. The panel used to hold a
+  third of the viewport to say "No Extension Selected" while the catalogue ran
+  underneath it, clipping `RV128I` in half and truncating the third column of
+  every group below
+- Extension groups flow as columns rather than a fixed grid, so a three-tile
+  group no longer reserves a row as tall as the 27-tile group beside it. This
+  trades row-major reading order for column-major, which is what reclaims the
+  space
+- The Ask AI question uses only the extension id and instruction mnemonic. The
+  catalogue's readable label was being included, and it is text written for the
+  tiles that appears nowhere in the specifications the assistant searches, so it
+  diluted the query against the one token that does appear. It also produced
+  "the Shvstvala extension (Virtual Supervisor Trap Value (vstval) provides all
+  needed values)", one of 41 entries whose label contains parentheses
+
+### Fixed
+
+- **The ISA Configuration Builder showed a white page.** Opening the panel and
+  loading any profile threw `DATA_PROVENANCE.map is not a function`, unmounting
+  the entire application rather than just the panel. A provenance array that a
+  component maps over had been replaced by an object of prose. Two guards now
+  cover it, including one that reads every component for `CONSTANT.map(` and
+  requires the export to actually be an array
+- The details panel's `position: sticky` had never pinned. The application root
+  carried `overflow-x-hidden`, which per the CSS overflow specification computes
+  the other axis to `auto` and makes the root a scroll container, so the panel
+  stuck relative to it instead of the viewport and sat 3,500px above the fold.
+  Changed to `overflow-x: clip`, which contains overflow identically without
+  establishing a scroll container
+- The details panel can now be dismissed on desktop, by button or Escape. The
+  close control existed but was hidden above the mobile breakpoint, from when
+  the panel was permanently open and there was nothing to dismiss it to
+- Selecting an extension is announced to screen readers again. Hiding the panel
+  with `display: none` removed its live region from the accessibility tree, so
+  the region was created and populated in the same render and the announcement
+  was lost for exactly the readers who depend on it
+- `-march` strings carrying extension version suffixes now parse. `rv64i2p0`
+  fragmented into unknown tokens while `p` resolved as the retired P extension,
+  and `zba1p0` missed the catalogue entirely
+- A mistyped sub-extension no longer resolves to an umbrella tag. `zve32`
+  silently became `Zve`, discarding the bit width the reader typed
+- The `riscv-config` export folds shorthand bundles into their shorthand, which
+  that tool requires, and no longer emits two mutually exclusive base letters
+- An absorbed extension is reported once, by the bundle that absorbed it.
+  Selecting `Zk` and `Zkn` together attributed the same members to both
+- The compiler compatibility note is generated from one source instead of three
+  hand-maintained copies that had drifted apart
 
 ## [1.4.0] - 2026-09-01
 

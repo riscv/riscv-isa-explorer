@@ -20,6 +20,12 @@ module.exports = (env, argv = {}) => {
     output: {
       filename: 'bundle.js',
       path: path.resolve(__dirname, 'dist'),
+      // Webpack 5 leaves its output directory alone by default, so anything a
+      // previous build emitted survives forever. A local dist/ had accumulated
+      // a 280 KB PNG that nothing referenced. It matters more now that the
+      // build emits code-split chunks, since stale chunks would linger and be
+      // published by a manual deploy.
+      clean: true,
     },
     // eval-source-map keeps rebuilds fast while still pointing at the original JSX.
     devtool: isDev ? 'eval-source-map' : false,

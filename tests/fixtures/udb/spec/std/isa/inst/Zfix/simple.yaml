@@ -1,0 +1,14 @@
+# Fixture: the single-owner shape, definedBy.extension.name
+$schema: "inst_schema.json#"
+kind: instruction
+name: simple
+long_name: A simple fixture instruction
+definedBy:
+  extension:
+    name: Zfix
+assembly: xd, xs1
+encoding:
+  match: 0000000----------000-----0001011
+  variables:
+    - name: xs1
+      location: 19-15

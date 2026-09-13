@@ -1,0 +1,11 @@
+# Fixture: ratified once, a later version frozen. "Ever ratified" must count it.
+$schema: "ext_schema.json#"
+kind: extension
+name: Zwasfrozen
+type: unprivileged
+versions:
+  - version: "1.0.0"
+    state: ratified
+    ratification_date: 2023-04
+  - version: "2.0.0"
+    state: frozen

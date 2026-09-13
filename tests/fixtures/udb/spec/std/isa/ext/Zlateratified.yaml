@@ -1,0 +1,15 @@
+# Fixture: development FIRST, ratified later.
+#
+# The ordering matters. Zwasfrozen lists ratified first, so an implementation
+# that reads only the first state still gets it right, and mutation testing
+# showed that bug surviving. This file is the one that catches it.
+$schema: "ext_schema.json#"
+kind: extension
+name: Zlateratified
+type: unprivileged
+versions:
+  - version: "0.5.0"
+    state: development
+  - version: "1.0.0"
+    state: ratified
+    ratification_date: 2025-02

@@ -10,6 +10,13 @@ name: DCO
 on:
   pull_request:
 
+# The job walks git history and compares trailers. It never writes anything, so
+# the token it holds should not be able to. This is also why the check is a
+# plain script rather than a third-party action, per the note above -- the two
+# decisions are the same one.
+permissions:
+  contents: read
+
 jobs:
   check-sign-off:
     runs-on: ubuntu-latest

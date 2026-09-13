@@ -1,0 +1,7 @@
+# Fixture: a pseudo-instruction with no match line. Must be skipped, not crash.
+$schema: "inst_schema.json#"
+kind: instruction
+name: noencoding
+definedBy:
+  extension:
+    name: Zfix

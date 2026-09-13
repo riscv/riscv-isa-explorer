@@ -306,13 +306,35 @@ for (const [category, entries] of Object.entries(catalog)) {
 // We skip entries that already have csrs, behavior, or long_name — the
 // presence of long_name means a previous sync already processed this
 // extension (it may just not have enough UDB data for csrs/behavior).
+// ALWAYS_WATCH below is the exception: extensions UDB has never carried, which
+// that rule would otherwise drop the moment we describe them ourselves.
 const supervisorPattern = /^(Ss|Sm|Sv|Sd|Su|Sh|Sn)/;
+
+/*
+ * Extensions UDB does not model at all, kept on the watchlist by name.
+ *
+ * The rule above is a proxy for "nothing is known about this yet", and the SPMP
+ * family breaks it in both directions: these are ratified, their metadata was
+ * transcribed by hand from the specification PDF, and carrying a long_name is
+ * precisely what drops an entry off the derived list. So the one part of the
+ * catalogue where we are AHEAD of UDB is the one part this report would go
+ * quiet about — and the hand-written version, CSR addresses and ratification
+ * date would never be reconciled against upstream's once it catches up.
+ *
+ * Naming them keeps them in "Still missing from UDB" until UDB ships them, at
+ * which point this run populates them from upstream and the id can be dropped
+ * from this set. Everything here must match supervisorPattern.
+ */
+const ALWAYS_WATCH = new Set(['Sspmp', 'Sspmpen', 'Smpmpdeleg']);
+
 const gaps = [];
 for (const [id, loc] of entryIndex) {
   const entry = loc.entries[loc.index];
   if (!supervisorPattern.test(id)) continue;
-  if (entry.csrs || entry.behavior || entry.long_name) continue;
-  if (entry.tags && entry.tags.length > 0) continue;
+  if (!ALWAYS_WATCH.has(id)) {
+    if (entry.csrs || entry.behavior || entry.long_name) continue;
+    if (entry.tags && entry.tags.length > 0) continue;
+  }
   gaps.push(id);
 }
 

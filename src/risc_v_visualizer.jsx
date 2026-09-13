@@ -23,6 +23,7 @@ import {
   ExternalLink,
   Network,
   Activity,
+  AreaChart,
   BookOpen,
   AlertTriangle,
   CheckCircle2,
@@ -45,14 +46,12 @@ import {
   GitCompare,
 } from 'lucide-react';
 import extensions from './riscv_extensions.json';
-import EncodingMap from './EncodingMap.jsx';
-import WorkspacePanel from './WorkspacePanel.jsx';
 import ExtensionTile from './ExtensionTile.jsx';
+import CompareView from './CompareView.jsx';
 import EncodingDiagram from './EncodingDiagram.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import { computeLockedExtensions, missingMandatory } from './workspaceLock.js';
 import CompareTray from './CompareTray.jsx';
-import CompareView from './CompareView.jsx';
 import {
   COMPARE_MAX,
   COMPARE_PARAM,
@@ -79,6 +78,50 @@ import { PROFILES } from './profiles.js';
 import PROFILE_OPTIONAL from './profile-optional.json';
 import { buildIsaConfigYaml } from './exportUtils.js';
 import AskAiLauncher from './AskAiLauncher.jsx';
+import SandboxPanel from './SandboxPanel.jsx';
+import {
+  OPCODES,
+  loadSandbox,
+  deserializeSandbox,
+  deserializeSandboxAsync,
+} from './sandboxModel.js';
+import {
+  BIT_MASK_32,
+  parseHexToBigInt,
+  toHex32,
+  normalizeEncodingString,
+  encodingToMatchMask,
+  matchMaskToEncoding,
+  patternsOverlap,
+  isSubsetPattern,
+  overlapExampleWord,
+} from './encodingUtils.js';
+
+export const formatSandboxExtensionForCatalog = (ext) => {
+  const instructionsObj = {};
+  for (const instr of ext.instructions || []) {
+    if (!instr.mnemonic) continue;
+    instructionsObj[instr.mnemonic] = {
+      encoding: instr.encoding,
+      variable_fields: instr.variable_fields || [],
+      match: instr.match,
+      mask: instr.mask,
+      extension: [`rv_${ext.id.toLowerCase()}`],
+      notes: instr.notes,
+    };
+  }
+  const customSlotName = OPCODES.find((o) => o.value === ext.opcode)?.name || 'custom';
+  return {
+    id: ext.id,
+    name: ext.name || ext.id,
+    desc: ext.desc || 'Custom user-defined extension (Sandbox)',
+    use: `Custom ${customSlotName} opcode extension`,
+    opcode: ext.opcode,
+    isSandbox: true,
+    url: '',
+    instructions: instructionsObj,
+  };
+};
 
 // Ids the catalog can actually render. The dependency graph carries a few nodes
 // the catalog does not (UDB's S requires Sm, for which we have no entry), and
@@ -89,9 +132,6 @@ const CATALOG_IDS = new Set(
     .filter(Boolean)
     .map((e) => e.id),
 );
-
-const BIT_WIDTH = 32n;
-const BIT_MASK_32 = (1n << BIT_WIDTH) - 1n;
 
 /* ─── Permalinks ────────────────────────────────────────────────────────────
  * A link to a specific extension, so the tool can be cited in a discussion or
@@ -175,20 +215,101 @@ const loadSavedBuilderState = () => {
   };
 };
 
+/*
+ * Three panels are heavy and not needed for first paint: WorkspacePanel alone
+ * is 104 KB of source. Loading them lazily keeps them out of the initial parse
+ * and compile.
+ *
+ * The Suspense fallbacks are null rather than a loading shell. One reviewer
+ * wanted a shell, since opening the Workspace also hides its own toolbar
+ * button and a slow chunk could leave neither on screen; another judged null
+ * safe, because focus stays on the trigger until the panel mounts. The chunks
+ * are 7 to 46 KB from the same origin as the page that just loaded, so the gap
+ * is short, and an idle prefetch was tried and reverted: dynamic import of JSX
+ * cannot resolve in the test environment and it took the render-smoke suite
+ * from seconds to two minutes.
+ *
+ * CompareView is deliberately NOT lazy. It is reachable by permalink, so a URL
+ * that opens straight into a comparison would have to wait on a chunk before
+ * showing anything. Four render-smoke tests cover exactly that path, and the
+ * right response to them failing was to narrow the optimisation, not to weaken
+ * the tests.
+ *
+ * Paired with useOnceMounted below, which is what makes this safe. These
+ * components are rendered unconditionally today and hold state while closed
+ * (WorkspacePanel has twenty state hooks and fifteen transitions), so gating
+ * them on `open` would lose that state and break the close animation. Mounting
+ * on first open and leaving them mounted defers the download without changing
+ * when anything unmounts.
+ */
+const EncodingMap = React.lazy(() => import('./EncodingMap.jsx'));
+const WorkspacePanel = React.lazy(() => import('./WorkspacePanel.jsx'));
+const ExtensionEvolution = React.lazy(() => import('./ExtensionEvolution.jsx'));
+
+/**
+ * True once `open` has been true, and true forever after.
+ *
+ * Lets a lazy panel stay unmounted until it is first needed, then behave
+ * exactly as it did before: still mounted while closed, still holding its own
+ * state, still able to animate out.
+ */
+function useOnceMounted(open) {
+  /*
+   * A ref latch rather than state, because state costs a render before the
+   * chunk fetch can even begin: the first render after `open` flips would still
+   * return false, Suspense would render nothing, and only the following render
+   * would mount the boundary and start the download. Latching during render
+   * starts the fetch in the same pass.
+   *
+   * Safe to write during render because it is idempotent: it only ever moves
+   * false to true, so a double invocation reaches the same value.
+   */
+  const mounted = React.useRef(open);
+  if (open) mounted.current = true;
+  return mounted.current;
+}
+
 const allExtensionsFlat = Object.values(extensions).flat().filter(Boolean);
 
-const findExtensionById = (id) => {
+// Shared so an empty query allocates nothing and searchMatchIds keeps a stable
+// reference for anything that depends on it. Note this is NOT what protects the
+// tile memo: tiles receive a boolean, so a fresh Set would compare the same.
+const EMPTY_MATCH_SET = new Set();
+
+const findExtensionById = (id, extraExtensions = []) => {
   const wanted = String(id ?? '')
     .trim()
     .toLowerCase();
   if (!wanted) return null;
   // Case-insensitive: people type ?ext=zba as readily as ?ext=Zba.
-  return allExtensionsFlat.find((ext) => ext.id.toLowerCase() === wanted) ?? null;
+  const pool = extraExtensions.length
+    ? [...allExtensionsFlat, ...extraExtensions]
+    : allExtensionsFlat;
+  return pool.find((ext) => ext.id.toLowerCase() === wanted) ?? null;
 };
 
 const extensionFromUrl = () => {
   if (typeof window === 'undefined') return null;
-  return findExtensionById(new URLSearchParams(window.location.search).get(PERMALINK_PARAM));
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const sandboxParam = params.get('sandbox');
+    let sandboxExts = [];
+    // c: prefixes need async decompression \u2014 can't resolve synchronously.
+    // Fall back to localStorage so the ?ext= permalink still works on share links;
+    // the async useEffect below will load and select the correct sandbox extension
+    // once decompression finishes.
+    if (sandboxParam && !sandboxParam.startsWith('c:')) {
+      sandboxExts = deserializeSandbox(sandboxParam);
+    } else {
+      sandboxExts = loadSandbox();
+    }
+    return findExtensionById(
+      params.get(PERMALINK_PARAM),
+      sandboxExts.map(formatSandboxExtensionForCatalog),
+    );
+  } catch {
+    return null;
+  }
 };
 
 const permalinkFor = (extId) => {
@@ -461,97 +582,10 @@ const COMPRESSED_BY_STANDARD = COMPRESSED_INSTRUCTION_MAPPINGS.reduce((acc, entr
 
 const STANDARD_EQUIVALENT_PRIORITY = ['RV32I', 'RV64I', 'RV128I', 'RV32E', 'RV64E'];
 
-const normalizeHexString = (value) => {
-  const text = String(value ?? '').trim();
-  if (!text) return '';
-  return text.toLowerCase().startsWith('0x') ? text.toLowerCase() : `0x${text.toLowerCase()}`;
-};
-
-const parseHexToBigInt = (value) => {
-  const normalized = normalizeHexString(value);
-  if (!normalized) return null;
-  if (!/^0x[0-9a-f]+$/i.test(normalized)) return null;
-  try {
-    return BigInt(normalized);
-  } catch {
-    return null;
-  }
-};
-
-const toHex32 = (value) => {
-  const v = (value ?? 0n) & BIT_MASK_32;
-  return `0x${v.toString(16).padStart(8, '0')}`;
-};
-
-const normalizeEncodingString = (value) => {
-  const encoding = String(value ?? '').replace(/\s+/g, '');
-  if (!encoding) return '';
-  return encoding;
-};
-
-const encodingToMatchMask = (encoding) => {
-  const normalized = normalizeEncodingString(encoding);
-  if (!normalized) return { match: null, mask: null, error: 'Provide an encoding or match/mask.' };
-  if (normalized.length !== 32) {
-    return {
-      match: null,
-      mask: null,
-      error: `Encoding must be 32 characters (got ${normalized.length}).`,
-    };
-  }
-  if (!/^[01-]{32}$/.test(normalized)) {
-    return { match: null, mask: null, error: 'Encoding may only contain 0, 1, and -.' };
-  }
-
-  let match = 0n;
-  let mask = 0n;
-  for (let i = 0; i < 32; i++) {
-    const bit = 31n - BigInt(i);
-    const ch = normalized[i];
-    if (ch === '-') continue;
-    mask |= 1n << bit;
-    if (ch === '1') match |= 1n << bit;
-  }
-  return { match, mask, error: null };
-};
-
-const matchMaskToEncoding = (match, mask) => {
-  const m = (match ?? 0n) & BIT_MASK_32;
-  const k = (mask ?? 0n) & BIT_MASK_32;
-  let out = '';
-  for (let bit = 31n; bit >= 0n; bit--) {
-    const bitMask = 1n << bit;
-    if ((k & bitMask) === 0n) out += '-';
-    else out += (m & bitMask) === 0n ? '0' : '1';
-  }
-  return out;
-};
-
-const patternsOverlap = (aMatch, aMask, bMatch, bMask) => {
-  const commonMask = aMask & bMask & BIT_MASK_32;
-  const diff = (aMatch ^ bMatch) & commonMask & BIT_MASK_32;
-  return diff === 0n;
-};
-
-const isSubsetPattern = (subsetMatch, subsetMask, supMatch, supMask) => {
-  const subsetMaskNorm = (subsetMask ?? 0n) & BIT_MASK_32;
-  const supMaskNorm = (supMask ?? 0n) & BIT_MASK_32;
-  const subsetMatchNorm = (subsetMatch ?? 0n) & BIT_MASK_32;
-  const supMatchNorm = (supMatch ?? 0n) & BIT_MASK_32;
-
-  const supBitsNotConstrainedBySubset = supMaskNorm & ~subsetMaskNorm;
-  if (supBitsNotConstrainedBySubset !== 0n) return false;
-  const mismatch = (subsetMatchNorm ^ supMatchNorm) & supMaskNorm;
-  return mismatch === 0n;
-};
-
-const overlapExampleWord = (aMatch, aMask, bMatch, bMask) => {
-  const am = (aMatch ?? 0n) & BIT_MASK_32;
-  const ak = (aMask ?? 0n) & BIT_MASK_32;
-  const bm = (bMatch ?? 0n) & BIT_MASK_32;
-  const bk = (bMask ?? 0n) & BIT_MASK_32;
-  return ((am & ak) | (bm & (bk & ~ak))) & BIT_MASK_32;
-};
+// Encoding utilities imported from ./encodingUtils.js (see top-of-file imports).
+// The functions below were originally defined here; they now live in a shared
+// module so both the Encoder Validator and the Custom Extension Sandbox can
+// use the same validated arithmetic without duplication.
 
 const extensionCsrLabels = {
   S: 'Supervisor CSRs',
@@ -568,6 +602,13 @@ const RISCVExplorer = () => {
   const [selectedInstruction, setSelectedInstruction] = useState(null);
   const [copyStatus, setCopyStatus] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+
+  /*
+   * Whether the current selection was made by the search effect rather than by
+   * a click. Only the former is debounced when written to the URL.
+   */
+  const selectionCameFromSearchRef = React.useRef(false);
+
   const [searchMatches, setSearchMatches] = useState(null);
   const [encoderValidatorOpen, setEncoderValidatorOpen] = useState(false);
 
@@ -575,8 +616,59 @@ const RISCVExplorer = () => {
   // cost three lines of vertical space above the fold to say something a
   // returning visitor already knows). The trigger keeps it one click away.
   const [aboutOpen, setAboutOpen] = useState(false);
+  const [evolutionOpen, setEvolutionOpen] = useState(false);
+  const evolutionTriggerRef = React.useRef(null);
   const aboutTriggerRef = React.useRef(null);
   const [encodingMapOpen, setEncodingMapOpen] = useState(false);
+  const [sandboxOpen, setSandboxOpen] = useState(false);
+
+  const [sandboxExtensions, setSandboxExtensions] = useState(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const param = new URLSearchParams(window.location.search).get('sandbox');
+      if (param && !param.startsWith('c:')) {
+        const fromUrl = deserializeSandbox(param);
+        if (Array.isArray(fromUrl) && fromUrl.length > 0) return fromUrl;
+      }
+    } catch {
+      /* ignore */
+    }
+    return loadSandbox();
+  });
+
+  React.useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return;
+      const params = new URLSearchParams(window.location.search);
+      const param = params.get('sandbox');
+      if (param && param.startsWith('c:')) {
+        deserializeSandboxAsync(param).then((fromUrl) => {
+          if (Array.isArray(fromUrl) && fromUrl.length > 0) {
+            setSandboxExtensions(fromUrl);
+            setSandboxOpen(true);
+            // Resolve the ?ext= permalink against the newly-loaded sandbox extensions.
+            // extensionFromUrl ran synchronously before decompression, so a share link
+            // like ?ext=Xtest__sandbox&sandbox=c:... never selected the right extension.
+            const extParam = params.get(PERMALINK_PARAM);
+            if (extParam) {
+              const formatted = fromUrl.map(formatSandboxExtensionForCatalog);
+              const match = findExtensionById(extParam, formatted);
+              if (match) setSelectedExt(match);
+            }
+          }
+        });
+      } else if (param) {
+        setSandboxOpen(true);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const formattedSandboxExts = React.useMemo(
+    () => sandboxExtensions.map(formatSandboxExtensionForCatalog),
+    [sandboxExtensions],
+  );
   const [encoderValidatorInput, setEncoderValidatorInput] = useState({
     mnemonic: '',
     encoding: '',
@@ -609,6 +701,24 @@ const RISCVExplorer = () => {
       aboutTriggerRef.current?.focus();
     };
   }, [aboutOpen]);
+
+  // Evolution panel: same shape as the About dialog above. It holds a slider
+  // and 219 buttons, but they are all inside the dialog, so Escape plus
+  // returning focus to the trigger is the whole contract.
+  React.useEffect(() => {
+    if (!evolutionOpen) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setEvolutionOpen(false);
+      }
+    };
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown, true);
+      evolutionTriggerRef.current?.focus();
+    };
+  }, [evolutionOpen]);
 
   // Expanded instruction modal: focus trap and Escape, in one listener.
   //
@@ -840,6 +950,82 @@ const RISCVExplorer = () => {
     return () => window.removeEventListener('resize', clamp);
   }, [profileMenuOpen]);
   const [quickExportOpen, setQuickExportOpen] = useState(false);
+
+  /*
+   * The question the Ask AI button opens with, derived from whatever the reader
+   * currently has open.
+   *
+   * kapa's open() takes a `query` and pre-fills its box with it. That is a
+   * documented, supported option — worth recording, because an earlier probe
+   * concluded it was ignored. That probe ran while the widget was not yet
+   * allowlisted for this origin, so it was mounting nothing at all and no
+   * option could have had any effect. Re-tested once the widget worked: it
+   * pre-fills.
+   *
+   * Deliberately no `submit`. The question is a starting point the reader can
+   * edit, not one sent on their behalf.
+   *
+   * Ordered most specific first: an open instruction is narrower than the
+   * extension behind it, which is narrower than the builder.
+   */
+  /*
+   * What the Ask AI button opens with, derived from whatever the reader has on
+   * screen. Returns the question and whether to send it, because those differ
+   * per context.
+   *
+   * Two rules, both from putting the wording to independent review:
+   *
+   * 1. Only the extension id and instruction mnemonic go in. `short` is our own
+   *    editorial label ("Address-Generation Bitmanip"), written for the tiles
+   *    and absent from the specifications kapa retrieves over, so it dilutes
+   *    the match against the one token that does appear verbatim: the id. It
+   *    also produced nonsense on the 41 entries whose short contains
+   *    parentheses, worst of all "the Shvstvala extension (Virtual Supervisor
+   *    Trap Value (vstval) provides all needed values)".
+   *
+   * 2. Single intent. Asking two things at once pulls the query vector between
+   *    them and retrieves a weaker match for both. The dependency and encoding
+   *    detail arrives anyway, because it sits in the same spec passage.
+   *
+   * "RISC-V" is named explicitly. Ids like B, V and M are ambiguous, and the
+   * model writing the answer has read every other architecture too.
+   */
+  const askAiContext = React.useMemo(() => {
+    if (workspacePanelOpen) {
+      /*
+       * Checked first, not last. The builder panel covers the page, so while it
+       * is open it is what the reader is looking at, whatever is still selected
+       * behind it.
+       *
+       * Never auto-submitted, and never a list of ids.
+       *
+       * A full profile resolves to 78 extensions, and a wall of comma-separated
+       * acronyms matches no passage in any specification: the retriever lands
+       * on something generic like a title page. It is also a poor thing to send
+       * on someone's behalf, because a reader looking at a configuration has a
+       * specific worry in mind and it is rarely "summarise all of these".
+       *
+       * So this opens a sentence for them to finish rather than a question they
+       * did not ask.
+       */
+      const from = seedProfile ? ` based on the ${seedProfile} profile` : '';
+      return { query: `I am configuring a RISC-V core${from}. `, submit: false };
+    }
+    if (selectedExt?.id && selectedInstruction?.mnemonic) {
+      // Both required: closing the panel clears selectedExt but leaves the
+      // instruction set, and an instruction is only meaningful inside the
+      // extension showing it.
+      return {
+        query: `How does the ${selectedInstruction.mnemonic} instruction work in the RISC-V ${selectedExt.id} extension?`,
+        submit: true,
+      };
+    }
+    if (selectedExt?.id) {
+      return { query: `Explain the RISC-V ${selectedExt.id} extension.`, submit: true };
+    }
+    return null;
+  }, [selectedInstruction, selectedExt, workspacePanelOpen, seedProfile]);
+
   const [quickExportIncludeInstr, setQuickExportIncludeInstr] = useState(true);
 
   // Smart lock: live reverse-lookup of dependencies, plus the seeding profile's
@@ -881,6 +1067,10 @@ const RISCVExplorer = () => {
         const arrToAdd = Array.isArray(idsToAdd) ? idsToAdd : [idsToAdd];
 
         for (const id of arrToAdd) {
+          if (!id || id.includes('__') || id.endsWith('__sandbox')) {
+            continue;
+          }
+
           if (isToggle && next.has(id)) {
             // If locked, we cannot toggle it off
             if (currentLocked.has(id)) {
@@ -949,8 +1139,11 @@ const RISCVExplorer = () => {
     [showToast, seedProfile, baselineLocked],
   );
 
-  // Flat list of all extensions — stable reference for workspace utilities
-  const allExtsList = React.useMemo(() => Object.values(extensions).flat().filter(Boolean), []);
+  // Flat list of all extensions including custom sandbox extensions — stable reference
+  const allExtsList = React.useMemo(
+    () => [...allExtensionsFlat, ...formattedSandboxExts],
+    [formattedSandboxExts],
+  );
 
   const workspaceTotalInstr = React.useMemo(() => {
     if (workspaceIds.size === 0) return 0;
@@ -1490,7 +1683,7 @@ const RISCVExplorer = () => {
 
   const extensionSearchIndexById = React.useMemo(() => {
     const index = new Map();
-    const allExts = Object.values(extensions).flat().filter(Boolean);
+    const allExts = allExtsList;
 
     for (const ext of allExts) {
       const parts = [];
@@ -1547,7 +1740,7 @@ const RISCVExplorer = () => {
     }
 
     return index;
-  }, []);
+  }, [allExtsList]);
 
   // Stable identities on purpose: these ride in tileProps, and a fresh function
   // each render would make every tile re-render even when nothing it shows moved.
@@ -1584,15 +1777,37 @@ const RISCVExplorer = () => {
   // replaceState rather than pushState on purpose: clicking through twenty
   // tiles should not bury the previous page under twenty history entries that
   // Back has to walk through one at a time.
+  /*
+   * Debounced ONLY for selections search made on the reader's behalf.
+   *
+   * Search selects as you type, so an exact id match writes history on the
+   * keystroke that produces it: typing "amo" wrote three times, once for the
+   * "a" that matches extension A. Delaying that is right.
+   *
+   * Delaying a deliberate click is not. Someone who clicks a tile and reaches
+   * straight for the address bar would copy the previous URL, and the write
+   * would be cancelled outright if they closed the tab inside the window. A
+   * click is an explicit act and the URL has to be true immediately.
+   */
   React.useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const url = new URL(window.location.href);
-    const current = url.searchParams.get(PERMALINK_PARAM);
-    const next = selectedExt?.id ?? null;
-    if (current === next) return;
-    if (next) url.searchParams.set(PERMALINK_PARAM, next);
-    else url.searchParams.delete(PERMALINK_PARAM);
-    window.history.replaceState(null, '', url.toString());
+    if (typeof window === 'undefined') return undefined;
+
+    const write = () => {
+      const url = new URL(window.location.href);
+      const current = url.searchParams.get(PERMALINK_PARAM);
+      const next = selectedExt?.id ?? null;
+      if (current === next) return;
+      if (next) url.searchParams.set(PERMALINK_PARAM, next);
+      else url.searchParams.delete(PERMALINK_PARAM);
+      window.history.replaceState(null, '', url.toString());
+    };
+
+    if (!selectionCameFromSearchRef.current) {
+      write();
+      return undefined;
+    }
+    const id = setTimeout(write, 250);
+    return () => clearTimeout(id);
   }, [selectedExt]);
 
   // A fresh selection invalidates the "Copied" confirmation.
@@ -1613,6 +1828,7 @@ const RISCVExplorer = () => {
   }, [selectedExt, copyTextToClipboard, showToast]);
 
   const handleSelectExt = React.useCallback((data) => {
+    selectionCameFromSearchRef.current = false;
     // A deliberate click owns the panel from here on, so a later non-matching
     // query must not clear it out from under the user.
     searchDrivenSelectionRef.current = false;
@@ -1752,9 +1968,28 @@ const RISCVExplorer = () => {
   const openCompareView = React.useCallback(() => setCompareOpen(true), []);
   const closeCompareView = React.useCallback(() => setCompareOpen(false), []);
 
+  /*
+   * One pass per query instead of one per tile per keystroke. The tiles are
+   * handed the answer, so React can skip every tile whose match state did not
+   * change; previously the raw query was a prop and all 219 re-rendered on
+   * every character.
+   */
+  // Each panel mounts on its first open and stays mounted thereafter.
+  const encodingMapMounted = useOnceMounted(encodingMapOpen);
+  const workspacePanelMounted = useOnceMounted(workspacePanelOpen);
+
+  const searchMatchIds = React.useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return EMPTY_MATCH_SET;
+    const hits = new Set();
+    for (const [id, index] of extensionSearchIndexById) {
+      if ((index || '').includes(q)) hits.add(id);
+    }
+    return hits;
+  }, [searchQuery, extensionSearchIndexById]);
+
   const tileProps = React.useMemo(
     () => ({
-      searchQuery,
       selectedExtId: selectedExt?.id ?? null,
       workspaceIds,
       lockedExtensions,
@@ -1768,7 +2003,9 @@ const RISCVExplorer = () => {
       onToggleCompare: toggleCompareExt,
     }),
     [
-      searchQuery,
+      // searchQuery is deliberately absent: it is no longer a tile prop, so
+      // rebuilding this object on every keystroke would re-render all 219 tiles
+      // for nothing, which is the exact cost this change removes.
       selectedExt,
       workspaceIds,
       lockedExtensions,
@@ -1798,20 +2035,20 @@ const RISCVExplorer = () => {
     }
     if (compareKind === 'ext') {
       return buildExtensionComparison(
-        compareKeys.map((id) => findExtensionById(id)).filter(Boolean),
+        compareKeys.map((id) => findExtensionById(id, formattedSandboxExts)).filter(Boolean),
       );
     }
     return buildInstructionComparison(
       compareKeys
         .map((key) => {
           const parsed = parseInstructionKey(key);
-          const ext = parsed && findExtensionById(parsed.extId);
+          const ext = parsed && findExtensionById(parsed.extId, formattedSandboxExts);
           const instr = ext && ext.instructions?.[parsed.mnemonic];
           return instr ? { extId: ext.id, mnemonic: parsed.mnemonic, instr } : null;
         })
         .filter(Boolean),
     );
-  }, [compareKind, compareKeys, compareExpandDeps]);
+  }, [compareKind, compareKeys, compareExpandDeps, formattedSandboxExts]);
 
   // Mirrors the existing `ext` permalink effect: replaceState, never push, so
   // pinning does not fill the back button with intermediate states.
@@ -1873,6 +2110,10 @@ const RISCVExplorer = () => {
     const allExts = Object.values(extensions).flat();
     let matchedMnemonic = null;
     let matchedDetails = null;
+
+    // Anything selected from here on is search acting on the reader's behalf,
+    // not a deliberate click, so its URL write is the one that gets debounced.
+    selectionCameFromSearchRef.current = true;
 
     // First, try an exact extension ID match
     let targetExt = allExts.find((ext) => ext.id.toLowerCase() === q);
@@ -1973,7 +2214,7 @@ const RISCVExplorer = () => {
 
   return (
     <div
-      className="min-h-screen relative overflow-x-hidden"
+      className="min-h-screen relative overflow-x-clip"
       style={{ background: 'var(--riscv-bg)', color: 'var(--riscv-text)' }}
     >
       {/* Skip link. First thing in the tab order, visible only once focused.
@@ -2027,7 +2268,7 @@ const RISCVExplorer = () => {
                   </h1>
                 </div>
                 {/* Counts. Wrappable on purpose: this sits inside an
-                    overflow-x-hidden root that clips rather than scrolls, so on
+                    overflow-x-clip root that clips rather than scrolls, so on
                     a narrow screen they drop below the title instead of off the
                     edge. */}
                 <div className="flex flex-wrap items-center gap-x-2 text-[11px]">
@@ -2047,6 +2288,25 @@ const RISCVExplorer = () => {
                       {label !== 'Volumes' && <span className="mx-1 opacity-50">&middot;</span>}
                     </span>
                   ))}
+
+                  {/* Before About, because it answers the same question one
+                      step earlier: not "what is this tool" but "what is the
+                      thing it catalogues, and how did it get here". */}
+                  <button
+                    type="button"
+                    ref={evolutionTriggerRef}
+                    onClick={() => setEvolutionOpen(true)}
+                    className="riscv-btn tooltip-wide tooltip-bottom-right ml-3 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold whitespace-nowrap"
+                    aria-haspopup="dialog"
+                    data-tooltip={`Watch the ISA grow: a cumulative timeline of all ${allExtensionsFlat.length} catalogued extensions, banded by family. Click any dot to open that extension.`}
+                  >
+                    {/* An axis under a filled, rising mass -- which is what the
+                        panel actually draws. It was lucide's Activity, a
+                        heart-rate trace, which said nothing about growth and was
+                        already in use elsewhere in this file. */}
+                    <AreaChart size={12} />
+                    Evolution
+                  </button>
 
                   {/* Sits between the counts and Report an issue: the three
                       things a first-time visitor wants from the header row are
@@ -2080,23 +2340,21 @@ const RISCVExplorer = () => {
                 </div>
               </div>
 
-
               {/* Controls Area.
                   items-end right-aligns children, so a child wider than this
                   column is pushed off the LEFT edge rather than overflowing the
                   right. At 390px that put the controls at left:-179 inside an
-                  overflow-x-hidden root, which clips rather than scrolls, so the
+                  overflow-x-clip root, which clips rather than scrolls, so the
                   profile buttons and the builder toggle could not be reached at
                   all. Stretch until there is room to right-align.
                   min-w-0 because a flex item defaults to min-width:auto and
                   refuses to shrink below its content. */}
-              <div className="riscv-toolbar flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+              <div className="riscv-toolbar flex flex-wrap items-center justify-between gap-2 w-full pb-1">
                 {/* Filters — what you are looking at. */}
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
-                  {/* Grouped Filters Container. Wraps on narrow screens; without
-                      it this row stays one 557px line that cannot shrink. */}
+                <div className="flex items-center gap-x-1 flex-1 pr-1 shrink-0">
+                  {/* Grouped Filters Container. */}
                   <div
-                    className="flex flex-wrap items-center gap-x-3 gap-y-2"
+                    className="flex items-center gap-x-1"
                     style={{
                       background: 'var(--riscv-plate)',
                       borderColor: 'rgba(255,255,255,0.08)',
@@ -2109,107 +2367,92 @@ const RISCVExplorer = () => {
                       catalogue and write nothing, while the builder's "Start from
                       profile" replaces the workspace. Both said "profile" and looked
                       alike, so the pair read as duplication (#212). */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span
-                        className="text-[11px] uppercase tracking-widest font-semibold"
-                        style={{ color: 'var(--riscv-text-3)' }}
-                      >
-                        Highlight
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {Object.keys(profiles).map((profile) => (
-                          <span key={profile} className="inline-flex items-center">
-                            <button
-                              onClick={() =>
-                                setActiveProfile((current) => {
-                                  // Profile and volume are mutually exclusive. With
-                                  // both live, highlight matched either one while
-                                  // dimming followed only the volume, so the grid
-                                  // gave no clue which filter was acting.
-                                  setActiveVolume(null);
-                                  setSelectedInstruction(null);
-                                  setSearchMatches(null);
-                                  return current === profile ? null : profile;
-                                })
-                              }
-                              aria-pressed={activeProfile === profile}
-                              title={
-                                activeProfile === profile
-                                  ? `Stop highlighting ${profile}`
-                                  : `Highlight the extensions in ${profile} — does not change your ISA configuration`
-                              }
-                              className={[
-                                'px-3 py-1.5 text-[12px] rounded-lg transition-all duration-200 font-medium',
-                                activeProfile === profile
-                                  ? 'bg-slate-700/80 text-white shadow-inner border border-slate-500/50'
-                                  : 'text-slate-300 hover:text-white hover:bg-slate-700/40 border border-transparent hover:border-slate-600/30',
-                              ].join(' ')}
-                            >
-                              {profile}
-                            </button>
-                            {/* Sibling, not nested: a button inside a button is
-                              invalid HTML and React warns about it. */}
-                            {compareMode && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleCompareProfile(profile);
-                                }}
-                                aria-pressed={compareProfileNames.has(profile)}
-                                className="riscv-pin-btn ml-0.5 px-1 py-0.5 rounded border text-[11px] inline-flex items-center justify-center transition-all"
-                                title={
-                                  compareProfileNames.has(profile)
-                                    ? `Remove ${profile} from comparison`
-                                    : `Pin ${profile} to comparison`
-                                }
-                              >
-                                <GitCompare
-                                  size={9}
-                                  strokeWidth={compareProfileNames.has(profile) ? 2.5 : 2}
-                                />
-                              </button>
-                            )}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Vertical Divider */}
-                    <div className="h-5 w-px bg-slate-700/60 mx-1" />
-
-                    {/* Volumes */}
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="text-[11px] uppercase tracking-widest font-semibold"
-                        style={{ color: 'var(--riscv-text-3)' }}
-                      >
-                        Volume
-                      </span>
-                      <div className="flex gap-1.5">
-                        {['I', 'II'].map((vol) => (
+                    {/* Profiles Segmented Control */}
+                    <div className="flex items-center gap-1 bg-slate-500/10 p-1 rounded-xl border border-slate-500/20">
+                      {Object.keys(profiles).map((profile) => (
+                        <span key={profile} className="inline-flex items-center">
                           <button
-                            key={vol}
                             onClick={() =>
-                              setActiveVolume((current) => {
-                                setActiveProfile(null);
+                              setActiveProfile((current) => {
+                                // Profile and volume are mutually exclusive. With
+                                // both live, highlight matched either one while
+                                // dimming followed only the volume, so the grid
+                                // gave no clue which filter was acting.
+                                setActiveVolume(null);
                                 setSelectedInstruction(null);
                                 setSearchMatches(null);
-                                return current === vol ? null : vol;
+                                return current === profile ? null : profile;
                               })
                             }
-                            aria-pressed={activeVolume === vol}
+                            aria-pressed={activeProfile === profile}
+                            title={
+                              activeProfile === profile
+                                ? `Stop highlighting ${profile}`
+                                : `Highlight the extensions in ${profile} — does not change your ISA configuration`
+                            }
                             className={[
-                              'px-3 py-1.5 text-[12px] rounded-lg transition-all duration-200 font-medium',
-                              activeVolume === vol
+                              'px-3 py-1.5 text-[12px] rounded-lg transition-all duration-200 font-medium whitespace-nowrap shrink-0',
+                              activeProfile === profile
                                 ? 'bg-slate-700/80 text-white shadow-inner border border-slate-500/50'
                                 : 'text-slate-300 hover:text-white hover:bg-slate-700/40 border border-transparent hover:border-slate-600/30',
                             ].join(' ')}
                           >
-                            Vol {vol}
+                            {profile}
                           </button>
-                        ))}
-                      </div>
+                          {/* Sibling, not nested: a button inside a button is
+                              invalid HTML and React warns about it. */}
+                          {compareMode && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleCompareProfile(profile);
+                              }}
+                              aria-pressed={compareProfileNames.has(profile)}
+                              className="riscv-pin-btn px-1 py-0.5 rounded border text-[11px] inline-flex items-center justify-center transition-all"
+                              title={
+                                compareProfileNames.has(profile)
+                                  ? `Remove ${profile} from comparison`
+                                  : `Pin ${profile} to comparison`
+                              }
+                            >
+                              <GitCompare
+                                size={9}
+                                strokeWidth={compareProfileNames.has(profile) ? 2.5 : 2}
+                              />
+                            </button>
+                          )}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Vertical Divider */}
+                    <div className="h-5 w-px bg-slate-700/60 mx-2" />
+
+                    {/* Volumes */}
+                    <div className="flex gap-1 bg-slate-500/10 p-1 rounded-xl border border-slate-500/20">
+                      {['I', 'II'].map((vol) => (
+                        <button
+                          key={vol}
+                          onClick={() =>
+                            setActiveVolume((current) => {
+                              setActiveProfile(null);
+                              setSelectedInstruction(null);
+                              setSearchMatches(null);
+                              return current === vol ? null : vol;
+                            })
+                          }
+                          aria-pressed={activeVolume === vol}
+                          className={[
+                            'px-3 py-1.5 text-[12px] rounded-lg transition-all duration-200 font-medium whitespace-nowrap shrink-0',
+                            activeVolume === vol
+                              ? 'bg-slate-700/80 text-white shadow-inner border border-slate-500/50'
+                              : 'text-slate-300 hover:text-white hover:bg-slate-700/40 border border-transparent hover:border-slate-600/30',
+                          ].join(' ')}
+                        >
+                          Vol {vol}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -2220,7 +2463,7 @@ const RISCVExplorer = () => {
                     stays neutral at all times, a mode takes its accent only
                     while it is ON, so the loudest control in the toolbar is
                     always a mode that is actually running. */}
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-3">
+                <div className="flex items-center gap-1 shrink-0">
                   {/* Encoder Validator - Sleek Outline Button */}
                   <button
                     type="button"
@@ -2255,10 +2498,22 @@ const RISCVExplorer = () => {
                     // Tailwind amber, which has no light-theme remapping and
                     // measured 1.33:1 on the pastel ground.
                     data-tooltip="See how the 32-bit opcode space is allocated"
-                    title="See how the 32-bit opcode space is allocated"
                   >
                     <Grid3x3 size={14} className="opacity-80" />
                     <span className="whitespace-nowrap">Encoding Map</span>
+                  </button>
+
+                  {/* Custom Extension Sandbox — interactive design in custom-0..3 space */}
+                  <button
+                    type="button"
+                    onClick={() => setSandboxOpen(true)}
+                    aria-haspopup="dialog"
+                    aria-expanded={sandboxOpen}
+                    className="group inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 whitespace-nowrap border text-blue-500 bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20 hover:border-blue-500/50 shadow-sm"
+                    data-tooltip="A safe sandbox to design, test, and validate your own custom RISC-V extensions and instructions"
+                  >
+                    <FlaskConical size={14} className="opacity-80" />
+                    <span className="whitespace-nowrap">Extension Sandbox</span>
                   </button>
 
                   {/* Theme toggle relocated to header */}
@@ -2799,7 +3054,9 @@ const RISCVExplorer = () => {
             tabIndex={-1}
             role="region"
             aria-label="Extension catalogue"
-            className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-min"
+            className={`${
+              selectedExt ? 'lg:col-span-8' : 'lg:col-span-12'
+            } grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-min`}
           >
             {/* Search Bar */}
             <div className="col-span-full mb-2 flex items-center gap-3">
@@ -2888,7 +3145,7 @@ const RISCVExplorer = () => {
                       <ExtensionTile
                         key={item.id}
                         data={item}
-                        searchIndex={extensionSearchIndexById.get(item.id)}
+                        matchesSearch={searchMatchIds.has(item.id)}
                         {...tileProps}
                         colorClass="border-blue-900/60 bg-blue-950/40 text-blue-100"
                       />
@@ -2915,7 +3172,7 @@ const RISCVExplorer = () => {
                       <ExtensionTile
                         key={item.id}
                         data={item}
-                        searchIndex={extensionSearchIndexById.get(item.id)}
+                        matchesSearch={searchMatchIds.has(item.id)}
                         {...tileProps}
                         colorClass="border-emerald-900/60 bg-emerald-950/40 text-emerald-100"
                       />
@@ -2925,10 +3182,10 @@ const RISCVExplorer = () => {
 
                 {/* 3. Z-Extensions */}
                 <div
-                  className="col-span-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pt-5"
+                  className="col-span-full columns-1 md:columns-2 xl:columns-3 gap-4 pt-5"
                   style={{ borderTop: '1px solid var(--riscv-border)' }}
                 >
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Binary size={12} style={{ color: '#a78bfa' }} />
                       <h3
@@ -2946,7 +3203,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-purple-900/60 bg-purple-950/30 text-purple-100"
                         />
@@ -2954,7 +3211,7 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Shuffle size={12} style={{ color: '#fbbf24' }} />
                       <h3
@@ -2972,7 +3229,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-amber-900/60 bg-amber-950/30 text-amber-100"
                         />
@@ -2980,7 +3237,7 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Layers size={12} style={{ color: '#818cf8' }} />
                       <h3
@@ -2998,7 +3255,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-indigo-900/60 bg-indigo-950/30 text-indigo-100"
                         />
@@ -3006,7 +3263,7 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <FlaskConical size={12} style={{ color: '#f472b6' }} />
                       <h3
@@ -3024,7 +3281,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-pink-900/60 bg-pink-950/30 text-pink-100"
                         />
@@ -3032,7 +3289,7 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Database size={12} style={{ color: '#38bdf8' }} />
                       <h3
@@ -3050,7 +3307,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-sky-900/60 bg-sky-950/30 text-sky-100"
                         />
@@ -3058,7 +3315,7 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Activity size={12} style={{ color: '#e879f9' }} />
                       <h3
@@ -3076,7 +3333,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-fuchsia-900/60 bg-fuchsia-950/30 text-fuchsia-100"
                         />
@@ -3084,7 +3341,7 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Zap size={12} style={{ color: '#2dd4bf' }} />
                       <h3
@@ -3102,7 +3359,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-teal-900/60 bg-teal-950/30 text-teal-100"
                         />
@@ -3110,7 +3367,7 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Shield size={12} style={{ color: '#f87171' }} />
                       <h3
@@ -3128,7 +3385,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-red-900/60 bg-red-950/30 text-red-100"
                         />
@@ -3136,7 +3393,7 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <KeyRound size={12} style={{ color: '#94a3b8' }} />
                       <h3
@@ -3154,7 +3411,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-[var(--riscv-border-2)] bg-[var(--riscv-surface-2)] text-slate-300"
                         />
@@ -3162,7 +3419,7 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Lock size={12} style={{ color: '#c4b5fd' }} />
                       <h3
@@ -3180,7 +3437,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-violet-900/60 bg-violet-950/30 text-violet-100"
                         />
@@ -3188,7 +3445,7 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Settings2 size={12} style={{ color: '#fb923c' }} />
                       <h3
@@ -3206,7 +3463,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-orange-900/60 bg-orange-950/30 text-orange-100"
                         />
@@ -3214,7 +3471,7 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-2.5">
+                  <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <MemoryStick size={12} style={{ color: '#fdba74' }} />
                       <h3
@@ -3232,7 +3489,7 @@ const RISCVExplorer = () => {
                         <ExtensionTile
                           key={item.id}
                           data={item}
-                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
                           colorClass="border-orange-900/40 bg-orange-950/20 text-orange-100"
                         />
@@ -3274,7 +3531,7 @@ const RISCVExplorer = () => {
                           <ExtensionTile
                             key={item.id}
                             data={item}
-                            searchIndex={extensionSearchIndexById.get(item.id)}
+                            matchesSearch={searchMatchIds.has(item.id)}
                             {...tileProps}
                             colorClass="border-cyan-900/50 bg-cyan-950/20 text-cyan-100"
                           />
@@ -3299,7 +3556,7 @@ const RISCVExplorer = () => {
                           <ExtensionTile
                             key={item.id}
                             data={item}
-                            searchIndex={extensionSearchIndexById.get(item.id)}
+                            matchesSearch={searchMatchIds.has(item.id)}
                             {...tileProps}
                             colorClass="border-cyan-900/50 bg-cyan-950/20 text-cyan-100"
                           />
@@ -3324,7 +3581,7 @@ const RISCVExplorer = () => {
                           <ExtensionTile
                             key={item.id}
                             data={item}
-                            searchIndex={extensionSearchIndexById.get(item.id)}
+                            matchesSearch={searchMatchIds.has(item.id)}
                             {...tileProps}
                             colorClass="border-cyan-900/50 bg-cyan-950/20 text-cyan-100"
                           />
@@ -3349,7 +3606,7 @@ const RISCVExplorer = () => {
                           <ExtensionTile
                             key={item.id}
                             data={item}
-                            searchIndex={extensionSearchIndexById.get(item.id)}
+                            matchesSearch={searchMatchIds.has(item.id)}
                             {...tileProps}
                             colorClass="border-cyan-900/50 bg-cyan-950/20 text-cyan-100"
                           />
@@ -3358,6 +3615,53 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* 5. Custom / Sandbox Extensions */}
+                {formattedSandboxExts.length > 0 && (
+                  <div
+                    className="col-span-full pt-5"
+                    style={{ borderTop: '1px solid var(--riscv-border)' }}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <FlaskConical
+                          size={13}
+                          style={{ color: 'var(--riscv-accent-4, #60a5fa)' }}
+                        />
+                        <h3
+                          className="text-[12px] font-semibold uppercase tracking-widest"
+                          style={{ color: 'var(--riscv-accent-4, #60a5fa)' }}
+                        >
+                          Custom / Sandbox Extensions
+                        </h3>
+                        <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
+                          {formattedSandboxExts.length} custom
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setSandboxOpen(true)}
+                        className="text-[11px] font-semibold flex items-center gap-1 hover:underline"
+                        style={{ color: 'var(--riscv-accent-4, #60a5fa)' }}
+                      >
+                        <span>Manage in Sandbox</span>
+                        <ArrowUpRight size={11} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {formattedSandboxExts.map((item) => (
+                        <ExtensionTile
+                          key={item.id}
+                          data={item}
+                          searchIndex={extensionSearchIndexById.get(item.id)}
+                          {...tileProps}
+                          onToggleWorkspace={undefined}
+                          colorClass="border-blue-500/40 bg-blue-950/30 text-blue-100"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             ) : (
               <div
@@ -3394,13 +3698,26 @@ const RISCVExplorer = () => {
             )}
           </div>
 
+          {/*
+            The announcement lives out here, not on the panel.
+
+            The panel is display:none until something is selected, and a node
+            that is display:none is not in the accessibility tree, so an
+            aria-live region on it would be created and populated in the same
+            render. Screen readers only announce changes to live regions that
+            already existed, so that combination announces nothing. This node
+            is always mounted and only its text changes.
+          */}
+          <div className="sr-only" role="status" aria-live="polite">
+            {selectedExt ? `${selectedExt.id} details opened` : ''}
+          </div>
+
           {/* ─── Sidebar ─────────────────────────────────────────────────── */}
           <div
             id="detail-panel"
             role="region"
             aria-label="Selected extension details"
-            aria-live="polite"
-            className={`lg:col-span-4 mt-6 lg:mt-0 ${selectedExt ? 'panel-open' : ''}`}
+            className={`lg:col-span-4 mt-6 lg:mt-0 ${selectedExt ? 'panel-open' : 'hidden'}`}
           >
             <div
               className="sticky top-6 riscv-card backdrop-blur-sm min-h-[400px] max-h-[calc(100vh-3rem)] flex flex-col overflow-hidden"
@@ -3419,12 +3736,24 @@ const RISCVExplorer = () => {
                     Selected Details
                   </h2>
                 </div>
-                {/* Mobile Close Button */}
+                {/*
+                  Dismiss. Was lg:hidden, from when the panel was permanently
+                  open on desktop and there was nothing to dismiss it to. Now
+                  that it collapses and the catalogue reclaims the width, a
+                  desktop reader needs the same way out as a mobile one.
+
+                  Themed rather than slate-*: those literals only ever resolved
+                  correctly against the dark surface it used to sit on.
+                */}
                 <button
                   type="button"
-                  onClick={() => setSelectedExt(null)}
+                  onClick={() => {
+                    setSelectedExt(null);
+                    setSelectedInstruction(null);
+                  }}
                   aria-label="Close details panel"
-                  className="lg:hidden p-1 rounded-md text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition-colors"
+                  title="Close (Esc)"
+                  className="p-1 rounded-md transition-colors riscv-panel-dismiss"
                 >
                   <X size={16} />
                 </button>
@@ -3433,7 +3762,7 @@ const RISCVExplorer = () => {
               <div className="flex-1 overflow-y-auto overscroll-contain p-4 pt-3">
                 {selectedExt ? (
                   <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                    <div className="mb-6 flex items-start justify-between gap-3">
+                    <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
                       <div className="min-w-0">
                         <a
                           href={selectedExt.url || 'https://github.com/riscv/riscv-isa-manual'}
@@ -3452,7 +3781,7 @@ const RISCVExplorer = () => {
                         </a>
                       </div>
 
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex flex-wrap items-center gap-2">
                         {/* Ratification status. Without this, a proposal such as
                             Zvabd reads exactly as settled as Zbb, which is the
                             same hazard as publishing a withdrawn encoding: the
@@ -3525,6 +3854,18 @@ const RISCVExplorer = () => {
                             Discontinued
                           </span>
                         )}
+                        {selectedExt.isSandbox && (
+                          <span
+                            className="px-2 py-1 rounded-md text-[11px] font-mono uppercase tracking-wide border whitespace-nowrap"
+                            style={{
+                              background: 'rgba(59,130,246,0.15)',
+                              color: 'var(--riscv-accent-4, #60a5fa)',
+                              borderColor: 'rgba(59,130,246,0.4)',
+                            }}
+                          >
+                            Custom (Sandbox)
+                          </span>
+                        )}
                         {/* The address bar already carries ?ext=<id>, but a
                             button is the discoverable route and works on mobile,
                             where copying the URL is fiddly. */}
@@ -3538,6 +3879,22 @@ const RISCVExplorer = () => {
                           <Link2 size={12} />
                           {permalinkCopied ? 'Copied' : 'Link'}
                         </button>
+                        {selectedExt.isSandbox && (
+                          <button
+                            type="button"
+                            onClick={() => setSandboxOpen(true)}
+                            aria-label="Edit this extension in the sandbox"
+                            title="Edit this extension in the sandbox"
+                            className="riscv-btn inline-flex items-center gap-1 px-2 py-1 text-[11px]"
+                            style={{
+                              borderColor: 'rgba(59,130,246,0.4)',
+                              color: 'var(--riscv-accent-4, #60a5fa)',
+                            }}
+                          >
+                            <FlaskConical size={12} />
+                            <span>Edit in Sandbox</span>
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -4163,17 +4520,24 @@ const RISCVExplorer = () => {
         </footer>
       </div>
 
-      <EncodingMap
-        open={encodingMapOpen}
-        onClose={() => setEncodingMapOpen(false)}
-        catalog={extensions}
-        onSelectExtension={(id) => {
-          const target = Object.values(extensions)
-            .flat()
-            .find((e) => e && e.id === id);
-          if (target) handleSelectExt(target);
-        }}
-      />
+      {encodingMapMounted && (
+        <React.Suspense fallback={null}>
+          <EncodingMap
+            open={encodingMapOpen}
+            onClose={() => setEncodingMapOpen(false)}
+            catalog={allExtensionsFlat}
+            sandboxExtensions={sandboxExtensions}
+            onSelectExtension={(id) => {
+              const target = allExtsList.find((e) => e && e.id === id);
+              if (target) handleSelectExt(target);
+            }}
+            onOpenSandbox={() => {
+              setEncodingMapOpen(false);
+              setSandboxOpen(true);
+            }}
+          />
+        </React.Suspense>
+      )}
 
       <CompareTray
         extIds={compareExtIds}
@@ -4197,6 +4561,73 @@ const RISCVExplorer = () => {
         expandDeps={compareExpandDeps}
         onToggleExpandDeps={setCompareExpandDeps}
       />
+
+      {evolutionOpen && (
+        <div className="fixed inset-0 z-50">
+          <div
+            className="absolute inset-0"
+            style={{ background: 'rgba(7,7,14,0.85)', backdropFilter: 'blur(4px)' }}
+            onClick={() => setEvolutionOpen(false)}
+            role="presentation"
+          />
+
+          <div className="absolute inset-0 p-3 md:p-6 flex items-start justify-center overflow-y-auto">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="evolution-title"
+              className="animate-scale-in w-full max-w-6xl riscv-card overflow-hidden"
+              style={{ boxShadow: '0 0 60px rgba(0,0,0,0.8), 0 0 0 1px rgba(139,124,248,0.15)' }}
+            >
+              <div
+                className="p-4 flex items-start justify-between gap-3"
+                style={{ borderBottom: '1px solid var(--riscv-border)' }}
+              >
+                <div>
+                  <h3
+                    id="evolution-title"
+                    className="text-[13px] font-semibold uppercase tracking-widest"
+                    style={{ color: 'var(--riscv-text-2)' }}
+                  >
+                    How the ISA was built
+                  </h3>
+                  <p className="text-[12px] mt-1" style={{ color: 'var(--riscv-text-3)' }}>
+                    {`How fast the ISA grew, and when each of the ${allExtensionsFlat.length} catalogued extensions arrived.`}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEvolutionOpen(false)}
+                  aria-label="Close the evolution panel"
+                  title="Close (Esc)"
+                  className="p-1 rounded-md transition-colors riscv-panel-dismiss"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              <div className="p-4">
+                <React.Suspense fallback={null}>
+                  <ExtensionEvolution
+                    catalog={extensions}
+                    onSelect={(id) => {
+                      const found = Object.values(extensions)
+                        .flat()
+                        .find((e) => e && e.id === id);
+                      if (found) {
+                        handleSelectExt(found);
+                        // Close on pick: the reader asked for that extension, and
+                        // the details panel is behind this dialog.
+                        setEvolutionOpen(false);
+                      }
+                    }}
+                  />
+                </React.Suspense>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {aboutOpen && (
         <div className="fixed inset-0 z-50">
@@ -4238,7 +4669,10 @@ const RISCVExplorer = () => {
                 </button>
               </div>
 
-              <div className="p-4 text-[13px] leading-relaxed" style={{ color: 'var(--riscv-text-2)' }}>
+              <div
+                className="p-4 text-[13px] leading-relaxed"
+                style={{ color: 'var(--riscv-text-2)' }}
+              >
                 <p>
                   Browse every ratified RISC-V extension, its instructions and their encodings.{' '}
                   <span style={{ color: 'var(--riscv-text-3)' }}>
@@ -5126,108 +5560,123 @@ const RISCVExplorer = () => {
       )}
 
       {/* ── ISA Workspace Panel ────────────────────────────────────────── */}
-      <WorkspacePanel
-        open={workspacePanelOpen}
-        onClose={() => setWorkspacePanelOpen(false)}
-        workspaceIds={workspaceIds}
-        lockedExtensions={lockedExtensions}
-        allExts={allExtsList}
-        onSetVlen={handleSetVlen}
-        seedProfile={seedProfile}
-        profileOptional={PROFILE_OPTIONAL}
-        paramChoices={paramChoices}
-        onSetParam={handleSetParam}
-        baselineLocked={baselineLocked}
-        customFromProfile={customFromProfile}
-        onToggleBaseline={() => {
-          if (baselineLocked) {
-            // Releasing the lock: just release it
-            setBaselineLocked(false);
-          } else {
-            // Re-locking: restore any missing mandatory extensions first,
-            // so the locked state is always a genuinely compliant configuration.
-            if (seedProfile) {
-              const mandatory = PROFILES[seedProfile] || [];
-              const missing = mandatory.filter((id) => !workspaceIds.has(id));
-              if (missing.length > 0) {
-                addWorkspaceIdsSmart(missing);
+      {workspacePanelMounted && (
+        <React.Suspense fallback={null}>
+          <WorkspacePanel
+            open={workspacePanelOpen}
+            onClose={() => setWorkspacePanelOpen(false)}
+            workspaceIds={workspaceIds}
+            lockedExtensions={lockedExtensions}
+            allExts={allExtsList}
+            onSetVlen={handleSetVlen}
+            seedProfile={seedProfile}
+            profileOptional={PROFILE_OPTIONAL}
+            paramChoices={paramChoices}
+            onSetParam={handleSetParam}
+            baselineLocked={baselineLocked}
+            customFromProfile={customFromProfile}
+            onToggleBaseline={() => {
+              if (baselineLocked) {
+                // Releasing the lock: just release it
+                setBaselineLocked(false);
+              } else {
+                // Re-locking: restore any missing mandatory extensions first,
+                // so the locked state is always a genuinely compliant configuration.
+                if (seedProfile) {
+                  const mandatory = PROFILES[seedProfile] || [];
+                  const missing = mandatory.filter((id) => !workspaceIds.has(id));
+                  if (missing.length > 0) {
+                    addWorkspaceIdsSmart(missing);
+                    showToast(
+                      `Re-locked ${seedProfile}: restored ${missing.join(', ')} to the mandatory set.`,
+                    );
+                  }
+                }
+                setBaselineLocked(true);
+              }
+            }}
+            onAddId={(id) => addWorkspaceIdsSmart(id, true)}
+            onRemoveId={(id) => {
+              // Decide before mutating anything. The previous order downgraded the
+              // profile first and only then discovered the removal was refused,
+              // which left the configuration permanently 'Custom' and the lock
+              // forced open while nothing had actually been removed.
+              if (lockedExtensions.has(id)) {
                 showToast(
-                  `Re-locked ${seedProfile}: restored ${missing.join(', ')} to the mandatory set.`,
+                  `Cannot remove ${id}: required by ${lockedExtensions.get(id).join(', ')}`,
+                );
+                return;
+              }
+              if (!workspaceIds.has(id)) return;
+
+              // Reaching here means the removal will happen. A mandatory extension
+              // can only be unlocked, so this is the deliberate divergence path.
+              const divergesFromProfile = Boolean(
+                seedProfile && (PROFILES[seedProfile] || []).includes(id),
+              );
+
+              setWorkspaceIds((prev) => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+              });
+
+              if (divergesFromProfile) {
+                setSeedProfile(null);
+                setCustomFromProfile(seedProfile);
+                showToast(
+                  `${id} removed — configuration is now Custom (from ${seedProfile}). Re-select the profile from the switcher to restore full compliance.`,
                 );
               }
-            }
-            setBaselineLocked(true);
-          }
-        }}
-        onAddId={(id) => addWorkspaceIdsSmart(id, true)}
-        onRemoveId={(id) => {
-          // Decide before mutating anything. The previous order downgraded the
-          // profile first and only then discovered the removal was refused,
-          // which left the configuration permanently 'Custom' and the lock
-          // forced open while nothing had actually been removed.
-          if (lockedExtensions.has(id)) {
-            showToast(`Cannot remove ${id}: required by ${lockedExtensions.get(id).join(', ')}`);
-            return;
-          }
-          if (!workspaceIds.has(id)) return;
+            }}
+            onClear={() => {
+              setWorkspaceIds(new Set());
+              setSeedProfile(null);
+              setCustomFromProfile(null);
+              setParamChoices({});
+              setBaselineLocked(true);
+              try {
+                window.localStorage.removeItem(BUILDER_STORAGE_KEY);
+              } catch {
+                /* ignore */
+              }
+            }}
+            onLoadIds={(ids, profileName) => {
+              setWorkspaceIds(new Set()); // clear
+              addWorkspaceIdsSmart(ids); // smartly add all
+              setSeedProfile(profileName || null);
+              setCustomFromProfile(null); // fresh load resets origin tracking
+              setBaselineLocked(true);
+            }}
+            onSelectInstruction={({ extId, mnemonic, encoding, variable_fields, match, mask }) => {
+              // Navigate the main view to the specified extension + instruction
+              const targetExt = allExtsList.find((e) => e.id === extId);
+              if (targetExt) {
+                setSelectedExt(targetExt);
+                setSelectedInstruction({ mnemonic, encoding, variable_fields, match, mask });
+                setWorkspacePanelOpen(false); // close panel to reveal main view
+                // Scroll tile into view
+                requestAnimationFrame(() => {
+                  const el = document.getElementById(`ext-${extId}`);
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+              }
+            }}
+          />
+        </React.Suspense>
+      )}
 
-          // Reaching here means the removal will happen. A mandatory extension
-          // can only be unlocked, so this is the deliberate divergence path.
-          const divergesFromProfile = Boolean(
-            seedProfile && (PROFILES[seedProfile] || []).includes(id),
-          );
-
-          setWorkspaceIds((prev) => {
-            const next = new Set(prev);
-            next.delete(id);
-            return next;
-          });
-
-          if (divergesFromProfile) {
-            setSeedProfile(null);
-            setCustomFromProfile(seedProfile);
-            showToast(
-              `${id} removed — configuration is now Custom (from ${seedProfile}). Re-select the profile from the switcher to restore full compliance.`,
-            );
-          }
-        }}
-        onClear={() => {
-          setWorkspaceIds(new Set());
-          setSeedProfile(null);
-          setCustomFromProfile(null);
-          setParamChoices({});
-          setBaselineLocked(true);
-          try {
-            window.localStorage.removeItem(BUILDER_STORAGE_KEY);
-          } catch {
-            /* ignore */
-          }
-        }}
-        onLoadIds={(ids, profileName) => {
-          setWorkspaceIds(new Set()); // clear
-          addWorkspaceIdsSmart(ids); // smartly add all
-          setSeedProfile(profileName || null);
-          setCustomFromProfile(null); // fresh load resets origin tracking
-          setBaselineLocked(true);
-        }}
-        onSelectInstruction={({ extId, mnemonic, encoding, variable_fields, match, mask }) => {
-          // Navigate the main view to the specified extension + instruction
-          const targetExt = allExtsList.find((e) => e.id === extId);
-          if (targetExt) {
-            setSelectedExt(targetExt);
-            setSelectedInstruction({ mnemonic, encoding, variable_fields, match, mask });
-            setWorkspacePanelOpen(false); // close panel to reveal main view
-            // Scroll tile into view
-            requestAnimationFrame(() => {
-              const el = document.getElementById(`ext-${extId}`);
-              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            });
-          }
-        }}
+      {/* ── Custom Extension Sandbox ───────────────────────────────────── */}
+      <SandboxPanel
+        open={sandboxOpen}
+        onClose={() => setSandboxOpen(false)}
+        catalog={allExtsList}
+        extensions={sandboxExtensions}
+        onUpdateExtensions={setSandboxExtensions}
       />
 
       {/* ── Ask AI Launcher ── */}
-      <AskAiLauncher />
+      <AskAiLauncher context={askAiContext} />
 
       {/* ── Workspace Notices Toast ── */}
       <div

@@ -1,0 +1,156 @@
+name: Check UDB Completeness
+
+# Reports extensions and instructions that riscv-unified-db has ratified and
+# this catalogue does not carry.
+#
+# WHY THIS EXISTS
+#
+# scripts/sync_udb_extensions.cjs iterates OUR catalogue, so it enriches entries
+# we already have and can never add one we lack. Nothing watched the other
+# direction, which is how a ratified extension went unnoticed.
+#
+# Modelled on check-opcodes-drift.yml: one issue, edited in place while the gap
+# persists, closed automatically once it clears. A workflow that opens a fresh
+# issue every week is a workflow people mute.
+#
+# It reports rather than fails the build. The catalogue is a human-curated view
+# over upstream, and a gate that goes red the day RISC-V ratifies something is a
+# gate somebody switches off.
+
+on:
+  # Weekly, 09:00 UTC Monday. Staggered: the daily UDB sync runs at 06:00,
+  # check-opcodes-drift at 07:00 and audit-deps at 08:00, so no two weekly jobs
+  # contend for a runner or file reports in the same minute.
+  schedule:
+    - cron: '0 9 * * 1'
+
+  workflow_dispatch:
+
+# Reads the repository and writes an issue. It never pushes.
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: check-udb-completeness
+  cancel-in-progress: false
+
+jobs:
+  completeness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout the explorer repo
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Clone riscv-unified-db
+        id: udb
+        run: |
+          # Canonical location. riscv-software-src/ still redirects here, but
+          # relying on a redirect is one rename away from a silent failure.
+          git clone --depth 1 https://github.com/riscv/riscv-unified-db.git ../riscv-unified-db
+          echo "sha=$(git -C ../riscv-unified-db rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: Compare the catalogue against unified-db
+        id: check
+        run: |
+          set +e
+          npm run udb:check --silent -- ../riscv-unified-db > report.txt 2>&1
+          status=$?
+          set -e
+          cat report.txt
+
+          # Exit codes are a contract with the script: 0 complete, 1 gaps found,
+          # 2 the checkout could not be read. Conflating the last two would let a
+          # broken clone report a perfect catalogue.
+          if [ "${status}" -eq 0 ]; then
+            echo "complete=true" >> "$GITHUB_OUTPUT"
+          elif [ "${status}" -eq 1 ]; then
+            echo "complete=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "check-udb-completeness failed with status ${status}"
+            exit "${status}"
+          fi
+
+      - name: Find any existing report
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Match on a marker in the body, so an unrelated issue with a similar
+          # title cannot be mistaken for this report.
+          number=$(gh issue list --state open --label automated --limit 100 --json number,body \
+            --jq 'map(select(.body | contains("<!-- udb-completeness-report -->"))) | .[0].number // empty')
+          echo "number=${number}" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the report
+        if: steps.check.outputs.complete == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPSTREAM_SHA: ${{ steps.udb.outputs.sha }}
+          EXISTING: ${{ steps.existing.outputs.number }}
+        run: |
+          {
+            echo "<!-- udb-completeness-report -->"
+            echo "riscv-unified-db has ratified material this catalogue does not carry."
+            echo
+            echo '```'
+            cat report.txt
+            echo '```'
+            echo
+            echo "Upstream commit \`${UPSTREAM_SHA}\`. Reproduce locally:"
+            echo
+            echo '```'
+            echo "git clone --depth 1 https://github.com/riscv/riscv-unified-db.git ../riscv-unified-db"
+            echo "npm run udb:check -- ../riscv-unified-db"
+            echo '```'
+            echo
+            echo "Scope is **ratified only**. unified-db carries drafts and in-development"
+            echo "work too; pass \`--all\` to see those, but they are not completeness gaps."
+            echo
+            echo "**Not applied automatically.** Adding an extension is a curation decision:"
+            echo "it needs a description, a use case, a documentation link and a dependency"
+            echo "graph node, none of which unified-db supplies. See the \"To add an"
+            echo "extension\" section of AGENTS.md."
+            echo
+            echo "Closed automatically once the catalogue covers everything ratified."
+          } > body.md
+
+          if [ -n "${EXISTING}" ]; then
+            gh issue edit "${EXISTING}" --body-file body.md
+            gh issue comment "${EXISTING}" \
+              --body "Still incomplete as of upstream \`${UPSTREAM_SHA}\`. Report updated."
+          else
+            gh issue create \
+              --title "unified-db has ratified extensions we do not carry" \
+              --body-file body.md \
+              --label automated,data-sync
+          fi
+
+      - name: Close the report once complete
+        if: steps.check.outputs.complete == 'true' && steps.existing.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXISTING: ${{ steps.existing.outputs.number }}
+        run: |
+          gh issue close "${EXISTING}" \
+            --comment "The catalogue now covers everything unified-db has ratified. Closing automatically."
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ -f report.txt ]; then
+            {
+              echo '## UDB completeness'
+              echo
+              echo '```'
+              cat report.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi

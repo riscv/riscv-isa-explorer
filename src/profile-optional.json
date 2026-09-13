@@ -1,4 +1,29 @@
 {
+  "RVI20U32": [
+    "A",
+    "C",
+    "D",
+    "F",
+    "M",
+    "Zca",
+    "Zcd",
+    "Zcf",
+    "Zicntr",
+    "Zifencei",
+    "Zihpm"
+  ],
+  "RVI20U64": [
+    "A",
+    "C",
+    "D",
+    "F",
+    "M",
+    "Zca",
+    "Zcd",
+    "Zicntr",
+    "Zifencei",
+    "Zihpm"
+  ],
   "RVA20": [
     "Ssu64xl",
     "Sv48"

@@ -1,0 +1,13 @@
+# Fixture: the anyOf shape, two owning extensions.
+$schema: "inst_schema.json#"
+kind: instruction
+name: shared
+long_name: Owned by two extensions
+definedBy:
+  extension:
+    anyOf:
+      - name: Zfix
+      - name: Zwasfrozen
+assembly: xd, xs1, xs2
+encoding:
+  match: 0100000----------111-----0001011

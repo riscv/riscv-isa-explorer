@@ -1,0 +1,17 @@
+# Fixture: `not:` leaves exactly ONE legal value, so the field is pinned as
+# surely as if the match string had spelled it out. This is the fcvtmod.w.d
+# shape, and the case that was misreported as "upstream leaves this free".
+$schema: "inst_schema.json#"
+kind: instruction
+name: pinnedbynot
+definedBy:
+  extension:
+    name: Zfix
+encoding:
+  match: 0000011------------------0001011
+  variables:
+    - name: rs1
+      location: 19-15
+    - name: tt
+      location: 14-12
+      not: [0, 2, 3, 4, 5, 6, 7]

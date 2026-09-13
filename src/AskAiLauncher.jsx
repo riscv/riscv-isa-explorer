@@ -21,6 +21,7 @@ const LS_KEY = 'riscv-ai-corner';
  * itself, and gate rendering on it so a blocked or failed script leaves no
  * button rather than one that silently does nothing when clicked.
  */
+
 function kapaOpenReady() {
   return typeof window.Kapa?.open === 'function';
 }
@@ -45,7 +46,7 @@ function nearestCorner(x, y) {
   return `${v}-${h}`;
 }
 
-const AskAiLauncher = () => {
+const AskAiLauncher = ({ context = null }) => {
   const [corner, setCorner] = React.useState(() => {
     try {
       const saved = window.localStorage.getItem(LS_KEY);
@@ -59,6 +60,47 @@ const AskAiLauncher = () => {
   const [dragging, setDragging] = React.useState(false);
   const [dragPos, setDragPos] = React.useState(null);
   const [kapaReady, setKapaReady] = React.useState(kapaOpenReady);
+  const [buzzing, setBuzzing] = React.useState(false);
+
+  /*
+   * Buzz once when the launcher becomes contextual, so a reader who has just
+   * opened an extension notices the assistant can now answer about it.
+   *
+   * Keyed on the query rather than a boolean, so moving from Zba to Zbb buzzes
+   * again: that is a new thing to ask about. Clearing the selection does not
+   * buzz, because there is nothing to draw attention to.
+   *
+   * Cleared on a timer rather than animationend: animationend never fires under
+   * prefers-reduced-motion, where the animation is suppressed, and the class
+   * would then stay on forever holding its accent border.
+   */
+  React.useEffect(() => {
+    // Clearing the selection must also clear the class. Returning early without
+    // resetting left the chip stuck mid-buzz — holding its accent border and
+    // refusing to animate again — whenever the context went away inside the
+    // 700ms window.
+    if (!context?.query) {
+      setBuzzing(false);
+      return undefined;
+    }
+    /*
+     * Drop the class before re-adding it. Going Zba -> Zbb while the previous
+     * buzz is still running leaves ask-ai-btn--buzz continuously applied, and a
+     * CSS animation only restarts when the class is actually removed and put
+     * back. Without the frame in between, the second selection silently does
+     * not buzz.
+     */
+    setBuzzing(false);
+    let timeoutId;
+    const frameId = requestAnimationFrame(() => {
+      setBuzzing(true);
+      timeoutId = setTimeout(() => setBuzzing(false), 700);
+    });
+    return () => {
+      cancelAnimationFrame(frameId);
+      clearTimeout(timeoutId);
+    };
+  }, [context?.query]);
 
   const dragStartRef = React.useRef(null);
 
@@ -89,8 +131,33 @@ const AskAiLauncher = () => {
 
   const openKapa = React.useCallback(() => {
     if (!kapaOpenReady()) return;
-    window.Kapa.open({ mode: 'ai' });
-  }, []);
+    // `query` pre-fills kapa's box and `submit` sends it, so a reader who
+    // clicked "Ask AI" with Zba open gets the answer rather than a form to
+    // press enter on. Without a selection there is nothing to ask, so the
+    // modal opens empty and waits.
+    // Whether to send is the caller's decision: an extension or instruction is
+    // a clean single question worth asking outright, while the builder opens a
+    // sentence for the reader to finish.
+    const args = context?.query
+      ? { mode: 'ai', query: context.query, submit: Boolean(context.submit) }
+      : { mode: 'ai' };
+
+    /*
+     * Plain open, no lifecycle games.
+     *
+     * An unmount()/render() cycle on every click was tried, to force a fresh
+     * conversation. It coincided with kapa answering "We noticed unusual
+     * activity. Please try asking your question again." — its bot protection.
+     * That is unsurprising in hindsight: tearing down and recreating the widget
+     * on every press also tears down the reCAPTCHA context it is protected by,
+     * and rapid remount-then-submit is exactly what automated abuse looks like.
+     *
+     * Fresh conversations are not worth breaking the assistant for. kapa
+     * exposes no supported reset (docs list only open/close/render/unmount and
+     * setSourceGroupIDs); asking them for one is the route, not remounting.
+     */
+    window.Kapa.open(args);
+  }, [context]);
 
   const onPointerDown = React.useCallback((e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -190,7 +257,9 @@ const AskAiLauncher = () => {
         }}
       >
         <button
-          className={`ask-ai-btn${dragging ? ' ask-ai-btn--dragging' : ''}`}
+          className={`ask-ai-btn${dragging ? ' ask-ai-btn--dragging' : ''}${
+            buzzing && !dragging ? ' ask-ai-btn--buzz' : ''
+          }`}
           aria-label="Ask AI Assistant"
           title="Ask AI — Click to open, drag to move"
           onClick={(e) => e.stopPropagation()}

@@ -23,12 +23,53 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
+/*
+ * The families, and the UDB profiles each resolves from.
+ *
+ * The A and B families are U64+S64 pairs. RVI20 is unprivileged and has no
+ * supervisor half, so each of its two profiles stands alone — the second slot
+ * is simply absent, and resolve() returns {} for it.
+ *
+ * RVI20 matters more here than its size suggests: it mandates nothing beyond
+ * the base ISA, so ALL of its content is optional. Without an entry the builder
+ * offers no add-chips at all and the profile reads as empty rather than minimal.
+ */
 const PROFILE_PAIRS = {
+  RVI20U32: ['RVI20U32'],
+  /*
+   * RVI20U64 resolves from RVI20U32 rather than from its own file, because its
+   * file has no `extensions:` block at all — it inherits the whole document:
+   *
+   *   $inherits: "profile/RVI20U32.yaml#"
+   *
+   * Teaching resolve() to follow that generally is tempting and wrong. The A
+   * and B chains inherit from RVI20U64 too, and following it there re-admits
+   * Zca, Zcd, Zcf and Zifencei as RVA23 options, which the ratified profile
+   * does not list — SPEC_CHECK below catches it. Naming the parent here keeps
+   * the fix where the difference actually is.
+   */
+  RVI20U64: ['RVI20U32'],
   RVA20: ['RVA20U64', 'RVA20S64'],
   RVA22: ['RVA22U64', 'RVA22S64'],
   RVA23: ['RVA23U64', 'RVA23S64'],
   RVB23: ['RVB23U64', 'RVB23S64'],
 };
+
+/*
+ * Extensions that exist for one XLEN only, and the XLEN they belong to.
+ *
+ * UDB's RVI20U64 inherits RVI20U32 wholesale with no `$remove`, so Zcf — the
+ * compressed single-precision loads and stores, which the Zc specification
+ * defines for RV32 alone — is inherited into a 64-bit profile. Offering it
+ * there would put an unbuildable chip in front of the reader. The catalogue
+ * already carries the same fact in its tags: Zcf is `rv32_c_f`, while Zcd is
+ * `rv_c_d` and is correctly available to both.
+ */
+const XLEN_ONLY = { Zcf: 32 };
+
+/** The XLEN each family targets. Everything but RVI20U32 is 64-bit. */
+const FAMILY_XLEN = { RVI20U32: 32 };
+const xlenOf = (family) => FAMILY_XLEN[family] ?? 64;
 
 // From the ratified RVA23 profiles document. The resolver must reproduce these
 // exactly; if it cannot, the inheritance rules have changed upstream and the
@@ -146,6 +187,8 @@ for (const [family, [u, s]] of Object.entries(PROFILE_PAIRS)) {
   ]
     // An extension mandatory in either half is not optional for the pair.
     .filter((k) => !mandatory.has(k))
+    // ...nor is one that cannot exist at this profile's XLEN.
+    .filter((k) => !(k in XLEN_ONLY) || XLEN_ONLY[k] === xlenOf(family))
     .sort();
   optionalByFamily[family] = optional;
   void merged;

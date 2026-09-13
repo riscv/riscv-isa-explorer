@@ -8,15 +8,37 @@
  * than an -march token). scripts/emit-march-matrix.mjs now emits a string per
  * profile so CI checks them against a real toolchain on every commit.
  *
- * Each entry lists the MANDATORY extensions of the profile's U64+S64 pair, by
- * catalog id. Dependencies are deliberately NOT expanded here: the graph does
- * that, so this stays a faithful transcription of the specification.
+ * Each entry lists the MANDATORY extensions of a profile, by catalog id.
+ * Dependencies are deliberately NOT expanded here: the graph does that, so
+ * this stays a faithful transcription of the specification.
+ *
+ * For the A and B families an entry is the profile's U64+S64 pair merged, so
+ * "RVA23" means RVA23U64 plus RVA23S64. RVI20 has no supervisor half, so its
+ * two profiles appear under their own names.
  */
 
 // ---------------------------------------------------------------------------
-// Profile Definitions – mandatory sets (U64+S64) for RVA20/22/23/RVB23
+// Profile Definitions – RVI20 (unprivileged), and the mandatory U64+S64 sets
+// for RVA20/22/23 and RVB23
 // ---------------------------------------------------------------------------
 export const PROFILES = {
+  /*
+   * RVI20U32 / RVI20U64 — the unprivileged profiles, and the floor of the
+   * whole scheme: "the minimum level of compatibility with RISC-V ratified
+   * standards" (Profiles v1.0 §4.1).
+   *
+   * Both lists are the base ISA alone, which is not an omission. §4.1.1.2 and
+   * §4.1.2.2 each read, in full, "There are no mandatory extensions for
+   * RVI20U32/RVI20U64." M, A, F, D, C, Zifencei, Zicntr and Zihpm are all
+   * *options* here, which is exactly what separates RVI20 from RVA20.
+   *
+   * They are also the only entries named U32/U64 rather than by family. The
+   * others below merge a U64 and an S64 profile under one name; RVI20 is
+   * unprivileged, has no supervisor half to merge, and exists in both XLENs.
+   */
+  RVI20U32: ['RV32I'],
+  RVI20U64: ['RV64I'],
+
   // RVA20U64 + RVA20S64 – baseline “RV64GC-like” profile
   RVA20: [
     'RV64I',

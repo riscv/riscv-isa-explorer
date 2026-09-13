@@ -5,6 +5,15 @@ on:
   push:
     branches: [main]
 
+# Read-only by default, so build-and-test gets a token that can do nothing but
+# fetch the code it compiles. Without this the workflow inherits whatever the
+# repository default happens to be, which is write in many configurations: a
+# build job would then hold a token able to push to main, for no reason it can
+# use. The deploy job below opts back up to contents: write, which is the one
+# job that genuinely publishes.
+permissions:
+  contents: read
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest

@@ -6,6 +6,8 @@ get a dependency-resolved configuration with a valid `-march` string.
 
 **[Open the live site](https://riscv.github.io/riscv-isa-explorer/)**
 
+[![The explorer showing the extension catalogue with Zba selected, its description, use case and instruction set alongside](docs/screenshot.jpg)](https://riscv.github.io/riscv-isa-explorer/)
+
 [![CI](https://github.com/riscv/riscv-isa-explorer/actions/workflows/ci.yml/badge.svg)](https://github.com/riscv/riscv-isa-explorer/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![DCO](https://img.shields.io/badge/DCO-required-brightgreen.svg)](DCO)
@@ -21,12 +23,26 @@ get a dependency-resolved configuration with a valid `-march` string.
   a starting point rather than being rebuilt by hand.
 - **Export** a `-march` string, a YAML configuration, or a `riscv-config`
   compatible file.
+- **Compare entries.** Pin extensions, instructions or profiles and read them
+  side by side; a comparison has its own URL and can be shared.
 - **Check an encoding.** The Encoder Validator tests a proposed instruction
   pattern against every existing one and reports overlaps.
 - **See the encoding space.** The Encoding Map draws the 32 base opcode slots,
   shaded by how many instructions each holds, and shows what is still free.
+- **Design an extension that does not exist yet.** The Custom Extension Sandbox
+  lets you draft a custom vendor extension or an addition to a ratified one,
+  lay out the bit encodings, check them against every instruction in the
+  catalogue, and export `riscv-opcodes` JSON plus a proposal document.
+  See [docs/sandbox.md](docs/sandbox.md).
 - **Link out to the specification.** Each extension links to its section on
   docs.riscv.org.
+
+## Something look wrong?
+
+The catalogue is the product, so a bad description, a missing dependency or a
+wrong encoding matters more here than most bugs. Open an issue and cite the
+specification section or the `riscv-unified-db` file that says otherwise. That
+turns a report into a fix, and it is usually a small change.
 
 ## Quickstart
 
@@ -48,14 +64,24 @@ docker compose up --build
 
 ## Where the data comes from
 
-Three sources with different authority, which is worth knowing before changing
-anything:
+Four files carry the data, and they do not have the same authority. Worth
+knowing before changing anything:
 
 | file | holds | source of truth |
 |---|---|---|
-| `src/riscv_extensions.json` | the extension catalogue, and instruction encodings per extension | [riscv-opcodes](https://github.com/riscv/riscv-opcodes), via `src/instr_dict.json` |
-| `src/isa-dependency-graph.json` | dependencies, conflicts and parameters, with a citation on every edge | [riscv-unified-db](https://github.com/riscv-software-src/riscv-unified-db) |
+| `src/riscv_extensions.json` | the extension catalogue, plus the instruction encodings routed into each extension | [riscv-unified-db](https://github.com/riscv/riscv-unified-db) for metadata and ratification state; `src/instr_dict.json` for encodings |
+| `src/instr_dict.json` | the instruction encodings themselves | **hand-maintained.** Checked against [riscv-opcodes](https://github.com/riscv/riscv-opcodes), but it carries entries upstream lacks and is never regenerated |
+| `src/isa-dependency-graph.json` | dependencies, conflicts and parameters, with a citation on every edge | [riscv-unified-db](https://github.com/riscv/riscv-unified-db) |
 | `src/profiles.js` | the ratified profiles | the profile specifications |
+
+Two things fall outside that table, because no upstream carries them. The
+**Zve\* embedded vector subsets** are derived from V by the EEW/FP rules in
+unpriv §30.1.18.2 — riscv-opcodes has no `rv_zve*` tag and unified-db attributes
+every vector instruction to a single owner, so neither can say what belongs in
+Zve32x. And the **SPMP family** (Sspmp, Sspmpen, Smpmpdeleg) is ratified in a
+specification of its own that unified-db does not model at all; its dependency
+edges cite that document through the graph's `spec` provenance source. Both are
+places where the usual checks cannot help, so both are pinned by tests.
 
 `riscv-unified-db` is normative for dependencies. clang is the check that what we
 emit is actually usable: CI feeds every generated `-march` string to a real
@@ -66,7 +92,7 @@ one being quietly preferred.
 Regenerate with:
 
 ```bash
-npm run sync          # instruction encodings from riscv-opcodes
+npm run sync          # route src/instr_dict.json into the catalogue
 npm run sync:udb      # extension metadata from riscv-unified-db
 node scripts/seed-dependency-graph.mjs --udb <path-to-riscv-unified-db>
 node scripts/map-doc-links.mjs                # documentation links
@@ -85,7 +111,7 @@ npm run opcodes:check -- <path-to-riscv-opcodes>
 
 | | how it refreshes |
 |---|---|
-| extension metadata, CSRs, ratification state | the `sync-udb-extensions` workflow, Mondays at 06:00 UTC, opens a PR |
+| extension metadata, CSRs, ratification state | the `sync-udb-extensions` workflow, daily at 06:00 UTC, opens or updates a PR when a file changes |
 | the published site | any push to `main` rebuilds and publishes to `gh-pages` |
 | instruction encodings | **by hand.** The `check-opcodes-drift` workflow, Mondays at 07:00 UTC, files an issue when upstream is ahead |
 
@@ -95,7 +121,7 @@ loads, which riscv-opcodes does not express at all, and the MOP and C.MOP
 encodings expanded from upstream's three `_n` templates. A regenerate would
 delete them, so the drift check reports and leaves the decision to a person.
 
-It compares mnemonics rather than encodings, ignores upstream's 172
+It compares mnemonics rather than encodings, ignores upstream's
 `$pseudo_op` aliases (`mv` is `addi rd, rs, 0`, an encoding we already carry),
 and counts `extensions/unratified/` separately rather than treating drafts as
 gaps to fill.
@@ -115,7 +141,7 @@ gaps to fill.
 ## Tests
 
 ```bash
-npm test        # 209 tests
+npm test
 ```
 
 CI runs the tests, builds, then validates the generated `-march` strings against

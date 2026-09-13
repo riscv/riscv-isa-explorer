@@ -85,3 +85,35 @@ test('satp translation modes are excluded from -march', () => {
     assert.ok(!NON_MARCH_IDS.has(real), `${real} is a valid -march extension and should be emitted`);
   }
 });
+
+test('RVI20 mandates its base ISA and nothing else', () => {
+  /*
+   * The whole character of RVI20 is that everything is optional: §4.1.1.2 and
+   * §4.1.2.2 of the profiles document each read "There are no mandatory
+   * extensions." Adding M or C here — as every other profile in this table
+   * does — would silently promote an option into a requirement and make the
+   * generated -march wrong for the one profile whose point is minimalism.
+   */
+  assert.deepEqual(PROFILES.RVI20U32, ['RV32I']);
+  assert.deepEqual(PROFILES.RVI20U64, ['RV64I']);
+});
+
+test('RVI20 offers its options, and only ones that fit its XLEN', () => {
+  const optional = JSON.parse(
+    fs.readFileSync(
+      path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'profile-optional.json'),
+      'utf8',
+    ),
+  );
+  for (const name of ['RVI20U32', 'RVI20U64']) {
+    for (const id of ['M', 'A', 'F', 'D', 'C', 'Zifencei', 'Zicntr', 'Zihpm']) {
+      assert.ok(optional[name]?.includes(id), `${name} should offer ${id}`);
+    }
+  }
+  // Zcf is the compressed single-precision pair, defined for RV32 only. UDB's
+  // RVI20U64 inherits RVI20U32 wholesale and so lists it; offering it on a
+  // 64-bit profile would put an unbuildable chip in front of the reader.
+  assert.ok(optional.RVI20U32.includes('Zcf'), 'RV32 gets Zcf');
+  assert.ok(!optional.RVI20U64.includes('Zcf'), 'RV64 must not');
+  assert.ok(optional.RVI20U64.includes('Zcd'), 'Zcd is defined for both XLENs');
+});

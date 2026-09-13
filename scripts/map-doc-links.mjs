@@ -79,6 +79,13 @@ const OTHER_SPECS = {
   Sdtrigepm: `${REF}/debug/index.html`,  Sdtrigpend: `${REF}/debug/index.html`,
   Ssqosid: `${REF}/cbqri/index.html`,    RERI: `${REF}/ras-eri/index.html`,
 
+  // SPMP is ratified but published only as a PDF attachment — there is no HTML
+  // chapter for it. /isa/extensions/sspmp/ and its index.html are both 404s,
+  // while the attachment resolves, so the attachment is the link.
+  Sspmp: `${REF}/isa/extensions/sspmp/_attachments/riscv-spmp.pdf`,
+  Sspmpen: `${REF}/isa/extensions/sspmp/_attachments/riscv-spmp.pdf`,
+  Smpmpdeleg: `${REF}/isa/extensions/sspmp/_attachments/riscv-spmp.pdf`,
+
   // RV128 is not served by the unversioned snapshot at all — /isa/unpriv/rv128
   // is a 404, as are rv128i, rv-128 and quad — while the dated v20240411 path
   // resolves. It is an unfrozen draft ("We have not frozen the RV128 spec at

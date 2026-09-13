@@ -42,7 +42,7 @@ Node.js and npm are the only requirements.
 ```bash
 npm ci
 npm run build     # outputs to dist/
-npm test          # 114 tests, no network access needed
+npm test          # no network access needed
 ```
 
 To see it running:

@@ -1,0 +1,6 @@
+# Fixture: no definedBy at all. Ownership falls back to the directory name.
+$schema: "inst_schema.json#"
+kind: instruction
+name: unowned
+encoding:
+  match: 0000010----------010-----0001011

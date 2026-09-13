@@ -170,6 +170,10 @@ pre,
   background: var(--riscv-border-2);
 }
 
+.scrollbar-stable {
+  scrollbar-gutter: stable;
+}
+
 /* ─── Animations ─────────────────────────────────────────────────────────── */
 @keyframes fadeInUp {
   from {
@@ -322,7 +326,9 @@ pre,
 
 /* A bit position the compared instructions disagree on. Refined border and glow so bit digits inside stay completely legible. */
 .riscv-bit-diff {
-  box-shadow: inset 0 0 0 1.5px var(--riscv-gold), 0 0 5px rgba(245, 197, 66, 0.4);
+  box-shadow:
+    inset 0 0 0 1.5px var(--riscv-gold),
+    0 0 5px rgba(245, 197, 66, 0.4);
   position: relative;
   font-weight: 700;
   color: var(--riscv-text) !important;
@@ -633,6 +639,10 @@ pre,
 }
 
 /* Cards need a real edge on light; on dark the glow did that work. */
+:root[data-theme='light'] .riscv-evo {
+  --evo-accent: #003262;
+}
+
 :root[data-theme='light'] .riscv-card,
 :root[data-theme='light'] .riscv-card-2 {
   box-shadow:
@@ -1342,7 +1352,9 @@ pre,
 }
 .compare-attr.compare-diff {
   background: var(--riscv-panel) !important;
-  box-shadow: inset 3px 0 0 var(--riscv-violet), 2px 0 10px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    inset 3px 0 0 var(--riscv-violet),
+    2px 0 10px rgba(0, 0, 0, 0.08);
   color: var(--riscv-violet);
   font-weight: 700;
 }
@@ -1350,7 +1362,7 @@ pre,
 /* Header toolbar. A full-width plate holding filters on the left and actions
    on the right. Full width on purpose: every clipping bug in this header came
    from packing thirteen controls into a right-hand column narrower than they
-   needed, where an overflow-x-hidden root cut the surplus off instead of
+   needed, where an overflow-x-clip root cut the surplus off instead of
    wrapping it. A full-width row wraps. */
 .riscv-toolbar {
   padding: 8px 12px;
@@ -1611,7 +1623,9 @@ pre,
   max-width: min(96vw, 1060px);
   background: var(--riscv-panel);
   border: 1px solid var(--riscv-tint-4);
-  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 20px 48px -10px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 18px;
@@ -1620,13 +1634,17 @@ pre,
   align-items: center;
   gap: 12px;
   animation: dockSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 :root[data-theme='light'] .riscv-compare-dock {
   background: rgba(255, 255, 255, 0.94);
   border-color: rgba(0, 0, 0, 0.12);
-  box-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 20px 48px -10px rgba(0, 0, 0, 0.18),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .riscv-dock-tab-group {
@@ -1727,7 +1745,9 @@ pre,
   background: var(--riscv-surface-2);
   border: 1px solid var(--riscv-border-2);
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
   flex-shrink: 0;
 }
 
@@ -1743,7 +1763,9 @@ pre,
   border-radius: 999px;
   background: var(--riscv-text-3);
   transform: translateX(2px);
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
@@ -1796,11 +1818,17 @@ pre,
  * --------------------------------------------------------------------------- */
 
 @keyframes ai-pulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(139, 124, 248, 0), 0 4px 16px rgba(0, 0, 0, 0.4);
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(139, 124, 248, 0),
+      0 4px 16px rgba(0, 0, 0, 0.4);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(139, 124, 248, 0.2), 0 0 16px rgba(139, 124, 248, 0.25), 0 6px 20px rgba(0, 0, 0, 0.5);
+    box-shadow:
+      0 0 0 4px rgba(139, 124, 248, 0.2),
+      0 0 16px rgba(139, 124, 248, 0.25),
+      0 6px 20px rgba(0, 0, 0, 0.5);
   }
 }
 
@@ -1844,16 +1872,30 @@ pre,
   align-items: center;
   justify-content: center;
   gap: 3px;
-  width: 66px;
-  height: 62px;
-  padding: 6px 4px 5px;
+  /* Sizes to its label. It was a fixed 66x62 box with overflow:hidden, from
+     when the label was always the two short words "Ask AI"; once it says
+     "Ask about Zvbc32e" that box clips the extension name off the bottom.
+     The minimum keeps the idle chip the size it has always been, and the
+     maximum stops a long id stretching it across the viewport. */
+  width: auto;
+  min-width: 66px;
+  max-width: 148px;
+  height: auto;
+  min-height: 62px;
+  padding: 6px 10px 5px;
   border-radius: 15px;
   border: 1px solid rgba(139, 124, 248, 0.4);
   background: #1e1b3a;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   animation: ai-pulse 3s ease-in-out infinite;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, transform 0.16s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease,
+    transform 0.16s ease;
   overflow: hidden;
   user-select: none;
 }
@@ -1861,7 +1903,9 @@ pre,
 .ask-ai-btn:hover {
   border-color: rgba(245, 197, 66, 0.85);
   background: #28244c;
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5), 0 0 16px rgba(245, 197, 66, 0.3);
+  box-shadow:
+    0 6px 22px rgba(0, 0, 0, 0.5),
+    0 0 16px rgba(245, 197, 66, 0.3);
   transform: scale(1.06);
   animation: none;
 }
@@ -1886,10 +1930,56 @@ pre,
 .ask-ai-btn__label {
   font-size: 11.5px;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.15;
   color: #ffffff;
   letter-spacing: 0.02em;
   pointer-events: none;
+  text-align: center;
+  /* Extension ids are unbroken tokens with no spaces to wrap at, so a long one
+     would push past the chip's edge. Allow a break anywhere inside the word,
+     then clamp to two lines and ellipsise rather than growing without limit. */
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* A short buzz when the launcher becomes contextual.
+   Fires once per selection change, not on a loop: a chip that shakes forever
+   is noise, and this one already carries a slow idle pulse. Written as a
+   compound selector so it beats the .ask-ai-btn pulse on specificity rather
+   than relying on source order. */
+@keyframes ask-ai-buzz {
+  0% {
+    transform: translateX(0) rotate(0deg) scale(1);
+  }
+  12% {
+    transform: translateX(-3px) rotate(-4deg) scale(1.06);
+  }
+  28% {
+    transform: translateX(3px) rotate(4deg) scale(1.06);
+  }
+  44% {
+    transform: translateX(-2px) rotate(-2.5deg) scale(1.04);
+  }
+  60% {
+    transform: translateX(2px) rotate(2.5deg) scale(1.03);
+  }
+  78% {
+    transform: translateX(-1px) rotate(-1deg) scale(1.01);
+  }
+  100% {
+    transform: translateX(0) rotate(0deg) scale(1);
+  }
+}
+
+.ask-ai-btn.ask-ai-btn--buzz {
+  animation: ask-ai-buzz 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  border-color: rgba(244, 176, 27, 0.85);
+  box-shadow:
+    0 4px 20px rgba(244, 176, 27, 0.35),
+    0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 /* ── Snap-zone corner hints ─────────────────────────────────────────────── */
@@ -1900,7 +1990,10 @@ pre,
   border-radius: 15px;
   border: 1.5px dashed rgba(139, 124, 248, 0.35);
   background: rgba(139, 124, 248, 0.06);
-  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
 }
 
 .ask-ai-snap-hint--active {
@@ -1912,7 +2005,449 @@ pre,
 /* The idle pulse and the settle are decorative; honour a reduced-motion request. */
 @media (prefers-reduced-motion: reduce) {
   .ask-ai-launcher,
-  .ask-ai-btn {
+  .ask-ai-btn,
+  .ask-ai-btn.ask-ai-btn--buzz {
     animation: none;
   }
+}
+
+/* Selected Details dismiss.
+   Previously styled with slate-* literals because it only appeared on mobile,
+   over a dark surface. It is visible in both themes now, so it takes its
+   colours from the tokens like everything else.
+
+   It borrows the report palette rather than a new red: those tokens are already
+   theme-aware and already read as "this removes/reports something". Red suits a
+   dismiss in a way it did not suit the About control, which is informational. */
+.riscv-panel-dismiss {
+  color: var(--riscv-report-fg);
+  background: var(--riscv-report-tint);
+  border: 1px solid transparent;
+}
+.riscv-panel-dismiss:hover {
+  color: var(--riscv-report-fg);
+  background: var(--riscv-report-tint-hover);
+  border-color: var(--riscv-report-edge);
+}
+.riscv-panel-dismiss:focus-visible {
+  outline: 2px solid var(--riscv-report-fg);
+  outline-offset: 2px;
+}
+
+/* ── evolution: growth curve + family lifecycles ───────────────────────── */
+
+.riscv-evo {
+  /*
+   * Berkeley's two brand colours, one per ground. Neither works on both: gold is
+   * 1.78:1 on white and blue is 1.32:1 on the dark surface, so a single accent
+   * would fail one theme outright. Paired to their own grounds they measure
+   * 9.57:1 and 12.86:1. Dark is the default theme here, so gold lives on :root.
+   */
+  --evo-accent: #fdb515;
+  --inset: 18px;
+  /*
+   * Eighteen hues solved to the SAME relative luminance (~0.205), which is the
+   * only band that clears 3:1 against both the white and the near-black ground.
+   * A conventional palette needs a light and a dark variant; equal-luminance
+   * needs one, and every hue measures ~4.1:1 in both themes.
+   *
+   * Eighteen colours is past what anyone reliably tells apart from memory, so
+   * the legend is interactive: hovering a family dims the rest. The colours
+   * group a column into bands; the legend is what identifies them.
+   */
+  --evo-c0: #e04444;
+  --evo-c1: #189040;
+  --evo-c2: #b14fe2;
+  --evo-c3: #828215;
+  --evo-c4: #1e85b8;
+  --evo-c5: #e03e73;
+  --evo-c6: #189118;
+  --evo-c7: #8f63e6;
+  --evo-c8: #a3751a;
+  --evo-c9: #178a8b;
+  --evo-c10: #de32a4;
+  --evo-c11: #3f8e17;
+  --evo-c12: #6f6fe7;
+  --evo-c13: #cd5b21;
+  --evo-c14: #178e66;
+  --evo-c15: #d623d6;
+  --evo-c16: #628916;
+  --evo-c17: #4679e1;
+  font-size: 12px;
+  color: var(--riscv-text-2);
+}
+
+/* Sits at the end of the first caption row rather than in a header of its own:
+   one line of chrome instead of two. */
+.riscv-evo__play {
+  margin-left: auto;
+  border: 1px solid var(--riscv-border);
+  background: var(--riscv-surface-2);
+  color: var(--riscv-text-2);
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.riscv-evo__play:hover {
+  color: var(--riscv-text);
+  border-color: var(--riscv-border-2);
+}
+
+.riscv-evo__fig {
+  margin: 14px 0 0;
+}
+
+.riscv-evo__fig figcaption {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--riscv-text-3);
+  margin-bottom: 6px;
+}
+
+.riscv-evo__read {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 700;
+  color: var(--riscv-text);
+}
+
+.riscv-evo__hint {
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--riscv-text-3);
+}
+
+/* The viewBox is regenerated from the measured width, so one SVG unit is one
+   CSS pixel and nothing needs to compensate for a non-uniform scale. */
+.riscv-evo__plot {
+  position: relative;
+}
+
+/*
+ * One animation, inherited by every layer inside the plot, so the mass, the
+ * guide and the dots are revealed by the same moving edge: a dot becomes
+ * visible exactly as the curve reaches its month.
+ */
+/*
+ * Two mechanisms for one sweep, because no single one works everywhere.
+ *
+ * The SVG mass and guide are clipped by a <clipPath> applied through the SVG
+ * attribute, and the rect inside it is wiped with a transform. WebKit does not
+ * support the CSS clip-path property on SVG elements at all, so animating that
+ * silently did nothing on iOS: the curve appeared complete from the first frame
+ * while only the dots swept.
+ *
+ * The dot layer is an HTML element, where CSS clip-path is well supported, so it
+ * keeps the inset animation. Both run on the same duration, timing function and
+ * iteration count, which is what keeps them in lockstep.
+ */
+@keyframes riscv-evo-wipe {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes riscv-evo-sweep {
+  from {
+    -webkit-clip-path: inset(0 100% 0 0);
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    -webkit-clip-path: inset(0 0 0 0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* fill-box so the wipe grows from the plot's own left edge, not the viewport's. */
+.riscv-evo__wipe {
+  transform-box: fill-box;
+  transform-origin: left center;
+}
+
+.riscv-evo__plot.is-sweeping .riscv-evo__wipe {
+  animation: riscv-evo-wipe 7s linear infinite;
+}
+
+.riscv-evo__plot.is-sweeping .riscv-evo__field {
+  animation: riscv-evo-sweep 7s linear infinite;
+}
+
+/* Stopped means finished, not frozen mid-sweep. */
+.riscv-evo__plot:not(.is-sweeping) .riscv-evo__field {
+  -webkit-clip-path: none;
+  clip-path: none;
+}
+
+/*
+ * Deliberately no prefers-reduced-motion rule here.
+ *
+ * Reduced motion suppresses the AUTOPLAY -- the component starts paused when the
+ * setting is on, so nothing moves unless asked. Killing the animation in CSS as
+ * well meant pressing Replay did nothing at all, which reads as a broken button
+ * rather than as a respected preference. Movement the reader explicitly asks for
+ * is the one kind reduced-motion is not meant to forbid.
+ */
+
+.riscv-evo__curve {
+  display: block;
+  width: 100%;
+  height: 240px;
+  overflow: visible;
+}
+
+.riscv-evo__grid {
+  stroke: var(--riscv-border);
+  stroke-width: 1;
+}
+
+.riscv-evo__ylabel {
+  fill: var(--riscv-text-3);
+  font-size: 10px;
+  text-anchor: end;
+  font-variant-numeric: tabular-nums;
+}
+
+/* The mass carries the data; the line rides over it as a guide. */
+/* The stacked bands carry the data; the line rides over them as a guide.
+   A hairline separator keeps adjacent bands from fusing where two families
+   happen to sit next to each other in similar tones. */
+.riscv-evo__mass path {
+  stroke: var(--riscv-surface);
+  stroke-width: 0.5;
+  transition: opacity 0.16s ease;
+}
+
+.riscv-evo__mass path.is-dim {
+  opacity: 0.12;
+}
+
+/* vector-effect keeps the stroke one pixel wide however far the viewBox is
+   stretched horizontally; without it a non-uniform scale smears the line. */
+.riscv-evo__line {
+  fill: none;
+  stroke: var(--evo-accent);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.riscv-evo__dot {
+  fill: var(--evo-accent);
+}
+
+/* The steepest year earns a marker. It is the one number in the chart worth
+   carrying away, so it is drawn rather than left to be inferred. */
+.riscv-evo__dot.is-peak {
+  stroke: var(--riscv-surface);
+  stroke-width: 2.5;
+}
+
+/* Dots are absolutely placed on a shared calendar scale, inset by half a dot at
+   each end so nothing overflows the field. The year axis below uses the same
+   inset, so a dot sits over the year it belongs to. */
+/* Laid over the SVG rather than beside it: same box, same scales, one chart. */
+.riscv-evo__field {
+  position: absolute;
+  inset: 0;
+}
+
+.riscv-evo__pt {
+  position: absolute;
+  /* left/top come from the component, in the SVG's own pixel space. */
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--c);
+  cursor: pointer;
+  transition: opacity 0.16s ease;
+}
+
+/* Dimmed rather than hidden: the shape of the whole field stays legible while
+   one family is picked out of it. */
+.riscv-evo__pt.is-dim {
+  opacity: 0.12;
+}
+
+.riscv-evo__pt:hover,
+.riscv-evo__pt:focus-visible {
+  outline: 2px solid var(--riscv-text);
+  outline-offset: 1px;
+  z-index: 2;
+}
+
+/* Separated by a rule and its own label, so nothing here can be read as sitting
+   at a point on the axis above. */
+.riscv-evo__nodate {
+  margin-top: 10px;
+  padding-top: 9px;
+  border-top: 1px dashed var(--riscv-border-2);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.riscv-evo__nodatelabel {
+  font-size: 10.5px;
+  color: var(--riscv-text-3);
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  flex: none;
+}
+
+.riscv-evo__nodatelabel b {
+  color: var(--riscv-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Flow, not absolute placement: these dots have no coordinate to be placed at,
+   and packing them in a row says so more plainly than any caption. */
+.riscv-evo__nodatefield {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  flex: 1 1 240px;
+  align-content: flex-start;
+}
+
+/* The undated band has no coordinates at all, so its dots flow instead. */
+.riscv-evo__pt.is-loose {
+  position: static;
+  top: auto;
+  left: auto;
+  margin: 0;
+  flex: none;
+}
+
+.riscv-evo__key {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.riscv-evo__keybtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 0;
+  padding: 1px 0;
+  background: none;
+  font: inherit;
+  font-size: 10.5px;
+  color: var(--riscv-text-2);
+  cursor: pointer;
+  transition: opacity 0.16s ease;
+}
+
+.riscv-evo__keybtn.is-dim {
+  opacity: 0.3;
+}
+
+.riscv-evo__keybtn i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--c);
+  flex: none;
+}
+
+.riscv-evo__keybtn b {
+  color: var(--riscv-text-3);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.riscv-evo__keybtn:hover,
+.riscv-evo__keybtn:focus-visible {
+  color: var(--riscv-text);
+}
+
+/* Inherits --inset from the field above so a label sits under its own cloud. */
+.riscv-evo__axis {
+  position: relative;
+  height: 14px;
+  margin: 5px 0 0;
+}
+
+.riscv-evo__year {
+  position: absolute;
+  top: 0;
+  left: calc(var(--inset) + var(--x) * (100% - var(--inset) * 2));
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--riscv-text-3);
+}
+
+.riscv-evo__year.is-current {
+  color: var(--riscv-text);
+  font-weight: 700;
+}
+
+.riscv-evo__foot {
+  margin: 14px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--riscv-border);
+  font-size: 11.5px;
+  color: var(--riscv-text-3);
+}
+
+.riscv-evo__foot b {
+  color: var(--riscv-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .riscv-evo__pt,
+  .sandbox-bit-cell,
+  .sandbox-panel,
+  .sandbox-panel * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Custom Extension Sandbox — interactive 32-bit instruction editor */
+.sandbox-bit-cell {
+  height: 32px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: clamp(9px, 0.9vw, 13px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+  min-width: 0;
+  padding: 0;
+}
+.sandbox-bit-cell:hover {
+  background: var(--riscv-tint-4) !important;
+  color: var(--riscv-text) !important;
+}
+.sandbox-bit-cell:focus-visible {
+  outline: 2px solid var(--riscv-accent-4, #60a5fa);
+  outline-offset: -2px;
+  z-index: 10;
 }

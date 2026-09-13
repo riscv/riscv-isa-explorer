@@ -299,3 +299,123 @@ test('the vector crypto note names its family by prefix, not by enumeration', ()
   assert.ok(note, 'a vector crypto note should exist');
   assert.match(note, /Zvk\*/, 'name the family by prefix so it cannot drift as members are added');
 });
+
+test('an absorbed extension is reported once, by the bundle that absorbed it', () => {
+  // The fold and the comment describing it used to be computed separately, so
+  // with Zk and Zkn both selected Zbkb was absorbed once, by Zk, and reported
+  // twice: as folded into Zkn and again into Zk. Two answers, one question.
+  const { yaml } = buildIsaConfigYaml(
+    ['RV64I', 'Zk', 'Zkn', 'Zbkb', 'Zbkc', 'Zbkx', 'Zknd', 'Zkne', 'Zknh', 'Zkr', 'Zkt'],
+    ALL,
+    { format: 'riscv-config' },
+  );
+  const blocks = [...yaml.matchAll(/folded into (\w+)[\s\S]*?carrying both: ([^\n]+)/g)];
+  assert.equal(
+    blocks.length,
+    1,
+    `overlapping bundles must yield one fold comment, got ${blocks.length}`,
+  );
+  assert.equal(blocks[0][1], 'Zk', 'the wider bundle is the one that absorbed them');
+  const listed = blocks[0][2].split(',').map((t) => t.trim());
+  assert.equal(new Set(listed).size, listed.length, 'no extension listed twice');
+  assert.ok(listed.includes('Zbkb'), `Zbkb should be reported as folded: ${listed.join(', ')}`);
+});
+
+test('the UDB export keeps its required params for a bare base ISA', () => {
+  // The floor. Every one of these is defined by Sm in unified-db, which makes
+  // deriving them from the selected extensions look like the obvious cleanup and
+  // makes it wrong: isa-dependency-graph.json gives RV32I `requires: []`, Sm is a
+  // separate node, and nothing requires Sm. A derived list is EMPTY here, and the
+  // export would drop every param riscv-arch-test needs without saying so.
+  const yaml = buildIsaConfigYaml(['RV32I'], ALL, { format: 'udb' }).yaml;
+  for (const name of [
+    'PHYS_ADDR_WIDTH',
+    'PRECISE_SYNCHRONOUS_EXCEPTIONS',
+    'TRAP_ON_ECALL_FROM_M',
+    'TRAP_ON_EBREAK',
+    'M_MODE_ENDIANNESS',
+    'MTVEC_ILLEGAL_WRITE_BEHAVIOR',
+  ]) {
+    assert.ok(yaml.includes(`${name}:`), `a bare RV32I export must still ask for ${name}`);
+  }
+});
+
+test('UDB param hints come from the real schema, not from prose we wrote', () => {
+  const yaml = buildIsaConfigYaml(['RV32I'], ALL, { format: 'udb' }).yaml;
+  const line = yaml.split('\n').find((l) => l.trim().startsWith('PHYS_ADDR_WIDTH:'));
+  assert.ok(line, 'PHYS_ADDR_WIDTH must be emitted');
+  // The hardcoded fallback said "physical address width in bits". UDB says the
+  // range, which is the part that stops someone writing 128.
+  assert.match(line, /integer, 1 to 64/, `hint should come from UDB's schema, got: ${line}`);
+});
+
+test('every comment line in a UDB export is a single line', () => {
+  // long_name and description are folded scalars upstream and land inside `#`
+  // comments here. An embedded newline does not wrap the comment, it ends it,
+  // and the remainder becomes a bare line that no YAML parser accepts.
+  const yaml = buildIsaConfigYaml(RVA23, ALL, { format: 'udb' }).yaml;
+  const orphans = yaml
+    .split('\n')
+    .filter(
+      (l) =>
+        /^\s*[a-z][^:#]*$/i.test(l) && l.trim() && !l.includes(':') && !l.trim().startsWith('-'),
+    );
+  assert.deepEqual(
+    orphans,
+    [],
+    `comment text leaked onto its own line:\n  ${orphans.join('\n  ')}`,
+  );
+});
+
+test('no exported param hint leads with an upstream placeholder', () => {
+  // Distinct from the export's own TODO section, which is deliberate. This is
+  // about `long_name: TODO` leaking from unified-db into a per-param hint, where
+  // it reads as though we left the work unfinished.
+  const yaml = buildIsaConfigYaml(RVA23, ALL, { format: 'udb' }).yaml;
+  const leaked = yaml
+    .split('\n')
+    .filter((l) => /#\s*(TODO|TBD)[;:·]/i.test(l) || /·\s*(TODO|TBD)\b/i.test(l));
+  assert.deepEqual(
+    leaked,
+    [],
+    `placeholder names leaked into the export:\n  ${leaked.join('\n  ')}`,
+  );
+});
+
+test('a UDB export never emits the same param key twice', () => {
+  // YAML forbids duplicate keys, so this is invalidity rather than untidiness.
+  // No graph constraint currently names one of the hardcoded floor params, which
+  // is exactly why it needs a test: the day one does, the export breaks and
+  // nothing else would notice.
+  for (const selection of [['RV32I'], ['RV64I'], RVA23]) {
+    const yaml = buildIsaConfigYaml(selection, ALL, { format: 'udb' }).yaml;
+    const keys = yaml
+      .split('\n')
+      .map((l) => /^ {2}([A-Z][A-Z0-9_]*):/.exec(l))
+      .filter(Boolean)
+      .map((m) => m[1]);
+    const seen = new Set();
+    const dupes = keys.filter((k) => (seen.has(k) ? true : (seen.add(k), false)));
+    assert.deepEqual(dupes, [], `duplicate keys for ${selection.join('+')}: ${dupes.join(', ')}`);
+  }
+});
+
+test('a UDB export keeps the oneOf value the user picked', () => {
+  // The builder offers these as buttons and the landscape export has always
+  // recorded the pick. Emitting TODO here regardless threw the choice away and
+  // asked for it again in a text editor.
+  const sel = ['RV64I', 'Ssube'];
+  const withChoice = buildIsaConfigYaml(sel, ALL, {
+    format: 'udb',
+    paramChoices: { U_MODE_ENDIANNESS: 'big' },
+  }).yaml;
+  const without = buildIsaConfigYaml(sel, ALL, { format: 'udb' }).yaml;
+
+  const line = withChoice.split('\n').find((l) => l.trim().startsWith('U_MODE_ENDIANNESS:'));
+  assert.ok(line, 'U_MODE_ENDIANNESS must appear');
+  assert.match(line, /U_MODE_ENDIANNESS: "big"/, `the pick should be the value, got: ${line}`);
+  assert.doesNotMatch(line, /TODO/, 'a chosen value is not a TODO');
+  // And without a choice it stays a TODO, so the test cannot pass vacuously.
+  const bare = without.split('\n').find((l) => l.trim().startsWith('U_MODE_ENDIANNESS:'));
+  assert.match(bare, /TODO/, `unchosen should still be a TODO, got: ${bare}`);
+});

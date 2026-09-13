@@ -42,9 +42,11 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run sync` | Regenerate instruction data from `src/instr_dict.json` |
 | `npm run sync:check` | Check instruction drift, write nothing (`sync --strict`) |
 | `npm run sync:udb` | Sync extension metadata from riscv-unified-db |
+| `npm run sync:params -- <path-to-udb>` | Regenerate `src/isa-params.json` (UDB parameter definitions) |
 | `npm run graph:check -- <path-to-udb>` | Check dependency graph vs UDB |
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
 | `npm run opcodes:check -- <path-to-riscv-opcodes>` | Report instruction-encoding drift |
+| `npm run udb:check -- <path-to-udb>` | Report ratified extensions/instructions we lack |
 | `npm run deploy` | Manual publish of `dist/` to `gh-pages` (normally automatic) |
 
 There is no separate typecheck (no TypeScript).
@@ -70,6 +72,7 @@ src/
   --- data (the source of truth) ---
   riscv_extensions.json       # extension catalogue + per-extension instruction encodings
   isa-dependency-graph.json   # dependencies/conflicts/params, one citation per edge
+  isa-params.json             # UDB parameter DEFINITIONS, generated (see gotchas)
   instr_dict.json             # instruction encodings, HAND-MAINTAINED (see gotchas)
 scripts/                      # sync/seed/check tooling (.mjs / .cjs)
 tests/                        # node:test suites (*.test.mjs)
@@ -115,6 +118,45 @@ Then `npm run sync` and `npm test && npm run build`.
   entries upstream lacks (the 56 `vlseg` segment loads; expanded MOP/C.MOP). A
   regenerate would delete them. `npm run opcodes:check` only *reports* drift and
   leaves the call to a human — never auto-apply it.
+- **The daily UDB sync cannot ADD an extension.** `scripts/sync_udb_extensions.cjs`
+  iterates the catalogue, so it enriches entries that already exist and is blind
+  to anything upstream has that we do not. `npm run udb:check` watches that
+  direction, and a weekly workflow files the result as one issue it keeps
+  updated. Adding an extension stays a human decision: it needs a description, a
+  use case, a doc link and a graph node, none of which UDB supplies.
+  Its "Still missing from UDB" watchlist is *derived* — an entry carrying a
+  `long_name` counts as already synced — so describing an extension ourselves is
+  what drops it off the list. Anything UDB has never carried therefore has to be
+  named in `ALWAYS_WATCH`, or the one part of the catalogue where we are ahead
+  of UDB is the one part the report goes quiet about. The SPMP family is there
+  now; remove an id once UDB ships it. `tests/sync-tooling.test.mjs` guards it.
+- **The Zve\* instruction sets are DERIVED, not synced.** riscv-opcodes has no
+  `rv_zve*` tag and unified-db files all 627 vector instructions under one owner
+  (`Zvl32b`), so nothing upstream says what each embedded subset contains. The
+  rules in `scripts/sync_instructions.mjs` compute them from V using the EEW and
+  FP table in unpriv §30.1.18.2. No upstream check can catch an error in this;
+  `tests/zve-subsets.test.mjs` pins the rules and the exact counts instead.
+  Change a rule, never the 2,500 generated entries.
+- **`npm run udb:check` reports two coverage numbers, and only the first
+  gates.** Global coverage asks "is this encoding in the catalogue anywhere" —
+  that is `complete`, and a failure there is unambiguous. Per-extension coverage
+  asks "does an extension upstream attributes it to actually list it", and sits
+  far lower (≈49%) because attribution differences are often legitimate: UDB
+  files AMOCAS.B under Zabha, this catalogue under Zacas. Watch it move; do not
+  gate on it. Reporting only the first is how five extensions shipped with empty
+  instruction maps while every check passed.
+- **`src/isa-params.json` is definitions, not values.** It says what a parameter
+  IS: type, admissible values, and the conditions under which it exists. It
+  chooses nothing. Values come from two other places: the constraints in
+  `isa-dependency-graph.json` (resolved by `resolveParams`) and the user's own
+  picks (`paramChoices`). `definedBy` is stored as UDB writes it, a predicate
+  tree, because 23 of the 228 parameters are gated on another PARAMETER'S value
+  rather than on an extension; flattening it to one owner per parameter loses
+  that distinction silently. Regenerate with `npm run sync:params`, never by hand.
+- **The UDB export's `UDB_REQUIRED_PARAMS` floor is deliberately not derived.**
+  All 15 are defined by `Sm` upstream, but no graph node requires `Sm`, so a
+  selection-derived list is empty for a bare RV32I and the export would silently
+  drop every param riscv-arch-test needs. `tests/export.test.mjs` guards this.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;
   eslint ignores both). Don't hand-edit `dist/`.
 - **`gh-pages` branch is machine-published** by CI on every push to `main`.

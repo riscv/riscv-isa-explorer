@@ -276,6 +276,21 @@ const LOCAL_EDGES = {
   // lists only Zve32f and Zfhmin, so this edge rests on clang plus the scalar
   // analogue rather than on UDB. Marked src:clang so the weaker backing shows.
   Zvfh:     [{ ext: 'Zvfhmin', src: 'clang', ref: 'clang -march=rv64i_zvfh implies +zvfhmin; UDB Zvfh.yaml is silent' }],
+
+  // The SPMP family, ratified 8/2026 as its own specification and absent from
+  // UDB entirely — so nothing above this line can produce these edges, and
+  // `npm run udb:check` cannot see the extensions are missing in the first
+  // place. Every edge below is quoted from the document.
+  Sspmp: [
+    { ext: 'Sscsrind', src: 'spec', ref: 'SPMP v1.0 §2.1 — "The Sscsrind extension for indirect CSR access must be implemented."' },
+  ],
+  Sspmpen: [
+    { ext: 'Sspmp', src: 'spec', ref: 'SPMP v1.0 §3 — an SPMP entry is active only when spmpen[i] is set and spmpcfg[i].A is non-zero' },
+  ],
+  Smpmpdeleg: [
+    { ext: 'Smcsrind', src: 'spec', ref: 'SPMP v1.0 §4 — "The Smcsrind extension for indirect CSR access must be implemented."' },
+    { ext: 'Sspmp', src: 'spec', ref: 'SPMP v1.0 §4.1 — delegates PMP entries to S-mode, "thereby creating SPMP entries"' },
+  ],
 };
 
 /** Base-ISA conflicts. Not dependencies, but they belong to the same graph. */
@@ -410,6 +425,10 @@ const graph = {
       repo: 'llvm/llvm-project',
       note: 'RISCVISAInfo implication, cited per edge; weaker backing than udb or isa-manual',
     },
+    // Ratified specifications published on their own, outside the ISA manual
+    // and outside UDB. SPMP is the whole of it today. Document and section are
+    // cited per edge because there is no single repository to name.
+    spec: { note: 'standalone ratified specification; document and section cited per edge' },
   },
   // Sorted so a regeneration produces a reviewable diff rather than a reshuffle.
   nodes: Object.fromEntries(

@@ -28,8 +28,7 @@ import { tilePropsAreEqual } from './tileMemo.js';
 function ExtensionTile({
   data,
   colorClass,
-  searchQuery,
-  searchIndex,
+  matchesSearch,
   selectedExtId,
   workspaceIds,
   compareIds,
@@ -42,14 +41,14 @@ function ExtensionTile({
   onToggleWorkspace,
   onToggleCompare,
 }) {
-  const q = searchQuery.trim().toLowerCase();
-  const matchesSearch = q.length ? (searchIndex || '').includes(q) : false;
-
   const isDiscontinued = data.discontinued === 1;
   const isSelected = selectedExtId === data.id;
   const highlighted = isHighlighted(data.id) || matchesSearch || isSelected;
   const dimmed = isDimmed(data.id) && !matchesSearch && !isSelected;
   const inWorkspace = workspaceIds.has(data.id);
+  // Derived from `data` rather than passed in, so tilePropsAreEqual needs no
+  // new comparison: it already returns false when `data` changes identity.
+  const instructionCount = Object.keys(data.instructions || {}).length;
   const inCompare = compareIds.has(data.id);
 
   return (
@@ -155,6 +154,8 @@ function ExtensionTile({
 
         {builderMode &&
           !isDiscontinued &&
+          !data.isSandbox &&
+          Boolean(onToggleWorkspace) &&
           (() => {
             const isLocked = inWorkspace && lockedExtensions.has(data.id);
             const lockedBy = isLocked ? lockedExtensions.get(data.id) : [];
@@ -229,23 +230,63 @@ function ExtensionTile({
           })()}
       </div>
 
-      <div className="flex items-start justify-between mb-1">
+      <div className="flex flex-wrap items-center gap-1.5 mb-1 pr-6">
         <span
-          className="font-mono font-semibold text-[12px] leading-tight"
+          className="font-mono font-semibold text-[12px] leading-tight break-all"
           style={{ letterSpacing: '0.02em' }}
         >
           {data.name}
         </span>
+        {data.isSandbox && (
+          <span
+            className="px-1 py-[1px] mt-px rounded text-[8.5px] font-mono uppercase tracking-wider font-semibold shrink-0"
+            style={{
+              background: 'rgba(59,130,246,0.15)',
+              color: 'var(--riscv-accent-4, #60a5fa)',
+              border: '1px solid rgba(59,130,246,0.35)',
+              lineHeight: 1,
+            }}
+          >
+            Sandbox
+          </span>
+        )}
       </div>
       {/* The short label, not `desc`. The tile is 190px wide - about 32
           characters a line, 65 in the two-line clamp - so a full description
           truncates into a fragment here. `desc` is shown in the details panel
-          when a tile is selected, where there is room for it. */}
-      <div
-        className="text-[11px] leading-snug line-clamp-2"
-        style={{ color: 'var(--riscv-text-2)' }}
-      >
-        {data.short || data.desc}
+          when a tile is selected, where there is room for it.
+
+          The instruction count shares this row rather than the name row above:
+          the corner controls are absolutely positioned over the name row's
+          right edge, so a count there would sit under the compare and "+"
+          buttons. */}
+      <div className="flex items-end justify-between gap-2">
+        <div
+          className="text-[11px] leading-snug line-clamp-2"
+          style={{ color: 'var(--riscv-text-2)' }}
+        >
+          {data.short || data.desc}
+        </div>
+        {/* Shown only when there are instructions to count. 122 of the 223
+            catalogue entries define none — Ziccamoa is a PMA rule, Sspmp is
+            CSR-only — and for those an empty list is the correct answer, not a
+            missing one. Printing "0" across more than half the grid would read
+            as absent data. Absence of the figure carries the same meaning
+            without the false alarm.
+
+            The number is this entry's OWN map, so the `members` bundles report
+            their union: Zvknc reads 27, Zce 54. */}
+        {instructionCount > 0 && (
+          <span
+            className="font-mono text-[10px] leading-none shrink-0"
+            style={{ color: 'var(--riscv-text-2)' }}
+            // A bare numeral means nothing read aloud, and nothing on hover.
+            aria-label={`${instructionCount} instructions`}
+            title={`${instructionCount} instructions`}
+          >
+            {instructionCount}
+          </span>
+        )}
       </div>
     </div>
   );

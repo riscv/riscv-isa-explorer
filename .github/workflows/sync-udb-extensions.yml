@@ -1,9 +1,15 @@
 name: Sync UDB Extensions
 
 on:
-  # Run every Monday at 06:00 UTC
+  # Run daily at 06:00 UTC.
+  #
+  # Was weekly, which meant a UDB change could sit unreflected here for six days.
+  # Daily is safe rather than noisy: the pull request step is guarded on an
+  # actual diff, so a quiet day produces nothing at all, and create-pull-request
+  # reuses one branch, so consecutive days with drift update the same pull
+  # request instead of stacking new ones.
   schedule:
-    - cron: '0 6 * * 1'
+    - cron: '0 6 * * *'
 
   # Allow manual trigger from the Actions tab
   workflow_dispatch:
@@ -55,6 +61,14 @@ jobs:
       - name: Reseed the dependency graph
         run: node scripts/seed-dependency-graph.mjs --udb ../riscv-unified-db
 
+      # Parameter DEFINITIONS, not values. Folded into this job rather than given
+      # its own cron because it reads the same clone at the same commit: one UDB
+      # change should produce one pull request, not two that a reviewer has to
+      # correlate. The file is sorted and carries no timestamp, so an unchanged
+      # upstream produces no diff and no PR.
+      - name: Sync parameter definitions
+        run: node scripts/sync_udb_params.mjs ../riscv-unified-db
+
       - name: Build
         run: npm run build
 
@@ -64,18 +78,24 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          if git diff --quiet src/riscv_extensions.json src/isa-dependency-graph.json; then
+          # All three synced files, not just the first two. A UDB release that
+          # touches only spec/std/isa/param/ changes src/isa-params.json and
+          # nothing else; left out of this list, that sync would run, write the
+          # file, find "no changes", open no pull request, and throw the update
+          # away with the runner. Silently, once per day.
+          SYNCED="src/riscv_extensions.json src/isa-dependency-graph.json src/isa-params.json"
+          if git diff --quiet $SYNCED; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No new extension data in UDB."
+            echo "No new extension or parameter data in UDB."
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "New extension data found — opening PR."
-            git diff --stat src/riscv_extensions.json src/isa-dependency-graph.json
+            echo "New data found — opening PR."
+            git diff --stat $SYNCED
           fi
 
       - name: Create Pull Request
         if: steps.changes.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           commit-message: 'feat: sync extension data from riscv-unified-db'
           # The DCO gate matches the Signed-off-by trailer against the commit
@@ -86,6 +106,16 @@ jobs:
           # being attributed to whoever happened to click "Run workflow".
           author: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
           committer: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
+          # sign-commits, because `main` carries a required_signatures rule and
+          # this action does NOT sign by default (`sign-commits` defaults to
+          # false, and v6 had no such input at all — it was added in v7). Every
+          # automated PR was therefore opened with an unsigned commit and could
+          # not be merged, while the DCO check stayed green and made it look
+          # fine. Sign-off and signature are different things: `signoff` writes a
+          # Signed-off-by trailer, which is plain text; required_signatures wants
+          # a cryptographic one. With sign-commits the action commits through the
+          # GitHub API and GitHub signs with its own key.
+          sign-commits: true
           signoff: true
           title: 'feat: sync extension data from UDB'
           body: |
@@ -99,14 +129,21 @@ jobs:
             git -C ../riscv-unified-db checkout ${{ steps.udb.outputs.sha }}
             node scripts/sync_udb_extensions.cjs ../riscv-unified-db
             node scripts/seed-dependency-graph.mjs --udb ../riscv-unified-db
+            node scripts/sync_udb_params.mjs ../riscv-unified-db
             ```
 
-            Two files may change, and they come from different parsers:
+            Three files may change, and they come from different parsers:
 
             - `src/riscv_extensions.json` — extension metadata (CSRs, `long_name`,
               `type`, `state`, `ratification_date`, `behavior`).
             - `src/isa-dependency-graph.json` — the dependency graph, with a
               citation on every edge.
+            - `src/isa-params.json` — UDB parameter definitions: what each
+              parameter is and what values it admits. Definitions only, no values.
+              A new parameter here is additive; a CHANGED `schema` on an existing
+              one is worth reading closely, because
+              `tests/isa-params.test.mjs` checks the graph's own constraints
+              against these schemas and a narrowed enum can invalidate one.
 
             `npm test` passed before this PR was opened, so the graph is
             structurally valid and every catalog extension has a node. Review the

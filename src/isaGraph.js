@@ -33,8 +33,15 @@ import graphData from './isa-dependency-graph.json' with { type: 'json' };
 
 export const DEPENDENCY_GRAPH = graphData;
 
-/** Provenance values an edge may claim. An edge citing anything else is a bug. */
-export const EDGE_SOURCES = new Set(['udb', 'isa-manual', 'clang']);
+/**
+ * Provenance values an edge may claim. An edge citing anything else is a bug.
+ *
+ * 'spec' is for the ratified standalone specifications — the ones that are
+ * neither in the ISA manual nor modelled by unified-db. SPMP is the case that
+ * forced it: ratified 8/2026, absent from UDB, and its dependency on Sscsrind
+ * stated only in its own document. Cite document and section in `ref`.
+ */
+export const EDGE_SOURCES = new Set(['udb', 'isa-manual', 'clang', 'spec']);
 
 // ---------------------------------------------------------------------------
 // Derived views (same shape as the flat tables they replace)
@@ -100,7 +107,9 @@ export function validateGraph(graph = graphData, catalogIds = null) {
       if (seenTargets.has(edge.ext)) errors.push(`${id} -> ${edge.ext}: duplicate edge`);
       seenTargets.add(edge.ext);
       if (!EDGE_SOURCES.has(edge.src)) {
-        errors.push(`${id} -> ${edge.ext}: src "${edge.src}" is not one of ${[...EDGE_SOURCES].join(', ')}`);
+        errors.push(
+          `${id} -> ${edge.ext}: src "${edge.src}" is not one of ${[...EDGE_SOURCES].join(', ')}`,
+        );
       }
       // An uncited edge cannot be audited, and an unauditable graph is one
       // nobody can safely change later.
@@ -134,7 +143,12 @@ export function validateGraph(graph = graphData, catalogIds = null) {
       }
     }
 
-    if (requires.length === 0 && !node.requiresOneOf && !node.verified && !node.conditionalRequirements) {
+    if (
+      requires.length === 0 &&
+      !node.requiresOneOf &&
+      !node.verified &&
+      !node.conditionalRequirements
+    ) {
       warnings.push(`${id}: no dependencies and no "verified" marker — checked, or assumed?`);
     }
   }
@@ -145,7 +159,9 @@ export function validateGraph(graph = graphData, catalogIds = null) {
     const inGraph = new Set(ids);
     for (const id of catalogIds) {
       if (!inGraph.has(id)) {
-        errors.push(`${id} is in the catalog but has no graph node — add one to isa-dependency-graph.json`);
+        errors.push(
+          `${id} is in the catalog but has no graph node — add one to isa-dependency-graph.json`,
+        );
       }
     }
     const inCatalog = new Set(catalogIds);
@@ -396,8 +412,7 @@ export function resolveParams(ids, graph = graphData) {
         }
         case 'equal':
           if (existing.value !== prm.value) {
-            existing.conflict =
-              `${prm.name}: ${existing.from.join(' and ')} require ${existing.value} and ${prm.value}`;
+            existing.conflict = `${prm.name}: ${existing.from.join(' and ')} require ${existing.value} and ${prm.value}`;
           }
           break;
         default:

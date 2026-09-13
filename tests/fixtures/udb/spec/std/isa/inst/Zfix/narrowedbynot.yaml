@@ -1,0 +1,15 @@
+# Fixture: `not:` merely narrows. Four values remain, which a match/mask pair
+# cannot express, so the bits stay free and the limit is reported instead of
+# being quietly flattened into a false constraint.
+$schema: "inst_schema.json#"
+kind: instruction
+name: narrowedbynot
+definedBy:
+  extension:
+    name: Zfix
+encoding:
+  match: 0000100------------------0001011
+  variables:
+    - name: tt
+      location: 14-12
+      not: [0, 1, 2, 3]

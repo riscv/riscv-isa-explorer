@@ -28,8 +28,7 @@ const srcDir = path.join(here, '..', 'src');
 const baseProps = (over = {}) => ({
   data: { id: 'Zfa', name: 'Zfa', desc: 'Additional FP Instructions' },
   colorClass: 'border-blue-900/60',
-  searchQuery: '',
-  searchIndex: 'zfa additional fp instructions',
+  matchesSearch: false,
   selectedExtId: null,
   workspaceIds: new Set(),
   lockedExtensions: new Map(),
@@ -87,8 +86,7 @@ test('everything the tile displays forces a re-render when it changes', () => {
   const changes = {
     data: { id: 'Zfa', name: 'Zfa', desc: 'changed' },
     colorClass: 'border-red-900',
-    searchQuery: 'zf',
-    searchIndex: 'different',
+    matchesSearch: true,
     selectedExtId: 'Zfa',
     builderMode: true,
     isHighlighted: () => true,
@@ -97,12 +95,39 @@ test('everything the tile displays forces a re-render when it changes', () => {
     onToggleWorkspace: () => {},
   };
   for (const [key, value] of Object.entries(changes)) {
+    /*
+     * Spread the SAME base rather than calling baseProps() again. baseProps()
+     * mints fresh arrow functions and Sets each call, so comparing two of its
+     * results differed on five identities at once: the comparator returned
+     * false whatever key was overridden, and this loop passed for any key at
+     * all, including one that does not exist. Holding every other reference
+     * fixed is what makes each iteration actually test its own key.
+     */
     assert.equal(
-      tilePropsAreEqual(base, baseProps({ [key]: value })),
+      tilePropsAreEqual(base, { ...base, [key]: value }),
       false,
       `${key} changed but the tile would not re-render`,
     );
   }
+});
+
+test('the loop above can fail: an ignored prop does not force a re-render', () => {
+  // Guards the fixture itself. If baseProps() ever goes back to minting fresh
+  // references, this is the test that catches it, because a prop the
+  // comparator does not read must still be skippable.
+  const base = baseProps();
+  assert.equal(tilePropsAreEqual(base, { ...base, somethingUnread: 'changed' }), true);
+});
+
+test('typing does not re-render a tile whose match state is unchanged', () => {
+  // The point of passing matchesSearch instead of searchQuery: two different
+  // queries that both miss this tile must not repaint it.
+  const base = baseProps({ matchesSearch: false });
+  assert.equal(tilePropsAreEqual(base, { ...base }), true);
+
+  const hit = baseProps({ matchesSearch: true });
+  assert.equal(tilePropsAreEqual(base, { ...base, matchesSearch: true }), false);
+  assert.equal(tilePropsAreEqual(hit, { ...hit, matchesSearch: true }), true);
 });
 
 test('no component is declared inside another component', () => {
@@ -125,8 +150,8 @@ test('no component is declared inside another component', () => {
   assert.deepEqual(
     offenders,
     [],
-    'components must live at module scope, or React remounts their subtree every render:\n  '
-      + offenders.join('\n  '),
+    'components must live at module scope, or React remounts their subtree every render:\n  ' +
+      offenders.join('\n  '),
   );
 });
 
@@ -167,7 +192,11 @@ test('a tile re-renders when its own compare membership changes', () => {
 test('pinning a different extension does not re-render this tile', () => {
   const prev = baseProps({ compareIds: new Set() });
   const next = baseProps({ ...prev, compareIds: new Set(['Zba']) });
-  assert.equal(tilePropsAreEqual(prev, next), true, 'baseProps is Zfa, so Zba is none of its business');
+  assert.equal(
+    tilePropsAreEqual(prev, next),
+    true,
+    'baseProps is Zfa, so Zba is none of its business',
+  );
 });
 
 test('an unstable onToggleCompare re-renders, which is why it must be memoised', () => {
