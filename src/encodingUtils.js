@@ -18,29 +18,37 @@ export const BIT_MASK_32 = (1n << BIT_WIDTH) - 1n;
  * Returns '' for empty input.
  */
 export function normalizeHexString(value) {
-  const text = String(value ?? '').trim();
+  if (value === null || value === undefined) return '';
+  const text = String(value).trim();
   if (!text) return '';
   return text.toLowerCase().startsWith('0x') ? text.toLowerCase() : `0x${text.toLowerCase()}`;
 }
 
 /**
- * Parse a hex string to BigInt. Returns null on failure rather than throwing,
+ * Parse a hex string, Number, or BigInt to BigInt. Returns null on failure rather than throwing,
  * because user input can be anything.
  */
 export function parseHexToBigInt(value) {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'bigint') return value & BIT_MASK_32;
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) return null;
+    return BigInt(Math.trunc(value)) & BIT_MASK_32;
+  }
   const normalized = normalizeHexString(value);
   if (!normalized) return null;
   if (!/^0x[0-9a-f]+$/i.test(normalized)) return null;
   try {
-    return BigInt(normalized);
+    return BigInt(normalized) & BIT_MASK_32;
   } catch {
     return null;
   }
 }
 
-/** Format a BigInt as a zero-padded 8-digit hex string with `0x` prefix. */
+/** Format a BigInt, Number, or hex string as a zero-padded 8-digit hex string with `0x` prefix. */
 export function toHex32(value) {
-  const v = (value ?? 0n) & BIT_MASK_32;
+  const b = parseHexToBigInt(value) ?? 0n;
+  const v = b & BIT_MASK_32;
   return `0x${v.toString(16).padStart(8, '0')}`;
 }
 
@@ -89,8 +97,8 @@ export function encodingToMatchMask(encoding) {
  * Fixed `0` and `1` bits come from the mask; unmasked positions are `-`.
  */
 export function matchMaskToEncoding(match, mask) {
-  const m = (match ?? 0n) & BIT_MASK_32;
-  const k = (mask ?? 0n) & BIT_MASK_32;
+  const m = (parseHexToBigInt(match) ?? 0n) & BIT_MASK_32;
+  const k = (parseHexToBigInt(mask) ?? 0n) & BIT_MASK_32;
   let out = '';
   for (let bit = 31n; bit >= 0n; bit--) {
     const bitMask = 1n << bit;
@@ -107,8 +115,12 @@ export function matchMaskToEncoding(match, mask) {
  * both. This is true when the fixed bits they share agree on every position.
  */
 export function patternsOverlap(aMatch, aMask, bMatch, bMask) {
-  const commonMask = aMask & bMask & BIT_MASK_32;
-  const diff = (aMatch ^ bMatch) & commonMask & BIT_MASK_32;
+  const am = parseHexToBigInt(aMatch) ?? 0n;
+  const ak = parseHexToBigInt(aMask) ?? 0n;
+  const bm = parseHexToBigInt(bMatch) ?? 0n;
+  const bk = parseHexToBigInt(bMask) ?? 0n;
+  const commonMask = ak & bk & BIT_MASK_32;
+  const diff = (am ^ bm) & commonMask & BIT_MASK_32;
   return diff === 0n;
 }
 
@@ -120,10 +132,10 @@ export function patternsOverlap(aMatch, aMask, bMatch, bMask) {
  * agrees with the subset.
  */
 export function isSubsetPattern(subsetMatch, subsetMask, supMatch, supMask) {
-  const subsetMaskNorm = (subsetMask ?? 0n) & BIT_MASK_32;
-  const supMaskNorm = (supMask ?? 0n) & BIT_MASK_32;
-  const subsetMatchNorm = (subsetMatch ?? 0n) & BIT_MASK_32;
-  const supMatchNorm = (supMatch ?? 0n) & BIT_MASK_32;
+  const subsetMaskNorm = (parseHexToBigInt(subsetMask) ?? 0n) & BIT_MASK_32;
+  const supMaskNorm = (parseHexToBigInt(supMask) ?? 0n) & BIT_MASK_32;
+  const subsetMatchNorm = (parseHexToBigInt(subsetMatch) ?? 0n) & BIT_MASK_32;
+  const supMatchNorm = (parseHexToBigInt(supMatch) ?? 0n) & BIT_MASK_32;
 
   const supBitsNotConstrainedBySubset = supMaskNorm & ~subsetMaskNorm;
   if (supBitsNotConstrainedBySubset !== 0n) return false;
@@ -138,9 +150,9 @@ export function isSubsetPattern(subsetMatch, subsetMask, supMatch, supMask) {
  * as both instructions."
  */
 export function overlapExampleWord(aMatch, aMask, bMatch, bMask) {
-  const am = (aMatch ?? 0n) & BIT_MASK_32;
-  const ak = (aMask ?? 0n) & BIT_MASK_32;
-  const bm = (bMatch ?? 0n) & BIT_MASK_32;
-  const bk = (bMask ?? 0n) & BIT_MASK_32;
+  const am = (parseHexToBigInt(aMatch) ?? 0n) & BIT_MASK_32;
+  const ak = (parseHexToBigInt(aMask) ?? 0n) & BIT_MASK_32;
+  const bm = (parseHexToBigInt(bMatch) ?? 0n) & BIT_MASK_32;
+  const bk = (parseHexToBigInt(bMask) ?? 0n) & BIT_MASK_32;
   return ((am & ak) | (bm & (bk & ~ak))) & BIT_MASK_32;
 }
