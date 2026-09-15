@@ -439,9 +439,14 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     // it, but this format must not. Same rule as Zkn absorbing Zbkb.
     // riscv-config orders the single letters IEMAFDQLCBJKTPVNSHU — S before H,
     // where our -march order (ISA manual §27) puts H first. Emitting our order
-    // gets "Alphabet 'H' should occur after 'S'".
+    // gets "Alphabet 'H' should occur after 'S'". Clamps unknown letters to rank 99
+    // so they sort to the end rather than letting -1 sort ahead of recognised letters (#311).
+    const singleRank = (x) => {
+      const i = RC_LETTER_ORDER.indexOf(x);
+      return i === -1 ? 99 : i;
+    };
     const rcSingles = [...filteredSingles]
-      .sort((a, b) => RC_LETTER_ORDER.indexOf(a) - RC_LETTER_ORDER.indexOf(b))
+      .sort((a, b) => singleRank(a) - singleRank(b) || a.localeCompare(b))
       .join('');
     const vPresent = rcSingles.includes('V');
     const shorthandAbsorbed = absorbedByShorthand(selectedIds);

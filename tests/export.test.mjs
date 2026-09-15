@@ -419,3 +419,11 @@ test('a UDB export keeps the oneOf value the user picked', () => {
   const bare = without.split('\n').find((l) => l.trim().startsWith('U_MODE_ENDIANNESS:'));
   assert.match(bare, /TODO/, `unchosen should still be a TODO, got: ${bare}`);
 });
+
+test('unrecognised single-letter extensions sort after recognised ones in riscv-config format', () => {
+  // Array.prototype.indexOf returns -1 for unrecognised letters; clamping to a high rank
+  // prevents an unrecognised single-letter extension from sorting ahead of standard letters (#311).
+  const { yaml } = buildIsaConfigYaml(['RV64I', 'M', 'C', 'X'], ALL, { format: 'riscv-config' });
+  const isa = yaml.match(/^ {2}ISA: (\S+)/m)[1];
+  assert.match(isa, /^RV64IMCX/, `standard extensions must lead before unrecognised single letters: ${isa}`);
+});
