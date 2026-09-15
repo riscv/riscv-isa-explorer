@@ -18,9 +18,9 @@ name: Check UDB Completeness
 # gate somebody switches off.
 
 on:
-  # Weekly, 09:00 UTC Monday. Staggered: the daily UDB sync runs at 06:00,
-  # check-opcodes-drift at 07:00 and audit-deps at 08:00, so no two weekly jobs
-  # contend for a runner or file reports in the same minute.
+  # Weekly, 09:00 UTC Monday. Staggered: the daily UDB sync runs at 06:00 and
+  # check-opcodes-drift at 07:00, so no two scheduled jobs contend for a runner
+  # or file reports in the same minute.
   schedule:
     - cron: '0 9 * * 1'
 
