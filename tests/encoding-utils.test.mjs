@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  BIT_MASK_32,
   parseHexToBigInt,
   toHex32,
   normalizeHexString,
@@ -90,4 +91,16 @@ test('patternsOverlap, isSubsetPattern, and overlapExampleWord evaluate correctl
   // Overlap example word
   const example = overlapExampleWord(0x33n, 0xfe00707fn, 0x33n, 0x7fn);
   assert.equal(example & 0xfe00707fn, 0x33n);
+});
+
+test('parseHexToBigInt keeps values wider than 32 bits so oversized input can be rejected', () => {
+  // The match/mask validation in risc_v_visualizer.jsx rejects anything above BIT_MASK_32.
+  // If parseHexToBigInt truncated, 0x11800202f would silently become 0x1800202f and be
+  // reported as a conflict the user never typed.
+  assert.equal(parseHexToBigInt('0x11800202f'), 0x11800202fn);
+  assert.ok(parseHexToBigInt('0x11800202f') > BIT_MASK_32);
+  assert.equal(parseHexToBigInt(0x1_0000_0033n), 0x1_0000_0033n);
+  assert.equal(parseHexToBigInt(2 ** 32 + 0x33), 0x1_0000_0033n);
+  // Helpers that need 32 bits still truncate on their own.
+  assert.equal(toHex32('0x11800202f'), '0x1800202f');
 });

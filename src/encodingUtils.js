@@ -27,19 +27,23 @@ export function normalizeHexString(value) {
 /**
  * Parse a hex string, Number, or BigInt to BigInt. Returns null on failure rather than throwing,
  * because user input can be anything.
+ *
+ * The result is NOT masked to 32 bits. Callers that validate user input rely on seeing the full
+ * width: risc_v_visualizer.jsx rejects a match or mask greater than BIT_MASK_32 before anything
+ * truncates it. Callers that only need the low 32 bits mask the result themselves.
  */
 export function parseHexToBigInt(value) {
   if (value === null || value === undefined) return null;
-  if (typeof value === 'bigint') return value & BIT_MASK_32;
+  if (typeof value === 'bigint') return value;
   if (typeof value === 'number') {
     if (!Number.isFinite(value)) return null;
-    return BigInt(Math.trunc(value)) & BIT_MASK_32;
+    return BigInt(Math.trunc(value));
   }
   const normalized = normalizeHexString(value);
   if (!normalized) return null;
   if (!/^0x[0-9a-f]+$/i.test(normalized)) return null;
   try {
-    return BigInt(normalized) & BIT_MASK_32;
+    return BigInt(normalized);
   } catch {
     return null;
   }
