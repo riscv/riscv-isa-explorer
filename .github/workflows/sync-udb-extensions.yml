@@ -1,15 +1,16 @@
 name: Sync UDB Extensions
 
 on:
-  # Run daily at 06:00 UTC.
+  # Run weekly, Monday 06:00 UTC, ahead of check-opcodes-drift (07:00) and
+  # check-udb-completeness (09:00).
   #
-  # Was weekly, which meant a UDB change could sit unreflected here for six days.
-  # Daily is safe rather than noisy: the pull request step is guarded on an
-  # actual diff, so a quiet day produces nothing at all, and create-pull-request
-  # reuses one branch, so consecutive days with drift update the same pull
-  # request instead of stacking new ones.
+  # Weekly keeps catalogue updates to one reviewable pull request a week. The
+  # pull request step is guarded on an actual diff, so a quiet week produces
+  # nothing, and create-pull-request reuses one branch, so drift that is not yet
+  # merged keeps updating the same pull request. Use "Run workflow" to pick up an
+  # upstream change sooner.
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '0 6 * * 1'
 
   # Allow manual trigger from the Actions tab
   workflow_dispatch:

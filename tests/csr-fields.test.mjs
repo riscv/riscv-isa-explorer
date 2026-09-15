@@ -367,7 +367,7 @@ test('sync corrects a catalog field whose bit range diverged from UDB', () => {
 
 test('sync leaves an already-matching field untouched and reports zero', () => {
   // Catalog already matches UDB. The run must not rewrite it and must report zero,
-  // so a daily sync on unchanged data stays idempotent and opens no PR.
+  // so a sync on unchanged data stays idempotent and opens no PR.
   const { stdout, testcsr } = runSyncOnFixture({ FOO: { ...FOO_UPSTREAM } }, UDB_TESTCSR);
   assert.deepEqual(testcsr.fields.FOO, FOO_UPSTREAM, 'an unchanged field must survive verbatim');
   assert.match(

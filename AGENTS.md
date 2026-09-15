@@ -118,7 +118,7 @@ Then `npm run sync` and `npm test && npm run build`.
   entries upstream lacks (the 56 `vlseg` segment loads; expanded MOP/C.MOP). A
   regenerate would delete them. `npm run opcodes:check` only *reports* drift and
   leaves the call to a human — never auto-apply it.
-- **The daily UDB sync cannot ADD an extension.** `scripts/sync_udb_extensions.cjs`
+- **The weekly UDB sync cannot ADD an extension.** `scripts/sync_udb_extensions.cjs`
   iterates the catalogue, so it enriches entries that already exist and is blind
   to anything upstream has that we do not. `npm run udb:check` watches that
   direction, and a weekly workflow files the result as one issue it keeps

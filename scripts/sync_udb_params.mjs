@@ -62,7 +62,7 @@ function udbCommit() {
  * puts the string "TODO" in front of a description in this app's UI and in every
  * exported config, which reads as OUR placeholder rather than theirs. Recorded as
  * absent instead, so consumers fall back to the schema summary, which is real.
- * When upstream fills one in, the next daily sync picks it up.
+ * When upstream fills one in, the next weekly sync picks it up.
  */
 const PLACEHOLDER_NAME = /^(todo|tbd|fixme|xxx|n\/a|none)\.?$/i;
 function longName(value) {
@@ -173,7 +173,7 @@ const out = {
     },
   },
   // Sorted so a re-sync of unchanged upstream data produces a byte-identical
-  // file and the daily job opens no pull request.
+  // file and the weekly job opens no pull request.
   params: Object.fromEntries(
     Object.keys(params)
       .sort()

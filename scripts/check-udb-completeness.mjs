@@ -8,7 +8,7 @@
  * be tested without a checkout. This file only reads YAML and prints.
  *
  * Reports; does not fail. A gate that goes red the day upstream ratifies
- * something is a gate people turn off, and the daily sync workflow is a better
+ * something is a gate people turn off, and the weekly sync workflow is a better
  * place to act on the result than a build.
  *
  * Why this exists: scripts/sync_udb_extensions.cjs iterates OUR catalogue, so
