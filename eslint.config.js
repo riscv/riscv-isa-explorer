@@ -36,13 +36,14 @@ module.exports = [
       ...js.configs.recommended.rules,
       ...react.configs.flat.recommended.rules,
 
-      // The build uses @babel/preset-react with no `runtime` option, which is
-      // the CLASSIC transform: JSX compiles to React.createElement, so every
-      // .jsx file needs React in scope even when it never writes `React.`.
+      // The build uses @babel/preset-react with `runtime: 'classic'`, set
+      // explicitly because Babel 8 defaults to automatic. JSX compiles to
+      // React.createElement, so every .jsx file needs React in scope even when
+      // it never writes `React.`.
       // These were previously off — the automatic-runtime setting — which made
       // eslint report a required import as unused. Someone deleted one on that
       // advice and the page crashed the moment that component mounted, with
-      // lint and build both green. Leave these on unless the loader gains
+      // lint and build both green. Leave these on unless the loader switches to
       // `runtime: 'automatic'`.
       'react/react-in-jsx-scope': 'error',
       'react/jsx-uses-react': 'error',

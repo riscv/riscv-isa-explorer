@@ -17,7 +17,7 @@ mode this project guards against.
 
 ## Setup
 
-Node.js + npm are the only requirements (CI uses Node 22).
+Node.js + npm are the only requirements (CI uses Node 24; Babel 8 needs Node 22.18+ or 24.11+).
 
 ```bash
 npm ci

@@ -120,7 +120,7 @@ test('nothing threw during the first render', () => {
  * nothing on the landing page mounts CompareView, so a component that throws on
  * render passes 179 tests. One did. CompareTray had its React import removed as
  * "unused" — correct for the automatic JSX runtime, wrong here, because
- * webpack.config.js uses @babel/preset-react with no runtime option and so
+ * webpack.config.js uses @babel/preset-react with runtime: 'classic' and so
  * compiles JSX to React.createElement. Lint and build both stayed green; the
  * page only broke when a comparison opened.
  */

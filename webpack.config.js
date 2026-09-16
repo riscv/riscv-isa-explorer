@@ -46,7 +46,11 @@ module.exports = (env, argv = {}) => {
           use: {
             loader: 'babel-loader',
             options: {
-              presets: ['@babel/preset-react']
+              // Classic transform, stated explicitly: JSX compiles to
+              // React.createElement, so every .jsx file keeps React in scope.
+              // Babel 8 changed the preset's default to the automatic runtime,
+              // so leaving this out would silently switch transforms.
+              presets: [['@babel/preset-react', { runtime: 'classic' }]]
             }
           }
         },
