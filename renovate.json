@@ -1,14 +1,32 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", ":dependencyDashboard"],
+  "timezone": "UTC",
   "schedule": ["before 6am on monday"],
   "prConcurrentLimit": 2,
+  "minimumReleaseAge": "3 days",
   "commitBody": "Signed-off-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "all non-major dependencies",
-      "groupSlug": "all-minor-patch"
+      "groupSlug": "all-minor-patch",
+      "automerge": true
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "groupSlug": "github-actions"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": true
+    },
+    {
+      "matchPackageNames": ["webpack", "webpack-cli", "babel-loader", "css-loader", "postcss-loader", "style-loader"],
+      "groupName": "webpack toolchain",
+      "groupSlug": "webpack-toolchain"
     },
     {
       "matchUpdateTypes": ["major"],
@@ -21,6 +39,7 @@
   },
   "lockFileMaintenance": {
     "enabled": true,
+    "automerge": true,
     "schedule": ["before 6am on the first day of the month"]
   }
 }
