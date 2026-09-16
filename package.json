@@ -32,7 +32,7 @@
     "@eslint/js": "^9.39.5",
     "autoprefixer": "^10.4.16",
     "babel-loader": "^10.0.0",
-    "css-loader": "^6.8.1",
+    "css-loader": "^7.0.0",
     "eslint": "^9.39.5",
     "eslint-plugin-react": "^7.37.5",
     "gh-pages": "^6.0.0",
