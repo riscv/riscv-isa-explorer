@@ -58,7 +58,7 @@ function Cell({ row, value, bitDiff }) {
         {value.map((item) => (
           <span
             key={item}
-            className="px-1.5 py-0.5 rounded border text-[11px] font-mono"
+            className="px-1.5 py-0.5 rounded-sm border text-[11px] font-mono"
             style={{
               borderColor: 'var(--riscv-border-2)',
               background: 'var(--riscv-surface-2)',

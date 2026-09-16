@@ -76,7 +76,7 @@ function ExtensionTile({
         highlighted && !isSelected ? 'ext-tile-highlighted' : '',
         dimmed ? 'opacity-20 grayscale pointer-events-none' : '',
         isDiscontinued && !dimmed
-          ? 'border-[var(--riscv-border-2)] bg-[var(--riscv-surface)]'
+          ? 'border-(--riscv-border-2) bg-(--riscv-surface)'
           : !dimmed
             ? colorClass
             : '',
@@ -98,7 +98,7 @@ function ExtensionTile({
       <div className="absolute top-1.5 right-1.5 flex items-center gap-1">
         {isDiscontinued && (
           <span
-            className="px-1.5 py-0.5 rounded text-[9px] font-mono uppercase tracking-wider"
+            className="px-1.5 py-0.5 rounded-sm text-[9px] font-mono uppercase tracking-wider"
             style={{
               background: 'rgba(255,77,107,0.12)',
               color: '#ff7a8a',
@@ -239,7 +239,7 @@ function ExtensionTile({
         </span>
         {data.isSandbox && (
           <span
-            className="px-1 py-[1px] mt-px rounded text-[8.5px] font-mono uppercase tracking-wider font-semibold shrink-0"
+            className="px-1 py-px mt-px rounded-sm text-[8.5px] font-mono uppercase tracking-wider font-semibold shrink-0"
             style={{
               background: 'rgba(59,130,246,0.15)',
               color: 'var(--riscv-accent-4, #60a5fa)',

@@ -26,7 +26,7 @@ export default function EncodingDiagram({ encoding, diffMask }) {
   if (normalized.length !== 32) {
     return (
       <div
-        className="font-mono text-[12px] bg-[var(--riscv-surface-2)] border border-[var(--riscv-border-2)] rounded px-2 py-1 break-all"
+        className="font-mono text-[12px] bg-(--riscv-surface-2) border border-(--riscv-border-2) rounded-sm px-2 py-1 break-all"
         style={{ color: 'var(--riscv-text-2)' }}
       >
         {encoding}
@@ -178,7 +178,7 @@ export default function EncodingDiagram({ encoding, diffMask }) {
               minmax(0,1fr) lets the cells shrink; the min-width below keeps
               them legible, and the scroller survives underneath it for
               viewports narrower than that floor. */}
-          <div className="riscv-bit-row grid w-full rounded-md border border-[var(--riscv-border-2)] overflow-hidden">
+          <div className="riscv-bit-row grid w-full rounded-md border border-(--riscv-border-2) overflow-hidden">
             {normalized.split('').map((bit, i) => {
               const isVar = bit === '-';
               const isGroupEnd = (i + 1) % 4 === 0 && i !== 31;
@@ -231,7 +231,7 @@ export default function EncodingDiagram({ encoding, diffMask }) {
             {FIELD_LABELS.map(({ name, cls }) => (
               <span
                 key={name}
-                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border ${cls}`}
+                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[10px] font-mono font-bold border ${cls}`}
               >
                 {name}
               </span>

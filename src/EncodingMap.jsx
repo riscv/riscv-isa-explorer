@@ -47,7 +47,7 @@ function Cell({ cell, total, selected, onSelect }) {
       type="button"
       onClick={() => onSelect(selected ? null : cell)}
       title={`${cell.name} · opcode 0x${cell.opcode.toString(16).padStart(2, '0')} · inst[6:5]=${cell.colBits} inst[4:2]=${cell.rowBits} · ${cell.count} instruction${cell.count === 1 ? '' : 's'}`}
-      className="slot-cell text-left rounded px-2 py-1.5"
+      className="slot-cell text-left rounded-sm px-2 py-1.5"
       style={{
         borderStyle: isFree ? 'dashed' : 'solid',
         borderColor: isFree ? colour : 'var(--riscv-border-2)',
@@ -331,7 +331,7 @@ export default function EncodingMap({
               {quadrants.map((q) => (
                 <span
                   key={q.quadrant}
-                  className="px-2 py-0.5 rounded border font-mono"
+                  className="px-2 py-0.5 rounded-sm border font-mono"
                   style={{
                     background: 'var(--riscv-tint-2)',
                     borderColor: 'var(--riscv-border)',
@@ -366,7 +366,7 @@ export default function EncodingMap({
 
             {selected && (
               <div
-                className="mt-4 rounded border p-3"
+                className="mt-4 rounded-sm border p-3"
                 style={{ background: 'var(--riscv-surface-2)', borderColor: 'var(--riscv-border)' }}
               >
                 <div className="flex items-baseline justify-between gap-3 mb-2 flex-wrap">
@@ -405,7 +405,7 @@ export default function EncodingMap({
                         <button
                           type="button"
                           onClick={() => onOpenSandbox()}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-semibold border transition-all"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[11px] font-semibold border transition-all"
                           style={{
                             background: 'rgba(59,130,246,0.1)',
                             borderColor: 'rgba(59,130,246,0.3)',
@@ -429,7 +429,7 @@ export default function EncodingMap({
                             onClose();
                           }}
                           title={`Open ${id}`}
-                          className="px-1.5 py-0.5 rounded border font-mono text-[11px] hover:opacity-80"
+                          className="px-1.5 py-0.5 rounded-sm border font-mono text-[11px] hover:opacity-80"
                           style={{
                             background: 'var(--riscv-gold-dim)',
                             borderColor: 'var(--riscv-gold-glow)',
@@ -444,7 +444,7 @@ export default function EncodingMap({
                       {selected.instructions.map((i) => (
                         <span
                           key={i.mnemonic}
-                          className="px-1.5 py-0.5 rounded border font-mono text-[11px]"
+                          className="px-1.5 py-0.5 rounded-sm border font-mono text-[11px]"
                           title={i.isSandbox ? 'Sandbox Instruction' : undefined}
                           style={
                             i.isSandbox

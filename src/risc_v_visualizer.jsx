@@ -2409,7 +2409,7 @@ const RISCVExplorer = () => {
                                 toggleCompareProfile(profile);
                               }}
                               aria-pressed={compareProfileNames.has(profile)}
-                              className="riscv-pin-btn px-1 py-0.5 rounded border text-[11px] inline-flex items-center justify-center transition-all"
+                              className="riscv-pin-btn px-1 py-0.5 rounded-sm border text-[11px] inline-flex items-center justify-center transition-all"
                               title={
                                 compareProfileNames.has(profile)
                                   ? `Remove ${profile} from comparison`
@@ -2509,7 +2509,7 @@ const RISCVExplorer = () => {
                     onClick={() => setSandboxOpen(true)}
                     aria-haspopup="dialog"
                     aria-expanded={sandboxOpen}
-                    className="group inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 whitespace-nowrap border text-blue-500 bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20 hover:border-blue-500/50 shadow-sm"
+                    className="group inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 whitespace-nowrap border text-blue-500 bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20 hover:border-blue-500/50 shadow-xs"
                     data-tooltip="A safe sandbox to design, test, and validate your own custom RISC-V extensions and instructions"
                   >
                     <FlaskConical size={14} className="opacity-80" />
@@ -2552,7 +2552,7 @@ const RISCVExplorer = () => {
                         : 'Turn on Compare mode to pin extensions, instructions, or profiles'
                     }
                   >
-                    <GitCompare size={14} className="flex-shrink-0" />
+                    <GitCompare size={14} className="shrink-0" />
                     <span className="whitespace-nowrap hidden sm:inline">Compare</span>
                     <span
                       className="inline-flex items-center justify-center px-1.5 h-[16px] rounded-full text-[10px] font-black tracking-wide"
@@ -2597,7 +2597,7 @@ const RISCVExplorer = () => {
                         className={[
                           'relative z-10 inline-flex items-center gap-2 px-3 py-2 text-xs font-bold transition-all duration-300 whitespace-nowrap',
                           builderMode
-                            ? 'bg-gradient-to-b from-amber-400 to-amber-500 text-slate-900 hover:from-amber-300 hover:to-amber-400 rounded-xl'
+                            ? 'bg-linear-to-b from-amber-400 to-amber-500 text-slate-900 hover:from-amber-300 hover:to-amber-400 rounded-xl'
                             : 'builder-btn-off bg-slate-800/80 text-amber-300/90 border border-amber-400/30 hover:bg-slate-700/80 hover:text-amber-200 rounded-xl',
                         ].join(' ')}
                         style={{
@@ -2611,7 +2611,7 @@ const RISCVExplorer = () => {
                             : 'Turn on the ISA Configuration Builder to start picking extensions'
                         }
                       >
-                        <Cpu size={14} className="opacity-80 flex-shrink-0" />
+                        <Cpu size={14} className="opacity-80 shrink-0" />
                         <span className="whitespace-nowrap hidden sm:inline">
                           ISA Configuration Builder
                         </span>
@@ -2659,7 +2659,7 @@ const RISCVExplorer = () => {
                                 The label carries the rest: three unlabelled icons
                                 in a row make the reader guess, and this is the
                                 primary action of the three. */}
-                            <PanelRightOpen size={14} className="flex-shrink-0" />
+                            <PanelRightOpen size={14} className="shrink-0" />
                             {workspaceIds.size > 0 && (
                               <span className="ml-1.5 text-[11px] font-bold whitespace-nowrap hidden sm:inline">
                                 Open panel
@@ -3080,7 +3080,7 @@ const RISCVExplorer = () => {
                     <button
                       type="button"
                       onClick={() => setSearchQuery('')}
-                      className="p-0.5 rounded hover:opacity-80"
+                      className="p-0.5 rounded-sm hover:opacity-80"
                       style={{ color: 'var(--riscv-text-3)' }}
                       data-tooltip="Clear search"
                       aria-label="Clear search"
@@ -3089,7 +3089,7 @@ const RISCVExplorer = () => {
                     </button>
                   )}
                   <kbd
-                    className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium"
+                    className="hidden sm:inline-flex items-center gap-1 px-1.5 py-0.5 rounded-sm text-[10px] font-medium"
                     style={{
                       background: 'var(--riscv-surface)',
                       color: 'var(--riscv-text-3)',
@@ -3107,7 +3107,7 @@ const RISCVExplorer = () => {
                 onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
                 data-tooltip={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
                 aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-                className="group flex items-center justify-center rounded-xl transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 border flex-shrink-0"
+                className="group flex items-center justify-center rounded-xl transition-all duration-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 border shrink-0"
                 style={{
                   width: 42,
                   height: 42,
@@ -3413,7 +3413,7 @@ const RISCVExplorer = () => {
                           data={item}
                           matchesSearch={searchMatchIds.has(item.id)}
                           {...tileProps}
-                          colorClass="border-[var(--riscv-border-2)] bg-[var(--riscv-surface-2)] text-slate-300"
+                          colorClass="border-(--riscv-border-2) bg-(--riscv-surface-2) text-slate-300"
                         />
                       ))}
                     </div>
@@ -3720,7 +3720,7 @@ const RISCVExplorer = () => {
             className={`lg:col-span-4 mt-6 lg:mt-0 ${selectedExt ? 'panel-open' : 'hidden'}`}
           >
             <div
-              className="sticky top-6 riscv-card backdrop-blur-sm min-h-[400px] max-h-[calc(100vh-3rem)] flex flex-col overflow-hidden"
+              className="sticky top-6 riscv-card backdrop-blur-xs min-h-[400px] max-h-[calc(100vh-3rem)] flex flex-col overflow-hidden"
               style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.6)' }}
             >
               <div
@@ -3768,7 +3768,7 @@ const RISCVExplorer = () => {
                           href={selectedExt.url || 'https://github.com/riscv/riscv-isa-manual'}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-start gap-1 font-black tracking-tight break-words hover:opacity-80"
+                          className="inline-flex items-start gap-1 font-black tracking-tight wrap-break-word hover:opacity-80"
                           style={{
                             fontSize: '1.5rem',
                             lineHeight: 1.2,
@@ -3931,7 +3931,7 @@ const RISCVExplorer = () => {
                         searchMatches.extId === selectedExt.id &&
                         searchMatches.query === searchQuery.trim().toLowerCase() &&
                         searchMatches.mnemonics.length > 0 && (
-                          <div className="bg-slate-900 p-3 rounded border border-slate-700">
+                          <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
                             <div className="flex items-center justify-between gap-3">
                               <div className="min-w-0">
                                 <div className="text-[11px] uppercase tracking-wider text-yellow-300 font-bold mb-0.5">
@@ -3948,7 +3948,7 @@ const RISCVExplorer = () => {
                               <div className="flex items-center gap-2 shrink-0">
                                 <button
                                   type="button"
-                                  className="px-2 py-1 rounded border border-slate-600 bg-slate-800 text-[11px] font-mono text-slate-100 disabled:opacity-40"
+                                  className="px-2 py-1 rounded-sm border border-slate-600 bg-slate-800 text-[11px] font-mono text-slate-100 disabled:opacity-40"
                                   onClick={() => {
                                     setSearchMatches((current) => {
                                       if (!current || current.extId !== selectedExt.id)
@@ -3967,7 +3967,7 @@ const RISCVExplorer = () => {
                                 </button>
                                 <button
                                   type="button"
-                                  className="px-2 py-1 rounded border border-slate-600 bg-slate-800 text-[11px] font-mono text-slate-100 disabled:opacity-40"
+                                  className="px-2 py-1 rounded-sm border border-slate-600 bg-slate-800 text-[11px] font-mono text-slate-100 disabled:opacity-40"
                                   onClick={() => {
                                     setSearchMatches((current) => {
                                       if (!current || current.extId !== selectedExt.id)
@@ -3989,7 +3989,7 @@ const RISCVExplorer = () => {
                         )}
 
                       {Object.keys(selectedExt.instructions || {}).length > 0 && (
-                        <div className="bg-slate-900 p-3 rounded border border-slate-700">
+                        <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
                           <h4 className="text-[11px] uppercase tracking-wider text-emerald-400 font-bold mb-2">
                             Instruction Set Snapshot (
                             {Object.keys(selectedExt.instructions || {}).length})
@@ -4087,7 +4087,7 @@ const RISCVExplorer = () => {
                       )}
 
                       {selectedExt.csrs && Object.keys(selectedExt.csrs).length > 0 && (
-                        <div className="bg-slate-900 p-3 rounded border border-slate-700">
+                        <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
                           <h4 className="text-[11px] uppercase tracking-wider text-sky-300 font-bold mb-2">
                             {extensionCsrLabels[selectedExt.id] || 'CSRs'} (
                             {Object.keys(selectedExt.csrs).length})
@@ -4110,7 +4110,7 @@ const RISCVExplorer = () => {
                                   <span
                                     key={name}
                                     title={tip || undefined}
-                                    className="px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800/70 text-[11px] font-mono text-slate-200"
+                                    className="px-1.5 py-0.5 rounded-sm border border-slate-700 bg-slate-800/70 text-[11px] font-mono text-slate-200"
                                   >
                                     {name.toUpperCase()}
                                   </span>
@@ -4121,7 +4121,7 @@ const RISCVExplorer = () => {
                       )}
 
                       {selectedInstruction && (
-                        <div className="bg-slate-900 p-3 rounded border border-slate-700">
+                        <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
                           <div className="flex items-start justify-between gap-3 mb-2">
                             <h4 className="text-[11px] uppercase tracking-wider text-purple-300 font-bold flex items-center gap-1">
                               <ArrowRight size={10} /> Instruction Details
@@ -4132,7 +4132,7 @@ const RISCVExplorer = () => {
                                   else, and why the validator reports an overlap. */}
                               {selectedInstruction.alias_of && (
                                 <span
-                                  className="ml-1 px-1.5 py-0.5 rounded font-mono normal-case tracking-normal text-[10px]"
+                                  className="ml-1 px-1.5 py-0.5 rounded-sm font-mono normal-case tracking-normal text-[10px]"
                                   style={{
                                     background: 'var(--riscv-tint-3)',
                                     color: 'var(--riscv-text-2)',
@@ -4264,7 +4264,7 @@ const RISCVExplorer = () => {
                                 {(selectedInstruction.variable_fields || []).map((field) => (
                                   <span
                                     key={field}
-                                    className="px-1.5 py-0.5 rounded border border-slate-700 bg-slate-800/70 text-[11px] font-mono text-slate-200"
+                                    className="px-1.5 py-0.5 rounded-sm border border-slate-700 bg-slate-800/70 text-[11px] font-mono text-slate-200"
                                   >
                                     {field}
                                   </span>
@@ -4310,7 +4310,7 @@ const RISCVExplorer = () => {
                             </div>
 
                             {compressedMapping && (
-                              <div className="rounded border border-slate-700 bg-slate-950/50 p-3">
+                              <div className="rounded-sm border border-slate-700 bg-slate-950/50 p-3">
                                 <div className="text-[11px] uppercase tracking-wider text-cyan-300 font-bold mb-2">
                                   Compressed Mapping
                                 </div>
@@ -4319,7 +4319,7 @@ const RISCVExplorer = () => {
                                     <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
                                       Compressed
                                     </div>
-                                    <div className="font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded px-2 py-1">
+                                    <div className="font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded-sm px-2 py-1">
                                       {compressedMapping.compressed}
                                     </div>
                                   </div>
@@ -4330,7 +4330,7 @@ const RISCVExplorer = () => {
                                     {hasStandardEquivalent ? (
                                       <button
                                         type="button"
-                                        className="w-full text-left font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded px-2 py-1 hover:border-cyan-400/60"
+                                        className="w-full text-left font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded-sm px-2 py-1 hover:border-cyan-400/60"
                                         onClick={() =>
                                           selectStandardEquivalent(standardEquivalentMnemonic)
                                         }
@@ -4342,7 +4342,7 @@ const RISCVExplorer = () => {
                                         </span>
                                       </button>
                                     ) : (
-                                      <div className="font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded px-2 py-1">
+                                      <div className="font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded-sm px-2 py-1">
                                         {compressedMapping.standard}
                                       </div>
                                     )}
@@ -4386,7 +4386,7 @@ const RISCVExplorer = () => {
                             )}
 
                             {compressedEquivalents.length > 0 && (
-                              <div className="rounded border border-slate-700 bg-slate-950/40 p-3">
+                              <div className="rounded-sm border border-slate-700 bg-slate-950/40 p-3">
                                 <div className="text-[11px] uppercase tracking-wider text-emerald-300 font-bold mb-2">
                                   Compressed Equivalents
                                 </div>
@@ -4395,7 +4395,7 @@ const RISCVExplorer = () => {
                                     <button
                                       key={entry.mnemonic}
                                       type="button"
-                                      className="w-full text-left rounded border border-slate-700 bg-slate-900/60 px-2 py-1.5 hover:border-emerald-400/60"
+                                      className="w-full text-left rounded-sm border border-slate-700 bg-slate-900/60 px-2 py-1.5 hover:border-emerald-400/60"
                                       onClick={() => selectCompressedEquivalent(entry.mnemonic)}
                                       data-tooltip={`Open ${entry.mnemonic} details`}
                                     >
@@ -4908,7 +4908,7 @@ const RISCVExplorer = () => {
                   ) : (
                     <div className="space-y-3">
                       {encoderValidatorResult.errors.length > 0 && (
-                        <div className="border border-red-800/40 bg-red-950/30 rounded p-3">
+                        <div className="border border-red-800/40 bg-red-950/30 rounded-sm p-3">
                           <div className="text-[11px] uppercase tracking-wider text-red-200 font-bold mb-2">
                             Errors
                           </div>
@@ -4921,7 +4921,7 @@ const RISCVExplorer = () => {
                       )}
 
                       {encoderValidatorResult.proposed && (
-                        <div className="border border-slate-700 rounded p-3 bg-slate-800/50">
+                        <div className="border border-slate-700 rounded-sm p-3 bg-slate-800/50">
                           <div className="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-2">
                             Normalized Proposal
                           </div>
@@ -4998,7 +4998,7 @@ const RISCVExplorer = () => {
                                         />
                                         <div>
                                           <div
-                                            className="font-mono text-[12px] font-medium break-words"
+                                            className="font-mono text-[12px] font-medium wrap-break-word"
                                             style={{ color: 'var(--riscv-text)' }}
                                           >
                                             {conflict.other.mnemonic}{' '}
@@ -5015,7 +5015,7 @@ const RISCVExplorer = () => {
                                         </div>
                                       </div>
                                       <span
-                                        className="shrink-0 px-1.5 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider border"
+                                        className="shrink-0 px-1.5 py-0.5 rounded-sm text-[10px] font-mono uppercase tracking-wider border"
                                         style={{ background: 'rgba(0,0,0,0.2)', color: 'inherit' }}
                                       >
                                         {conflict.type.replace(/_/g, ' ')}
@@ -5076,7 +5076,7 @@ const RISCVExplorer = () => {
               aria-modal="true"
               aria-labelledby="instr-expand-title"
               tabIndex={-1}
-              className="animate-scale-in w-full max-w-5xl riscv-card overflow-hidden mb-8 outline-none"
+              className="animate-scale-in w-full max-w-5xl riscv-card overflow-hidden mb-8 outline-hidden"
               style={{ boxShadow: '0 0 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(245,197,66,0.12)' }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -5097,7 +5097,7 @@ const RISCVExplorer = () => {
                     </h2>
                     {selectedInstruction.alias_of && (
                       <span
-                        className="px-2 py-0.5 rounded font-mono text-[11px]"
+                        className="px-2 py-0.5 rounded-sm font-mono text-[11px]"
                         style={{
                           background: 'var(--riscv-tint-3)',
                           color: 'var(--riscv-text-2)',

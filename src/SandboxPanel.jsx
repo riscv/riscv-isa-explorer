@@ -584,7 +584,7 @@ export default function SandboxPanel({
             <div className="flex items-center gap-2 shrink-0">
               <button
                 type="button"
-                className="riscv-btn p-1.5 px-2.5 rounded flex items-center gap-1.5 text-[12px] font-semibold transition-all"
+                className="riscv-btn p-1.5 px-2.5 rounded-sm flex items-center gap-1.5 text-[12px] font-semibold transition-all"
                 onClick={handleUndo}
                 disabled={history.length === 0}
                 title={
@@ -604,7 +604,7 @@ export default function SandboxPanel({
               </button>
               <button
                 type="button"
-                className="riscv-btn p-1.5 px-2.5 rounded flex items-center gap-1.5 text-[12px] font-semibold transition-all"
+                className="riscv-btn p-1.5 px-2.5 rounded-sm flex items-center gap-1.5 text-[12px] font-semibold transition-all"
                 onClick={handleShareLink}
                 style={{
                   background: 'var(--riscv-surface-2)',
@@ -649,7 +649,7 @@ export default function SandboxPanel({
                       setSelectedExtIdx(idx);
                       setSelectedInstrIdx(-1);
                     }}
-                    className="flex-1 flex items-center justify-between px-2 py-1.5 rounded text-[12px] font-mono transition-all overflow-hidden"
+                    className="flex-1 flex items-center justify-between px-2 py-1.5 rounded-sm text-[12px] font-mono transition-all overflow-hidden"
                     style={{
                       background: idx === selectedExtIdx ? 'var(--riscv-surface-2)' : 'transparent',
                       color: idx === selectedExtIdx ? 'var(--riscv-text)' : 'var(--riscv-text-2)',
@@ -662,7 +662,7 @@ export default function SandboxPanel({
                   >
                     <div className="flex items-center gap-1.5 min-w-0">
                       <span
-                        className="px-1.5 py-0.5 rounded text-[8px] font-mono font-bold uppercase tracking-wider shrink-0"
+                        className="px-1.5 py-0.5 rounded-sm text-[8px] font-mono font-bold uppercase tracking-wider shrink-0"
                         style={{
                           background: 'var(--riscv-surface)',
                           color:
@@ -677,7 +677,7 @@ export default function SandboxPanel({
                       <span className="truncate">{e.id || '(unnamed)'}</span>
                     </div>
                     <span
-                      className="ml-2 shrink-0 px-1.5 py-0.2 rounded font-mono text-[9px]"
+                      className="ml-2 shrink-0 px-1.5 py-0.2 rounded-sm font-mono text-[9px]"
                       style={{
                         background: 'var(--riscv-surface)',
                         color: 'var(--riscv-text-3)',
@@ -690,7 +690,7 @@ export default function SandboxPanel({
                   <button
                     type="button"
                     onClick={() => removeExtension(idx)}
-                    className="p-1 rounded hover:bg-red-500/20 transition-colors"
+                    className="p-1 rounded-sm hover:bg-red-500/20 transition-colors"
                     style={{ color: 'var(--riscv-text-3)' }}
                     aria-label={`Remove ${e.id}`}
                     title={`Remove ${e.id}`}
@@ -709,7 +709,7 @@ export default function SandboxPanel({
                   setIntentModalOpen(true);
                 }}
                 disabled={extensions.length >= MAX_EXTENSIONS}
-                className="mt-2 flex items-center gap-2.5 px-3 py-2 rounded border transition-all disabled:opacity-40 text-left"
+                className="mt-2 flex items-center gap-2.5 px-3 py-2 rounded-sm border transition-all disabled:opacity-40 text-left"
                 style={{
                   background: 'var(--riscv-surface-2)',
                   borderColor: 'var(--riscv-border-2)',
@@ -771,7 +771,7 @@ export default function SandboxPanel({
                       setCatalogSearchQuery('');
                       setIntentModalOpen(true);
                     }}
-                    className="mt-2 flex items-center gap-2 px-3.5 py-1.5 rounded text-[11.5px] font-semibold border transition-all"
+                    className="mt-2 flex items-center gap-2 px-3.5 py-1.5 rounded-sm text-[11.5px] font-semibold border transition-all"
                     style={{
                       background: 'var(--riscv-surface-2)',
                       borderColor: 'var(--riscv-border-2)',
@@ -787,7 +787,7 @@ export default function SandboxPanel({
                   {/* ── Extension Intelligence Dossier for Standard Additions ── */}
                   {ext.mode === 'addition' && (
                     <div
-                      className="rounded border p-3.5 mb-4"
+                      className="rounded-sm border p-3.5 mb-4"
                       style={{
                         background: 'var(--riscv-surface-2)',
                         borderColor: 'var(--riscv-border-2)',
@@ -796,7 +796,7 @@ export default function SandboxPanel({
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
                           <span
-                            className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider"
+                            className="px-1.5 py-0.5 rounded-sm text-[9px] font-mono font-bold uppercase tracking-wider"
                             style={{
                               background: 'var(--riscv-surface)',
                               color: 'var(--riscv-accent-4)',
@@ -821,7 +821,7 @@ export default function SandboxPanel({
                             setCatalogSearchQuery('');
                             setIntentModalOpen(true);
                           }}
-                          className="text-[11px] font-medium px-2.5 py-1 rounded border transition-colors flex items-center gap-1.5"
+                          className="text-[11px] font-medium px-2.5 py-1 rounded-sm border transition-colors flex items-center gap-1.5"
                           style={{
                             background: 'var(--riscv-surface)',
                             borderColor: 'var(--riscv-border)',
@@ -838,7 +838,7 @@ export default function SandboxPanel({
                         style={{ borderColor: 'var(--riscv-border)' }}
                       >
                         <div
-                          className="p-2 rounded"
+                          className="p-2 rounded-sm"
                           style={{
                             background: 'var(--riscv-surface)',
                             border: '1px solid var(--riscv-border)',
@@ -858,7 +858,7 @@ export default function SandboxPanel({
                           </span>
                         </div>
                         <div
-                          className="p-2 rounded"
+                          className="p-2 rounded-sm"
                           style={{
                             background: 'var(--riscv-surface)',
                             border: '1px solid var(--riscv-border)',
@@ -884,7 +884,7 @@ export default function SandboxPanel({
                           </span>
                         </div>
                         <div
-                          className="p-2 rounded"
+                          className="p-2 rounded-sm"
                           style={{
                             background: 'var(--riscv-surface)',
                             border: '1px solid var(--riscv-border)',
@@ -937,7 +937,7 @@ export default function SandboxPanel({
                         </label>
                         {ext.mode === 'addition' ? (
                           <div
-                            className="w-full h-[34px] px-2 rounded text-[12px] font-mono border flex items-center justify-between"
+                            className="w-full h-[34px] px-2 rounded-sm text-[12px] font-mono border flex items-center justify-between"
                             style={{
                               background: 'var(--riscv-surface-2)',
                               borderColor: 'var(--riscv-border)',
@@ -945,7 +945,7 @@ export default function SandboxPanel({
                             }}
                           >
                             <span className="font-bold">{ext.id}</span>
-                            <span className="text-[9px] uppercase font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded border border-blue-500/20">
+                            <span className="text-[9px] uppercase font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded-sm border border-blue-500/20">
                               Standard
                             </span>
                           </div>
@@ -955,7 +955,7 @@ export default function SandboxPanel({
                             value={ext.id}
                             onChange={(e) => updateExtField('id', e.target.value)}
                             placeholder="Xmyext"
-                            className="w-full h-[34px] px-2 rounded text-[12px] font-mono border"
+                            className="w-full h-[34px] px-2 rounded-sm text-[12px] font-mono border"
                             style={{
                               background: 'var(--riscv-surface-2)',
                               borderColor: extIdError
@@ -982,7 +982,7 @@ export default function SandboxPanel({
                           Extension Track
                         </label>
                         <div
-                          className="w-full h-[34px] px-2.5 rounded text-[12px] border font-medium flex items-center"
+                          className="w-full h-[34px] px-2.5 rounded-sm text-[12px] border font-medium flex items-center"
                           style={{
                             background: 'var(--riscv-surface-2)',
                             borderColor: 'var(--riscv-border)',
@@ -1006,7 +1006,7 @@ export default function SandboxPanel({
                           value={ext.desc}
                           onChange={(e) => updateExtField('desc', e.target.value)}
                           placeholder="Short description"
-                          className="w-full h-[34px] px-2 rounded text-[12px] border"
+                          className="w-full h-[34px] px-2 rounded-sm text-[12px] border"
                           style={{
                             background: 'var(--riscv-surface-2)',
                             borderColor: 'var(--riscv-border)',
@@ -1024,7 +1024,7 @@ export default function SandboxPanel({
                         <select
                           value={ext.opcode}
                           onChange={(e) => updateExtField('opcode', parseInt(e.target.value, 10))}
-                          className="w-full h-[34px] px-2 rounded text-[12px] font-mono border"
+                          className="w-full h-[34px] px-2 rounded-sm text-[12px] font-mono border"
                           style={{
                             background: 'var(--riscv-surface-2)',
                             borderColor: 'var(--riscv-border)',
@@ -1104,7 +1104,7 @@ export default function SandboxPanel({
 
                   {/* ── Instructions section ── */}
                   <div
-                    className="rounded border p-3 mb-4"
+                    className="rounded-sm border p-3 mb-4"
                     style={{
                       background: 'var(--riscv-surface)',
                       borderColor: 'var(--riscv-border)',
@@ -1127,7 +1127,7 @@ export default function SandboxPanel({
                                 type="button"
                                 onClick={() => setClonePopoverOpen((v) => !v)}
                                 disabled={ext.instructions.length >= MAX_INSTRUCTIONS}
-                                className="flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-semibold border disabled:opacity-40 transition-colors"
+                                className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[11px] font-semibold border disabled:opacity-40 transition-colors"
                                 style={{
                                   background: 'var(--riscv-surface)',
                                   borderColor: 'var(--riscv-border-2)',
@@ -1158,7 +1158,7 @@ export default function SandboxPanel({
                                     value={cloneSearchQuery}
                                     onChange={(e) => setCloneSearchQuery(e.target.value)}
                                     placeholder="Filter by mnemonic (e.g. vadd)..."
-                                    className="w-full px-2 py-1 rounded text-[11px] font-mono border"
+                                    className="w-full px-2 py-1 rounded-sm text-[11px] font-mono border"
                                     style={{
                                       background: 'var(--riscv-surface-2)',
                                       borderColor: 'var(--riscv-border)',
@@ -1199,7 +1199,7 @@ export default function SandboxPanel({
                                           onClick={() =>
                                             cloneSiblingInstruction({ mnemonic, ...details })
                                           }
-                                          className="text-left px-2 py-1 rounded text-[11px] font-mono transition-colors flex items-center justify-between"
+                                          className="text-left px-2 py-1 rounded-sm text-[11px] font-mono transition-colors flex items-center justify-between"
                                           style={{ color: 'var(--riscv-text)' }}
                                           onMouseEnter={(e) => {
                                             e.currentTarget.style.background =
@@ -1230,7 +1230,7 @@ export default function SandboxPanel({
                             type="button"
                             onClick={() => setFormatDropdown((v) => !v)}
                             disabled={ext.instructions.length >= MAX_INSTRUCTIONS}
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded text-[11px] font-semibold border disabled:opacity-40 transition-colors"
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-sm text-[11px] font-semibold border disabled:opacity-40 transition-colors"
                             style={{
                               background: 'var(--riscv-surface)',
                               borderColor: 'var(--riscv-border-2)',
@@ -1243,7 +1243,7 @@ export default function SandboxPanel({
                           </button>
                           {formatDropdown && (
                             <div
-                              className="absolute right-0 top-full mt-1 rounded border shadow-xl z-20 min-w-[200px] p-1"
+                              className="absolute right-0 top-full mt-1 rounded-sm border shadow-xl z-20 min-w-[200px] p-1"
                               style={{
                                 background: 'var(--riscv-surface)',
                                 borderColor: 'var(--riscv-border-2)',
@@ -1287,7 +1287,7 @@ export default function SandboxPanel({
                               key={idx}
                               type="button"
                               onClick={() => setSelectedInstrIdx(idx)}
-                              className="flex items-center gap-1 px-2 py-1 rounded text-[11px] font-mono transition-all border"
+                              className="flex items-center gap-1 px-2 py-1 rounded-sm text-[11px] font-mono transition-all border"
                               style={{
                                 background: isSelected
                                   ? 'rgba(59,130,246,0.15)'
@@ -1314,7 +1314,7 @@ export default function SandboxPanel({
                     {/* ── Selected instruction editor ── */}
                     {instr && (
                       <div
-                        className="rounded border p-3"
+                        className="rounded-sm border p-3"
                         style={{
                           background: 'var(--riscv-surface-2)',
                           borderColor: 'var(--riscv-border)',
@@ -1336,7 +1336,7 @@ export default function SandboxPanel({
                                   updateInstrField('mnemonic', e.target.value.toUpperCase())
                                 }
                                 placeholder="XMYOP"
-                                className="w-full px-2 py-1 rounded text-[12px] font-mono font-semibold border"
+                                className="w-full px-2 py-1 rounded-sm text-[12px] font-mono font-semibold border"
                                 style={{
                                   background: 'var(--riscv-surface)',
                                   borderColor: 'var(--riscv-border)',
@@ -1356,7 +1356,7 @@ export default function SandboxPanel({
                                 value={instr.notes}
                                 onChange={(e) => updateInstrField('notes', e.target.value)}
                                 placeholder="What this instruction does"
-                                className="w-full px-2 py-1 rounded text-[12px] border"
+                                className="w-full px-2 py-1 rounded-sm text-[12px] border"
                                 style={{
                                   background: 'var(--riscv-surface)',
                                   borderColor: 'var(--riscv-border)',
@@ -1368,7 +1368,7 @@ export default function SandboxPanel({
                           <button
                             type="button"
                             onClick={() => removeInstruction(selectedInstrIdx)}
-                            className="p-1.5 rounded hover:bg-red-500/20 transition-colors ml-2"
+                            className="p-1.5 rounded-sm hover:bg-red-500/20 transition-colors ml-2"
                             style={{ color: 'var(--riscv-text-3)' }}
                             aria-label="Remove this instruction"
                             title="Remove this instruction"
@@ -1423,7 +1423,7 @@ export default function SandboxPanel({
                               return (
                                 <span
                                   key={f.name}
-                                  className="px-1.5 py-0.5 rounded text-[10px] font-mono border"
+                                  className="px-1.5 py-0.5 rounded-sm text-[10px] font-mono border"
                                   style={{
                                     background: isVar
                                       ? 'transparent'
@@ -1439,7 +1439,7 @@ export default function SandboxPanel({
                               );
                             })}
                             <span
-                              className="px-1.5 py-0.5 rounded text-[10px] font-mono border"
+                              className="px-1.5 py-0.5 rounded-sm text-[10px] font-mono border"
                               style={{
                                 background: 'var(--riscv-tint-gold, rgba(245,197,66,0.08))',
                                 borderColor: 'var(--riscv-gold-glow, rgba(245,197,66,0.2))',
@@ -1485,7 +1485,7 @@ export default function SandboxPanel({
 
                   {/* ── Export controls ── */}
                   <div
-                    className="rounded border p-3"
+                    className="rounded-sm border p-3"
                     style={{
                       background: 'var(--riscv-surface)',
                       borderColor: 'var(--riscv-border)',
@@ -1502,7 +1502,7 @@ export default function SandboxPanel({
                         type="button"
                         onClick={handleExportJson}
                         disabled={ext.instructions.length === 0}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[11px] font-semibold border transition-all disabled:opacity-40"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-[11px] font-semibold border transition-all disabled:opacity-40"
                         style={{
                           borderColor: 'var(--riscv-border-2)',
                           color: 'var(--riscv-text)',
@@ -1529,7 +1529,7 @@ export default function SandboxPanel({
                           downloadBlob(blob, `${ext.id.toLowerCase()}_opcodes.json`);
                         }}
                         disabled={ext.instructions.length === 0}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[11px] font-semibold border transition-all disabled:opacity-40"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-[11px] font-semibold border transition-all disabled:opacity-40"
                         style={{
                           borderColor: 'var(--riscv-border-2)',
                           color: 'var(--riscv-text)',
@@ -1602,7 +1602,7 @@ export default function SandboxPanel({
                           );
                         }}
                         disabled={ext.instructions.length === 0}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded text-[11px] font-semibold border transition-all disabled:opacity-40"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-[11px] font-semibold border transition-all disabled:opacity-40"
                         style={{
                           borderColor: 'var(--riscv-border-2)',
                           color: 'var(--riscv-text)',
@@ -1641,7 +1641,7 @@ export default function SandboxPanel({
                   </h4>
                 </div>
                 <div
-                  className="text-[10px] font-mono mb-3 px-2 py-1 rounded border leading-tight"
+                  className="text-[10px] font-mono mb-3 px-2 py-1 rounded-sm border leading-tight"
                   style={{
                     background: 'var(--riscv-surface-2)',
                     borderColor: 'var(--riscv-border-2)',
@@ -1660,7 +1660,7 @@ export default function SandboxPanel({
                   </div>
                 ) : allDiagnostics.length === 0 ? (
                   <div
-                    className="rounded border p-3.5 flex flex-col items-center gap-2 text-center"
+                    className="rounded-sm border p-3.5 flex flex-col items-center gap-2 text-center"
                     style={{
                       background: 'var(--riscv-surface-2)',
                       borderColor: 'var(--riscv-border-2)',
@@ -1694,7 +1694,7 @@ export default function SandboxPanel({
                       return (
                         <div
                           key={idx}
-                          className="rounded border-y border-r border-l-4 p-3"
+                          className="rounded-sm border-y border-r border-l-4 p-3"
                           style={{
                             borderLeftColor,
                             borderTopColor: 'var(--riscv-border)',
@@ -1739,7 +1739,7 @@ export default function SandboxPanel({
                                   </strong>
                                   {d.example && (
                                     <div
-                                      className="font-mono text-[10px] mt-1.5 p-1.5 rounded border"
+                                      className="font-mono text-[10px] mt-1.5 p-1.5 rounded-sm border"
                                       style={{
                                         color: 'var(--riscv-text-3)',
                                         background: 'var(--riscv-surface)',
@@ -1766,7 +1766,7 @@ export default function SandboxPanel({
         {/* ── Intent Modal (Mode A vs Mode B Picker + Catalog Autocomplete) ── */}
         {intentModalOpen && (
           <div
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm"
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs"
             role="dialog"
             aria-modal="true"
             aria-labelledby="intent-modal-title"
@@ -1812,7 +1812,7 @@ export default function SandboxPanel({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Card 1: Extend Official Standard Extension */}
                     <div
-                      className="rounded border p-4 flex flex-col justify-between transition-colors"
+                      className="rounded-sm border p-4 flex flex-col justify-between transition-colors"
                       style={{
                         background: 'var(--riscv-surface-2)',
                         borderColor: 'var(--riscv-border-2)',
@@ -1821,7 +1821,7 @@ export default function SandboxPanel({
                       <div>
                         <div className="flex items-center justify-between mb-2.5">
                           <span
-                            className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider"
+                            className="px-1.5 py-0.5 rounded-sm text-[9px] font-mono font-bold uppercase tracking-wider"
                             style={{
                               background: 'var(--riscv-surface)',
                               color: 'var(--riscv-accent-4)',
@@ -1882,7 +1882,7 @@ export default function SandboxPanel({
                           setCatalogSearchQuery('');
                           setIntentModalStep('picker');
                         }}
-                        className="w-full py-2 px-3 rounded text-[11px] font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors border"
+                        className="w-full py-2 px-3 rounded-sm text-[11px] font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors border"
                         style={{
                           background: 'var(--riscv-surface)',
                           borderColor: 'var(--riscv-border-2)',
@@ -1904,7 +1904,7 @@ export default function SandboxPanel({
 
                     {/* Card 2: Proprietary / Custom Extension */}
                     <div
-                      className="rounded border p-4 flex flex-col justify-between transition-colors"
+                      className="rounded-sm border p-4 flex flex-col justify-between transition-colors"
                       style={{
                         background: 'var(--riscv-surface-2)',
                         borderColor: 'var(--riscv-border-2)',
@@ -1913,7 +1913,7 @@ export default function SandboxPanel({
                       <div>
                         <div className="flex items-center justify-between mb-2.5">
                           <span
-                            className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wider"
+                            className="px-1.5 py-0.5 rounded-sm text-[9px] font-mono font-bold uppercase tracking-wider"
                             style={{
                               background: 'var(--riscv-surface)',
                               color: 'var(--riscv-gold)',
@@ -1970,7 +1970,7 @@ export default function SandboxPanel({
                       <button
                         type="button"
                         onClick={createVendorExtension}
-                        className="w-full py-2 px-3 rounded text-[11px] font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors border"
+                        className="w-full py-2 px-3 rounded-sm text-[11px] font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors border"
                         style={{
                           background: 'var(--riscv-surface)',
                           borderColor: 'var(--riscv-border-2)',
@@ -1999,7 +1999,7 @@ export default function SandboxPanel({
                       <button
                         type="button"
                         onClick={() => setIntentModalStep('intent')}
-                        className="p-1 rounded hover:bg-white/10 text-[11px] flex items-center gap-1"
+                        className="p-1 rounded-sm hover:bg-white/10 text-[11px] flex items-center gap-1"
                         style={{ color: 'var(--riscv-text-3)' }}
                       >
                         <Undo2 size={13} />
@@ -2029,7 +2029,7 @@ export default function SandboxPanel({
                       <button
                         type="button"
                         onClick={() => setIntentModalNotice(null)}
-                        className="p-0.5 rounded hover:bg-white/10"
+                        className="p-0.5 rounded-sm hover:bg-white/10"
                         title="Dismiss"
                       >
                         <X size={12} />
@@ -2073,7 +2073,7 @@ export default function SandboxPanel({
                           key={qid}
                           type="button"
                           onClick={() => createStandardAddition(target)}
-                          className="px-2 py-0.5 rounded text-[11px] font-mono font-semibold border transition-colors"
+                          className="px-2 py-0.5 rounded-sm text-[11px] font-mono font-semibold border transition-colors"
                           style={{
                             background: 'var(--riscv-surface)',
                             borderColor: 'var(--riscv-border-2)',
@@ -2129,7 +2129,7 @@ export default function SandboxPanel({
                             key={c.id}
                             type="button"
                             onClick={() => createStandardAddition(c)}
-                            className="text-left p-2 rounded transition-colors flex items-center justify-between border"
+                            className="text-left p-2 rounded-sm transition-colors flex items-center justify-between border"
                             style={{
                               borderColor: alreadyAdded ? 'rgba(59,130,246,0.3)' : 'transparent',
                               background: alreadyAdded ? 'rgba(59,130,246,0.06)' : 'transparent',
@@ -2180,7 +2180,7 @@ export default function SandboxPanel({
                             <div className="flex items-center gap-1.5 shrink-0">
                               {alreadyAdded ? (
                                 <span
-                                  className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold"
+                                  className="px-2 py-0.5 rounded-sm text-[10px] font-mono font-semibold"
                                   style={{
                                     background: 'rgba(59,130,246,0.15)',
                                     color: 'var(--riscv-accent-4)',
@@ -2191,7 +2191,7 @@ export default function SandboxPanel({
                                 </span>
                               ) : isCompressedOnly ? (
                                 <span
-                                  className="px-2 py-0.5 rounded text-[10px] font-mono"
+                                  className="px-2 py-0.5 rounded-sm text-[10px] font-mono"
                                   style={{
                                     background: 'rgba(239,68,68,0.1)',
                                     color: 'var(--riscv-red, #ef4444)',
@@ -2203,7 +2203,7 @@ export default function SandboxPanel({
                                 </span>
                               ) : null}
                               <span
-                                className="px-2 py-0.5 rounded text-[10px] font-mono"
+                                className="px-2 py-0.5 rounded-sm text-[10px] font-mono"
                                 style={{
                                   background: 'var(--riscv-surface)',
                                   color: 'var(--riscv-text-2)',

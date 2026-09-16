@@ -84,14 +84,14 @@ export default function CompareTray({
       className="riscv-compare-dock"
     >
       {/* Category Segmented Control */}
-      <div className="riscv-dock-tab-group flex-shrink-0">
+      <div className="riscv-dock-tab-group shrink-0">
         {tab('ext', 'Extensions')}
         {tab('instr', 'Instructions')}
         {tab('profile', 'Profiles')}
       </div>
 
       {/* Vertical Divider */}
-      <div className="h-5 w-px flex-shrink-0" style={{ background: 'var(--riscv-border-2)' }} />
+      <div className="h-5 w-px shrink-0" style={{ background: 'var(--riscv-border-2)' }} />
 
       {/* Pinned Chips Container (Comfortably handles 1 to 6 items) */}
       <div className="flex items-center gap-1.5 overflow-x-auto py-1 px-0.5" style={{ flex: 1, minWidth: 160, scrollbarWidth: 'none' }}>
@@ -103,7 +103,7 @@ export default function CompareTray({
           active.map((key) => (
             <span
               key={key}
-              className="riscv-dock-chip flex-shrink-0"
+              className="riscv-dock-chip shrink-0"
             >
               <span className="font-semibold tracking-wide">{chipLabel(kind, key)}</span>
               <button
@@ -121,11 +121,11 @@ export default function CompareTray({
       </div>
 
       {/* Action Controls */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
         {active.length > 0 && (
           <button
             type="button"
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition-all duration-200 cursor-pointer border active:scale-95 shadow-sm"
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold rounded-lg transition-all duration-200 cursor-pointer border active:scale-95 shadow-xs"
             style={{
               background: 'var(--riscv-report-tint)',
               color: 'var(--riscv-danger)',
