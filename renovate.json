@@ -31,6 +31,11 @@
     {
       "matchUpdateTypes": ["major"],
       "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Hold ESLint at 9. eslint-plugin-react 7.37.5, the latest release, supports eslint up to ^9.7, and the lint config depends on its rules (react-in-jsx-scope, no-unstable-nested-components). Remove this rule once eslint-plugin-react supports eslint 10.",
+      "matchPackageNames": ["eslint", "@eslint/js"],
+      "allowedVersions": "<10"
     }
   ],
   "vulnerabilityAlerts": {
