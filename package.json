@@ -38,7 +38,7 @@
     "gh-pages": "^6.0.0",
     "globals": "^17.11.0",
     "html-webpack-plugin": "^5.5.4",
-    "jsdom": "^29.1.1",
+    "jsdom": "^30.0.0",
     "postcss": "^8.4.32",
     "postcss-loader": "^8.0.0",
     "prettier": "^3.9.6",
