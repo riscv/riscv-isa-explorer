@@ -6806,7 +6806,7 @@
           "fields": {
             "SSI": {
               "bits": "1",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSSI": {
@@ -6816,12 +6816,12 @@
             },
             "MSI": {
               "bits": "3",
-              "type": "RO",
+              "type": "dynamic",
               "reset": "0"
             },
             "STI": {
               "bits": "5",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSTI": {
@@ -6831,12 +6831,12 @@
             },
             "MTI": {
               "bits": "7",
-              "type": "RO",
+              "type": "dynamic",
               "reset": "0"
             },
             "SEI": {
               "bits": "9",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSEI": {
@@ -6846,7 +6846,7 @@
             },
             "MEI": {
               "bits": "11",
-              "type": "RO",
+              "type": "dynamic",
               "reset": "0"
             },
             "SGEI": {
@@ -20093,7 +20093,7 @@
           "fields": {
             "SSI": {
               "bits": "1",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSSI": {
@@ -20103,12 +20103,12 @@
             },
             "MSI": {
               "bits": "3",
-              "type": "RO",
+              "type": "dynamic",
               "reset": "0"
             },
             "STI": {
               "bits": "5",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSTI": {
@@ -20118,12 +20118,12 @@
             },
             "MTI": {
               "bits": "7",
-              "type": "RO",
+              "type": "dynamic",
               "reset": "0"
             },
             "SEI": {
               "bits": "9",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSEI": {
@@ -20133,7 +20133,7 @@
             },
             "MEI": {
               "bits": "11",
-              "type": "RO",
+              "type": "dynamic",
               "reset": "0"
             },
             "SGEI": {
@@ -20156,47 +20156,47 @@
           "fields": {
             "SSIE": {
               "bits": "1",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSSIE": {
               "bits": "2",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "MSIE": {
               "bits": "3",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "STIE": {
               "bits": "5",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSTIE": {
               "bits": "6",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "MTIE": {
               "bits": "7",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "SEIE": {
               "bits": "9",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSEIE": {
               "bits": "10",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "MEIE": {
               "bits": "11",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "SGEIE": {
@@ -20261,47 +20261,47 @@
           "fields": {
             "SSIP": {
               "bits": "1",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSSIP": {
               "bits": "2",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "MSIP": {
               "bits": "3",
-              "type": "RO",
+              "type": "dynamic",
               "reset": "0"
             },
             "STIP": {
               "bits": "5",
-              "type": "RW",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSTIP": {
               "bits": "6",
-              "type": "RO-H",
+              "type": "dynamic",
               "reset": "0"
             },
             "MTIP": {
               "bits": "7",
-              "type": "RO-H",
+              "type": "dynamic",
               "reset": "0"
             },
             "SEIP": {
               "bits": "9",
-              "type": "RW-H",
+              "type": "dynamic",
               "reset": "0"
             },
             "VSEIP": {
               "bits": "10",
-              "type": "RO-H",
+              "type": "dynamic",
               "reset": "0"
             },
             "MEIP": {
               "bits": "11",
-              "type": "RO-H",
+              "type": "dynamic",
               "reset": "0"
             },
             "SGEIP": {

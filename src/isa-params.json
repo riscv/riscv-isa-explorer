@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "58bca452b78d05b5b572a5a44fdaba3b00623819",
+      "commit": "952ab354828a02cb18a6029af8fa95886033f830",
       "branch": "main",
       "path": "spec/std/isa/param"
     }
@@ -1430,6 +1430,27 @@
       },
       "src": "MCTRCTL_TRETINH_IMPLEMENTED.yaml"
     },
+    "MEI_INTR_IMPL": {
+      "name": "MEI_INTR_IMPL",
+      "long_name": "Machine-level external interrupts are implemented",
+      "description": "Whether or not machine-level external interrupts are implemented. Possible values: true:: Machine-level external interrupts are implemented. `mie.MEIE` and `mideleg.MEI` are writable. false:: Machine-level external interrupts are not implemented. `mie.MEIE` and `mideleg.MEI` are read-only zero.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Zicsr"
+            },
+            {
+              "name": "Sm"
+            }
+          ]
+        }
+      },
+      "src": "MEI_INTR_IMPL.yaml"
+    },
     "MIMPID_IMPLEMENTED": {
       "name": "MIMPID_IMPLEMENTED",
       "long_name": "Whether or not the `mimpid` CSR is implemented.",
@@ -1580,6 +1601,27 @@
         }
       },
       "src": "MISA_CSR_IMPLEMENTED.yaml"
+    },
+    "MSI_INTR_IMPL": {
+      "name": "MSI_INTR_IMPL",
+      "long_name": "Machine-level software interrupts are implemented",
+      "description": "Whether or not machine-level software interrupts are implemented. Possible values: true:: Machine-level software interrupts are implemented. `mie.MSIE` and `mideleg.MSI` are writable. false:: Machine-level software interrupts are not implemented. `mie.MSIE` and `mideleg.MSI` are read-only zero.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Zicsr"
+            },
+            {
+              "name": "Sm"
+            }
+          ]
+        }
+      },
+      "src": "MSI_INTR_IMPL.yaml"
     },
     "MSTATEEN_AIA_TYPE": {
       "name": "MSTATEEN_AIA_TYPE",
@@ -1828,6 +1870,27 @@
         "reason": "If V is supported, both Off (0) and Dirty (3) must be supported\n\nIf there is a hardware update to mstatus.VS, then the Dirty state must be supported\n"
       },
       "src": "MSTATUS_VS_LEGAL_VALUES.yaml"
+    },
+    "MTI_INTR_IMPL": {
+      "name": "MTI_INTR_IMPL",
+      "long_name": "Machine-level timer interrupts are implemented",
+      "description": "Whether or not machine-level timer interrupts are implemented. Possible values: true:: Machine-level timer interrupts are implemented. `mie.MTIE`, `mideleg.MTI`, and `mtimecmp` are writable. false:: Machine-level timer interrupts are not implemented. `mie.MTIE` and `mideleg.MTI` are read-only zero. `mtimecmp` is optional and may be read-only zero.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Zicsr"
+            },
+            {
+              "name": "Sm"
+            }
+          ]
+        }
+      },
+      "src": "MTI_INTR_IMPL.yaml"
     },
     "MTVAL_WIDTH": {
       "name": "MTVAL_WIDTH",
@@ -3395,6 +3458,27 @@
       },
       "src": "SCTRDEPTH_DEPTH_LEGAL_VALUES.yaml"
     },
+    "SEI_INTR_IMPL": {
+      "name": "SEI_INTR_IMPL",
+      "long_name": "Supervisor-level external interrupts are implemented",
+      "description": "Whether or not supervisor-level external interrupts are implemented. Possible values: true:: Supervisor-level external interrupts are implemented. `mie.SEIE` and `mideleg.SEI` are writable. false:: Supervisor-level external interrupts are not implemented. `mie.SEIE`, `mip.SEIP`, and `mideleg.SEI` are read-only zero.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Zicsr"
+            },
+            {
+              "name": "S"
+            }
+          ]
+        }
+      },
+      "src": "SEI_INTR_IMPL.yaml"
+    },
     "SEW_MIN": {
       "name": "SEW_MIN",
       "long_name": null,
@@ -3415,6 +3499,27 @@
         }
       },
       "src": "SEW_MIN.yaml"
+    },
+    "SSI_INTR_IMPL": {
+      "name": "SSI_INTR_IMPL",
+      "long_name": "Supervisor-level software interrupts are implemented",
+      "description": "Whether or not supervisor-level software interrupts are implemented. Possible values: true:: Supervisor-level software interrupts are implemented. `mie.SSIE` and `mideleg.SSI` are writable. false:: Supervisor-level software interrupts are not implemented. `mie.SSIE`, `mip.SSIP`, and `mideleg.SSI` are read-only zero.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Zicsr"
+            },
+            {
+              "name": "S"
+            }
+          ]
+        }
+      },
+      "src": "SSI_INTR_IMPL.yaml"
     },
     "SSTATEEN_JVT_TYPE": {
       "name": "SSTATEEN_JVT_TYPE",
@@ -3445,6 +3550,31 @@
         "reason": "SSTATEEN cannot have more options that MSTATEEN\n\nSSTATEEN cannot have more options that HSTATEEN\n"
       },
       "src": "SSTATEEN_JVT_TYPE.yaml"
+    },
+    "STI_INTR_IMPL": {
+      "name": "STI_INTR_IMPL",
+      "long_name": "Supervisor-level timer interrupts are implemented",
+      "description": "Whether or not supervisor-level timer interrupts are implemented. If Sstc is implemented, then STI_INTR_IMPL must be true. Possible values: true:: Supervisor-level timer interrupts are implemented. `mie.STIE` and `mideleg.STI` are writable. false:: Supervisor-level timer interrupts are not implemented. `mie.STIE`, `mip.STIP`, and `mideleg.STI` are read-only zero.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Zicsr"
+            },
+            {
+              "name": "S"
+            }
+          ]
+        }
+      },
+      "requirements": {
+        "idl()": "implemented?(ExtensionName::Sstc) -> STI_INTR_IMPL;\n",
+        "reason": "When the Sstc extension is implemented, STIP reflects the timer interrupt signal resulting from `stimecmp`."
+      },
+      "src": "STI_INTR_IMPL.yaml"
     },
     "STVAL_WIDTH": {
       "name": "STVAL_WIDTH",
@@ -4711,6 +4841,48 @@
       },
       "src": "VMID_WIDTH.yaml"
     },
+    "VSEI_INTR_IMPL": {
+      "name": "VSEI_INTR_IMPL",
+      "long_name": "Virtual supervisor-level external interrupts are implemented",
+      "description": "Whether or not virtual supervisor-level external interrupts are implemented. Possible values: true:: Virtual supervisor-level external interrupts are implemented. `mie.VSEIE` and `mideleg.VSEI` are writable. false:: Virtual supervisor-level external interrupts are not implemented. `mie.VSEIE`, `mip.VSEIP`, and `mideleg.VSEI` are read-only zero.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Zicsr"
+            },
+            {
+              "name": "H"
+            }
+          ]
+        }
+      },
+      "src": "VSEI_INTR_IMPL.yaml"
+    },
+    "VSSI_INTR_IMPL": {
+      "name": "VSSI_INTR_IMPL",
+      "long_name": "Virtual supervisor-level software interrupts are implemented",
+      "description": "Whether or not virtual supervisor-level software interrupts are implemented. Possible values: true:: Virtual supervisor-level software interrupts are implemented. `mie.VSSIE` and `mideleg.VSSI` are writable. false:: Virtual supervisor-level software interrupts are not implemented. `mie.VSSIE`, `mip.VSSIP`, and `mideleg.VSSI` are read-only zero.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Zicsr"
+            },
+            {
+              "name": "H"
+            }
+          ]
+        }
+      },
+      "src": "VSSI_INTR_IMPL.yaml"
+    },
     "VSSTAGE_MODE_BARE": {
       "name": "VSSTAGE_MODE_BARE",
       "long_name": null,
@@ -4741,6 +4913,31 @@
         }
       },
       "src": "VSSTATUS_VS_EXISTS.yaml"
+    },
+    "VSTI_INTR_IMPL": {
+      "name": "VSTI_INTR_IMPL",
+      "long_name": "Virtual supervisor-level timer interrupts are implemented.",
+      "description": "Whether or not virtual supervisor-level timer interrupts are implemented. If Sstc is implemented, then VSTI_INTR_IMPL must be true. Possible values: true:: Virtual supervisor-level timer interrupts are implemented. `mie.VSTIE` and `mdeleg.VSTI` are writable. false:: Virtual supervisor-level timer interrupts are not implemented. `mie.VSTIE`, `mip.VSTIP`, and and `mdeleg.VSTI` are read-only zero.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Zicsr"
+            },
+            {
+              "name": "H"
+            }
+          ]
+        }
+      },
+      "requirements": {
+        "idl()": "implemented?(ExtensionName::Sstc) -> VSTI_INTR_IMPL;\n",
+        "reason": "When the Sstc extension is implemented, VSTIP reflects the timer interrupt signal resulting from `vstimecmp`."
+      },
+      "src": "VSTI_INTR_IMPL.yaml"
     },
     "VSTVEC_MODES": {
       "name": "VSTVEC_MODES",
