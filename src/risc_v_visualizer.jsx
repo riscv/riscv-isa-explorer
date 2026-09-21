@@ -78,6 +78,10 @@ import { PROFILES } from './profiles.js';
 import PROFILE_OPTIONAL from './profile-optional.json';
 import { buildIsaConfigYaml } from './exportUtils.js';
 import AskAiLauncher from './AskAiLauncher.jsx';
+// The same switch webpack.config.js reads to decide whether the kapa.ai widget
+// goes into index.html at all, so the chip and the widget it opens can only be
+// on or off together.
+import { AI_ASSISTANT_ENABLED } from '../feature-flags.cjs';
 import SandboxPanel from './SandboxPanel.jsx';
 import {
   OPCODES,
@@ -5675,8 +5679,8 @@ const RISCVExplorer = () => {
         onUpdateExtensions={setSandboxExtensions}
       />
 
-      {/* ── Ask AI Launcher ── */}
-      <AskAiLauncher context={askAiContext} />
+      {/* ── Ask AI Launcher (disabled: see feature-flags.cjs) ── */}
+      {AI_ASSISTANT_ENABLED && <AskAiLauncher context={askAiContext} />}
 
       {/* ── Workspace Notices Toast ── */}
       <div

@@ -77,6 +77,7 @@ src/
 scripts/                      # sync/seed/check tooling (.mjs / .cjs)
 tests/                        # node:test suites (*.test.mjs)
 public/index.html             # webpack HTML template
+feature-flags.cjs             # build-time switches, read by the config AND the bundle
 ```
 
 Data flow: upstream (riscv-opcodes, riscv-unified-db) → `scripts/*` sync → data
@@ -157,6 +158,14 @@ Then `npm run sync` and `npm test && npm run build`.
   All 15 are defined by `Sm` upstream, but no graph node requires `Sm`, so a
   selection-derived list is empty for a bare RV32I and the export would silently
   drop every param riscv-arch-test needs. `tests/export.test.mjs` guards this.
+- **The "Ask AI" assistant is switched off in `feature-flags.cjs`.**
+  `AI_ASSISTANT_ENABLED: false` keeps both halves out: the launcher chip does
+  not render and the kapa.ai widget is left out of the emitted `index.html`.
+  Set it to true and rebuild to bring it back; nothing else needs editing. The
+  guard in `public/index.html` is html-webpack-plugin's lodash syntax, so
+  nothing inside it may write a closing `head` tag even in prose — the plugin
+  injects `bundle.js` before the first one it finds by regex, and a mention in
+  a comment swallows the script tag and ships a blank page.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;
   eslint ignores both). Don't hand-edit `dist/`.
 - **`gh-pages` branch is machine-published** by CI on every push to `main`.

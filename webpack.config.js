@@ -1,6 +1,10 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+// Single source of truth for feature switches. The bundle imports the same
+// file, so a flag cannot be on in the app and off in the HTML.
+const { AI_ASSISTANT_ENABLED } = require('./feature-flags.cjs');
+
 /**
  * Exported as a function so one config serves both jobs. `npm run build` passes
  * no --mode and falls through to production, producing exactly the bundle it
@@ -50,30 +54,41 @@ module.exports = (env, argv = {}) => {
               // React.createElement, so every .jsx file keeps React in scope.
               // Babel 8 changed the preset's default to the automatic runtime,
               // so leaving this out would silently switch transforms.
-              presets: [['@babel/preset-react', { runtime: 'classic' }]]
-            }
-          }
+              presets: [['@babel/preset-react', { runtime: 'classic' }]],
+            },
+          },
         },
         {
           test: /\.css$/,
-          use: ['style-loader', 'css-loader', 'postcss-loader']
+          use: ['style-loader', 'css-loader', 'postcss-loader'],
         },
         // PNG assets: emitted to dist/ and resolved to their URL at runtime.
         // No npm dep needed — webpack 5 asset modules are built in.
         {
           test: /\.png$/,
           type: 'asset/resource',
-        }
-      ]
+        },
+      ],
     },
     resolve: {
-      extensions: ['.js', '.jsx']
+      extensions: ['.js', '.jsx'],
     },
     plugins: [
       new HtmlWebpackPlugin({
         template: './public/index.html',
-        filename: 'index.html'
-      })
-    ]
+        filename: 'index.html',
+        // Read by the guard around the kapa.ai widget in the template. The
+        // function form re-states the plugin's own parameters because passing
+        // any templateParameters replaces them wholesale, and `inject` is
+        // resolved from them: drop htmlWebpackPlugin.files and the bundle
+        // script is never added to the page.
+        templateParameters: (compilation, assets, assetTags, options) => ({
+          compilation,
+          webpackConfig: compilation.options,
+          htmlWebpackPlugin: { tags: assetTags, files: assets, options },
+          aiAssistantEnabled: AI_ASSISTANT_ENABLED,
+        }),
+      }),
+    ],
   };
 };
