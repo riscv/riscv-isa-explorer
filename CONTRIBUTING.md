@@ -175,3 +175,12 @@ into a fix.
 
 For security reports, see [SECURITY.md](SECURITY.md). Participation is governed
 by our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+
+## Contributors
+
+The first contributors to this project:
+
+- **Aryan Patel** - automated the sync of extension metadata from
+  riscv-unified-db, including the scheduled workflow that keeps the catalogue
+  in step with upstream.
