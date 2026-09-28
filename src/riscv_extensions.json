@@ -20394,6 +20394,11 @@
               "bits": "21",
               "type": "dynamic",
               "reset": "dynamic"
+            },
+            "X": {
+              "bits": "23",
+              "type": "RO",
+              "reset": "dynamic"
             }
           }
         },

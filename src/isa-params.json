@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "952ab354828a02cb18a6029af8fa95886033f830",
+      "commit": "f6e8a720211ef5e57783aab57e128660a65788b9",
       "branch": "main",
       "path": "spec/std/isa/param"
     }
@@ -178,7 +178,7 @@
     "COUNTINHIBIT_EN": {
       "name": "COUNTINHIBIT_EN",
       "long_name": null,
-      "description": "Indicates which hardware performance monitor counters can be disabled from `mcountinhibit`. An unimplemented counter cannot be specified, i.e., if HPM_COUNTER_EN[3] is false, it would be illegal to set COUNTINHIBIT_EN[3] to true. COUNTINHIBIT_EN[1] can never be true, since it corresponds to `mcountinhibit.TM`, which is always read-only-0.",
+      "description": "Indicates which hardware performance monitor counters can be disabled from `mcountinhibit`. `COUNTINHIBIT_EN[n]` controls whether `mcountinhibit.HPM<n>` is writable. It does not depend on whether `hpmcounter<n>`/`mhpmcounter<n>` is read-only zero. COUNTINHIBIT_EN[1] can never be true, since it corresponds to `mcountinhibit.TM`, which is always read-only-0.",
       "schema": {
         "type": "array",
         "items": [
@@ -213,10 +213,6 @@
             }
           }
         ]
-      },
-      "requirements": {
-        "idl()": "for (U32 i = 3; i < 32; i++) {\n  (!HPM_COUNTER_EN[i]) -> !COUNTINHIBIT_EN[i];\n}\n",
-        "reason": "When mhpmcounter[i] is not implemented, it cannot be inhibited.\n"
       },
       "src": "COUNTINHIBIT_EN.yaml"
     },
@@ -430,7 +426,7 @@
     "HCOUNTENABLE_EN": {
       "name": "HCOUNTENABLE_EN",
       "long_name": null,
-      "description": "Indicates which counters can delegated via `hcounteren` An unimplemented counter cannot be specified, i.e., if HPM_COUNTER_EN[3] is false, it would be illegal to set HCOUNTENABLE_EN[3] to true. HCOUNTENABLE_EN[0:2] must all be false if `Zicntr` is not implemented. HCOUNTENABLE_EN[3:31] must all be false if `Zihpm` is not implemented.",
+      "description": "Indicates which counters can delegated via `hcounteren` `HCOUNTENABLE_EN[n]` controls whether `hcounteren.HPM<n>` is writable. It does not depend on whether `hpmcounter<n>`/`mhpmcounter<n>` is read-only zero. HCOUNTENABLE_EN[0:2] must all be false if `Zicntr` is not implemented. HCOUNTENABLE_EN[3:31] must all be false if `Zihpm` is not implemented.",
       "schema": {
         "type": "array",
         "items": {
@@ -445,10 +441,793 @@
         }
       },
       "requirements": {
-        "idl()": "for (U32 i = 0; i < 3; i++) {\n  !implemented?(ExtensionName::Zicntr) -> !HCOUNTENABLE_EN[i];\n}\nfor (U32 i = 3; i < 32; i++) {\n  !implemented?(ExtensionName::Zihpm) -> !HCOUNTENABLE_EN[i];\n  (!HPM_COUNTER_EN[i]) -> !HCOUNTENABLE_EN[i];\n}\n",
-        "reason": "Counters 0-2 are defined by Zicntr\nCounters 3..31 are defined by Zihpm\nWhen mhpmcounter[i] is not implemented, it cannot be enabled.\n"
+        "idl()": "for (U32 i = 0; i < 3; i++) {\n  !implemented?(ExtensionName::Zicntr) -> !HCOUNTENABLE_EN[i];\n}\nfor (U32 i = 3; i < 32; i++) {\n  !implemented?(ExtensionName::Zihpm) -> !HCOUNTENABLE_EN[i];\n}\n",
+        "reason": "Counters 0-2 are defined by Zicntr\nCounters 3..31 are defined by Zihpm\n"
       },
       "src": "HCOUNTENABLE_EN.yaml"
+    },
+    "HPM_COUNTER10_WIDTH": {
+      "name": "HPM_COUNTER10_WIDTH",
+      "long_name": "Width of HPM counter 10",
+      "description": "The number of bits of precision implemented by `mhpmcounter10`. This parameter exists only when `HPM_COUNTER_EN[10]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 10,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER10_WIDTH.yaml"
+    },
+    "HPM_COUNTER11_WIDTH": {
+      "name": "HPM_COUNTER11_WIDTH",
+      "long_name": "Width of HPM counter 11",
+      "description": "The number of bits of precision implemented by `mhpmcounter11`. This parameter exists only when `HPM_COUNTER_EN[11]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 11,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER11_WIDTH.yaml"
+    },
+    "HPM_COUNTER12_WIDTH": {
+      "name": "HPM_COUNTER12_WIDTH",
+      "long_name": "Width of HPM counter 12",
+      "description": "The number of bits of precision implemented by `mhpmcounter12`. This parameter exists only when `HPM_COUNTER_EN[12]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 12,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER12_WIDTH.yaml"
+    },
+    "HPM_COUNTER13_WIDTH": {
+      "name": "HPM_COUNTER13_WIDTH",
+      "long_name": "Width of HPM counter 13",
+      "description": "The number of bits of precision implemented by `mhpmcounter13`. This parameter exists only when `HPM_COUNTER_EN[13]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 13,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER13_WIDTH.yaml"
+    },
+    "HPM_COUNTER14_WIDTH": {
+      "name": "HPM_COUNTER14_WIDTH",
+      "long_name": "Width of HPM counter 14",
+      "description": "The number of bits of precision implemented by `mhpmcounter14`. This parameter exists only when `HPM_COUNTER_EN[14]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 14,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER14_WIDTH.yaml"
+    },
+    "HPM_COUNTER15_WIDTH": {
+      "name": "HPM_COUNTER15_WIDTH",
+      "long_name": "Width of HPM counter 15",
+      "description": "The number of bits of precision implemented by `mhpmcounter15`. This parameter exists only when `HPM_COUNTER_EN[15]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 15,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER15_WIDTH.yaml"
+    },
+    "HPM_COUNTER16_WIDTH": {
+      "name": "HPM_COUNTER16_WIDTH",
+      "long_name": "Width of HPM counter 16",
+      "description": "The number of bits of precision implemented by `mhpmcounter16`. This parameter exists only when `HPM_COUNTER_EN[16]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 16,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER16_WIDTH.yaml"
+    },
+    "HPM_COUNTER17_WIDTH": {
+      "name": "HPM_COUNTER17_WIDTH",
+      "long_name": "Width of HPM counter 17",
+      "description": "The number of bits of precision implemented by `mhpmcounter17`. This parameter exists only when `HPM_COUNTER_EN[17]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 17,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER17_WIDTH.yaml"
+    },
+    "HPM_COUNTER18_WIDTH": {
+      "name": "HPM_COUNTER18_WIDTH",
+      "long_name": "Width of HPM counter 18",
+      "description": "The number of bits of precision implemented by `mhpmcounter18`. This parameter exists only when `HPM_COUNTER_EN[18]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 18,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER18_WIDTH.yaml"
+    },
+    "HPM_COUNTER19_WIDTH": {
+      "name": "HPM_COUNTER19_WIDTH",
+      "long_name": "Width of HPM counter 19",
+      "description": "The number of bits of precision implemented by `mhpmcounter19`. This parameter exists only when `HPM_COUNTER_EN[19]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 19,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER19_WIDTH.yaml"
+    },
+    "HPM_COUNTER20_WIDTH": {
+      "name": "HPM_COUNTER20_WIDTH",
+      "long_name": "Width of HPM counter 20",
+      "description": "The number of bits of precision implemented by `mhpmcounter20`. This parameter exists only when `HPM_COUNTER_EN[20]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 20,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER20_WIDTH.yaml"
+    },
+    "HPM_COUNTER21_WIDTH": {
+      "name": "HPM_COUNTER21_WIDTH",
+      "long_name": "Width of HPM counter 21",
+      "description": "The number of bits of precision implemented by `mhpmcounter21`. This parameter exists only when `HPM_COUNTER_EN[21]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 21,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER21_WIDTH.yaml"
+    },
+    "HPM_COUNTER22_WIDTH": {
+      "name": "HPM_COUNTER22_WIDTH",
+      "long_name": "Width of HPM counter 22",
+      "description": "The number of bits of precision implemented by `mhpmcounter22`. This parameter exists only when `HPM_COUNTER_EN[22]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 22,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER22_WIDTH.yaml"
+    },
+    "HPM_COUNTER23_WIDTH": {
+      "name": "HPM_COUNTER23_WIDTH",
+      "long_name": "Width of HPM counter 23",
+      "description": "The number of bits of precision implemented by `mhpmcounter23`. This parameter exists only when `HPM_COUNTER_EN[23]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 23,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER23_WIDTH.yaml"
+    },
+    "HPM_COUNTER24_WIDTH": {
+      "name": "HPM_COUNTER24_WIDTH",
+      "long_name": "Width of HPM counter 24",
+      "description": "The number of bits of precision implemented by `mhpmcounter24`. This parameter exists only when `HPM_COUNTER_EN[24]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 24,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER24_WIDTH.yaml"
+    },
+    "HPM_COUNTER25_WIDTH": {
+      "name": "HPM_COUNTER25_WIDTH",
+      "long_name": "Width of HPM counter 25",
+      "description": "The number of bits of precision implemented by `mhpmcounter25`. This parameter exists only when `HPM_COUNTER_EN[25]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 25,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER25_WIDTH.yaml"
+    },
+    "HPM_COUNTER26_WIDTH": {
+      "name": "HPM_COUNTER26_WIDTH",
+      "long_name": "Width of HPM counter 26",
+      "description": "The number of bits of precision implemented by `mhpmcounter26`. This parameter exists only when `HPM_COUNTER_EN[26]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 26,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER26_WIDTH.yaml"
+    },
+    "HPM_COUNTER27_WIDTH": {
+      "name": "HPM_COUNTER27_WIDTH",
+      "long_name": "Width of HPM counter 27",
+      "description": "The number of bits of precision implemented by `mhpmcounter27`. This parameter exists only when `HPM_COUNTER_EN[27]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 27,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER27_WIDTH.yaml"
+    },
+    "HPM_COUNTER28_WIDTH": {
+      "name": "HPM_COUNTER28_WIDTH",
+      "long_name": "Width of HPM counter 28",
+      "description": "The number of bits of precision implemented by `mhpmcounter28`. This parameter exists only when `HPM_COUNTER_EN[28]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 28,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER28_WIDTH.yaml"
+    },
+    "HPM_COUNTER29_WIDTH": {
+      "name": "HPM_COUNTER29_WIDTH",
+      "long_name": "Width of HPM counter 29",
+      "description": "The number of bits of precision implemented by `mhpmcounter29`. This parameter exists only when `HPM_COUNTER_EN[29]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 29,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER29_WIDTH.yaml"
+    },
+    "HPM_COUNTER30_WIDTH": {
+      "name": "HPM_COUNTER30_WIDTH",
+      "long_name": "Width of HPM counter 30",
+      "description": "The number of bits of precision implemented by `mhpmcounter30`. This parameter exists only when `HPM_COUNTER_EN[30]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 30,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER30_WIDTH.yaml"
+    },
+    "HPM_COUNTER31_WIDTH": {
+      "name": "HPM_COUNTER31_WIDTH",
+      "long_name": "Width of HPM counter 31",
+      "description": "The number of bits of precision implemented by `mhpmcounter31`. This parameter exists only when `HPM_COUNTER_EN[31]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 31,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER31_WIDTH.yaml"
+    },
+    "HPM_COUNTER3_WIDTH": {
+      "name": "HPM_COUNTER3_WIDTH",
+      "long_name": "Width of HPM counter 3",
+      "description": "The number of bits of precision implemented by `mhpmcounter3`. This parameter exists only when `HPM_COUNTER_EN[3]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 3,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER3_WIDTH.yaml"
+    },
+    "HPM_COUNTER4_WIDTH": {
+      "name": "HPM_COUNTER4_WIDTH",
+      "long_name": "Width of HPM counter 4",
+      "description": "The number of bits of precision implemented by `mhpmcounter4`. This parameter exists only when `HPM_COUNTER_EN[4]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 4,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER4_WIDTH.yaml"
+    },
+    "HPM_COUNTER5_WIDTH": {
+      "name": "HPM_COUNTER5_WIDTH",
+      "long_name": "Width of HPM counter 5",
+      "description": "The number of bits of precision implemented by `mhpmcounter5`. This parameter exists only when `HPM_COUNTER_EN[5]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 5,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER5_WIDTH.yaml"
+    },
+    "HPM_COUNTER6_WIDTH": {
+      "name": "HPM_COUNTER6_WIDTH",
+      "long_name": "Width of HPM counter 6",
+      "description": "The number of bits of precision implemented by `mhpmcounter6`. This parameter exists only when `HPM_COUNTER_EN[6]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 6,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER6_WIDTH.yaml"
+    },
+    "HPM_COUNTER7_WIDTH": {
+      "name": "HPM_COUNTER7_WIDTH",
+      "long_name": "Width of HPM counter 7",
+      "description": "The number of bits of precision implemented by `mhpmcounter7`. This parameter exists only when `HPM_COUNTER_EN[7]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 7,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER7_WIDTH.yaml"
+    },
+    "HPM_COUNTER8_WIDTH": {
+      "name": "HPM_COUNTER8_WIDTH",
+      "long_name": "Width of HPM counter 8",
+      "description": "The number of bits of precision implemented by `mhpmcounter8`. This parameter exists only when `HPM_COUNTER_EN[8]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 8,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER8_WIDTH.yaml"
+    },
+    "HPM_COUNTER9_WIDTH": {
+      "name": "HPM_COUNTER9_WIDTH",
+      "long_name": "Width of HPM counter 9",
+      "description": "The number of bits of precision implemented by `mhpmcounter9`. This parameter exists only when `HPM_COUNTER_EN[9]` is `true`. The privileged specification allows an HPM counter to have up to 64 bits of precision.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sm"
+            }
+          },
+          {
+            "param": {
+              "name": "HPM_COUNTER_EN",
+              "index": 9,
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "HPM_COUNTER9_WIDTH.yaml"
     },
     "HPM_COUNTER_EN": {
       "name": "HPM_COUNTER_EN",
@@ -856,12 +1635,11 @@
     },
     "HW_MSTATUS_FS_DIRTY_UPDATE": {
       "name": "HW_MSTATUS_FS_DIRTY_UPDATE",
-      "long_name": null,
-      "description": "Indicates whether or not hardware will write to `mstatus.FS` Values are: [separator=\"!\"] !=== h! never ! Hardware never writes `mstatus.FS` h! precise ! Hardware writes `mstatus.FS` to the Dirty (3) state precisely when F registers are modified h! imprecise ! Hardware writes `mstatus.FS` imprecisely. This will result in a call to unpredictable() on any attempt to read `mstatus` or write FP state. !===",
+      "long_name": "Hardware mstatus.FS Dirty update",
+      "description": "Indicates when hardware will write to `mstatus.FS` Values are: [separator=\"!\"] !=== h! precise ! Hardware writes `mstatus.FS` to the Dirty (3) state precisely when F registers are modified h! imprecise ! Hardware writes `mstatus.FS` imprecisely. This will result in a call to unpredictable() on any attempt to read `mstatus` or write FP state. !===",
       "schema": {
         "type": "string",
         "enum": [
-          "never",
           "precise",
           "imprecise"
         ]
@@ -882,12 +1660,11 @@
     },
     "HW_MSTATUS_VS_DIRTY_UPDATE": {
       "name": "HW_MSTATUS_VS_DIRTY_UPDATE",
-      "long_name": null,
-      "description": "Indicates whether or not hardware will write to `mstatus.VS` Values are: [separator=\"!\"] !=== h! never ! Hardware never writes `mstatus.VS` h! precise ! Hardware writes `mstatus.VS` to the Dirty (3) state precisely when V registers are modified h! imprecise ! Hardware writes `mstatus.VS` imprecisely. This will result in a call to unpredictable() on any attempt to read `mstatus` or write vector state. !===",
+      "long_name": "Hardware mstatus.VS Dirty update",
+      "description": "Indicates when hardware will write to `mstatus.VS` Values are: [separator=\"!\"] !=== h! precise ! Hardware writes `mstatus.VS` to the Dirty (3) state precisely when V registers are modified h! imprecise ! Hardware writes `mstatus.VS` imprecisely. This will result in a call to unpredictable() on any attempt to read `mstatus` or write vector state. !===",
       "schema": {
         "type": "string",
         "enum": [
-          "never",
           "precise",
           "imprecise"
         ]
@@ -1158,7 +1935,7 @@
     "MCOUNTENABLE_EN": {
       "name": "MCOUNTENABLE_EN",
       "long_name": null,
-      "description": "Indicates which counters can be delegated via `mcounteren`. An unimplemented counter cannot be specified, i.e., if HPM_COUNTER_EN[3] is false, it would be illegal to set MCOUNTENABLE_EN[3] to true. MCOUNTENABLE_EN[0:2] must all be false if `Zicntr` is not implemented. MCOUNTENABLE_EN[3:31] must all be false if `Zihpm` is not implemented.",
+      "description": "Indicates which counters can be delegated via `mcounteren`. `MCOUNTENABLE_EN[n]` controls whether `mcounteren.HPM<n>` is writable. It does not depend on whether `hpmcounter<n>`/`mhpmcounter<n>` is read-only zero. MCOUNTENABLE_EN[0:2] must all be false if `Zicntr` is not implemented. MCOUNTENABLE_EN[3:31] must all be false if `Zihpm` is not implemented.",
       "schema": {
         "type": "array",
         "items": {
@@ -1173,8 +1950,8 @@
         }
       },
       "requirements": {
-        "idl()": "for (U32 i = 0; i < 3; i++) {\n  !implemented?(ExtensionName::Zicntr) -> !MCOUNTENABLE_EN[i];\n}\nfor (U32 i=3; i < 32; i++) {\n  !implemented?(ExtensionName::Zihpm) -> !MCOUNTENABLE_EN[i];\n  MCOUNTENABLE_EN[i] -> HPM_COUNTER_EN[i];\n}\n",
-        "reason": "Counters 0-2 are defined by Zicntr\nCounters 3..31 are defined by Zihpm\nWhen mhpmcounter[i] is not implemented, it cannot be enabled.\n"
+        "idl()": "for (U32 i = 0; i < 3; i++) {\n  !implemented?(ExtensionName::Zicntr) -> !MCOUNTENABLE_EN[i];\n}\nfor (U32 i=3; i < 32; i++) {\n  !implemented?(ExtensionName::Zihpm) -> !MCOUNTENABLE_EN[i];\n}\n",
+        "reason": "Counters 0-2 are defined by Zicntr\nCounters 3..31 are defined by Zihpm\n"
       },
       "src": "MCOUNTENABLE_EN.yaml"
     },
@@ -1785,7 +2562,7 @@
     },
     "MSTATUS_FS_LEGAL_VALUES": {
       "name": "MSTATUS_FS_LEGAL_VALUES",
-      "long_name": null,
+      "long_name": "mstatus.FS legal values",
       "description": "The set of values that mstatus.FS supports.",
       "schema": {
         "type": "array",
@@ -1822,14 +2599,14 @@
         }
       },
       "requirements": {
-        "idl()": "implemented?(ExtensionName::F) &&\n  (HW_MSTATUS_FS_DIRTY_UPDATE == \"precise\" ||\n   HW_MSTATUS_FS_DIRTY_UPDATE == \"imprecise\")\n->\n  $array_includes?(MSTATUS_FS_LEGAL_VALUES, 3);\n",
-        "reason": "If there is a hardware update to mstatus.FS, then the Dirty state must be supported"
+        "idl()": "implemented?(ExtensionName::F) ->\n  $array_includes?(MSTATUS_FS_LEGAL_VALUES, 3);\n",
+        "reason": "If F extension is implemented, then the Dirty state must be supported"
       },
       "src": "MSTATUS_FS_LEGAL_VALUES.yaml"
     },
     "MSTATUS_VS_LEGAL_VALUES": {
       "name": "MSTATUS_VS_LEGAL_VALUES",
-      "long_name": null,
+      "long_name": "mstatus.VS legal values",
       "description": "The set of values that mstatus.VS will accept from a software write.",
       "schema": {
         "type": "array",
@@ -1866,8 +2643,8 @@
         }
       },
       "requirements": {
-        "idl()": "# [RULE] If the v registers are implemented, the VS field shall not be read-only zero.\nimplemented?(ExtensionName::V)\n  -> $array_size(MSTATUS_VS_LEGAL_VALUES) > 1;\n\n# [RULE] If there is a hardware update to mstatus.VS, then the Dirty state must be supported\nimplemented?(ExtensionName::V) &&\n(HW_MSTATUS_VS_DIRTY_UPDATE == \"precise\" || HW_MSTATUS_VS_DIRTY_UPDATE == \"imprecise\")\n  -> $array_includes?(MSTATUS_VS_LEGAL_VALUES, 0) &&\n     $array_includes?(MSTATUS_VS_LEGAL_VALUES, 3);\n",
-        "reason": "If V is supported, both Off (0) and Dirty (3) must be supported\n\nIf there is a hardware update to mstatus.VS, then the Dirty state must be supported\n"
+        "idl()": "# [RULE] If there is a hardware update to mstatus.VS, then the Dirty state must be supported\nimplemented?(ExtensionName::V)\n  -> $array_includes?(MSTATUS_VS_LEGAL_VALUES, 3);\n",
+        "reason": "If there is a hardware update to mstatus.VS, then the Dirty state must be supported\n"
       },
       "src": "MSTATUS_VS_LEGAL_VALUES.yaml"
     },
@@ -1907,7 +2684,7 @@
         }
       },
       "requirements": {
-        "idl()": "MXLEN == 32 -> MTVAL_WIDTH <= 32;\n\n# in RV32, MTVAL must be able to hold a physical address if M-mode takes an exception\n# that reports an address\n# Since phyiscal address width can be larger than 32 with Sv32, need to downsize MTVAL in that case\n(\n  MXLEN == 32 &&\n  PHYS_ADDR_WIDTH > 32 &&\n    (\n      implemented?(ExtensionName::Sdext) ||\n      REPORT_VA_IN_MTVAL_ON_BREAKPOINT ||\n      REPORT_ENCODING_IN_MTVAL_ON_ILLEGAL_INSTRUCTION ||\n      REPORT_VA_IN_MTVAL_ON_LOAD_MISALIGNED ||\n      REPORT_VA_IN_MTVAL_ON_STORE_AMO_MISALIGNED ||\n      REPORT_VA_IN_MTVAL_ON_INSTRUCTION_MISALIGNED ||\n      REPORT_VA_IN_MTVAL_ON_LOAD_ACCESS_FAULT ||\n      REPORT_VA_IN_MTVAL_ON_STORE_AMO_ACCESS_FAULT ||\n      REPORT_VA_IN_MTVAL_ON_INSTRUCTION_ACCESS_FAULT\n    )\n) -> (MTVAL_WIDTH == 32);\n\n# TODO: uncomment when we have support for parameter comparison to other parameters\n# (\n#   (\n#     MXLEN == 64 ||\n#     (\n#       MXLEN == 32 &&\n#       PHYS_ADDR_WIDTH <= 32\n#     )\n#   ) &&\n#     (\n#       implemented?(ExtensionName::Sdext) ||\n#       REPORT_VA_IN_MTVAL_ON_BREAKPOINT ||\n#       REPORT_ENCODING_IN_MTVAL_ON_ILLEGAL_INSTRUCTION ||\n#       REPORT_VA_IN_MTVAL_ON_LOAD_MISALIGNED ||\n#       REPORT_VA_IN_MTVAL_ON_STORE_AMO_MISALIGNED ||\n#       REPORT_VA_IN_MTVAL_ON_INSTRUCTION_MISALIGNED ||\n#       REPORT_VA_IN_MTVAL_ON_LOAD_ACCESS_FAULT ||\n#       REPORT_VA_IN_MTVAL_ON_STORE_AMO_ACCESS_FAULT ||\n#       REPORT_VA_IN_MTVAL_ON_INSTRUCTION_ACCESS_FAULT\n#     )\n# ) -> (MTVAL_WIDTH >= PHYS_ADDR_WIDTH);\n\n# (\n#   implemented?(ExtensionName::S) &&\n#   (\n#     implemented?(ExtensionName::Sdext) ||\n#     REPORT_VA_IN_MTVAL_ON_BREAKPOINT ||\n#     REPORT_ENCODING_IN_MTVAL_ON_ILLEGAL_INSTRUCTION ||\n#     REPORT_VA_IN_MTVAL_ON_LOAD_MISALIGNED ||\n#     REPORT_VA_IN_MTVAL_ON_STORE_AMO_MISALIGNED ||\n#     REPORT_VA_IN_MTVAL_ON_INSTRUCTION_MISALIGNED ||\n#     REPORT_VA_IN_MTVAL_ON_LOAD_ACCESS_FAULT ||\n#     REPORT_VA_IN_MTVAL_ON_STORE_AMO_ACCESS_FAULT ||\n#     REPORT_VA_IN_MTVAL_ON_INSTRUCTION_ACCESS_FAULT\n#   )\n# ) -> (MTVAL_WIDTH >= max_va_size());\n\nREPORT_ENCODING_IN_MTVAL_ON_ILLEGAL_INSTRUCTION -> (MTVAL_WIDTH >= INSTR_ENC_SIZE);\n",
+        "idl()": "MXLEN == 32 -> MTVAL_WIDTH <= 32;\n\n# in RV32, MTVAL must be able to hold a physical address if M-mode takes an exception\n# that reports an address\n# Since physical address width can be larger than 32 with Sv32, need to downsize MTVAL in that case\n(\n  MXLEN == 32 &&\n  PHYS_ADDR_WIDTH > 32 &&\n    (\n      implemented?(ExtensionName::Sdext) ||\n      REPORT_VA_IN_MTVAL_ON_BREAKPOINT ||\n      REPORT_ENCODING_IN_MTVAL_ON_ILLEGAL_INSTRUCTION ||\n      REPORT_VA_IN_MTVAL_ON_LOAD_MISALIGNED ||\n      REPORT_VA_IN_MTVAL_ON_STORE_AMO_MISALIGNED ||\n      REPORT_VA_IN_MTVAL_ON_INSTRUCTION_MISALIGNED ||\n      REPORT_VA_IN_MTVAL_ON_LOAD_ACCESS_FAULT ||\n      REPORT_VA_IN_MTVAL_ON_STORE_AMO_ACCESS_FAULT ||\n      REPORT_VA_IN_MTVAL_ON_INSTRUCTION_ACCESS_FAULT ||\n      REPORT_VA_IN_MTVAL_ON_LOAD_PAGE_FAULT ||\n      REPORT_VA_IN_MTVAL_ON_STORE_AMO_PAGE_FAULT ||\n      REPORT_VA_IN_MTVAL_ON_INSTRUCTION_PAGE_FAULT\n    )\n) -> (MTVAL_WIDTH == 32);\n\n# TODO: uncomment when we have support for parameter/function comparison\n#       on the RHS of a constraint.\n# (\n#   (\n#     MXLEN == 64 ||\n#     (\n#       MXLEN == 32 &&\n#       PHYS_ADDR_WIDTH <= 32\n#     )\n#   ) &&\n#     (\n#       implemented?(ExtensionName::Sdext) ||\n#       REPORT_VA_IN_MTVAL_ON_BREAKPOINT ||\n#       REPORT_ENCODING_IN_MTVAL_ON_ILLEGAL_INSTRUCTION ||\n#       REPORT_VA_IN_MTVAL_ON_LOAD_MISALIGNED ||\n#       REPORT_VA_IN_MTVAL_ON_STORE_AMO_MISALIGNED ||\n#       REPORT_VA_IN_MTVAL_ON_INSTRUCTION_MISALIGNED ||\n#       REPORT_VA_IN_MTVAL_ON_LOAD_ACCESS_FAULT ||\n#       REPORT_VA_IN_MTVAL_ON_STORE_AMO_ACCESS_FAULT ||\n#       REPORT_VA_IN_MTVAL_ON_INSTRUCTION_ACCESS_FAULT ||\n#       REPORT_VA_IN_MTVAL_ON_LOAD_PAGE_FAULT ||\n#       REPORT_VA_IN_MTVAL_ON_STORE_AMO_PAGE_FAULT ||\n#       REPORT_VA_IN_MTVAL_ON_INSTRUCTION_PAGE_FAULT\n#     )\n# ) -> (MTVAL_WIDTH >= PHYS_ADDR_WIDTH);\n\n# TODO: uncomment when we have support for parameter/function comparison\n#       on the RHS of a constraint.\n# (\n#   implemented?(ExtensionName::S) &&\n#   (\n#     implemented?(ExtensionName::Sdext) ||\n#     REPORT_VA_IN_MTVAL_ON_BREAKPOINT ||\n#     REPORT_ENCODING_IN_MTVAL_ON_ILLEGAL_INSTRUCTION ||\n#     REPORT_VA_IN_MTVAL_ON_LOAD_MISALIGNED ||\n#     REPORT_VA_IN_MTVAL_ON_STORE_AMO_MISALIGNED ||\n#     REPORT_VA_IN_MTVAL_ON_INSTRUCTION_MISALIGNED ||\n#     REPORT_VA_IN_MTVAL_ON_LOAD_ACCESS_FAULT ||\n#     REPORT_VA_IN_MTVAL_ON_STORE_AMO_ACCESS_FAULT ||\n#     REPORT_VA_IN_MTVAL_ON_INSTRUCTION_ACCESS_FAULT ||\n#     REPORT_VA_IN_MTVAL_ON_LOAD_PAGE_FAULT ||\n#     REPORT_VA_IN_MTVAL_ON_STORE_AMO_PAGE_FAULT ||\n#     REPORT_VA_IN_MTVAL_ON_INSTRUCTION_PAGE_FAULT\n#   )\n# ) -> (MTVAL_WIDTH >= max_va_size());\n\nREPORT_ENCODING_IN_MTVAL_ON_ILLEGAL_INSTRUCTION -> (MTVAL_WIDTH >= INSTR_ENC_SIZE);\n",
         "reason": "`mtval` must be able to hold physical and/or virtual addresses\n"
       },
       "src": "MTVAL_WIDTH.yaml"
@@ -2491,13 +3268,27 @@
       },
       "src": "M_MODE_ENDIANNESS.yaml"
     },
+    "NON_STANDARD_EXTENSION_IMPLEMENTED": {
+      "name": "NON_STANDARD_EXTENSION_IMPLEMENTED",
+      "long_name": "Non-standard extensions implemented",
+      "description": "If any non-standard extensions are implemented, this parameter must be true. This parameter is used as the reset value for `misa.X`.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sm"
+        }
+      },
+      "src": "NON_STANDARD_EXTENSION_IMPLEMENTED.yaml"
+    },
     "NUM_EXTERNAL_GUEST_INTERRUPTS": {
       "name": "NUM_EXTERNAL_GUEST_INTERRUPTS",
       "long_name": null,
       "description": "Number of supported virtualized guest interrupts Corresponds to the `GEILEN` parameter in the RVI specs",
       "schema": {
         "type": "integer",
-        "minimum": 1,
+        "minimum": 0,
         "maximum": 63
       },
       "definedBy": {
@@ -2585,30 +3376,6 @@
         }
       },
       "src": "PMA_GRANULARITY.yaml"
-    },
-    "PMLEN": {
-      "name": "PMLEN",
-      "long_name": null,
-      "description": "The number of high-order bits of an address that are masked by the pointer masking facility.",
-      "schema": {
-        "type": "integer"
-      },
-      "definedBy": {
-        "extension": {
-          "anyOf": [
-            {
-              "name": "Smmpm"
-            },
-            {
-              "name": "Smnpm"
-            },
-            {
-              "name": "Ssnpm"
-            }
-          ]
-        }
-      },
-      "src": "PMLEN.yaml"
     },
     "PMP_GRANULARITY": {
       "name": "PMP_GRANULARITY",
@@ -2710,7 +3477,7 @@
     "REPORT_CAUSE_IN_MTVAL_ON_LANDING_PAD_SOFTWARE_CHECK": {
       "name": "REPORT_CAUSE_IN_MTVAL_ON_LANDING_PAD_SOFTWARE_CHECK",
       "long_name": null,
-      "description": "When true, `mtval` is written with the shadow stack cause (code=18) when a SoftwareCheck exception is raised into M-mode due to a landing pad error. When false, `mtval` is written with 0.",
+      "description": "When true, `mtval` is written with the landing pad fault cause (code=2) when a SoftwareCheck exception is raised into M-mode due to a landing pad error. When false, `mtval` is written with 0.",
       "schema": {
         "type": "boolean"
       },
@@ -2738,7 +3505,7 @@
     "REPORT_CAUSE_IN_STVAL_ON_LANDING_PAD_SOFTWARE_CHECK": {
       "name": "REPORT_CAUSE_IN_STVAL_ON_LANDING_PAD_SOFTWARE_CHECK",
       "long_name": null,
-      "description": "When true, `stval` is written with the shadow stack cause (code=18) when a SoftwareCheck exception is raised into S-mode due to a landing pad error. When false, `stval` is written with 0.",
+      "description": "When true, `stval` is written with the landing pad fault cause (code=2) when a SoftwareCheck exception is raised into S-mode due to a landing pad error. When false, `stval` is written with 0.",
       "schema": {
         "type": "boolean"
       },
@@ -2766,7 +3533,7 @@
     "REPORT_CAUSE_IN_VSTVAL_ON_LANDING_PAD_SOFTWARE_CHECK": {
       "name": "REPORT_CAUSE_IN_VSTVAL_ON_LANDING_PAD_SOFTWARE_CHECK",
       "long_name": null,
-      "description": "When true, `vstval` is written with the shadow stack cause (code=18) when a SoftwareCheck exception is raised into VS-mode due to a landing pad error. When false, `vstval` is written with 0.",
+      "description": "When true, `vstval` is written with the landing pad fault cause (code=2) when a SoftwareCheck exception is raised into VS-mode due to a landing pad error. When false, `vstval` is written with 0.",
       "schema": {
         "type": "boolean"
       },
@@ -3411,7 +4178,7 @@
     "SCOUNTENABLE_EN": {
       "name": "SCOUNTENABLE_EN",
       "long_name": null,
-      "description": "Indicates which counters can delegated via `scounteren` An unimplemented counter cannot be specified, i.e., if HPM_COUNTER_EN[3] is false, it would be illegal to set SCOUNTENABLE_EN[3] to true. SCOUNTENABLE_EN[0:2] must all be false if `Zicntr` is not implemented. SCOUNTENABLE_EN[3:31] must all be false if `Zihpm` is not implemented.",
+      "description": "Indicates which counters can delegated via `scounteren` `SCOUNTENABLE_EN[n]` controls whether `scounteren.HPM<n>` is writable. It does not depend on whether `hpmcounter<n>`/`mhpmcounter<n>` is read-only zero. SCOUNTENABLE_EN[0:2] must all be false if `Zicntr` is not implemented. SCOUNTENABLE_EN[3:31] must all be false if `Zihpm` is not implemented.",
       "schema": {
         "type": "array",
         "items": {
@@ -3426,8 +4193,8 @@
         }
       },
       "requirements": {
-        "idl()": "for (U32 i = 0; i < 3; i++) {\n  !implemented?(ExtensionName::Zicntr) -> !SCOUNTENABLE_EN[i];\n}\nfor (U32 i = 3; i < 32; i++) {\n  !implemented?(ExtensionName::Zihpm) -> !SCOUNTENABLE_EN[i];\n  (!HPM_COUNTER_EN[i]) -> !SCOUNTENABLE_EN[i];\n}\n",
-        "reason": "Counters 0-2 are defined by Zicntr\n\nCounters 3..31 are defined by Zihpm\n\nWhen mhpmcounter[i] does not exist, it cannot be enabled.\n"
+        "idl()": "for (U32 i = 0; i < 3; i++) {\n  !implemented?(ExtensionName::Zicntr) -> !SCOUNTENABLE_EN[i];\n}\nfor (U32 i = 3; i < 32; i++) {\n  !implemented?(ExtensionName::Zihpm) -> !SCOUNTENABLE_EN[i];\n}\n",
+        "reason": "Counters 0-2 are defined by Zicntr\n\nCounters 3..31 are defined by Zihpm\n"
       },
       "src": "SCOUNTENABLE_EN.yaml"
     },
@@ -3590,6 +4357,10 @@
           "name": "S"
         }
       },
+      "requirements": {
+        "idl()": "($array_size(SXLEN) == 1 && SXLEN[0] == 32) -> STVAL_WIDTH <= 32;\n\n# in RV32, STVAL must be able to hold a physical address if S-mode takes an exception\n# that reports an address\n# Since physical address width can be larger than 32 with Sv32, need to downsize STVAL in that case\n(\n  ($array_size(SXLEN) == 1 && SXLEN[0] == 32) &&\n  PHYS_ADDR_WIDTH > 32 &&\n    (\n      implemented?(ExtensionName::Sdext) ||\n      implemented?(ExtensionName::Sstvala) ||\n      REPORT_VA_IN_STVAL_ON_BREAKPOINT ||\n      REPORT_ENCODING_IN_STVAL_ON_ILLEGAL_INSTRUCTION ||\n      REPORT_VA_IN_STVAL_ON_LOAD_MISALIGNED ||\n      REPORT_VA_IN_STVAL_ON_STORE_AMO_MISALIGNED ||\n      REPORT_VA_IN_STVAL_ON_INSTRUCTION_MISALIGNED ||\n      REPORT_VA_IN_STVAL_ON_LOAD_ACCESS_FAULT ||\n      REPORT_VA_IN_STVAL_ON_STORE_AMO_ACCESS_FAULT ||\n      REPORT_VA_IN_STVAL_ON_INSTRUCTION_ACCESS_FAULT ||\n      REPORT_VA_IN_STVAL_ON_LOAD_PAGE_FAULT ||\n      REPORT_VA_IN_STVAL_ON_STORE_AMO_PAGE_FAULT ||\n      REPORT_VA_IN_STVAL_ON_INSTRUCTION_PAGE_FAULT\n    )\n) -> (STVAL_WIDTH == 32);\n\n# TODO: uncomment when we have support for parameter/function comparison\n#       on the RHS of a constraint.\n# (\n#   (\n#     $array_includes?(SXLEN, 64) ||\n#     (\n#       ($array_size(SXLEN) == 1 && SXLEN[0] == 32) &&\n#       PHYS_ADDR_WIDTH <= 32\n#     )\n#   ) &&\n#     (\n#       implemented?(ExtensionName::Sdext) ||\n#       implemented?(ExtensionName::Sstvala) ||\n#       REPORT_VA_IN_STVAL_ON_BREAKPOINT ||\n#       REPORT_ENCODING_IN_STVAL_ON_ILLEGAL_INSTRUCTION ||\n#       REPORT_VA_IN_STVAL_ON_LOAD_MISALIGNED ||\n#       REPORT_VA_IN_STVAL_ON_STORE_AMO_MISALIGNED ||\n#       REPORT_VA_IN_STVAL_ON_INSTRUCTION_MISALIGNED ||\n#       REPORT_VA_IN_STVAL_ON_LOAD_ACCESS_FAULT ||\n#       REPORT_VA_IN_STVAL_ON_STORE_AMO_ACCESS_FAULT ||\n#       REPORT_VA_IN_STVAL_ON_INSTRUCTION_ACCESS_FAULT ||\n#       REPORT_VA_IN_STVAL_ON_LOAD_PAGE_FAULT ||\n#       REPORT_VA_IN_STVAL_ON_STORE_AMO_PAGE_FAULT ||\n#       REPORT_VA_IN_STVAL_ON_INSTRUCTION_PAGE_FAULT\n#     )\n# ) -> (STVAL_WIDTH >= PHYS_ADDR_WIDTH);\n\n# TODO: uncomment when we have support for parameter/function comparison\n#       on the RHS of a constraint.\n# (\n#   implemented?(ExtensionName::S) &&\n#   (\n#     implemented?(ExtensionName::Sdext) ||\n#     implemented?(ExtensionName::Sstvala) ||\n#     REPORT_VA_IN_STVAL_ON_BREAKPOINT ||\n#     REPORT_ENCODING_IN_STVAL_ON_ILLEGAL_INSTRUCTION ||\n#     REPORT_VA_IN_STVAL_ON_LOAD_MISALIGNED ||\n#     REPORT_VA_IN_STVAL_ON_STORE_AMO_MISALIGNED ||\n#     REPORT_VA_IN_STVAL_ON_INSTRUCTION_MISALIGNED ||\n#     REPORT_VA_IN_STVAL_ON_LOAD_ACCESS_FAULT ||\n#     REPORT_VA_IN_STVAL_ON_STORE_AMO_ACCESS_FAULT ||\n#     REPORT_VA_IN_STVAL_ON_INSTRUCTION_ACCESS_FAULT ||\n#     REPORT_VA_IN_STVAL_ON_LOAD_PAGE_FAULT ||\n#     REPORT_VA_IN_STVAL_ON_STORE_AMO_PAGE_FAULT ||\n#     REPORT_VA_IN_STVAL_ON_INSTRUCTION_PAGE_FAULT\n#   )\n# ) -> (STVAL_WIDTH >= max_va_size());\n\n(\n  implemented?(ExtensionName::Sstvala) ||\n  REPORT_ENCODING_IN_STVAL_ON_ILLEGAL_INSTRUCTION\n) -> (STVAL_WIDTH >= INSTR_ENC_SIZE);\n",
+        "reason": "`stval` must be able to hold physical and/or virtual addresses\n"
+      },
       "src": "STVAL_WIDTH.yaml"
     },
     "STVEC_BASE_ALIGNMENT_VECTORED": {
@@ -3719,6 +4490,90 @@
         }
       },
       "src": "STVEC_MODES.yaml"
+    },
+    "SUPPORTED_PMLEN_SMMPM": {
+      "name": "SUPPORTED_PMLEN_SMMPM",
+      "long_name": "Pointer mask length for M mode",
+      "description": "The `PMLEN` values supported by the `Smmpm` pointer masking facility for M-mode, selected via the `PMM` field in `mseccfg`. `PMLEN` is the number of high-order bits of an address that are masked. Options: 0:: PMLEN=0 (pointer masking is disabled) 7:: PMLEN=XLEN-57 (i.e., PMLEN=7 on RV64) 16:: PMLEN=XLEN-48 (i.e., PMLEN=16 on RV64) The current standard only supports these values (`zpm.adoc`, tag `norm:pmlen_supported_values`). `PMM`=00 (pointer masking disabled, PMLEN=0) is mandatory and always available, so it is mandatory here.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "enum": [
+            0,
+            7,
+            16
+          ]
+        },
+        "contains": {
+          "const": 0
+        },
+        "minItems": 1,
+        "maxItems": 3,
+        "uniqueItems": true
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Smmpm"
+        }
+      },
+      "src": "SUPPORTED_PMLEN_SMMPM.yaml"
+    },
+    "SUPPORTED_PMLEN_SMNPM": {
+      "name": "SUPPORTED_PMLEN_SMNPM",
+      "long_name": "Pointer mask length for next mode below M mode",
+      "description": "The `PMLEN` values supported by the `Smnpm` pointer masking facility for the next privilege mode below M-mode (S/HS if S-mode is implemented, or U-mode otherwise), selected via the `PMM` field in `menvcfg`. `PMLEN` is the number of high-order bits of an address that are masked. Options: 0:: PMLEN=0 (pointer masking is disabled) 7:: PMLEN=XLEN-57 (i.e., PMLEN=7 on RV64) 16:: PMLEN=XLEN-48 (i.e., PMLEN=16 on RV64) The current standard only supports these values (`zpm.adoc`, tag `norm:pmlen_supported_values`). `PMM`=00 (pointer masking disabled, PMLEN=0) is mandatory and always available, so it is mandatory here.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "enum": [
+            0,
+            7,
+            16
+          ]
+        },
+        "contains": {
+          "const": 0
+        },
+        "minItems": 1,
+        "maxItems": 3,
+        "uniqueItems": true
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Smnpm"
+        }
+      },
+      "src": "SUPPORTED_PMLEN_SMNPM.yaml"
+    },
+    "SUPPORTED_PMLEN_SSNPM": {
+      "name": "SUPPORTED_PMLEN_SSNPM",
+      "long_name": "Pointer mask length for next mode below S-mode",
+      "description": "The `PMLEN` values supported by the `Ssnpm` pointer masking facility for the next privilege mode below S-mode (U-mode, and VS-/VU-modes if the H extension is present), selected via the `PMM` field in `senvcfg`. `PMLEN` is the number of high-order bits of an address that are masked. Options: 0:: PMLEN=0 (pointer masking is disabled) 7:: PMLEN=XLEN-57 (i.e., PMLEN=7 on RV64) 16:: PMLEN=XLEN-48 (i.e., PMLEN=16 on RV64) The current standard only supports these values (`zpm.adoc`, tag `norm:pmlen_supported_values`). `PMM`=00 (pointer masking disabled, PMLEN=0) is mandatory and always available, so it is mandatory here.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "enum": [
+            0,
+            7,
+            16
+          ]
+        },
+        "contains": {
+          "const": 0
+        },
+        "minItems": 1,
+        "maxItems": 3,
+        "uniqueItems": true
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Ssnpm"
+        }
+      },
+      "src": "SUPPORTED_PMLEN_SSNPM.yaml"
     },
     "SUPPORT_FRACTIONAL_LMUL_BEYOND_REQUIRED": {
       "name": "SUPPORT_FRACTIONAL_LMUL_BEYOND_REQUIRED",
@@ -5054,6 +5909,34 @@
         }
       },
       "src": "VU_MODE_ENDIANNESS.yaml"
+    },
+    "WFI_FINITE": {
+      "name": "WFI_FINITE",
+      "long_name": "Whether WFI resumes execution after a finite amount of time",
+      "description": "Options: * true: WFI resumes execution after waiting for a finite amount of time * false: WFI may continue waiting until another event causes execution to resume",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sm"
+        }
+      },
+      "src": "WFI_FINITE.yaml"
+    },
+    "WFI_U_MODE": {
+      "name": "WFI_U_MODE",
+      "long_name": "Whether WFI is supported in U mode",
+      "description": "Options: * true: WFI can be executed in U mode * false: Executing WFI in U mode raises an illegal instruction exception",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sm"
+        }
+      },
+      "src": "WFI_U_MODE.yaml"
     },
     "ZAWRS_NTO_IS_NOP": {
       "name": "ZAWRS_NTO_IS_NOP",
