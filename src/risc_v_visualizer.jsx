@@ -77,6 +77,7 @@ import RiscvLogo from './RiscvLogo.jsx';
 import { PROFILES } from './profiles.js';
 import PROFILE_OPTIONAL from './profile-optional.json';
 import { buildIsaConfigYaml } from './exportUtils.js';
+import { noInstructionReason } from './extensionNotes.js';
 import AskAiLauncher from './AskAiLauncher.jsx';
 // The same switch webpack.config.js reads to decide whether the kapa.ai widget
 // goes into index.html at all, so the chip and the widget it opens can only be
@@ -4087,6 +4088,23 @@ const RISCVExplorer = () => {
                               );
                             })}
                           </div>
+                        </div>
+                      )}
+
+                      {Object.keys(selectedExt.instructions || {}).length === 0 && (
+                        <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
+                          <h4
+                            className="text-[11px] uppercase tracking-wider font-bold mb-1.5 flex items-center gap-1"
+                            style={{ color: 'var(--riscv-text-3)' }}
+                          >
+                            <Info size={10} /> Instruction Encodings
+                          </h4>
+                          <p
+                            className="text-sm leading-relaxed"
+                            style={{ color: 'var(--riscv-text-2)' }}
+                          >
+                            {noInstructionReason(selectedExt)}
+                          </p>
                         </div>
                       )}
 
