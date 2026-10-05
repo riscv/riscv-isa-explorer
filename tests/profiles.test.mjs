@@ -16,13 +16,20 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PROFILES } from '../src/profiles.js';
+import { PROFILES, PROFILE_METADATA } from '../src/profiles.js';
 import { resolveSelection } from '../src/isaGraph.js';
 import { buildMarchString, NON_MARCH_IDS } from '../src/marchUtils.js';
 
 const ALL = (() => {
-  const file = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'riscv_extensions.json');
-  return Object.values(JSON.parse(fs.readFileSync(file, 'utf8'))).flat().filter(Boolean);
+  const file = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '..',
+    'src',
+    'riscv_extensions.json',
+  );
+  return Object.values(JSON.parse(fs.readFileSync(file, 'utf8')))
+    .flat()
+    .filter(Boolean);
 })();
 const CATALOG_IDS = new Set(ALL.map((e) => e.id));
 
@@ -32,15 +39,39 @@ test('there are profiles to start from', () => {
   assert.ok(entries.length >= 4, `expected the ratified profiles, got ${entries.length}`);
 });
 
+test('every profile has complete, XLEN-consistent display metadata', () => {
+  assert.deepEqual(Object.keys(PROFILE_METADATA).sort(), Object.keys(PROFILES).sort());
+
+  for (const [name, members] of entries) {
+    const metadata = PROFILE_METADATA[name];
+    const base = members.find((id) => /^RV(32|64|128)[IE]$/.test(id));
+    const baseXlen = Number(base.match(/^RV(32|64|128)/)[1]);
+    assert.equal(metadata.xlen, baseXlen, `${name} metadata disagrees with its base ISA`);
+    assert.ok(metadata.scope, `${name} needs a scope`);
+    assert.ok(metadata.description, `${name} needs a description`);
+  }
+
+  assert.match(PROFILE_METADATA.RVI20U32.description, /32-bit/);
+  assert.doesNotMatch(PROFILE_METADATA.RVI20U32.description, /64-bit/);
+});
+
 for (const [name, members] of entries) {
   test(`${name}: every member exists in the catalog`, () => {
     const missing = members.filter((id) => !CATALOG_IDS.has(id));
-    assert.deepEqual(missing, [], `${name} names extensions the catalog does not have: ${missing.join(', ')}`);
+    assert.deepEqual(
+      missing,
+      [],
+      `${name} names extensions the catalog does not have: ${missing.join(', ')}`,
+    );
   });
 
   test(`${name}: names exactly one base ISA`, () => {
     const bases = members.filter((id) => /^RV(32|64|128)[IE]$/.test(id));
-    assert.equal(bases.length, 1, `${name} should name one base ISA, found: ${bases.join(', ') || 'none'}`);
+    assert.equal(
+      bases.length,
+      1,
+      `${name} should name one base ISA, found: ${bases.join(', ') || 'none'}`,
+    );
   });
 
   test(`${name}: resolves through the graph without conflict`, () => {
@@ -61,9 +92,16 @@ for (const [name, members] of entries) {
   test(`${name}: produces a -march string`, () => {
     const base = members.find((id) => /^RV(32|64|128)[IE]$/.test(id));
     const { resolved } = resolveSelection({ selected: members, base });
-    const { march } = buildMarchString(resolved.filter((id) => CATALOG_IDS.has(id)), ALL);
+    const { march } = buildMarchString(
+      resolved.filter((id) => CATALOG_IDS.has(id)),
+      ALL,
+    );
     assert.ok(march, `${name} produced no -march string`);
-    assert.match(march, /^rv(32|64|128)[ie]/, `${name} -march does not start with a base: ${march}`);
+    assert.match(
+      march,
+      /^rv(32|64|128)[ie]/,
+      `${name} -march does not start with a base: ${march}`,
+    );
     // clang parses `sv39` as extension `sv` at version 39 and rejects it. The
     // same holds for the other satp modes. CI proves this against a real
     // toolchain; here we just assert we never emit the token.
@@ -86,7 +124,10 @@ test('satp translation modes are excluded from -march', () => {
   }
   // The other Sv* extensions are real -march tokens and must stay emittable.
   for (const real of ['Svbare', 'Svade', 'Svnapot', 'Svpbmt', 'Svinval']) {
-    assert.ok(!NON_MARCH_IDS.has(real), `${real} is a valid -march extension and should be emitted`);
+    assert.ok(
+      !NON_MARCH_IDS.has(real),
+      `${real} is a valid -march extension and should be emitted`,
+    );
   }
 });
 

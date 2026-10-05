@@ -371,10 +371,23 @@ pre,
 
 /* Extension tile hover lift */
 .ext-tile {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 70px;
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease,
     border-color 0.15s ease;
+}
+
+.ext-tile-primary {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ext-tile:has(.ext-tile-primary:focus-visible) {
+  box-shadow: 0 0 0 2px var(--riscv-text-3) !important;
 }
 
 .ext-tile:hover {
@@ -1291,24 +1304,31 @@ pre,
   outline: 2px solid var(--riscv-gold) !important;
   outline-offset: 2px;
 }
-.ext-tile:focus-visible {
+.ext-tile-primary:focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 2px var(--riscv-text-3) !important;
 }
 
-:root[data-theme='light'] .ext-tile:focus-visible {
+:root[data-theme='light'] .ext-tile:has(.ext-tile-primary:focus-visible) {
   box-shadow: 0 0 0 2px var(--riscv-border-2) !important;
 }
 
 /* 5. Mobile Responsive Detail Panel */
 @media (max-width: 1024px) {
+  .detail-panel-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 49;
+    background: rgba(7, 7, 14, 0.65);
+    backdrop-filter: blur(2px);
+  }
+
   /* On screens smaller than lg (1024px) */
   #detail-panel {
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 75vh;
+    height: min(85dvh, 720px);
     z-index: 50;
     border-radius: 20px 20px 0 0;
     border-left: none;
@@ -1326,6 +1346,107 @@ pre,
 
   :root[data-theme='light'] #detail-panel {
     box-shadow: 0 -8px 32px rgba(45, 40, 80, 0.15);
+  }
+}
+
+@media (max-width: 767px) {
+  .riscv-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .riscv-toolbar-filters,
+  .riscv-toolbar-actions {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    padding-bottom: 4px;
+  }
+
+  .riscv-toolbar-filter-track {
+    width: max-content;
+  }
+
+  .riscv-toolbar-actions {
+    justify-content: flex-start;
+    max-width: 100%;
+  }
+
+  .riscv-builder-control {
+    order: -2;
+  }
+
+  .compare-mode-toggle {
+    order: -1;
+  }
+
+  .riscv-tool-divider {
+    display: none;
+  }
+
+  .workspace-studio-header {
+    align-items: stretch !important;
+    flex-direction: column;
+    gap: 8px !important;
+    padding: 8px 10px !important;
+  }
+
+  .workspace-studio-header-left {
+    display: grid !important;
+    grid-template-columns: auto 1fr;
+    gap: 8px !important;
+  }
+
+  .workspace-studio-back,
+  .workspace-studio-brand {
+    white-space: nowrap;
+  }
+
+  .workspace-studio-back {
+    padding-inline: 9px !important;
+  }
+
+  .workspace-studio-back > span,
+  .workspace-studio-escape-hint,
+  .workspace-studio-divider {
+    display: none;
+  }
+
+  .workspace-studio-brand > div:first-child {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .workspace-studio-brand span {
+    font-size: 13px !important;
+    white-space: nowrap;
+  }
+
+  .workspace-studio-stats {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin-left: 0 !important;
+    overflow-x: auto;
+    padding-bottom: 3px;
+  }
+
+  .workspace-studio-actions {
+    width: 100%;
+    justify-content: flex-end;
+    overflow-x: auto;
+  }
+
+  .workspace-provenance-row {
+    align-items: flex-start !important;
+    flex-wrap: wrap;
+  }
+}
+
+@media (hover: none) {
+  .ext-tile-compare {
+    opacity: 1;
   }
 }
 

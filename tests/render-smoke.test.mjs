@@ -102,6 +102,28 @@ test('the header, the counts and the builder control are present', () => {
   );
 });
 
+test('the catalogue exposes landmarks and valid tile actions', () => {
+  const document = dom.window.document;
+  assert.ok(document.querySelector('header'), 'the identity and controls need a banner landmark');
+  assert.ok(
+    document.querySelector('nav[aria-label="Explorer filters and tools"]'),
+    'the filter and tool strip needs a navigation landmark',
+  );
+  assert.ok(document.querySelector('main#extension-grid'), 'the catalogue needs a main landmark');
+
+  const tiles = [...document.querySelectorAll('.ext-tile')];
+  assert.ok(tiles.every((tile) => tile.querySelector(':scope > .ext-tile-primary')));
+  assert.equal(
+    document.querySelectorAll('button button').length,
+    0,
+    'interactive controls must never be nested inside another button',
+  );
+  assert.ok(
+    tiles.some((tile) => tile.textContent.includes('no opcodes')),
+    'zero attributed opcodes should be an explicit data state',
+  );
+});
+
 test('nothing threw during the first render', () => {
   // React reports render errors through console.error rather than by throwing,
   // so a silent failure would otherwise look like a pass.

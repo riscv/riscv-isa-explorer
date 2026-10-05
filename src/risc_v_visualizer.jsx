@@ -74,9 +74,8 @@ import {
 } from './marchUtils.js';
 import { resolveSelection } from './isaGraph.js';
 import RiscvLogo from './RiscvLogo.jsx';
-import { PROFILES } from './profiles.js';
+import { PROFILES, PROFILE_METADATA } from './profiles.js';
 import PROFILE_OPTIONAL from './profile-optional.json';
-import { buildIsaConfigYaml } from './exportUtils.js';
 import AskAiLauncher from './AskAiLauncher.jsx';
 // The same switch webpack.config.js reads to decide whether the kapa.ai widget
 // goes into index.html at all, so the chip and the widget it opens can only be
@@ -271,6 +270,22 @@ function useOnceMounted(open) {
   const mounted = React.useRef(open);
   if (open) mounted.current = true;
   return mounted.current;
+}
+
+function useMediaQuery(query) {
+  const [matches, setMatches] = React.useState(
+    () => typeof window !== 'undefined' && window.matchMedia(query).matches,
+  );
+
+  React.useEffect(() => {
+    const media = window.matchMedia(query);
+    const update = () => setMatches(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, [query]);
+
+  return matches;
 }
 
 const allExtensionsFlat = Object.values(extensions).flat().filter(Boolean);
@@ -602,6 +617,10 @@ const RISCVExplorer = () => {
   // Lazy initialiser, so ?ext=Zba is honoured on first paint rather than
   // selecting nothing and then correcting itself.
   const [selectedExt, setSelectedExt] = useState(extensionFromUrl);
+  const [detailPanelModal, setDetailPanelModal] = useState(false);
+  const isCompactLayout = useMediaQuery('(max-width: 1024px)');
+  const detailPanelRef = React.useRef(null);
+  const detailOpenerRef = React.useRef(null);
   const [permalinkCopied, setPermalinkCopied] = useState(false);
   const [selectedInstruction, setSelectedInstruction] = useState(null);
   const [copyStatus, setCopyStatus] = useState(null);
@@ -623,6 +642,8 @@ const RISCVExplorer = () => {
   const [evolutionOpen, setEvolutionOpen] = useState(false);
   const evolutionTriggerRef = React.useRef(null);
   const aboutTriggerRef = React.useRef(null);
+  const evolutionDialogRef = React.useRef(null);
+  const aboutDialogRef = React.useRef(null);
   const [encodingMapOpen, setEncodingMapOpen] = useState(false);
   const [sandboxOpen, setSandboxOpen] = useState(false);
 
@@ -688,41 +709,99 @@ const RISCVExplorer = () => {
   const onCloseExpandedModalRef = React.useRef(() => setInstructionExpandOpen(false));
   onCloseExpandedModalRef.current = () => setInstructionExpandOpen(false);
 
-  // About dialog: Escape closes, and focus goes back to the trigger. Lighter
-  // than the encoder dialog's full trap because this one holds no fields, only
-  // prose and a close button.
+  // About dialog: seed and trap focus, close on Escape, then restore focus.
   React.useEffect(() => {
     if (!aboutOpen) return undefined;
     const onKeyDown = (e) => {
       if (e.key === 'Escape') {
         e.preventDefault();
         setAboutOpen(false);
+        return;
+      }
+      if (e.key === 'Tab') {
+        const target = nextFocus(
+          focusableWithin(aboutDialogRef.current),
+          document.activeElement,
+          e.shiftKey,
+        );
+        if (target) {
+          e.preventDefault();
+          target.focus();
+        }
       }
     };
     document.addEventListener('keydown', onKeyDown, true);
+    focusableWithin(aboutDialogRef.current)[0]?.focus();
     return () => {
       document.removeEventListener('keydown', onKeyDown, true);
       aboutTriggerRef.current?.focus();
     };
   }, [aboutOpen]);
 
-  // Evolution panel: same shape as the About dialog above. It holds a slider
-  // and 219 buttons, but they are all inside the dialog, so Escape plus
-  // returning focus to the trigger is the whole contract.
+  // Evolution is a modal dialog too: focus must enter it and remain inside it.
   React.useEffect(() => {
     if (!evolutionOpen) return undefined;
     const onKeyDown = (e) => {
       if (e.key === 'Escape') {
         e.preventDefault();
         setEvolutionOpen(false);
+        return;
+      }
+      if (e.key === 'Tab') {
+        const target = nextFocus(
+          focusableWithin(evolutionDialogRef.current),
+          document.activeElement,
+          e.shiftKey,
+        );
+        if (target) {
+          e.preventDefault();
+          target.focus();
+        }
       }
     };
     document.addEventListener('keydown', onKeyDown, true);
+    focusableWithin(evolutionDialogRef.current)[0]?.focus();
     return () => {
       document.removeEventListener('keydown', onKeyDown, true);
       evolutionTriggerRef.current?.focus();
     };
   }, [evolutionOpen]);
+
+  const detailModalOpen = isCompactLayout && detailPanelModal && Boolean(selectedExt);
+  const closeDetails = React.useCallback(() => {
+    setSelectedExt(null);
+    setSelectedInstruction(null);
+    setDetailPanelModal(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (!detailModalOpen) return undefined;
+
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeDetails();
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const target = nextFocus(
+        focusableWithin(detailPanelRef.current),
+        document.activeElement,
+        e.shiftKey,
+      );
+      if (target) {
+        e.preventDefault();
+        target.focus();
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown, true);
+    focusableWithin(detailPanelRef.current)[0]?.focus();
+    return () => {
+      document.removeEventListener('keydown', onKeyDown, true);
+      detailOpenerRef.current?.focus?.();
+    };
+  }, [detailModalOpen, closeDetails]);
 
   // Expanded instruction modal: focus trap and Escape, in one listener.
   //
@@ -1842,10 +1921,12 @@ const RISCVExplorer = () => {
   }, [selectedExt, copyTextToClipboard, showToast]);
 
   const handleSelectExt = React.useCallback((data) => {
+    detailOpenerRef.current = document.activeElement;
     selectionCameFromSearchRef.current = false;
     // A deliberate click owns the panel from here on, so a later non-matching
     // query must not clear it out from under the user.
     searchDrivenSelectionRef.current = false;
+    setDetailPanelModal(true);
     setSelectedExt((current) => {
       const next = current?.id === data.id ? null : data;
       setSelectedInstruction(null);
@@ -2168,6 +2249,7 @@ const RISCVExplorer = () => {
 
       // Always open/update the Selected Details panel for the matched extension
       searchDrivenSelectionRef.current = true;
+      setDetailPanelModal(false);
       setSelectedExt(targetExt);
       setSearchMatches(
         hits.length ? { extId: targetExt.id, query: q, mnemonics: hits, index: 0 } : null,
@@ -2206,6 +2288,7 @@ const RISCVExplorer = () => {
       // though the new query had matched it. Only clear what the search itself
       // opened; a clicked selection is left alone.
       searchDrivenSelectionRef.current = false;
+      setDetailPanelModal(false);
       lastScrolledKeyRef.current = null;
       setSelectedExt(null);
       setSelectedInstruction(null);
@@ -2225,6 +2308,22 @@ const RISCVExplorer = () => {
     }
     return c;
   }, []);
+  const activeProfileSummary = React.useMemo(() => {
+    if (!activeProfile) return null;
+    const mandatory = profiles[activeProfile];
+    return {
+      ...PROFILE_METADATA[activeProfile],
+      mandatoryCount: mandatory.length,
+      resolvedCount: resolveSelection({ selected: mandatory }).resolved.length,
+    };
+  }, [activeProfile, profiles]);
+  const activeVolumeCount = React.useMemo(
+    () =>
+      activeVolume
+        ? allExtsList.filter((ext) => volumeMembership.get(ext.id) === activeVolume).length
+        : 0,
+    [activeVolume, allExtsList, volumeMembership],
+  );
 
   return (
     <div
@@ -2244,7 +2343,7 @@ const RISCVExplorer = () => {
       <div className="px-3 md:px-6 py-4 md:py-6 max-w-[1700px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* ─── Header ───────────────────────────────────────────────────── */}
-          <div
+          <header
             className="lg:col-span-12 pb-5 mb-2"
             style={{ borderBottom: '1px solid var(--riscv-border)' }}
           >
@@ -2255,14 +2354,14 @@ const RISCVExplorer = () => {
                   the counts are orientation rather than a dashboard — neither
                   earned a line of its own above the grid. */}
               <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
-                <div className="flex items-center gap-3">
+                <div className="riscv-identity flex min-w-0 items-center gap-2 sm:gap-3">
                   {/* The wordmark stands in for the words "RISC-V", so the
                       heading reads "RISC-V ISA Explorer" with the mark doing
                       the first half. Sized in em so it tracks the h1 across
                       the md breakpoint instead of needing its own step. */}
-                  <RiscvLogo height="1.15em" className="text-2xl md:text-3xl" />
+                  <RiscvLogo height="1.15em" className="text-xl sm:text-2xl md:text-3xl shrink-0" />
                   <h1
-                    className="text-2xl md:text-3xl font-black tracking-tight whitespace-nowrap"
+                    className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight whitespace-nowrap min-w-0"
                     style={{ color: 'var(--riscv-title)' }}
                   >
                     ISA Explorer
@@ -2363,12 +2462,15 @@ const RISCVExplorer = () => {
                   all. Stretch until there is room to right-align.
                   min-w-0 because a flex item defaults to min-width:auto and
                   refuses to shrink below its content. */}
-              <div className="riscv-toolbar flex flex-wrap items-center justify-between gap-2 w-full pb-1">
+              <nav
+                className="riscv-toolbar flex flex-wrap items-center justify-between gap-2 w-full pb-1"
+                aria-label="Explorer filters and tools"
+              >
                 {/* Filters — what you are looking at. */}
-                <div className="flex items-center gap-x-1 flex-1 pr-1 shrink-0">
+                <div className="riscv-toolbar-filters flex items-center gap-x-1 flex-1 pr-1 shrink-0">
                   {/* Grouped Filters Container. */}
                   <div
-                    className="flex items-center gap-x-1"
+                    className="riscv-toolbar-filter-track flex items-center gap-x-1"
                     style={{
                       background: 'var(--riscv-plate)',
                       borderColor: 'rgba(255,255,255,0.08)',
@@ -2477,7 +2579,7 @@ const RISCVExplorer = () => {
                     stays neutral at all times, a mode takes its accent only
                     while it is ON, so the loudest control in the toolbar is
                     always a mode that is actually running. */}
-                <div className="flex items-center gap-1 shrink-0">
+                <div className="riscv-toolbar-actions flex items-center gap-1 shrink-0">
                   {/* Encoder Validator - Sleek Outline Button */}
                   <button
                     type="button"
@@ -2533,7 +2635,10 @@ const RISCVExplorer = () => {
                   {/* Theme toggle relocated to header */}
 
                   {/* Tools end, modes begin. */}
-                  <div className="h-6 w-px" style={{ background: 'var(--riscv-border-2)' }} />
+                  <div
+                    className="riscv-tool-divider h-6 w-px"
+                    style={{ background: 'var(--riscv-border-2)' }}
+                  />
 
                   {/* Compare mode. Deliberately a mode rather than always-on
                     affordances: a pin on every one of 227 tiles, every
@@ -2593,7 +2698,7 @@ const RISCVExplorer = () => {
                   </button>
 
                   {/* ISA Configuration Builder — fused action group */}
-                  <div className="relative inline-flex items-stretch rounded-xl">
+                  <div className="riscv-builder-control relative inline-flex items-stretch rounded-xl">
                     {/* Active glow ring */}
                     {builderMode && (
                       <span className="absolute -inset-px rounded-xl animate-pulse bg-amber-400/20 pointer-events-none z-0" />
@@ -2990,7 +3095,12 @@ const RISCVExplorer = () => {
                                     {/* Download button */}
                                     <div style={{ padding: '0 14px 13px' }}>
                                       <button
-                                        onClick={() => {
+                                        onClick={async () => {
+                                          // Export schemas and parameter definitions are
+                                          // substantial and irrelevant to browsing. Load
+                                          // them only when the user actually exports.
+                                          const { buildIsaConfigYaml } =
+                                            await import('./exportUtils.js');
                                           const { yaml } = buildIsaConfigYaml(
                                             Array.from(workspaceIds),
                                             allExtsList,
@@ -3059,14 +3169,56 @@ const RISCVExplorer = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </nav>
+
+              {(activeProfile || activeVolume) && (
+                <div
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 text-[12px]"
+                  style={{
+                    color: 'var(--riscv-text-2)',
+                    background: 'var(--riscv-surface-2)',
+                    borderColor: 'var(--riscv-border-2)',
+                  }}
+                  role="status"
+                >
+                  <span>
+                    {activeProfile ? (
+                      <>
+                        <strong style={{ color: 'var(--riscv-text)' }}>
+                          Highlighting {activeProfile}:
+                        </strong>{' '}
+                        {activeProfileSummary.mandatoryCount} mandatory requirements ·{' '}
+                        {activeProfileSummary.resolvedCount} after dependencies.{' '}
+                        {activeProfileSummary.description}.
+                      </>
+                    ) : (
+                      <>
+                        <strong style={{ color: 'var(--riscv-text)' }}>
+                          Highlighting Volume {activeVolume}:
+                        </strong>{' '}
+                        {activeVolumeCount} catalogue entries.
+                      </>
+                    )}{' '}
+                    Catalogue highlight only; your builder configuration is unchanged.
+                  </span>
+                  <button
+                    type="button"
+                    className="riscv-btn shrink-0 px-2 py-1 text-[11px]"
+                    onClick={() => {
+                      setActiveProfile(null);
+                      setActiveVolume(null);
+                    }}
+                  >
+                    Clear highlight
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
+          </header>
           {/* ─── Main Grid ───────────────────────────────────────────────── */}
-          <div
+          <main
             id="extension-grid"
             tabIndex={-1}
-            role="region"
             aria-label="Extension catalogue"
             className={`${
               selectedExt ? 'lg:col-span-8' : 'lg:col-span-12'
@@ -3144,12 +3296,12 @@ const RISCVExplorer = () => {
                 <div className="space-y-2.5 col-span-full">
                   <div className="flex items-center gap-2">
                     <CircuitBoard size={13} style={{ color: '#60a5fa' }} />
-                    <h3
+                    <h2
                       className="text-[12px] font-semibold uppercase tracking-widest"
                       style={{ color: '#60a5fa' }}
                     >
                       Base ISA
-                    </h3>
+                    </h2>
                     <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                       {extensions.base.length} isa
                     </span>
@@ -3171,12 +3323,12 @@ const RISCVExplorer = () => {
                 <div className="space-y-2.5 col-span-full">
                   <div className="flex items-center gap-2">
                     <Braces size={13} style={{ color: '#34d399' }} />
-                    <h3
+                    <h2
                       className="text-[12px] font-semibold uppercase tracking-widest"
                       style={{ color: '#34d399' }}
                     >
                       Single-Letter Extensions
-                    </h3>
+                    </h2>
                     <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                       {extensions.standard.length} ext
                     </span>
@@ -3202,12 +3354,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Binary size={12} style={{ color: '#a78bfa' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#a78bfa' }}
                       >
                         Bit Manipulation (Zb*)
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_bit.length}
                       </span>
@@ -3228,12 +3380,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Shuffle size={12} style={{ color: '#fbbf24' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#fbbf24' }}
                       >
                         Atomics (Za/Zic*)
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_atomics.length}
                       </span>
@@ -3254,12 +3406,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Layers size={12} style={{ color: '#818cf8' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#818cf8' }}
                       >
                         Compressed (Zc*)
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_compress.length}
                       </span>
@@ -3280,12 +3432,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <FlaskConical size={12} style={{ color: '#f472b6' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#f472b6' }}
                       >
                         Float & Numerics (Zf*)
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_float.length}
                       </span>
@@ -3306,12 +3458,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Database size={12} style={{ color: '#38bdf8' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#38bdf8' }}
                       >
                         Load / Store
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_load_store.length}
                       </span>
@@ -3332,12 +3484,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Activity size={12} style={{ color: '#e879f9' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#e879f9' }}
                       >
                         Integer
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_integer.length}
                       </span>
@@ -3358,12 +3510,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Zap size={12} style={{ color: '#2dd4bf' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#2dd4bf' }}
                       >
                         Vector Subsets (Zv/Zve)
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_vector.length}
                       </span>
@@ -3384,12 +3536,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Shield size={12} style={{ color: '#f87171' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#f87171' }}
                       >
                         Security & CFI
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_security.length}
                       </span>
@@ -3410,12 +3562,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <KeyRound size={12} style={{ color: '#94a3b8' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#94a3b8' }}
                       >
                         Cryptography (Zk*)
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_crypto.length}
                       </span>
@@ -3436,12 +3588,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Lock size={12} style={{ color: '#c4b5fd' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#c4b5fd' }}
                       >
                         Vector Cryptography (Zvk*)
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_vector_crypto.length}
                       </span>
@@ -3462,12 +3614,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <Settings2 size={12} style={{ color: '#fb923c' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#fb923c' }}
                       >
                         System
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_system.length}
                       </span>
@@ -3488,12 +3640,12 @@ const RISCVExplorer = () => {
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
                       <MemoryStick size={12} style={{ color: '#fdba74' }} />
-                      <h3
+                      <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
                         style={{ color: '#fdba74' }}
                       >
                         Caches
-                      </h3>
+                      </h2>
                       <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                         {extensions.z_caches.length}
                       </span>
@@ -3519,23 +3671,23 @@ const RISCVExplorer = () => {
                 >
                   <div className="flex items-center gap-2 mb-4">
                     <Network size={13} style={{ color: '#22d3ee' }} />
-                    <h3
+                    <h2
                       className="text-[12px] font-semibold uppercase tracking-widest"
                       style={{ color: '#22d3ee' }}
                     >
                       S &amp; Sv Extensions — Privileged ISA
-                    </h3>
+                    </h2>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-1.5">
                         <Layers size={11} style={{ color: 'var(--riscv-text-3)' }} />
-                        <h4
+                        <h3
                           className="text-[11px] uppercase tracking-widest font-semibold"
                           style={{ color: 'var(--riscv-text-3)' }}
                         >
                           Memory & Addressing
-                        </h4>
+                        </h3>
                         <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                           {extensions.s_mem.length}
                         </span>
@@ -3555,12 +3707,12 @@ const RISCVExplorer = () => {
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-1.5">
                         <Timer size={11} style={{ color: 'var(--riscv-text-3)' }} />
-                        <h4
+                        <h3
                           className="text-[11px] uppercase tracking-widest font-semibold"
                           style={{ color: 'var(--riscv-text-3)' }}
                         >
                           Interrupts (Sm/Ss)
-                        </h4>
+                        </h3>
                         <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                           {extensions.s_interrupt.length}
                         </span>
@@ -3580,12 +3732,12 @@ const RISCVExplorer = () => {
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-1.5">
                         <Gauge size={11} style={{ color: 'var(--riscv-text-3)' }} />
-                        <h4
+                        <h3
                           className="text-[11px] uppercase tracking-widest font-semibold"
                           style={{ color: 'var(--riscv-text-3)' }}
                         >
                           Counters & Profiling
-                        </h4>
+                        </h3>
                         <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                           {extensions.s_counters.length}
                         </span>
@@ -3605,12 +3757,12 @@ const RISCVExplorer = () => {
                     <div className="space-y-2.5">
                       <div className="flex items-center gap-1.5">
                         <ServerCrash size={11} style={{ color: 'var(--riscv-text-3)' }} />
-                        <h4
+                        <h3
                           className="text-[11px] uppercase tracking-widest font-semibold"
                           style={{ color: 'var(--riscv-text-3)' }}
                         >
                           Trap, Debug &amp; Hypervisor
-                        </h4>
+                        </h3>
                         <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                           {extensions.s_trap.length}
                         </span>
@@ -3642,12 +3794,12 @@ const RISCVExplorer = () => {
                           size={13}
                           style={{ color: 'var(--riscv-accent-4, #60a5fa)' }}
                         />
-                        <h3
+                        <h2
                           className="text-[12px] font-semibold uppercase tracking-widest"
                           style={{ color: 'var(--riscv-accent-4, #60a5fa)' }}
                         >
                           Custom / Sandbox Extensions
-                        </h3>
+                        </h2>
                         <span className="text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
                           {formattedSandboxExts.length} custom
                         </span>
@@ -3692,12 +3844,12 @@ const RISCVExplorer = () => {
                 >
                   <Search size={40} strokeWidth={1.5} style={{ color: 'var(--riscv-text-3)' }} />
                 </div>
-                <h3
+                <h2
                   className="text-[16px] font-semibold mb-2"
                   style={{ color: 'var(--riscv-text)' }}
                 >
                   No results found
-                </h3>
+                </h2>
                 <p
                   className="text-[13px] max-w-sm"
                   style={{ color: 'var(--riscv-text-2)', lineHeight: 1.5 }}
@@ -3710,7 +3862,7 @@ const RISCVExplorer = () => {
                 </button>
               </div>
             )}
-          </div>
+          </main>
 
           {/*
             The announcement lives out here, not on the panel.
@@ -3727,9 +3879,20 @@ const RISCVExplorer = () => {
           </div>
 
           {/* ─── Sidebar ─────────────────────────────────────────────────── */}
+          {detailModalOpen && (
+            <button
+              type="button"
+              className="detail-panel-backdrop"
+              aria-label="Close extension details"
+              onClick={closeDetails}
+            />
+          )}
           <div
+            ref={detailPanelRef}
             id="detail-panel"
-            role="region"
+            role={detailModalOpen ? 'dialog' : 'region'}
+            aria-modal={detailModalOpen ? 'true' : undefined}
+            aria-labelledby={detailModalOpen ? 'detail-panel-title' : undefined}
             aria-label="Selected extension details"
             className={`lg:col-span-4 mt-6 lg:mt-0 ${selectedExt ? 'panel-open' : 'hidden'}`}
           >
@@ -3744,6 +3907,7 @@ const RISCVExplorer = () => {
                 <div className="flex items-center gap-2">
                   <Info size={14} style={{ color: 'var(--riscv-text-3)' }} />
                   <h2
+                    id="detail-panel-title"
                     className="text-[12px] font-semibold uppercase tracking-widest"
                     style={{ color: 'var(--riscv-text-3)' }}
                   >
@@ -3761,10 +3925,7 @@ const RISCVExplorer = () => {
                 */}
                 <button
                   type="button"
-                  onClick={() => {
-                    setSelectedExt(null);
-                    setSelectedInstruction(null);
-                  }}
+                  onClick={closeDetails}
                   aria-label="Close details panel"
                   title="Close (Esc)"
                   className="p-1 rounded-md transition-colors riscv-panel-dismiss"
@@ -3914,12 +4075,12 @@ const RISCVExplorer = () => {
 
                     <div className="space-y-6">
                       <div>
-                        <h4
+                        <h3
                           className="text-[11px] uppercase tracking-widest font-semibold mb-1.5"
                           style={{ color: 'var(--riscv-text-3)' }}
                         >
                           Description
-                        </h4>
+                        </h3>
                         <p
                           className="text-sm leading-relaxed"
                           style={{ color: 'var(--riscv-text)' }}
@@ -3929,12 +4090,12 @@ const RISCVExplorer = () => {
                       </div>
 
                       <div className="riscv-card-2 p-3 rounded-lg">
-                        <h4
+                        <h3
                           className="text-[11px] uppercase tracking-widest font-semibold mb-2 flex items-center gap-1"
                           style={{ color: 'var(--riscv-violet)' }}
                         >
                           <ArrowRight size={10} /> Use Case
-                        </h4>
+                        </h3>
                         <p className="text-sm italic" style={{ color: 'var(--riscv-text-2)' }}>
                           {selectedExt.use}
                         </p>
@@ -4004,10 +4165,10 @@ const RISCVExplorer = () => {
 
                       {Object.keys(selectedExt.instructions || {}).length > 0 && (
                         <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
-                          <h4 className="text-[11px] uppercase tracking-wider text-emerald-400 font-bold mb-2">
+                          <h3 className="text-[11px] uppercase tracking-wider text-emerald-400 font-bold mb-2">
                             Instruction Set Snapshot (
                             {Object.keys(selectedExt.instructions || {}).length})
-                          </h4>
+                          </h3>
                           <div className="flex flex-wrap gap-1">
                             {Object.keys(selectedExt.instructions || {}).map((mnemonic) => {
                               const q = searchQuery.trim().toLowerCase();
@@ -4102,10 +4263,10 @@ const RISCVExplorer = () => {
 
                       {selectedExt.csrs && Object.keys(selectedExt.csrs).length > 0 && (
                         <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
-                          <h4 className="text-[11px] uppercase tracking-wider text-sky-300 font-bold mb-2">
+                          <h3 className="text-[11px] uppercase tracking-wider text-sky-300 font-bold mb-2">
                             {extensionCsrLabels[selectedExt.id] || 'CSRs'} (
                             {Object.keys(selectedExt.csrs).length})
-                          </h4>
+                          </h3>
                           <div className="flex flex-wrap gap-1">
                             {Object.keys(selectedExt.csrs)
                               .sort()
@@ -4137,7 +4298,7 @@ const RISCVExplorer = () => {
                       {selectedInstruction && (
                         <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
                           <div className="flex items-start justify-between gap-3 mb-2">
-                            <h4 className="text-[11px] uppercase tracking-wider text-purple-300 font-bold flex items-center gap-1">
+                            <h3 className="text-[11px] uppercase tracking-wider text-purple-300 font-bold flex items-center gap-1">
                               <ArrowRight size={10} /> Instruction Details
                               {/* Some extensions define no new opcode: they name a
                                   specific encoding of an existing instruction. PAUSE is
@@ -4157,7 +4318,7 @@ const RISCVExplorer = () => {
                                   alias of {selectedInstruction.alias_of}
                                 </span>
                               )}
-                            </h4>
+                            </h3>
                             <div className="flex items-center gap-2">
                               {(() => {
                                 const isPinned = compareInstrKeys.has(
@@ -4587,6 +4748,7 @@ const RISCVExplorer = () => {
 
           <div className="absolute inset-0 p-3 md:p-6 flex items-start justify-center overflow-y-auto">
             <div
+              ref={evolutionDialogRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby="evolution-title"
@@ -4654,6 +4816,7 @@ const RISCVExplorer = () => {
 
           <div className="absolute inset-0 p-3 md:p-8 flex items-start justify-center overflow-y-auto">
             <div
+              ref={aboutDialogRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby="about-title"

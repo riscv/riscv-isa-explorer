@@ -225,3 +225,44 @@ export const PROFILES = {
     'Ssu64xl',
   ],
 };
+
+/**
+ * Human-facing profile facts used by every profile picker.
+ *
+ * Keep these beside the mandatory lists so the landing page and builder cannot
+ * quietly disagree about XLEN or intended use. `mandatoryCount` is deliberately
+ * not stored here: callers derive it from PROFILES, while dependency-resolved
+ * counts come from isaGraph.js.
+ */
+export const PROFILE_METADATA = {
+  RVI20U32: {
+    xlen: 32,
+    scope: 'Unprivileged',
+    description: '32-bit minimum compatibility profile',
+  },
+  RVI20U64: {
+    xlen: 64,
+    scope: 'Unprivileged',
+    description: '64-bit minimum compatibility profile',
+  },
+  RVA20: {
+    xlen: 64,
+    scope: 'Application',
+    description: 'Baseline RV64GC-compatible application profile',
+  },
+  RVA22: {
+    xlen: 64,
+    scope: 'Application',
+    description: '2022 64-bit application profile',
+  },
+  RVA23: {
+    xlen: 64,
+    scope: 'Application',
+    description: '2023 64-bit application profile',
+  },
+  RVB23: {
+    xlen: 64,
+    scope: 'Application',
+    description: '2023 64-bit application profile with bit manipulation',
+  },
+};

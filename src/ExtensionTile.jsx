@@ -54,24 +54,8 @@ function ExtensionTile({
   return (
     <div
       id={`ext-${data.id}`}
-      role="button"
-      tabIndex={dimmed ? -1 : 0}
-      onClick={() => onSelect(data)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          onSelect(data);
-        } else if (e.key === ' ') {
-          e.preventDefault();
-          if (builderMode && !isDiscontinued) {
-            onToggleWorkspace(data.id);
-          } else {
-            onSelect(data);
-          }
-        }
-      }}
       className={[
-        'ext-tile group relative rounded-lg border cursor-pointer select-none',
+        'ext-tile group relative rounded-lg border select-none',
         isSelected ? 'ext-tile-active' : '',
         highlighted && !isSelected ? 'ext-tile-highlighted' : '',
         dimmed ? 'opacity-20 grayscale pointer-events-none' : '',
@@ -93,9 +77,20 @@ function ExtensionTile({
         transition: 'border-color 0.2s, box-shadow 0.2s',
       }}
     >
+      {/* One semantic primary action plus sibling secondary actions. The former
+          role=button wrapper contained real buttons, producing invalid nested
+          interaction and making the 18px corner controls unreachable by Tab. */}
+      <button
+        type="button"
+        className="ext-tile-primary absolute inset-0 z-0 rounded-lg"
+        aria-label={`View ${data.id} details`}
+        onClick={() => onSelect(data)}
+        disabled={dimmed}
+      />
+
       {/* Corner controls. One flex row rather than three absolutely-positioned
           elements fighting over the same point. */}
-      <div className="absolute top-1.5 right-1.5 flex items-center gap-1">
+      <div className="absolute top-1.5 right-1.5 z-20 flex items-center gap-1">
         {isDiscontinued && (
           <span
             className="px-1.5 py-0.5 rounded-sm text-[9px] font-mono uppercase tracking-wider"
@@ -124,19 +119,18 @@ function ExtensionTile({
         {compareMode && (
           <button
             type="button"
-            tabIndex={-1}
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleCompare(data.id);
-            }}
+            onClick={() => onToggleCompare(data.id)}
             className="workspace-tile-btn ext-tile-compare"
             aria-pressed={inCompare}
+            aria-label={
+              inCompare ? `Remove ${data.id} from comparison` : `Pin ${data.id} to comparison`
+            }
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: 18,
-              height: 18,
+              width: 28,
+              height: 28,
               borderRadius: 5,
               border: `1px solid ${inCompare ? 'var(--riscv-violet)' : 'var(--riscv-border-2)'}`,
               background: inCompare ? 'var(--riscv-violet)' : 'var(--riscv-surface-2)',
@@ -148,7 +142,7 @@ function ExtensionTile({
             }}
             title={inCompare ? `Remove ${data.id} from comparison` : `Pin ${data.id} to comparison`}
           >
-            <GitCompare size={9} strokeWidth={inCompare ? 2.5 : 2} />
+            <GitCompare size={12} strokeWidth={inCompare ? 2.5 : 2} />
           </button>
         )}
 
@@ -167,19 +161,24 @@ function ExtensionTile({
             return (
               <button
                 type="button"
-                tabIndex={-1}
-                onClick={(e) => {
-                  e.stopPropagation();
+                onClick={() => {
                   // The handler reports lock rejections itself.
                   onToggleWorkspace(data.id);
                 }}
                 className="workspace-tile-btn"
+                aria-label={
+                  isLocked
+                    ? `${data.id} is required by ${lockedBy.join(', ')}`
+                    : inWorkspace
+                      ? `Remove ${data.id} from ISA Configuration Builder`
+                      : `Add ${data.id} to ISA Configuration Builder`
+                }
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  width: 18,
-                  height: 18,
+                  width: 28,
+                  height: 28,
                   borderRadius: 5,
                   border: `1px solid ${
                     isLocked
@@ -213,7 +212,7 @@ function ExtensionTile({
                 }
               >
                 {inWorkspace ? (
-                  <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                  <svg width="12" height="12" viewBox="0 0 9 9" fill="none">
                     <path
                       d="M1.5 4.5L3.5 6.5L7.5 2.5"
                       stroke="currentColor"
@@ -223,35 +222,36 @@ function ExtensionTile({
                     />
                   </svg>
                 ) : (
-                  <Plus size={9} />
+                  <Plus size={12} />
                 )}
               </button>
             );
           })()}
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5 mb-1 pr-6">
-        <span
-          className="font-mono font-semibold text-[12px] leading-tight break-all"
-          style={{ letterSpacing: '0.02em' }}
-        >
-          {data.name}
-        </span>
-        {data.isSandbox && (
+      <div className="relative z-10 pointer-events-none">
+        <div className="flex flex-wrap items-center gap-1.5 mb-1 pr-16">
           <span
-            className="px-1 py-px mt-px rounded-sm text-[8.5px] font-mono uppercase tracking-wider font-semibold shrink-0"
-            style={{
-              background: 'rgba(59,130,246,0.15)',
-              color: 'var(--riscv-accent-4, #60a5fa)',
-              border: '1px solid rgba(59,130,246,0.35)',
-              lineHeight: 1,
-            }}
+            className="font-mono font-semibold text-[12px] leading-tight break-all"
+            style={{ letterSpacing: '0.02em' }}
           >
-            Sandbox
+            {data.name}
           </span>
-        )}
-      </div>
-      {/* The short label, not `desc`. The tile is 190px wide - about 32
+          {data.isSandbox && (
+            <span
+              className="px-1 py-px mt-px rounded-sm text-[8.5px] font-mono uppercase tracking-wider font-semibold shrink-0"
+              style={{
+                background: 'rgba(59,130,246,0.15)',
+                color: 'var(--riscv-accent-4, #60a5fa)',
+                border: '1px solid rgba(59,130,246,0.35)',
+                lineHeight: 1,
+              }}
+            >
+              Sandbox
+            </span>
+          )}
+        </div>
+        {/* The short label, not `desc`. The tile is 190px wide - about 32
           characters a line, 65 in the two-line clamp - so a full description
           truncates into a fragment here. `desc` is shown in the details panel
           when a tile is selected, where there is room for it.
@@ -260,33 +260,30 @@ function ExtensionTile({
           the corner controls are absolutely positioned over the name row's
           right edge, so a count there would sit under the compare and "+"
           buttons. */}
-      <div className="flex items-end justify-between gap-2">
-        <div
-          className="text-[11px] leading-snug line-clamp-2"
-          style={{ color: 'var(--riscv-text-2)' }}
-        >
-          {data.short || data.desc}
-        </div>
-        {/* Shown only when there are instructions to count. 122 of the 223
-            catalogue entries define none — Ziccamoa is a PMA rule, Sspmp is
-            CSR-only — and for those an empty list is the correct answer, not a
-            missing one. Printing "0" across more than half the grid would read
-            as absent data. Absence of the figure carries the same meaning
-            without the false alarm.
-
-            The number is this entry's OWN map, so the `members` bundles report
-            their union: Zvknc reads 27, Zce 54. */}
-        {instructionCount > 0 && (
+        <div className="flex items-end justify-between gap-2">
+          <div
+            className="text-[11px] leading-snug line-clamp-2"
+            style={{ color: 'var(--riscv-text-2)' }}
+          >
+            {data.short || data.desc}
+          </div>
           <span
             className="font-mono text-[10px] leading-none shrink-0"
             style={{ color: 'var(--riscv-text-2)' }}
-            // A bare numeral means nothing read aloud, and nothing on hover.
-            aria-label={`${instructionCount} instructions`}
-            title={`${instructionCount} instructions`}
+            aria-label={
+              instructionCount > 0
+                ? `${instructionCount} instructions`
+                : 'No directly attributed instruction encodings'
+            }
+            title={
+              instructionCount > 0
+                ? `${instructionCount} instructions`
+                : 'No instruction encodings are attributed directly to this entry'
+            }
           >
-            {instructionCount}
+            {instructionCount > 0 ? instructionCount : 'no opcodes'}
           </span>
-        )}
+        </div>
       </div>
     </div>
   );
