@@ -121,6 +121,36 @@ test('match fits within mask', () => {
   assert.deepEqual(bad, [], `match/mask inconsistencies:\n  ${bad.join('\n  ')}`);
 });
 
+test('binary encoding and hexadecimal match/mask describe the same bits', () => {
+  const bad = [];
+  for (const [, ext] of allExtensions()) {
+    for (const [mnemonic, details] of Object.entries(ext.instructions ?? {})) {
+      const encoding = details?.encoding;
+      if (!/^[01-]{16}$|^[01-]{32}$/.test(encoding ?? '')) continue;
+
+      let derivedMatch = 0n;
+      let derivedMask = 0n;
+      for (const bit of encoding) {
+        derivedMatch <<= 1n;
+        derivedMask <<= 1n;
+        if (bit === '-') continue;
+        derivedMask |= 1n;
+        if (bit === '1') derivedMatch |= 1n;
+      }
+
+      const storedMatch = BigInt(details.match);
+      const storedMask = BigInt(details.mask);
+      if (derivedMatch !== storedMatch || derivedMask !== storedMask) {
+        bad.push(
+          `${ext.id}/${mnemonic}: encoding => 0x${derivedMatch.toString(16)}/` +
+            `0x${derivedMask.toString(16)}, stored ${details.match}/${details.mask}`,
+        );
+      }
+    }
+  }
+  assert.deepEqual(bad, [], `split-brain instruction encodings:\n  ${bad.join('\n  ')}`);
+});
+
 test('extensions carry a UDB version, and it is well formed', () => {
   // The version is what anything pinning an extension has to quote: an ACT4
   // DUT config writes `{ name: Zba, version: "= 1.0.0" }`, and without this

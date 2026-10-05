@@ -5,12 +5,11 @@
  * Reads only. It never writes src/instr_dict.json, and that restraint is the
  * whole design rather than caution for its own sake.
  *
- * src/instr_dict.json is hand-maintained, deliberately. It currently holds 300
- * mnemonics upstream does not: the 56 vlseg segment loads, which riscv-opcodes
- * does not express at all, and the 48 MOP and C.MOP encodings expanded from
- * upstream's three `_n` templates. Regenerating from upstream would delete
- * every one. So this reports drift and leaves the decision to a person, rather
- * than opening a PR that silently loses data.
+ * src/instr_dict.json is hand-maintained, deliberately. It carries expanded
+ * encodings and local spellings upstream does not expose as the same mnemonic.
+ * Regenerating from upstream would delete them. The report therefore includes
+ * every local-only mnemonic and its classification instead of hiding them
+ * behind a historical aggregate label.
  *
  * The comparison is on mnemonics, not encodings. A newly ratified extension
  * arrives as new mnemonics, which is the signal worth acting on. Comparing
@@ -141,10 +140,38 @@ for (const [mnemonic, files] of ratified.encodings) {
 }
 missing.sort((a, b) => a.mnemonic.localeCompare(b.mnemonic));
 
-// Reported as information, never as an error: mostly vlseg and MOP expansions.
+// Reported as information, never as an error. Every row is included in JSON and
+// grouped in text so a new local-only family cannot disappear into one count.
 const oursOnly = [...ours].filter(
   (m) => !ratified.encodings.has(m) && !unratified.encodings.has(m) && !ratified.pseudoOps.has(m),
 );
+oursOnly.sort();
+
+const classifyLocalOnly = (mnemonic) => {
+  if (/^v(?:l|s).*seg\d+e/.test(mnemonic)) return 'expanded vector segment load/store encoding';
+  if (/^(?:c_)?mop_(?:r|rr)_?\d+$/.test(mnemonic) || /^c_mop_\d+$/.test(mnemonic)) {
+    return 'expanded MOP template';
+  }
+  if (/_rv(?:32|64)$/.test(mnemonic)) return 'XLEN-specific local spelling';
+  if (mnemonic === 'cm_jt') return 'CM.JT kept distinct from CM.JALT';
+  if (/^csrrand(?:64)?$/.test(mnemonic)) return 'Smcsrind CSR-indirect encoding';
+  if (/^fmv_(?:q_x|x_q)$/.test(mnemonic)) return 'quad-precision register-move encoding';
+  if (/^(?:hret|uret)$/.test(mnemonic)) return 'legacy privilege-return encoding';
+  if (/^v.*dot/.test(mnemonic) || mnemonic === 'vabs_v') return 'vector proposal encoding';
+  return 'manually maintained local encoding';
+};
+const localOnly = oursOnly.map((mnemonic) => ({
+  mnemonic,
+  reason: classifyLocalOnly(mnemonic),
+}));
+const localOnlyGroups = Object.entries(
+  localOnly.reduce((groups, row) => {
+    groups[row.reason] = (groups[row.reason] ?? 0) + 1;
+    return groups;
+  }, {}),
+)
+  .map(([reason, count]) => ({ reason, count }))
+  .sort((a, b) => b.count - a.count || a.reason.localeCompare(b.reason));
 
 const byFile = new Map();
 for (const { mnemonic, files } of missing) {
@@ -162,6 +189,8 @@ if (asJson) {
     upstreamUnratifiedEncodings: unratified.encodings.size,
     ourEncodings: ours.size,
     ourEncodingsNotUpstream: oursOnly.length,
+    localOnlyGroups,
+    localOnly,
     expandedTemplates: templates,
     missing,
     missingByFile: Object.fromEntries(byFile),
@@ -171,7 +200,10 @@ if (asJson) {
   console.log(`upstream pseudo-ops         : ${ratified.pseudoOps.size} (aliases, excluded by design)`);
   console.log(`upstream unratified         : ${unratified.encodings.size} (drafts, not published)`);
   console.log(`ours                        : ${ours.size}`);
-  console.log(`ours but not upstream       : ${oursOnly.length} (vlseg and MOP expansions)`);
+  console.log(`ours but not upstream       : ${oursOnly.length}`);
+  for (const group of localOnlyGroups) {
+    console.log(`  ${String(group.count).padStart(4)}  ${group.reason}`);
+  }
   console.log('');
   for (const { mnemonic, reason } of templates) {
     console.log(`template  ${mnemonic} — ${reason}`);
@@ -191,4 +223,4 @@ if (asJson) {
   }
 }
 
-process.exit(missing.length === 0 ? 0 : 1);
+process.exitCode = missing.length === 0 ? 0 : 1;

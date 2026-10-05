@@ -39,10 +39,11 @@ import {
   parseMarchString,
   buildMarchString,
   buildCombinedCatalog,
+  BASE_ISA_IDS,
   DATA_PROVENANCE,
 } from './marchUtils.js';
 import { buildIsaConfigYaml } from './exportUtils.js';
-import { resolveParams, impliedVlen, vlenExtension } from './isaGraph.js';
+import { DEPENDENCY_GRAPH, resolveParams, impliedVlen, vlenExtension } from './isaGraph.js';
 import { describeParameter } from './isaParams.js';
 import { PROFILES } from './profiles.js';
 import EncodingDiagram from './EncodingDiagram.jsx';
@@ -204,6 +205,15 @@ export default function WorkspacePanel({
   );
 
   const totalInstructions = combinedCatalog.length;
+  const unverifiedGraphIds = useMemo(
+    () =>
+      [...workspaceIds]
+        .filter(
+          (id) => !BASE_ISA_IDS.has(id) && DEPENDENCY_GRAPH.nodes?.[id]?.verified === 'none',
+        )
+        .sort(),
+    [workspaceIds],
+  );
 
   const filteredCatalog = useMemo(() => {
     const q = catalogQuery.trim().toLowerCase();
@@ -1535,6 +1545,25 @@ export default function WorkspacePanel({
                             {copiedMarch ? <CheckCircle2 size={16} /> : <Copy size={16} />}
                           </button>
                         </div>
+
+                        {unverifiedGraphIds.length > 0 && (
+                          <div
+                            role="status"
+                            style={{
+                              borderRadius: 8,
+                              padding: '10px 12px',
+                              background: 'rgba(255,160,122,0.06)',
+                              border: '1px solid rgba(255,160,122,0.18)',
+                              color: 'var(--riscv-text-2)',
+                              fontSize: 11.5,
+                              lineHeight: 1.45,
+                            }}
+                          >
+                            <strong style={{ color: '#ffa07a' }}>Dependency confidence:</strong>{' '}
+                            no authoritative dependency source is recorded for{' '}
+                            {unverifiedGraphIds.join(', ')}. The generated closure may be incomplete.
+                          </div>
+                        )}
 
                         {/* Excluded extensions note */}
                         {encodeResult.excluded.length > 0 && (

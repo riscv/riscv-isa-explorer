@@ -1122,6 +1122,16 @@ const RISCVExplorer = () => {
           showToast(`Architecturally Invalid: ${c.with} is incompatible with ${c.ext}${via}`);
           return prev; // revert the whole batch, as before
         }
+        const unsatisfiedChoice = resolution.choices.find(
+          (choice) => !choice.satisfiedBy && !choice.applied,
+        );
+        if (unsatisfiedChoice) {
+          showToast(
+            `Architecturally Incomplete: ${unsatisfiedChoice.node} requires one of ` +
+              unsatisfiedChoice.options.join(', '),
+          );
+          return prev;
+        }
 
         for (const dep of resolution.resolved) {
           // Skip graph-only nodes the catalog cannot show.

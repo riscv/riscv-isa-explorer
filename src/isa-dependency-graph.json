@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "f6e8a720211ef5e57783aab57e128660a65788b9",
+      "commit": "788785b57a5011a8ad96044463c7b2e621297351",
       "branch": "main",
       "path": "spec/std/isa/ext"
     },
@@ -1068,6 +1068,23 @@
           "src": "udb",
           "ref": "Zcf.yaml requirements.extension"
         }
+      ],
+      "conflicts": [
+        {
+          "ext": "RV64I",
+          "src": "isa-manual",
+          "ref": "Vol.I Zc §3 — Zcf is defined only for RV32"
+        },
+        {
+          "ext": "RV64E",
+          "src": "isa-manual",
+          "ref": "Vol.I Zc §3 — Zcf is defined only for RV32"
+        },
+        {
+          "ext": "RV128I",
+          "src": "isa-manual",
+          "ref": "Vol.I Zc §3 — Zcf is defined only for RV32"
+        }
       ]
     },
     "Zclsd": {
@@ -1088,6 +1105,21 @@
           "ext": "Zcf",
           "src": "udb",
           "ref": "Zclsd.yaml requirements … not: Zcf"
+        },
+        {
+          "ext": "RV64I",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zclsd is defined only for RV32"
+        },
+        {
+          "ext": "RV64E",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zclsd is defined only for RV32"
+        },
+        {
+          "ext": "RV128I",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zclsd is defined only for RV32"
         }
       ]
     },
@@ -1375,6 +1407,23 @@
     },
     "Zilsd": {
       "requires": [],
+      "conflicts": [
+        {
+          "ext": "RV64I",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zilsd is defined only for RV32"
+        },
+        {
+          "ext": "RV64E",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zilsd is defined only for RV32"
+        },
+        {
+          "ext": "RV128I",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zilsd is defined only for RV32"
+        }
+      ],
       "verified": "udb"
     },
     "Zilsme": {
@@ -1923,6 +1972,22 @@
           "ref": "Zvl1024b.yaml requirements.extension"
         }
       ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
       "params": [
         {
           "name": "VLEN",
@@ -1939,6 +2004,22 @@
           "ext": "Zvl64b",
           "src": "udb",
           "ref": "Zvl128b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
         }
       ],
       "params": [
@@ -1959,6 +2040,22 @@
           "ref": "Zvl256b.yaml requirements.extension"
         }
       ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
       "params": [
         {
           "name": "VLEN",
@@ -1971,6 +2068,22 @@
     },
     "Zvl32b": {
       "requires": [],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
       "params": [
         {
           "name": "VLEN",
@@ -1979,8 +2092,7 @@
           "src": "udb",
           "ref": "Zvl32b.yaml requirements … param"
         }
-      ],
-      "verified": "udb"
+      ]
     },
     "Zvl512b": {
       "requires": [
@@ -1988,6 +2100,22 @@
           "ext": "Zvl256b",
           "src": "udb",
           "ref": "Zvl512b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
         }
       ],
       "params": [
@@ -2006,6 +2134,22 @@
           "ext": "Zvl32b",
           "src": "udb",
           "ref": "Zvl64b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
         }
       ],
       "params": [

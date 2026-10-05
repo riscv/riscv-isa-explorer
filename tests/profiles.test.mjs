@@ -73,6 +73,10 @@ for (const [name, members] of entries) {
         `${name} emits ${mode}, which no toolchain accepts as an -march extension`,
       );
     }
+    assert.ok(
+      !march.split('_').includes('sm'),
+      `${name} emits Sm, which is a privilege architecture root rather than an -march extension`,
+    );
   });
 }
 

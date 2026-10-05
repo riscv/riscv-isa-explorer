@@ -27,6 +27,7 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, '..');
 const CATALOG = path.join(root, 'src', 'riscv_extensions.json');
+const UDB = path.resolve(process.env.UDB_DIR ?? path.join(root, '..', 'riscv-unified-db'));
 
 const hashCatalog = () =>
   createHash('sha256').update(fs.readFileSync(CATALOG)).digest('hex');
@@ -102,7 +103,7 @@ test('the UDB sync fails loudly when pointed somewhere wrong', () => {
 test('the UDB sync captures the extension version, when a UDB checkout is available', (t) => {
   // Skipped rather than failed when UDB is absent, matching the graph test
   // below: contributors are not required to clone it.
-  const udb = path.resolve(root, '..', 'riscv-unified-db');
+  const udb = UDB;
   if (!fs.existsSync(path.join(udb, 'spec', 'std', 'isa', 'ext'))) {
     t.skip('no riscv-unified-db checkout beside this repo');
     return;
@@ -132,7 +133,7 @@ test('the UDB sync captures the extension version, when a UDB checkout is availa
 test('--dry-run leaves the UDB sync catalogue alone', () => {
   // Guard on the guard, mirroring the instruction-sync test above: every
   // assertion made through --dry-run depends on it really not writing.
-  const udb = path.resolve(root, '..', 'riscv-unified-db');
+  const udb = UDB;
   if (!fs.existsSync(path.join(udb, 'spec', 'std', 'isa', 'ext'))) return;
   const before = hashCatalog();
   run('sync_udb_extensions.cjs', [udb, '--dry-run']);
@@ -150,7 +151,7 @@ test('extensions UDB does not carry stay on the watchlist', (t) => {
    * So the one part of the catalogue UDB is behind on would be the one part the
    * weekly report never mentions. ALWAYS_WATCH holds them there.
    */
-  const udb = path.resolve(root, '..', 'riscv-unified-db');
+  const udb = UDB;
   if (!fs.existsSync(path.join(udb, 'spec', 'std', 'isa', 'ext'))) {
     t.skip('no riscv-unified-db checkout beside this repo');
     return;
@@ -175,7 +176,7 @@ test('the graph seeder fails loudly when pointed somewhere wrong', () => {
 test('the graph matches upstream, when a UDB checkout is available', (t) => {
   // Skipped rather than failed when UDB is absent: contributors are not
   // required to clone it, and CI has its own step for this.
-  const udb = path.resolve(root, '..', 'riscv-unified-db');
+  const udb = UDB;
   if (!fs.existsSync(path.join(udb, 'spec', 'std', 'isa', 'ext'))) {
     t.skip('no riscv-unified-db checkout beside this repo');
     return;
@@ -188,6 +189,20 @@ test('the graph matches upstream, when a UDB checkout is available', (t) => {
     return;
   }
   assert.equal(status, 0, stdout);
+});
+
+test('the UDB completeness JSON is complete and parseable', (t) => {
+  const udb = UDB;
+  if (!fs.existsSync(path.join(udb, 'spec', 'std', 'isa', 'ext'))) {
+    t.skip('no riscv-unified-db checkout available (set UDB_DIR)');
+    return;
+  }
+
+  const { status, stdout } = run('check-udb-completeness.mjs', [udb, '--json']);
+  assert.ok(status === 0 || status === 1, `unexpected checker status ${status}:\n${stdout}`);
+  const report = JSON.parse(stdout);
+  assert.equal(typeof report.complete, 'boolean');
+  assert.ok(report.coverage?.global, 'JSON report should contain global coverage');
 });
 
 test('the sync bot signs off as the same identity it authors as', () => {

@@ -76,6 +76,10 @@ test('shipped graph is structurally valid', () => {
   assert.deepEqual(errors, [], `graph has structural errors:\n  ${errors.join('\n  ')}`);
   assert.ok(stats.nodes > 200, `expected the full catalog, got ${stats.nodes} nodes`);
   assert.ok(stats.edges > 0, 'graph has no edges at all');
+  assert.ok(
+    stats.unverified <= 51,
+    `unverified graph nodes increased from the audited ceiling of 51 to ${stats.unverified}`,
+  );
 });
 
 test('every catalog extension has a graph node', () => {
@@ -169,6 +173,34 @@ test('the Zvl divergence against clang is closed in the graph', () => {
   assert.ok(closure('Zve32x').has('Zvl32b'), 'Zve32x should require Zvl32b');
   assert.ok(closure('Zve64x').has('Zvl64b'), 'Zve64x should require Zvl64b');
   assert.ok(closure('V').has('Zvl32b'), 'V should reach Zvl32b transitively');
+});
+
+test('a standalone Zvl floor reports that a concrete vector ISA provider is required', () => {
+  for (const id of ['Zvl32b', 'Zvl64b', 'Zvl128b', 'Zvl256b', 'Zvl512b', 'Zvl1024b']) {
+    const result = resolveSelection({ selected: [id] });
+    assert.ok(
+      result.choices.some(
+        (choice) => choice.node === id && !choice.satisfiedBy && !choice.applied,
+      ),
+      `${id} should expose its unsatisfied vector-provider choice`,
+    );
+  }
+
+  const withV = resolveSelection({ selected: ['Zvl256b', 'V'] });
+  assert.ok(
+    withV.choices.some((choice) => choice.node === 'Zvl256b' && choice.satisfiedBy === 'V'),
+    'an explicitly selected V should satisfy the provider choice',
+  );
+});
+
+test('RV32-only encodings conflict with wider base ISAs', () => {
+  for (const ext of ['Zcf', 'Zclsd', 'Zilsd']) {
+    const result = resolveSelection({ selected: ['RV64I', ext], base: 'RV64I' });
+    assert.ok(
+      result.conflicts.some((conflict) => conflict.with === ext && conflict.ext === 'RV64I'),
+      `${ext} should conflict with RV64I`,
+    );
+  }
 });
 
 // ---------------------------------------------------------------------------

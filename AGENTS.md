@@ -116,7 +116,7 @@ Then `npm run sync` and `npm test && npm run build`.
 ## Gotchas / do-not-touch
 
 - **`src/instr_dict.json` is hand-maintained, NOT regenerated.** It carries
-  entries upstream lacks (the 56 `vlseg` segment loads; expanded MOP/C.MOP). A
+  entries upstream lacks (252 expanded vector segment load/store forms; expanded MOP/C.MOP). A
   regenerate would delete them. `npm run opcodes:check` only *reports* drift and
   leaves the call to a human — never auto-apply it.
 - **The weekly UDB sync cannot ADD an extension.** `scripts/sync_udb_extensions.cjs`

@@ -21,7 +21,7 @@
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{js,jsx,css}\"",
     "profiles:optional": "node scripts/sync-profile-optional.mjs",
-    "profiles:check": "node scripts/sync-profile-optional.mjs ../riscv-unified-db --check"
+    "profiles:check": "node scripts/sync-profile-optional.mjs --check"
   },
   "keywords": [],
   "author": "",

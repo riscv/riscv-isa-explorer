@@ -22,6 +22,8 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { PROFILES } from '../src/profiles.js';
+import { resolveSelection } from '../src/isaGraph.js';
 
 /*
  * The families, and the UDB profiles each resolves from.
@@ -80,11 +82,17 @@ const SPEC_CHECK = {
   RVA23S64: ['Sdtrig', 'Sspm', 'Ssstrict', 'Sv48', 'Sv57', 'Svadu', 'Svvptc', 'Zkr'],
 };
 
-const udbRoot = process.argv[2];
+const udbArg = process.argv.slice(2).find((arg) => !arg.startsWith('--'));
+const udbRoot = path.resolve(
+  udbArg ?? process.env.UDB_DIR ?? path.join(process.cwd(), '..', 'riscv-unified-db'),
+);
 const checkOnly = process.argv.includes('--check');
 
-if (!udbRoot || !fs.existsSync(udbRoot)) {
-  console.error('usage: node scripts/sync-profile-optional.mjs <path-to-riscv-unified-db> [--check]');
+if (!fs.existsSync(udbRoot)) {
+  console.error(
+    'usage: node scripts/sync-profile-optional.mjs [path-to-riscv-unified-db] [--check]\n' +
+      '       or set UDB_DIR',
+  );
   process.exit(1);
 }
 
@@ -171,6 +179,7 @@ function resolve(name, seen = new Set()) {
 }
 
 const optionalByFamily = {};
+const mandatoryByFamily = {};
 for (const [family, [u, s]] of Object.entries(PROFILE_PAIRS)) {
   const merged = { ...resolve(s), ...resolve(u) };
   const uRes = resolve(u);
@@ -191,6 +200,7 @@ for (const [family, [u, s]] of Object.entries(PROFILE_PAIRS)) {
     .filter((k) => !(k in XLEN_ONLY) || XLEN_ONLY[k] === xlenOf(family))
     .sort();
   optionalByFamily[family] = optional;
+  mandatoryByFamily[family] = [...mandatory].sort();
   void merged;
 }
 
@@ -213,6 +223,40 @@ for (const [profile, expected] of Object.entries(SPEC_CHECK)) {
 }
 if (failed) {
   console.error('\nThe inheritance rules appear to have changed upstream. Not writing.');
+  process.exit(1);
+}
+
+// Compare mandatory profile content after both sides pass through the same
+// dependency graph. This removes harmless transcription differences: UDB uses
+// `I` for the base, names the B shorthand beside its components, and omits the
+// Ss1pXX compliance tag this project displays. Everything else must converge
+// to the same capability set.
+for (const [family, mandatory] of Object.entries(mandatoryByFamily)) {
+  const base = family === 'RVI20U32' ? 'RV32I' : 'RV64I';
+  const upstreamDirect = mandatory.map((id) => (id === 'I' ? base : id));
+  if (!upstreamDirect.includes(base)) upstreamDirect.unshift(base);
+
+  const normalize = (ids) =>
+    new Set(
+      resolveSelection({ selected: ids, base }).resolved.filter(
+        (id) => id !== 'B' && !/^(Sm|Ss)\d+p\d+$/.test(id),
+      ),
+    );
+  const upstream = normalize(upstreamDirect);
+  const local = normalize(PROFILES[family] ?? []);
+  const missing = [...upstream].filter((id) => !local.has(id)).sort();
+  const extra = [...local].filter((id) => !upstream.has(id)).sort();
+  if (missing.length || extra.length) {
+    failed = true;
+    console.error(`${family}: mandatory extensions diverge from UDB`);
+    if (missing.length) console.error(`  missing: ${missing.join(', ')}`);
+    if (extra.length) console.error(`  extra:   ${extra.join(', ')}`);
+  } else {
+    console.log(`ok    ${family}  mandatory closure matches UDB`);
+  }
+}
+if (failed) {
+  console.error('\nMandatory profile data differs from upstream. Not writing.');
   process.exit(1);
 }
 

@@ -116,8 +116,8 @@ npm run opcodes:check -- <path-to-riscv-opcodes>
 | instruction encodings | **by hand.** The `check-opcodes-drift` workflow, Mondays at 07:00 UTC, files an issue when upstream is ahead |
 
 `src/instr_dict.json` is hand-maintained on purpose and is not regenerated from
-riscv-opcodes. It carries entries upstream does not: the 56 `vlseg` segment
-loads, which riscv-opcodes does not express at all, and the MOP and C.MOP
+riscv-opcodes. It carries entries upstream does not: 252 expanded vector segment
+load/store forms, which riscv-opcodes does not express individually, and the MOP and C.MOP
 encodings expanded from upstream's three `_n` templates. A regenerate would
 delete them, so the drift check reports and leaves the decision to a person.
 
@@ -144,9 +144,10 @@ gaps to fill.
 npm test
 ```
 
-CI runs the tests, builds, then validates the generated `-march` strings against
-clang. Rows needing a newer clang than the job provides are skipped and reported
-rather than failed, so the check is a floor rather than full coverage. The suite covers dependency closure, graph integrity, profile
+CI runs the tests, builds, then validates generated `-march` strings with both
+the distro clang and clang 21. The modern job covers every profile and every
+ratified catalogue entry; its small `CLANG21_UNSUPPORTED` allowlist is checked
+for staleness on every run. The suite covers dependency closure, graph integrity, profile
 correctness, `riscv-config` conventions, export formats, documentation links, and
 a jsdom smoke test that fails if the page renders blank.
 

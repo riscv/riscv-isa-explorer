@@ -209,6 +209,15 @@ test('coverage buckets account for every instruction considered', () => {
   assert.equal(result.complete, false, 'a genuinely absent encoding still fails the gate');
 });
 
+test('filed-elsewhere rows are grouped by upstream ownership', () => {
+  const amocas = rowFor('Zacas', 'AMOCAS.B');
+  const result = compareAgainstUpstream(catalogue, {
+    extensions: [],
+    instructions: [{ ...amocas, mnemonic: 'AMOCAS.B', definedBy: ['Zabha'] }],
+  });
+  assert.deepEqual(result.attributionGroups, [{ owners: 'Zabha', count: 1 }]);
+});
+
 // ── the ordering variants, against real data ───────────────────────────────
 
 test('all four orderings of a real AMO are covered by the one catalogue row', () => {
@@ -290,6 +299,8 @@ test('a name that exists but whose bits disagree is a mismatch, not a gap', () =
   assert.equal(result.encodingMismatches[0].narrower, true, 'we pin bits upstream leaves free');
   assert.match(result.encodingMismatches[0].local, /match 0x/, 'both halves are reported');
   assert.match(result.encodingMismatches[0].upstream, /mask 0x/);
+  assert.equal(result.complete, false, 'an encoding disagreement must fail completeness');
+  assert.equal(result.coverage.global.uncovered, 1);
 });
 
 test('instructions we carry that upstream does not are reported as surplus', () => {
@@ -320,6 +331,22 @@ test('complete is true only when nothing is missing', () => {
     instructions: [],
   });
   assert.equal(gap.complete, false);
+});
+
+test('malformed local rows fail completeness even when upstream has no gaps', () => {
+  const broken = {
+    g: [
+      {
+        id: 'Broken',
+        instructions: {
+          BAD: { match: '0x2', mask: '0x1', extension: ['broken'], encoding: '-1' },
+        },
+      },
+    ],
+  };
+  const result = compareAgainstUpstream(broken, { extensions: [], instructions: [] });
+  assert.equal(result.malformed.length, 1);
+  assert.equal(result.complete, false);
 });
 
 test('flattenCatalogue skips entries with no encoding rather than throwing', () => {
@@ -473,6 +500,21 @@ test('an instruction counts as ratified if ANY of its owners is', () => {
     ratifiedExtensions: ['Zbb'],
   });
   assert.equal(result.missingInstructions.length, 1);
+});
+
+test('ratified-only attribution drops development co-owners from its metric', () => {
+  const amocas = rowFor('Zacas', 'AMOCAS.B');
+  const result = compareAgainstUpstream(
+    catalogue,
+    {
+      extensions: [],
+      instructions: [
+        { ...amocas, mnemonic: 'AMOCAS.B', definedBy: ['DraftOwner', 'Zabha'] },
+      ],
+    },
+    { onlyRatified: true, ratifiedExtensions: ['Zabha'] },
+  );
+  assert.deepEqual(result.attributionGroups, [{ owners: 'Zabha', count: 1 }]);
 });
 
 test('ratification filtering is case-insensitive and defaults to off', () => {

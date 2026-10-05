@@ -20355,11 +20355,6 @@
               "type": "dynamic",
               "reset": "dynamic"
             },
-            "G": {
-              "bits": "6",
-              "type": "dynamic",
-              "reset": "dynamic"
-            },
             "H": {
               "bits": "7",
               "type": "dynamic",
@@ -76225,7 +76220,7 @@
       "tags": [],
       "desc": "Makes hideleg bit 13 writable, so a hypervisor can delegate local counter overflow interrupts to VS-mode.",
       "use": "Delegating counter overflow to a guest",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://docs.riscv.org/reference/isa/priv/hypervisor.html",
       "instructions": {},
       "long_name": "Hypervisor local counter overflow interrupt delegation",
       "type": "privileged",
