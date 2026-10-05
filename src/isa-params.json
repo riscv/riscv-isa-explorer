@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "f6e8a720211ef5e57783aab57e128660a65788b9",
+      "commit": "788785b57a5011a8ad96044463c7b2e621297351",
       "branch": "main",
       "path": "spec/std/isa/param"
     }
