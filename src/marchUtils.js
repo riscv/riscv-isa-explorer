@@ -236,10 +236,11 @@ export const NON_MARCH_IDS = new Set([
   'S',
   'Sm', // machine-privilege architecture root, not a compiler extension token
   'U', // privilege levels and UI grouping tags
+  // Retired catalogue labels stay rejected for imported or bookmarked configs.
   'Zv',
   'Zve',
   'Zvf',
-  'Zvk', // aliases / umbrella headings, not extensions in their own right
+  'Zvk',
   ...SATP_MODE_IDS,
 ]); // B removed — ratified, decode-accept + explicit-encode
 
@@ -334,7 +335,7 @@ function dependsOnIncompatible(baseId, extId, seen = new Set()) {
 // parseMarchString
 // ============================================================================
 /**
- * Umbrella / naming prefix tags in the catalog that are not architectural extensions.
+ * Retired naming prefixes that are not architectural extensions.
  * Trailing digits on these (e.g. zve32, zve64) are incomplete names/typos, not version suffixes.
  */
 const UMBRELLA_PREFIX_IDS = new Set(['zv', 'zve', 'zvf', 'zvk', 'zvw']);

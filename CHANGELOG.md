@@ -6,12 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 Because the catalogue in `src/riscv_extensions.json` is the product, a release
-that changes what the catalogue *contains* is treated as a minor bump even when
+that changes what the catalogue _contains_ is treated as a minor bump even when
 no code changed. An entry that disappears takes any saved selection or `-march`
 string referencing it with it, and that is the change most likely to affect
 someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
+
+Catalogue: 211 entries, down from 219. Removed unsupported prefix and placeholder
+records; `Zimt` remains with its cited development specification. No fabricated
+ratification dates or extension versions were added.
+
+### Added
+
+- Source-backed instruction names, descriptions, ownership predicates, and
+  commit-pinned UDB links for 1,210 catalogue mnemonics. The 20 mnemonics with
+  no UDB record remain explicitly without a sourced description.
+- Clickable CSR chips with RV32/RV64 field views, access and reset values, source
+  conditions, and a list of catalogue extensions that include the CSR.
+- Catalogue tile status, version, and ratification-date summaries.
+- Ratification metadata and current specification links for RERI and HTI.
+
+### Changed
+
+- Removed the five selectable vector naming-prefix records, the unsupported
+  placeholder extensions, and the misleading `Smdid` record. `Zvw` can no
+  longer appear in generated ISA strings.
+- Corrected 426 CSR addresses to canonical hexadecimal during UDB sync and now
+  preserve field `definedBy` conditions and distinguish dynamic values.
 
 ## [1.5.0] - 2026-09-05
 

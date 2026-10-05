@@ -291,6 +291,13 @@ const LOCAL_EDGES = {
     { ext: 'Smcsrind', src: 'spec', ref: 'SPMP v1.0 §4 — "The Smcsrind extension for indirect CSR access must be implemented."' },
     { ext: 'Sspmp', src: 'spec', ref: 'SPMP v1.0 §4.1 — delegates PMP entries to S-mode, "thereby creating SPMP entries"' },
   ],
+  Zimt: [
+    {
+      ext: 'Zimop',
+      src: 'spec',
+      ref: 'riscv-memory-tagging, src/mte_tag.adoc — Zimt encoding compatibility paragraph',
+    },
+  ],
 };
 
 /** Base-ISA conflicts. Not dependencies, but they belong to the same graph. */

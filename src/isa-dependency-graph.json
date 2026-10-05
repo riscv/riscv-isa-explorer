@@ -379,10 +379,6 @@
       "requires": [],
       "verified": "udb"
     },
-    "Smdid": {
-      "requires": [],
-      "verified": "none"
-    },
     "Smepmp": {
       "requires": [],
       "verified": "udb"
@@ -416,14 +412,6 @@
     "Smrnmi": {
       "requires": [],
       "verified": "udb"
-    },
-    "Smrnpt": {
-      "requires": [],
-      "verified": "none"
-    },
-    "Smrntt": {
-      "requires": [],
-      "verified": "none"
     },
     "Smsdia": {
       "requires": [],
@@ -668,10 +656,6 @@
         }
       ],
       "verified": "udb"
-    },
-    "Ssvxscr": {
-      "requires": [],
-      "verified": "none"
     },
     "Suclic": {
       "requires": [],
@@ -1426,25 +1410,18 @@
       ],
       "verified": "udb"
     },
-    "Zilsme": {
-      "requires": [],
-      "verified": "none"
-    },
-    "Zilsmea": {
-      "requires": [],
-      "verified": "none"
-    },
-    "Zilsp": {
-      "requires": [],
-      "verified": "none"
-    },
     "Zimop": {
       "requires": [],
       "verified": "udb"
     },
     "Zimt": {
-      "requires": [],
-      "verified": "none"
+      "requires": [
+        {
+          "ext": "Zimop",
+          "src": "spec",
+          "ref": "riscv/riscv-memory-tagging@76a5deef39782a8286104c74ff5a604a90d87fa8, src/mte_tag.adoc — Zimt encoding compatibility paragraph"
+        }
+      ]
     },
     "Zjid": {
       "requires": [],
@@ -1572,10 +1549,6 @@
       "requires": [],
       "verified": "udb"
     },
-    "Zv": {
-      "requires": [],
-      "verified": "none"
-    },
     "Zvabd": {
       "requires": [
         {
@@ -1616,10 +1589,6 @@
       "verified": "none"
     },
     "Zvdota": {
-      "requires": [],
-      "verified": "none"
-    },
-    "Zve": {
       "requires": [],
       "verified": "none"
     },
@@ -1692,10 +1661,6 @@
           "ref": "Zve64x.yaml requirements.extension"
         }
       ]
-    },
-    "Zvf": {
-      "requires": [],
-      "verified": "none"
     },
     "Zvfbfa": {
       "requires": [
@@ -1770,10 +1735,6 @@
           "ref": "Zvfofp8min.yaml requirements.extension"
         }
       ]
-    },
-    "Zvk": {
-      "requires": [],
-      "verified": "none"
     },
     "Zvkb": {
       "requires": [
@@ -2161,10 +2122,6 @@
           "ref": "Zvl64b.yaml requirements … param"
         }
       ]
-    },
-    "Zvw": {
-      "requires": [],
-      "verified": "none"
     }
   }
 }

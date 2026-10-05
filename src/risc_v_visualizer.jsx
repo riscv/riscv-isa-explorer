@@ -46,9 +46,11 @@ import {
   GitCompare,
 } from 'lucide-react';
 import extensions from './riscv_extensions.json';
+import instructionMetadata from './instruction-metadata.json';
 import ExtensionTile from './ExtensionTile.jsx';
 import CompareView from './CompareView.jsx';
 import EncodingDiagram from './EncodingDiagram.jsx';
+import CsrDetails from './CsrDetails.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import { computeLockedExtensions, missingMandatory } from './workspaceLock.js';
 import CompareTray from './CompareTray.jsx';
@@ -623,6 +625,7 @@ const RISCVExplorer = () => {
   const detailOpenerRef = React.useRef(null);
   const [permalinkCopied, setPermalinkCopied] = useState(false);
   const [selectedInstruction, setSelectedInstruction] = useState(null);
+  const [selectedCsrName, setSelectedCsrName] = useState(null);
   const [copyStatus, setCopyStatus] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -1422,6 +1425,7 @@ const RISCVExplorer = () => {
 
   const selectInstructionByMnemonic = React.useCallback((ext, mnemonic) => {
     const details = ext?.instructions?.[mnemonic];
+    setSelectedCsrName(null);
     setSelectedInstruction(details ? { mnemonic, ...details } : null);
   }, []);
 
@@ -1826,6 +1830,9 @@ const RISCVExplorer = () => {
           if (Array.isArray(details.extension)) {
             parts.push(details.extension.join(' '));
           }
+          const prose = instructionMetadata[mnemonic.toLowerCase()];
+          if (prose?.long_name) parts.push(prose.long_name);
+          if (prose?.description) parts.push(prose.description);
         }
       }
 
@@ -1833,6 +1840,18 @@ const RISCVExplorer = () => {
     }
 
     return index;
+  }, [allExtsList]);
+
+  const csrOwnersByName = React.useMemo(() => {
+    const owners = new Map();
+    for (const ext of allExtsList) {
+      for (const name of Object.keys(ext.csrs || {})) {
+        const key = name.toLowerCase();
+        const current = owners.get(key) || [];
+        if (!current.includes(ext.id)) owners.set(key, [...current, ext.id]);
+      }
+    }
+    return owners;
   }, [allExtsList]);
 
   // Stable identities on purpose: these ride in tileProps, and a fresh function
@@ -1930,6 +1949,7 @@ const RISCVExplorer = () => {
     setSelectedExt((current) => {
       const next = current?.id === data.id ? null : data;
       setSelectedInstruction(null);
+      setSelectedCsrName(null);
       setSearchMatches(null);
       return next;
     });
@@ -2066,7 +2086,7 @@ const RISCVExplorer = () => {
   /*
    * One pass per query instead of one per tile per keystroke. The tiles are
    * handed the answer, so React can skip every tile whose match state did not
-   * change; previously the raw query was a prop and all 219 re-rendered on
+   * change; previously the raw query was a prop and all catalogue tiles re-rendered on
    * every character.
    */
   // Each panel mounts on its first open and stays mounted thereafter.
@@ -2099,7 +2119,7 @@ const RISCVExplorer = () => {
     }),
     [
       // searchQuery is deliberately absent: it is no longer a tile prop, so
-      // rebuilding this object on every keystroke would re-render all 219 tiles
+      // rebuilding this object on every keystroke would re-render all catalogue tiles
       // for nothing, which is the exact cost this change removes.
       selectedExt,
       workspaceIds,
@@ -2205,6 +2225,7 @@ const RISCVExplorer = () => {
     const allExts = Object.values(extensions).flat();
     let matchedMnemonic = null;
     let matchedDetails = null;
+    let matchedCsrName = null;
 
     // Anything selected from here on is search acting on the reader's behalf,
     // not a deliberate click, so its URL write is the one that gets debounced.
@@ -2215,7 +2236,10 @@ const RISCVExplorer = () => {
 
     // If no exact extension ID match, try to match an instruction mnemonic
     if (!targetExt) {
-      for (const ext of allExts) {
+      const instructionSearchOrder = selectedExt
+        ? [selectedExt, ...allExts.filter((ext) => ext.id !== selectedExt.id)]
+        : allExts;
+      for (const ext of instructionSearchOrder) {
         const mnemonics = Object.keys(ext.instructions || {});
         const found = mnemonics.find((m) => m.toLowerCase() === q);
         if (found) {
@@ -2224,6 +2248,23 @@ const RISCVExplorer = () => {
           matchedDetails = ext.instructions[found] || null;
           break;
         }
+      }
+    }
+
+    // Exact CSR lookup selects the register itself so readers land on its
+    // field map instead of only the extension that owns it.
+    if (!targetExt) {
+      const csrSearchOrder = selectedExt
+        ? [selectedExt, ...allExts.filter((ext) => ext.id !== selectedExt.id)]
+        : allExts;
+      const csrHit = csrSearchOrder.flatMap((ext) =>
+        Object.entries(ext.csrs || {})
+          .filter(([name, csr]) => name.toLowerCase() === q || csr?.desc?.toLowerCase().includes(q))
+          .map(([name]) => ({ ext, name })),
+      )[0];
+      if (csrHit) {
+        targetExt = csrHit.ext;
+        matchedCsrName = csrHit.name;
       }
     }
 
@@ -2237,7 +2278,12 @@ const RISCVExplorer = () => {
       const hits = [];
       if (targetExt.instructions && typeof targetExt.instructions === 'object') {
         for (const [mnemonic, details] of Object.entries(targetExt.instructions)) {
-          if (instructionMatchesQuery(mnemonic, details, q)) {
+          const prose = instructionMetadata[mnemonic.toLowerCase()];
+          if (
+            instructionMatchesQuery(mnemonic, details, q) ||
+            prose?.long_name?.toLowerCase().includes(q) ||
+            prose?.description?.toLowerCase().includes(q)
+          ) {
             hits.push(mnemonic);
           }
         }
@@ -2251,6 +2297,7 @@ const RISCVExplorer = () => {
       searchDrivenSelectionRef.current = true;
       setDetailPanelModal(false);
       setSelectedExt(targetExt);
+      setSelectedCsrName(matchedCsrName);
       setSearchMatches(
         hits.length ? { extId: targetExt.id, query: q, mnemonics: hits, index: 0 } : null,
       );
@@ -2292,9 +2339,10 @@ const RISCVExplorer = () => {
       lastScrolledKeyRef.current = null;
       setSelectedExt(null);
       setSelectedInstruction(null);
+      setSelectedCsrName(null);
       setSearchMatches(null);
     }
-  }, [searchQuery, extensionSearchIndexById]);
+  }, [searchQuery, extensionSearchIndexById, selectedExt]);
 
   // Compute stat bar numbers from loaded JSON
   const totalExtensions = React.useMemo(
@@ -3235,10 +3283,10 @@ const RISCVExplorer = () => {
                 <input
                   ref={searchInputRef}
                   type="search"
-                  aria-label="Search extensions, instructions and encodings"
+                  aria-label="Search extensions, instructions, CSRs, and encodings"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search extensions, instructions, encodings…"
+                  placeholder="Search extensions, instructions, CSRs, encodings…"
                   className="riscv-input w-full pl-10 pr-24 py-2.5 text-sm"
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
@@ -4282,16 +4330,36 @@ const RISCVExplorer = () => {
                                   .filter(Boolean)
                                   .join(' · ');
                                 return (
-                                  <span
+                                  <button
+                                    type="button"
                                     key={name}
+                                    aria-pressed={selectedCsrName === name}
+                                    onClick={() => {
+                                      setSelectedInstruction(null);
+                                      setSelectedCsrName((current) =>
+                                        current === name ? null : name,
+                                      );
+                                    }}
                                     title={tip || undefined}
-                                    className="px-1.5 py-0.5 rounded-sm border border-slate-700 bg-slate-800/70 text-[11px] font-mono text-slate-200"
+                                    className={`px-1.5 py-0.5 rounded-sm border text-[11px] font-mono ${selectedCsrName === name ? 'border-sky-400 bg-sky-500/20 text-sky-100' : 'border-slate-700 bg-slate-800/70 text-slate-200'}`}
                                   >
                                     {name.toUpperCase()}
-                                  </span>
+                                  </button>
                                 );
                               })}
                           </div>
+                          {selectedCsrName && selectedExt.csrs[selectedCsrName] && (
+                            <CsrDetails
+                              name={selectedCsrName}
+                              csr={selectedExt.csrs[selectedCsrName]}
+                              owners={
+                                csrOwnersByName.get(selectedCsrName.toLowerCase()) || [
+                                  selectedExt.id,
+                                ]
+                              }
+                              onClose={() => setSelectedCsrName(null)}
+                            />
+                          )}
                         </div>
                       )}
 
@@ -4409,8 +4477,43 @@ const RISCVExplorer = () => {
                           </div>
 
                           <div className="mb-3 flex items-start justify-between gap-2">
-                            <div className="text-white font-black tracking-tight text-xl">
-                              {selectedInstruction.mnemonic}
+                            <div>
+                              <div className="text-white font-black tracking-tight text-xl">
+                                {selectedInstruction.mnemonic}
+                              </div>
+                              {instructionMetadata[selectedInstruction.mnemonic.toLowerCase()] && (
+                                <div className="mt-1 text-xs text-slate-300">
+                                  <div className="font-semibold">
+                                    {
+                                      instructionMetadata[
+                                        selectedInstruction.mnemonic.toLowerCase()
+                                      ].long_name
+                                    }
+                                  </div>
+                                  <p className="mt-1 leading-relaxed line-clamp-3">
+                                    {instructionMetadata[selectedInstruction.mnemonic.toLowerCase()]
+                                      .description ||
+                                      'No descriptive text is available in the upstream source.'}
+                                  </p>
+                                  <a
+                                    className="mt-1 inline-flex items-center gap-1 text-sky-300 hover:underline"
+                                    href={
+                                      instructionMetadata[
+                                        selectedInstruction.mnemonic.toLowerCase()
+                                      ].source
+                                    }
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    Unified DB source <ArrowUpRight size={11} />
+                                  </a>
+                                </div>
+                              )}
+                              {!instructionMetadata[selectedInstruction.mnemonic.toLowerCase()] && (
+                                <p className="mt-1 text-xs text-slate-400">
+                                  No source-backed instruction description is available yet.
+                                </p>
+                              )}
                             </div>
                             {selectedInstruction.deprecated && (
                               <span className="shrink-0 px-2 py-1 rounded-md text-[11px] font-mono uppercase tracking-wide border bg-red-950/40 text-red-200 border-red-600/60">
@@ -5400,6 +5503,35 @@ const RISCVExplorer = () => {
                 className="p-5 space-y-6 overflow-y-auto"
                 style={{ maxHeight: 'calc(90vh - 100px)' }}
               >
+                {instructionMetadata[selectedInstruction.mnemonic.toLowerCase()] && (
+                  <section
+                    className="rounded-xl p-4"
+                    style={{
+                      background: 'var(--riscv-surface-2)',
+                      border: '1px solid var(--riscv-border-2)',
+                    }}
+                  >
+                    <h3 className="font-semibold" style={{ color: 'var(--riscv-text)' }}>
+                      {instructionMetadata[selectedInstruction.mnemonic.toLowerCase()].long_name}
+                    </h3>
+                    <p
+                      className="mt-1 text-sm leading-relaxed"
+                      style={{ color: 'var(--riscv-text-2)' }}
+                    >
+                      {instructionMetadata[selectedInstruction.mnemonic.toLowerCase()]
+                        .description || 'No descriptive text is available in the upstream source.'}
+                    </p>
+                    <a
+                      className="mt-2 inline-flex items-center gap-1 text-xs"
+                      style={{ color: 'var(--riscv-violet)' }}
+                      href={instructionMetadata[selectedInstruction.mnemonic.toLowerCase()].source}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Unified DB source <ArrowUpRight size={12} />
+                    </a>
+                  </section>
+                )}
                 {/* ── Encoding Diagram — full width, no scroll on wide screens ── */}
                 <div>
                   <div

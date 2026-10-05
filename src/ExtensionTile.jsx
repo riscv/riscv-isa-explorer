@@ -284,6 +284,24 @@ function ExtensionTile({
             {instructionCount > 0 ? instructionCount : 'no opcodes'}
           </span>
         </div>
+        <div
+          className="mt-1 text-[9px] font-mono leading-tight"
+          style={{ color: 'var(--riscv-text-3)' }}
+          aria-label={[
+            data.state || 'Status unknown',
+            `version ${data.version || 'unknown'}`,
+            data.state === 'ratified'
+              ? `ratified ${data.ratification_date || 'date unavailable'}`
+              : null,
+          ]
+            .filter(Boolean)
+            .join(', ')}
+          title="Status, version, and ratification date from the catalogue's cited source"
+        >
+          {data.state ? data.state.charAt(0).toUpperCase() + data.state.slice(1) : 'Status unknown'}
+          {` · ${data.version ? `v${data.version}` : 'version unknown'}`}
+          {data.state === 'ratified' ? ` · ${data.ratification_date || 'date unavailable'}` : ''}
+        </div>
       </div>
     </div>
   );
