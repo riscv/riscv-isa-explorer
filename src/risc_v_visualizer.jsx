@@ -773,8 +773,14 @@ const RISCVExplorer = () => {
 
   const detailModalOpen = isCompactLayout && detailPanelModal && Boolean(selectedExt);
   const closeDetails = React.useCallback(() => {
+    searchDrivenSelectionRef.current = false;
+    selectionCameFromSearchRef.current = false;
+    lastScrolledKeyRef.current = null;
+    setSearchQuery('');
+    setSearchMatches(null);
     setSelectedExt(null);
     setSelectedInstruction(null);
+    setSelectedCsrName(null);
     setDetailPanelModal(false);
   }, []);
 
@@ -1946,6 +1952,8 @@ const RISCVExplorer = () => {
     // A deliberate click owns the panel from here on, so a later non-matching
     // query must not clear it out from under the user.
     searchDrivenSelectionRef.current = false;
+    lastScrolledKeyRef.current = null;
+    setSearchQuery('');
     setDetailPanelModal(true);
     setSelectedExt((current) => {
       const next = current?.id === data.id ? null : data;
