@@ -47,6 +47,7 @@ import {
 } from 'lucide-react';
 import extensions from './riscv_extensions.json';
 import instructionMetadata from './instruction-metadata.json';
+import { instructionSynopsis } from './instructionMetadata.js';
 import ExtensionTile from './ExtensionTile.jsx';
 import CompareView from './CompareView.jsx';
 import EncodingDiagram from './EncodingDiagram.jsx';
@@ -4491,8 +4492,11 @@ const RISCVExplorer = () => {
                                     }
                                   </div>
                                   <p className="mt-1 leading-relaxed line-clamp-3">
-                                    {instructionMetadata[selectedInstruction.mnemonic.toLowerCase()]
-                                      .description ||
+                                    {instructionSynopsis(
+                                      instructionMetadata[
+                                        selectedInstruction.mnemonic.toLowerCase()
+                                      ].description,
+                                    ) ||
                                       'No descriptive text is available in the upstream source.'}
                                   </p>
                                   <a
@@ -5518,8 +5522,9 @@ const RISCVExplorer = () => {
                       className="mt-1 text-sm leading-relaxed"
                       style={{ color: 'var(--riscv-text-2)' }}
                     >
-                      {instructionMetadata[selectedInstruction.mnemonic.toLowerCase()]
-                        .description || 'No descriptive text is available in the upstream source.'}
+                      {instructionSynopsis(
+                        instructionMetadata[selectedInstruction.mnemonic.toLowerCase()].description,
+                      ) || 'No descriptive text is available in the upstream source.'}
                     </p>
                     <a
                       className="mt-2 inline-flex items-center gap-1 text-xs"
