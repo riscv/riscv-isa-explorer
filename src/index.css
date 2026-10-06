@@ -1595,6 +1595,56 @@ pre,
   z-index: 30;
 }
 
+.riscv-toolbar-label-compact {
+  display: none;
+}
+
+/* Keep the header stable when Compare adds pin controls to every profile. On
+   desktop, the action cluster has a fixed footprint and the filters scroll in
+   the remaining space instead of forcing the toolbar onto another row. At
+   laptop widths, shorter visible labels keep all primary actions in reach. */
+@media (min-width: 1024px) {
+  .riscv-toolbar {
+    flex-wrap: nowrap;
+  }
+
+  .riscv-toolbar-filters {
+    flex: 1 1 0%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .riscv-toolbar-filter-track {
+    width: max-content;
+    flex: 0 0 auto;
+  }
+
+  .riscv-toolbar-actions {
+    flex: 0 0 auto;
+    max-width: none;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1919px) {
+  .riscv-toolbar .riscv-toolbar-label-full,
+  .riscv-toolbar .riscv-builder-label-full {
+    display: none;
+  }
+
+  .riscv-toolbar .riscv-toolbar-label-compact,
+  .riscv-toolbar .riscv-builder-label-compact {
+    display: inline;
+  }
+
+  .riscv-toolbar-actions > button,
+  .riscv-toolbar .builder-mode-toggle {
+    gap: 6px;
+    padding-inline: 8px;
+  }
+}
+
 /* A tool opens a dialog and hands you back. It never advertises state, because
    it has none — which is why the Encoding Map's old gold fill was misleading:
    it read as "on" while doing nothing. Modes carry the colour instead. */
