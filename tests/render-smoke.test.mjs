@@ -464,7 +464,7 @@ test('the header is an identity row plus one full-width toolbar', () => {
   for (const profile of ['RVA20', 'RVA22', 'RVA23', 'RVB23']) {
     assert.ok(filters.some((t) => t === profile), `${profile} missing from the filters group`);
   }
-  for (const action of ['Encoder Validator', 'Encoding Map']) {
+  for (const action of ['Encoding Validator', 'Encoding Mapping']) {
     assert.ok(actions.some((t) => t.startsWith(action)), `${action} missing from the actions group`);
   }
   assert.ok(
