@@ -2671,7 +2671,7 @@ const RISCVExplorer = () => {
                     onClick={() => setEncodingMapOpen(true)}
                     aria-haspopup="dialog"
                     aria-expanded={encodingMapOpen}
-                    aria-label="Encoding Mapping"
+                    aria-label="Encoding Map"
                     className="riscv-tool-btn group inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 whitespace-nowrap border"
                     // Colour, border and hover all come from .riscv-tool-btn.
                     // Deliberately no inline style: an inline `color` outranks
@@ -2683,7 +2683,7 @@ const RISCVExplorer = () => {
                   >
                     <Grid3x3 size={14} className="opacity-80" />
                     <span className="riscv-toolbar-label-full whitespace-nowrap">
-                      Encoding Mapping
+                      Encoding Map
                     </span>
                     <span className="riscv-toolbar-label-compact">
                       Encoding
