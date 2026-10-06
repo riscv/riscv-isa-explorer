@@ -22,7 +22,7 @@ export function tilePropsAreEqual(prev, next) {
   if (prev.data !== next.data) return false;
   if (prev.colorClass !== next.colorClass) return false;
   // A boolean, not the query string. Comparing the raw query meant every tile
-  // failed this check on every keystroke, so all 219 re-rendered even though
+  // failed this check on every keystroke, so all catalogue tiles re-rendered even though
   // only the handful whose match state actually flipped had anything new to
   // show. The parent computes the match once; the tile is told the answer.
   if (prev.matchesSearch !== next.matchesSearch) return false;

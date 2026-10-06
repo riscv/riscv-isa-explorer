@@ -48,6 +48,12 @@ test('the same selection exports byte-identically', () => {
   assert.ok(!/Generated:/.test(buildIsaConfigYaml(RVA23, ALL).yaml));
 });
 
+test('exports warn when selected dependency data is unverified', () => {
+  const { yaml, warnings } = buildIsaConfigYaml(['RV64I', 'Zvdota'], ALL, { format: 'udb' });
+  assert.ok(warnings.some((warning) => /unverified.*Zvdota/i.test(warning)));
+  assert.match(yaml, /WARNING: dependency data is unverified for: Zvdota/);
+});
+
 test('isa_string holds everything march does', () => {
   const { yaml } = buildIsaConfigYaml(RVA23, ALL);
   const isa = yaml

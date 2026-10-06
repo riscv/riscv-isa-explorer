@@ -71,6 +71,23 @@ test('UI-only grouping tags are excluded, not emitted', () => {
   }
 });
 
+test('architectural roots and vector umbrella names never become compiler tokens', () => {
+  for (const id of ['Sm', 'Zv', 'Zve', 'Zvf', 'Zvk']) {
+    const r = march(['RV64I', id]);
+    assert.ok(r.excluded.some((entry) => entry.id === id), `${id} should be excluded`);
+    assert.ok(!r.march.split('_').includes(id.toLowerCase()), `${id} leaked into ${r.march}`);
+  }
+});
+
+test('a VLEN floor is not emitted without a vector ISA provider', () => {
+  const bare = march(['RV64I', 'Zvl32b']);
+  assert.equal(bare.march, 'rv64i');
+  assert.ok(bare.excluded.some((entry) => entry.id === 'Zvl32b'));
+
+  const provided = march(['RV64I', 'Zve32x', 'Zvl32b']);
+  assert.match(provided.march, /_zve32x_zvl32b$/);
+});
+
 test('privileged spec version tags are excluded', () => {
   const r = march(['RV64I', 'Sm1p12']);
   assert.ok(r.excluded.some((e) => e.id === 'Sm1p12'));

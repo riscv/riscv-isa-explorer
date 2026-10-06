@@ -206,7 +206,10 @@ export function compareAgainstUpstream(catalogue, upstream, options = {}) {
      * ISA's LB, which is a different instruction that happens to share a name
      * prefix.
      */
-    const owners = (inst.definedBy || []).flatMap(aliasesFor);
+    const scopedOwners = onlyRatified
+      ? (inst.definedBy || []).filter((owner) => isRatified(owner))
+      : inst.definedBy || [];
+    const owners = scopedOwners.flatMap(aliasesFor);
     const candidates = owners.flatMap((o) => byExtension.get(o) || []);
 
     /*
@@ -287,7 +290,7 @@ export function compareAgainstUpstream(catalogue, upstream, options = {}) {
     if (elsewhere) {
       attributedDifferently.push({
         mnemonic,
-        upstreamOwners: inst.definedBy || [],
+        upstreamOwners: scopedOwners,
         localExtension: elsewhere.extension,
         localMnemonic: elsewhere.mnemonic,
       });
@@ -319,8 +322,9 @@ export function compareAgainstUpstream(catalogue, upstream, options = {}) {
    * here only as another attributedDifferently row among hundreds, and the
    * `complete` flag never looked at that bucket.
    *
-   * So both numbers are reported. Global coverage is the build gate, because a
-   * missing encoding is unambiguously a gap. Per-extension coverage is NOT a
+   * So both numbers are reported. Global coverage and encoding integrity are
+   * the build gate, because a missing or disagreeing encoding is unambiguously
+   * a gap. Per-extension coverage is NOT a
    * gate: attribution differences are frequently legitimate — unified-db puts
    * AMOCAS.B under Zabha and this catalogue under Zacas, and both readings are
    * defensible — so it is a number to watch move, not a threshold to pass.
@@ -336,9 +340,9 @@ export function compareAgainstUpstream(catalogue, upstream, options = {}) {
     considered,
     // "Is the encoding in the catalogue at all?"
     global: {
-      covered: considered - missingInstructions.length,
-      uncovered: missingInstructions.length,
-      percent: pct(considered - missingInstructions.length),
+      covered: considered - missingInstructions.length - encodingMismatches.length,
+      uncovered: missingInstructions.length + encodingMismatches.length,
+      percent: pct(considered - missingInstructions.length - encodingMismatches.length),
     },
     // "Does an extension upstream attributes it to actually list it?"
     perExtension: {
@@ -349,6 +353,15 @@ export function compareAgainstUpstream(catalogue, upstream, options = {}) {
       percent: pct(coveredInAttributedExtension),
     },
   };
+  const attributionGroups = Object.entries(
+    attributedDifferently.reduce((groups, row) => {
+      const key = [...(row.upstreamOwners ?? [])].sort().join(' | ') || '(no upstream owner)';
+      groups[key] = (groups[key] ?? 0) + 1;
+      return groups;
+    }, {}),
+  )
+    .map(([owners, count]) => ({ owners, count }))
+    .sort((a, b) => b.count - a.count || a.owners.localeCompare(b.owners));
 
   return {
     missingExtensions,
@@ -356,18 +369,20 @@ export function compareAgainstUpstream(catalogue, upstream, options = {}) {
     attributedDifferently: attributedDifferently.sort((a, b) =>
       a.mnemonic.localeCompare(b.mnemonic),
     ),
+    attributionGroups,
     coveredByBroaderRow,
     encodingMismatches,
     surplusInstructions,
     malformed,
     coverage,
-    /*
-     * What `complete` does and does not assert, stated rather than implied.
-     * It is global coverage only. Encoding disagreements and malformed rows are
-     * reported beside it and deliberately excluded: REV8 legitimately carries
-     * two XLEN encodings under one upstream name, so gating on
-     * encodingMismatches would fail every run for a reason nobody can fix.
-     */
-    complete: missingExtensions.length === 0 && missingInstructions.length === 0,
+    // "Present" is not complete when the bits disagree or a local row cannot
+    // describe a valid decoder. Legitimate spelling/XLEN variants are handled
+    // by `covering` above; any remaining mismatch needs a narrow, cited
+    // exception rather than a category-wide false green.
+    complete:
+      missingExtensions.length === 0 &&
+      missingInstructions.length === 0 &&
+      encodingMismatches.length === 0 &&
+      malformed.length === 0,
   };
 }

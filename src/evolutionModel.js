@@ -68,8 +68,7 @@ export function yearOf(ext) {
  * rather than a fraction. Between them they answer the two questions actually
  * being asked: how fast did RISC-V grow, and which parts of it have settled.
  *
- * The undated entries stay off both charts. 56 of 219 carry no ratification
- * date, and placing them anywhere on a time axis would invent one.
+ * The undated entries stay off the time axis; placing one there would invent a date.
  */
 export function buildEvolution(catalog, today = new Date()) {
   const rows = [];
@@ -184,7 +183,7 @@ export function buildScatter(catalog) {
       if (at === null) {
         /*
          * Kept, not dropped. These are real catalogued extensions; excluding them
-         * made the chart show 163 of 219 and quietly present a subset as the whole.
+         * made the chart show only dated entries and quietly present that subset as the whole.
          * They cannot go on a time axis -- there is no date to place them at -- so
          * they are drawn in their own band, off the axis and labelled as such.
          */

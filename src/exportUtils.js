@@ -244,6 +244,15 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
 
   // 8. Build all extensions list for YAML
   const allExtsList = [baseInfo.id, ...filteredSingles, ...zExts, ...privExts];
+  const unverifiedGraphIds = [...new Set(selectedIds)]
+    .filter((id) => !BASE_ISA_IDS.has(id) && DEPENDENCY_GRAPH.nodes?.[id]?.verified === 'none')
+    .sort();
+  if (unverifiedGraphIds.length) {
+    warnings.push(
+      `Dependency data is unverified for: ${unverifiedGraphIds.join(', ')}. ` +
+        'The exported closure may be incomplete.',
+    );
+  }
 
   // 9. Assemble YAML
   const lines = [];
@@ -285,6 +294,11 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     u.push(`# THIS FILE IS NOT COMPLETE. The params under TODO are implementation`);
     u.push(`# choices and must come from your core's design document. Tests will`);
     u.push(`# produce false failures until they are filled in.`);
+    if (unverifiedGraphIds.length) {
+      u.push(`#`);
+      u.push(`# WARNING: dependency data is unverified for: ${unverifiedGraphIds.join(', ')}`);
+      u.push(`# The implemented_extensions closure may therefore be incomplete.`);
+    }
     u.push(``);
     u.push(`$schema: config_schema.json#`);
     u.push(`kind: architecture configuration`);

@@ -305,7 +305,7 @@ export function resolveSelection({
         choice.options.find((option) => resolved.has(option)) ??
         null;
       let applied = null;
-      if (!satisfiedBy && applyChoiceDefaults && nodes[choice.default]) {
+      if (!satisfiedBy && applyChoiceDefaults && choice.auto !== false && nodes[choice.default]) {
         applied = choice.default;
         const basePath = pathTo.get(id) ?? [id];
         for (const ext of [applied, ...closure(applied, graph)]) {

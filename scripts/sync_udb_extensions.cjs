@@ -21,6 +21,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 // Real YAML parser (the `yaml` package). Used everywhere a CSR's nested
 // structure matters — the minimal parser below cannot see into `fields:`.
 // Required at the top so pass 1 (findCsrs) can use it too; `const` is not
@@ -31,10 +32,23 @@ const workspaceRoot = process.cwd();
 const catalogPath = path.join(workspaceRoot, 'src', 'riscv_extensions.json');
 const args = process.argv.slice(2);
 const dryRun = args.includes('--dry-run');
+const revisionArg = args.find((a) => a.startsWith('--revision='))?.slice(11);
 const udbArg = args.find((a) => !a.startsWith('--'));
 const udbRoot = udbArg
   ? path.resolve(udbArg)
   : path.resolve(workspaceRoot, '..', 'riscv-unified-db');
+let udbCommit = '';
+if (revisionArg) {
+  udbCommit = revisionArg;
+} else {
+  try {
+    udbCommit = execFileSync('git', ['-C', udbRoot, 'rev-parse', 'HEAD'], {
+      encoding: 'utf8',
+    }).trim();
+  } catch {
+    // Tests and temporary source fixtures may not have a Git checkout.
+  }
+}
 
 const UDB_EXT_DIR = path.join(udbRoot, 'spec', 'std', 'isa', 'ext');
 const UDB_CSR_DIR = path.join(udbRoot, 'spec', 'std', 'isa', 'csr');
@@ -65,7 +79,10 @@ function parseYaml(filepath) {
     }
 
     const m = line.match(/^(\w+):\s*(.*)$/);
-    if (!m) { i++; continue; }
+    if (!m) {
+      i++;
+      continue;
+    }
 
     const key = m[1];
     const val = m[2].trim();
@@ -128,7 +145,7 @@ function parseYaml(filepath) {
 // extension has no versions.
 function pickVersion(versions) {
   if (!Array.isArray(versions) || versions.length === 0) return null;
-  const ratified = versions.filter(v => v.state === 'ratified');
+  const ratified = versions.filter((v) => v.state === 'ratified');
   const pool = ratified.length ? ratified : versions;
   return pool[pool.length - 1];
 }
@@ -183,8 +200,10 @@ function csrDefinedBy(raw, extId) {
       if (cleaned === extId) return true;
       // flow list: definedBy: [A, B]
       if (inline.startsWith('[')) {
-        const items = inline.replace(/^\[|\]$/g, '')
-          .split(',').map(s => s.trim().replace(/['"]/g, ''));
+        const items = inline
+          .replace(/^\[|\]$/g, '')
+          .split(',')
+          .map((s) => s.trim().replace(/['"]/g, ''));
         if (items.includes(extId)) return true;
       }
       continue;
@@ -239,6 +258,7 @@ function buildCsrFields(fields) {
     const type = 'type' in fld ? String(fld.type) : 'dynamic';
     const reset = 'reset_value' in fld ? String(fld.reset_value) : 'dynamic';
     out[name] = { bits, type, reset };
+    if (fld.definedBy) out[name].defined_by = fld.definedBy;
   }
   return out;
 }
@@ -259,14 +279,25 @@ function buildCsrEntry(csr) {
   // present) so an additive backfill leaves these four byte-identical in the
   // diff — the only change to an existing entry is a trailing comma on `desc`.
   const entry = {
-    address: String(csr.address || ''),
+    address: normalizeCsrAddress(csr.address),
     priv_mode: csr.priv_mode || '',
     length: normalizeCsrLength(csr.length),
-    desc: csr.long_name || ''
+    desc: csr.long_name || '',
   };
   const fields = buildCsrFields(csr.fields);
   if (fields) entry.fields = fields;
   return entry;
+}
+
+function normalizeCsrAddress(address) {
+  if (address == null || address === '') return '';
+  if (typeof address === 'number' && Number.isSafeInteger(address) && address >= 0) {
+    return '0x' + address.toString(16);
+  }
+  const value = String(address);
+  if (/^0x[\da-f]+$/i.test(value)) return '0x' + value.slice(2).toLowerCase();
+  if (/^\d+$/.test(value)) return '0x' + Number(value).toString(16);
+  return value;
 }
 
 function findCsrs(extId) {
@@ -275,7 +306,7 @@ function findCsrs(extId) {
   // check for a dedicated subdirectory first
   const subdir = path.join(UDB_CSR_DIR, extId);
   if (fs.existsSync(subdir) && fs.statSync(subdir).isDirectory()) {
-    for (const f of fs.readdirSync(subdir).filter(f => f.endsWith('.yaml'))) {
+    for (const f of fs.readdirSync(subdir).filter((f) => f.endsWith('.yaml'))) {
       try {
         // Real parser, not the minimal one: buildCsrEntry now reads `fields:`,
         // which the minimal parser cannot see. A minimal parse here would give
@@ -294,7 +325,7 @@ function findCsrs(extId) {
   // fall back to root-level CSR files with definedBy referencing this extension
   if (!fs.existsSync(UDB_CSR_DIR)) return csrs;
 
-  for (const f of fs.readdirSync(UDB_CSR_DIR).filter(f => f.endsWith('.yaml'))) {
+  for (const f of fs.readdirSync(UDB_CSR_DIR).filter((f) => f.endsWith('.yaml'))) {
     try {
       const filepath = path.join(UDB_CSR_DIR, f);
       const raw = fs.readFileSync(filepath, 'utf8');
@@ -323,10 +354,12 @@ function findCsrs(extId) {
 function assertUdbDir(dir, label) {
   if (!fs.existsSync(dir)) {
     console.error('ERROR: UDB ' + label + ' directory not found: ' + dir);
-    console.error('UDB layout may have changed. Pass the path to riscv-unified-db as an argument, or clone it next to this repo.');
+    console.error(
+      'UDB layout may have changed. Pass the path to riscv-unified-db as an argument, or clone it next to this repo.',
+    );
     process.exit(1);
   }
-  const yamlCount = fs.readdirSync(dir).filter(f => f.endsWith('.yaml')).length;
+  const yamlCount = fs.readdirSync(dir).filter((f) => f.endsWith('.yaml')).length;
   if (yamlCount === 0) {
     console.error('ERROR: UDB ' + label + ' directory contains no .yaml files: ' + dir);
     console.error('UDB layout may have changed.');
@@ -363,8 +396,15 @@ for (const [category, entries] of Object.entries(catalog)) {
   for (let i = 0; i < entries.length; i++) {
     const id = entries[i].id;
     if (entryIndex.has(id)) {
-      console.warn('  warning: duplicate catalog id "' + id + '" (in ' +
-        entryIndex.get(id).category + ' and ' + category + ') — only the last occurrence is synced');
+      console.warn(
+        '  warning: duplicate catalog id "' +
+          id +
+          '" (in ' +
+          entryIndex.get(id).category +
+          ' and ' +
+          category +
+          ') — only the last occurrence is synced',
+      );
     }
     entryIndex.set(id, { category, entries, index: i });
   }
@@ -481,7 +521,7 @@ for (const id of gaps) {
   newlyPopulated.push({
     id,
     csrCount: Object.keys(csrs).length,
-    hasBehavior: !hasCsrs && !!entry.behavior
+    hasBehavior: !hasCsrs && !!entry.behavior,
   });
 }
 
@@ -491,9 +531,8 @@ console.log('--- Results ---');
 if (newlyPopulated.length) {
   console.log('Newly populated (' + newlyPopulated.length + '):');
   for (const p of newlyPopulated) {
-    const detail = p.csrCount > 0
-      ? p.csrCount + ' CSRs'
-      : (p.hasBehavior ? 'behavioral' : 'metadata only');
+    const detail =
+      p.csrCount > 0 ? p.csrCount + ' CSRs' : p.hasBehavior ? 'behavioral' : 'metadata only';
     console.log('  + ' + p.id + ' (' + detail + ')');
   }
 }
@@ -558,7 +597,7 @@ for (const [id, loc] of entryIndex) {
 
   const udbId = UDB_ID_ALIASES[id] || id;
   const yamlPath = path.join(UDB_EXT_DIR, udbId + '.yaml');
-  if (!fs.existsSync(yamlPath)) continue;         // absent from UDB, nothing to say
+  if (!fs.existsSync(yamlPath)) continue; // absent from UDB, nothing to say
 
   let doc;
   try {
@@ -582,14 +621,14 @@ for (const [id, loc] of entryIndex) {
   }
 
   if (!ver.state) continue;
-  if (entry.state) continue;                      // already labelled, leave it
+  if (entry.state) continue; // already labelled, leave it
 
   entry.state = ver.state;
   // Only a real year-month is useful. UDB writes null for unratified versions,
-    // which the minimal parser captures as the string "null", and at least one
-    // entry carries the literal "unknown". Either would render as
-    // "Ratified unknown" in the badge, which says less than showing no date.
-    if (/^\d{4}-\d{2}$/.test(String(ver.ratification_date ?? ''))) {
+  // which the minimal parser captures as the string "null", and at least one
+  // entry carries the literal "unknown". Either would render as
+  // "Ratified unknown" in the badge, which says less than showing no date.
+  if (/^\d{4}-\d{2}$/.test(String(ver.ratification_date ?? ''))) {
     entry.ratification_date = String(ver.ratification_date);
   }
   stateAdded++;
@@ -633,8 +672,14 @@ const CSR_EXT_REMAP = { Zvl32b: 'V' };
 
 function csrOwners(node, out = new Set()) {
   if (node == null) return out;
-  if (typeof node === 'string') { out.add(node); return out; }
-  if (Array.isArray(node)) { node.forEach(n => csrOwners(n, out)); return out; }
+  if (typeof node === 'string') {
+    out.add(node);
+    return out;
+  }
+  if (Array.isArray(node)) {
+    node.forEach((n) => csrOwners(n, out));
+    return out;
+  }
   if (typeof node !== 'object') return out;
   if (node.extension) csrOwners(node.extension, out);
   else if (typeof node.name === 'string') out.add(node.name);
@@ -661,6 +706,8 @@ const csrIndex = new Map();
 // lists it, so index it once by CSR name. The backfill pass below uses this to
 // add `fields` to CSRs that already exist in the catalog (issue #243).
 const csrFieldsByName = {};
+const csrAddressesByName = {};
+const csrSourcesByName = {};
 for (const filepath of walkCsrFiles(UDB_CSR_DIR)) {
   let doc;
   try {
@@ -673,6 +720,14 @@ for (const filepath of walkCsrFiles(UDB_CSR_DIR)) {
   if (!doc || !doc.name) continue;
 
   const entry = buildCsrEntry(doc);
+  csrAddressesByName[doc.name] = entry.address;
+  if (udbCommit) {
+    csrSourcesByName[doc.name] =
+      'https://github.com/riscv/riscv-unified-db/blob/' +
+      udbCommit +
+      '/' +
+      path.relative(udbRoot, filepath).split(path.sep).join('/');
+  }
   if (entry.fields) csrFieldsByName[doc.name] = entry.fields;
   for (const owner of csrOwners(doc.definedBy)) {
     const id = CSR_EXT_REMAP[owner] || owner;
@@ -693,14 +748,16 @@ for (const [id, found] of csrIndex) {
   if (entry.csrs && Object.keys(entry.csrs).length) continue;
   const names = Object.keys(found);
   if (!names.length) continue;
-  entry.csrs = Object.fromEntries(names.sort().map(n => [n, found[n]]));
+  entry.csrs = Object.fromEntries(names.sort().map((n) => [n, found[n]]));
   extsGainedCsrs++;
   csrsAdded += names.length;
   updated++;
 }
 
 console.log('');
-console.log('CSR coverage pass: ' + extsGainedCsrs + ' extension(s) gained ' + csrsAdded + ' CSR(s)');
+console.log(
+  'CSR coverage pass: ' + extsGainedCsrs + ' extension(s) gained ' + csrsAdded + ' CSR(s)',
+);
 console.log('Version pass: ' + versionsWritten + ' extension(s) gained a version');
 
 // ---- Pass 3: bit-field backfill (issue #243) ----
@@ -727,12 +784,24 @@ console.log('Version pass: ' + versionsWritten + ' extension(s) gained a version
 // a genuine upstream correction flows through on the next sync.
 let fieldsBackfilled = 0; // CSRs that had no map and gained one
 let fieldsCorrected = 0; // CSRs whose existing map diverged from UDB and was rewritten
+let addressesCorrected = 0;
+let sourcesAttached = 0;
 const csrsWithoutFields = [];
 for (const [id, loc] of entryIndex) {
   const entry = loc.entries[loc.index];
   if (!entry.csrs || typeof entry.csrs !== 'object') continue;
   for (const [csrName, csrEntry] of Object.entries(entry.csrs)) {
     if (!csrEntry || typeof csrEntry !== 'object') continue;
+    const address = csrAddressesByName[csrName];
+    if (address && csrEntry.address !== address) {
+      csrEntry.address = address;
+      addressesCorrected++;
+    }
+    const source = csrSourcesByName[csrName];
+    if (source && csrEntry.source !== source) {
+      csrEntry.source = source;
+      sourcesAttached++;
+    }
     const fields = csrFieldsByName[csrName];
     if (!fields) {
       // No UDB fields for this CSR. Leave any existing map untouched — its
@@ -750,12 +819,22 @@ for (const [id, loc] of entryIndex) {
     // else: identical to UDB — leave byte-identical, no write, stays idempotent.
   }
 }
-if (fieldsBackfilled > 0 || fieldsCorrected > 0) updated++;
+if (
+  fieldsBackfilled > 0 ||
+  fieldsCorrected > 0 ||
+  addressesCorrected > 0 ||
+  sourcesAttached > 0
+) updated++;
 
 console.log(
-  'Bit-field pass: ' + fieldsBackfilled + ' CSR(s) gained a fields map, ' +
-  fieldsCorrected + ' corrected to match UDB'
+  'Bit-field pass: ' +
+    fieldsBackfilled +
+    ' CSR(s) gained a fields map, ' +
+    fieldsCorrected +
+    ' corrected to match UDB',
 );
+console.log('CSR address pass: ' + addressesCorrected + ' address(es) normalized to hexadecimal');
+console.log('CSR provenance pass: ' + sourcesAttached + ' source link(s) pinned to UDB');
 if (csrsWithoutFields.length) {
   console.log('  no UDB fields found for: ' + csrsWithoutFields.join(', '));
 }
@@ -765,8 +844,11 @@ if (csrsWithoutFields.length) {
 // checked-in data on local runs and stage a bad diff. Abort untouched instead.
 if (parseFailures > PARSE_FAILURE_THRESHOLD) {
   console.error(
-    'ERROR: ' + parseFailures + ' YAML parse failures exceed the threshold of ' +
-    PARSE_FAILURE_THRESHOLD + ' — UDB layout may have changed. Aborting without writing.'
+    'ERROR: ' +
+      parseFailures +
+      ' YAML parse failures exceed the threshold of ' +
+      PARSE_FAILURE_THRESHOLD +
+      ' — UDB layout may have changed. Aborting without writing.',
   );
   process.exit(1);
 }

@@ -41,9 +41,10 @@ const BASES = ['RV32I', 'RV64I', 'RV32E', 'RV64E'];
 //   modern  — needs a recent clang. The profiles mandate Ssccptr and Zcmop, which
 //             clang 18 (what ubuntu-24.04 ships) rejects and calls experimental
 //             respectively. Both are ratified; the compiler is simply behind.
-// CI validates `core` unconditionally and `modern` only when it managed to
-// install a recent clang, so a slow or unreachable apt.llvm.org degrades the
-// check instead of hanging the build.
+//   known-unsupported — ratified catalogue data newer than clang 21. Kept in
+//             the emitted matrix so the blind spot is explicit and countable.
+// CI validates `core` on Ubuntu's distro compiler and `modern` on the macOS 26
+// image, whose preinstalled Apple clang 21 avoids a network/toolchain install.
 const seen = new Set();
 const emit = (march, tier) => {
   if (!march || seen.has(march)) return;
@@ -69,4 +70,39 @@ for (const members of Object.values(PROFILES)) {
   if (base === 'RV128I') continue; // no clang riscv128 target
   const { resolved } = resolveSelection({ selected: members, base });
   emit(buildMarchString(resolved.filter((id) => CATALOG_IDS.has(id)), ALL).march, 'modern');
+}
+
+// Ratified extensions clang 21 either still calls experimental or does not yet
+// recognise. This is intentionally an id allowlist, not an error-message
+// allowlist: when clang gains one, its row can move to `modern` and start gating.
+const CLANG21_UNSUPPORTED = new Set([
+  'Zalasr',
+  'Zicfilp',
+  'Zicfiss',
+  'Ziccid',
+  'Svrsw60t59b',
+  'Sspmp',
+  'Sspmpen',
+  'Smpmpdeleg',
+  'Smctr',
+  'Ssctr',
+  'Sstvecv',
+  'Ssu32xl',
+  'Ssube',
+]);
+
+// Every ratified, selectable catalogue entry under each base it does not
+// conflict with. The representative rows above keep an older distro clang on
+// the critical path; these exhaustive rows are consumed by the clang-21 job.
+// Deduplication keeps roots/aliases that emit no token from inflating the set.
+for (const ext of ALL.filter((entry) => entry?.state === 'ratified')) {
+  for (const base of ['RV32I', 'RV64I']) {
+    const selected = /^Zvl\d+b$/.test(ext.id) ? [base, ext.id, 'Zve32x'] : [base, ext.id];
+    const result = resolveSelection({ selected, base });
+    if (result.conflicts.length || result.unknown.length) continue;
+    emit(
+      buildMarchString(result.resolved.filter((id) => CATALOG_IDS.has(id)), ALL).march,
+      CLANG21_UNSUPPORTED.has(ext.id) ? 'known-unsupported' : 'modern',
+    );
+  }
 }

@@ -497,15 +497,26 @@ function main(argv) {
       `   encoding disagrees ${cov.perExtension.encodingDisagrees}` +
       `   absent ${cov.perExtension.uncovered}`,
   );
+  if (result.attributionGroups.length) {
+    console.log('      filed-elsewhere groups (upstream owner predicate):');
+    for (const group of result.attributionGroups) {
+      console.log(`        ${String(group.count).padStart(4)}  ${group.owners}`);
+    }
+  }
 
-  // Only global coverage gates. Attribution differences are often legitimate
+  // Global coverage plus local encoding integrity gate. Attribution differences are often legitimate
   // (unified-db files AMOCAS.B under Zabha, this catalogue under Zacas), so
   // per-extension coverage is a number to watch, not a threshold to pass.
-  console.log(`\ncomplete: ${result.complete}   (global coverage; see the two numbers above)`);
+  console.log(
+    `\ncomplete: ${result.complete}   ` +
+      '(global coverage, matching bits, and well-formed local encodings)',
+  );
   return result.complete ? 0 : 1;
 }
 
 // Only run when invoked directly, so the parser can be imported by tests.
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
-  process.exit(main(process.argv));
+  // Let stdout drain before Node exits. The JSON report is larger than the
+  // common 64 KiB pipe buffer; process.exit() truncated it mid-string.
+  process.exitCode = main(process.argv);
 }

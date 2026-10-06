@@ -29,7 +29,7 @@ import {
 import { execFileSync } from 'node:child_process';
 import os from 'node:os';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { parse as parseYAML } from 'yaml';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -58,9 +58,28 @@ function allCsrs() {
 // test, so contributors and CI without UDB still run the checks they can.
 // ---------------------------------------------------------------------------
 
-const csrDir = join(here, '..', '..', 'riscv-unified-db', 'spec', 'std', 'isa', 'csr');
-const haveUdb = existsSync(csrDir);
-const SKIP = 'no riscv-unified-db checkout beside this repo';
+const defaultUdb = join(here, '..', '..', 'riscv-unified-db');
+const udbRoot = resolve(process.env.UDB_DIR ?? defaultUdb);
+const csrDir = join(udbRoot, 'spec', 'std', 'isa', 'csr');
+const udbBranch = (() => {
+  if (!existsSync(csrDir)) return null;
+  try {
+    return execFileSync('git', ['-C', udbRoot, 'branch', '--show-current'], {
+      encoding: 'utf8',
+    }).trim();
+  } catch {
+    return null;
+  }
+})();
+// An explicitly supplied checkout is intentional. An implicitly discovered
+// sibling is authoritative only on trunk; feature branches otherwise make the
+// project test arbitrary work-in-progress data.
+const haveUdb =
+  existsSync(csrDir) &&
+  (Boolean(process.env.UDB_DIR) || udbBranch === 'main' || udbBranch === 'master');
+const SKIP = !existsSync(csrDir)
+  ? 'no riscv-unified-db checkout available (set UDB_DIR)'
+  : `implicit riscv-unified-db checkout is on ${udbBranch || 'a detached ref'}; set UDB_DIR to use it`;
 
 /** Re-derive Schema A from a raw UDB field node, independently of the sync. */
 function expectedBits(fld) {

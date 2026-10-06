@@ -41,9 +41,8 @@ export function parseInstructionKey(key) {
 /**
  * Reduces a cell to the value equality is decided on.
  *
- * Absent stays distinguishable from empty: 60 of the 227 extensions carry no
- * `state` at all, and "no state recorded" is a different claim from "state is
- * blank". Arrays compare as sets because tag order is not meaningful.
+ * Absent stays distinguishable from empty: "no state recorded" differs from
+ * "state is blank". Arrays compare as sets because tag order is not meaningful.
  */
 export function normalizeCell(value) {
   if (value === null || value === undefined) return null;

@@ -291,13 +291,56 @@ const LOCAL_EDGES = {
     { ext: 'Smcsrind', src: 'spec', ref: 'SPMP v1.0 §4 — "The Smcsrind extension for indirect CSR access must be implemented."' },
     { ext: 'Sspmp', src: 'spec', ref: 'SPMP v1.0 §4.1 — delegates PMP entries to S-mode, "thereby creating SPMP entries"' },
   ],
+  Zimt: [
+    {
+      ext: 'Zimop',
+      src: 'spec',
+      ref: 'riscv-memory-tagging, src/mte_tag.adoc — Zimt encoding compatibility paragraph',
+    },
+  ],
 };
 
 /** Base-ISA conflicts. Not dependencies, but they belong to the same graph. */
 const CONFLICTS = {
   RV32E: [{ ext: 'F', ref: 'Vol.I §5 — RV32E has 16 GPRs and no F register file' }],
   RV64E: [{ ext: 'F', ref: 'Vol.I §5 — RV64E has 16 GPRs and no F register file' }],
+  Zcf: [
+    { ext: 'RV64I', ref: 'Vol.I Zc §3 — Zcf is defined only for RV32' },
+    { ext: 'RV64E', ref: 'Vol.I Zc §3 — Zcf is defined only for RV32' },
+    { ext: 'RV128I', ref: 'Vol.I Zc §3 — Zcf is defined only for RV32' },
+  ],
+  Zclsd: [
+    { ext: 'RV64I', ref: 'Zilsd v1.0 — Zclsd is defined only for RV32' },
+    { ext: 'RV64E', ref: 'Zilsd v1.0 — Zclsd is defined only for RV32' },
+    { ext: 'RV128I', ref: 'Zilsd v1.0 — Zclsd is defined only for RV32' },
+  ],
+  Zilsd: [
+    { ext: 'RV64I', ref: 'Zilsd v1.0 — Zilsd is defined only for RV32' },
+    { ext: 'RV64E', ref: 'Zilsd v1.0 — Zilsd is defined only for RV32' },
+    { ext: 'RV128I', ref: 'Zilsd v1.0 — Zilsd is defined only for RV32' },
+  ],
 };
+
+// Zvl*b states a minimum vector-register length; it is not a standalone vector
+// ISA. A compiler accepts it only beside V or one of the concrete Zve profiles.
+// UDB records the VLEN parameter but currently omits this provider relationship,
+// so keep the cited architectural rule in the same local layer as other UDB
+// omissions. Zve32x is the weakest valid default.
+const VECTOR_PROVIDERS = ['V', 'Zve32x', 'Zve32f', 'Zve64x', 'Zve64f', 'Zve64d'];
+const LOCAL_CHOICES = Object.fromEntries(
+  ['Zvl32b', 'Zvl64b', 'Zvl128b', 'Zvl256b', 'Zvl512b', 'Zvl1024b'].map((id) => [
+    id,
+    [
+      {
+        options: VECTOR_PROVIDERS,
+        default: 'Zve32x',
+        auto: false,
+        src: 'isa-manual',
+        ref: 'Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile',
+      },
+    ],
+  ]),
+);
 
 // ---------------------------------------------------------------------------
 // Build
@@ -332,13 +375,17 @@ for (const id of catalogIds.slice().sort((a, b) => a.localeCompare(b))) {
   const node = { requires };
 
   const choices = udb[id]?.choices ?? [];
-  if (choices.length) {
-    node.requiresOneOf = choices.map((options) => ({
+  const localChoices = LOCAL_CHOICES[id] ?? [];
+  if (choices.length || localChoices.length) {
+    node.requiresOneOf = [
+      ...choices.map((options) => ({
       options: options.slice().sort(),
       default: pickDefault(options),
       src: 'udb',
       ref: `${id}.yaml requirements.extension.anyOf`,
-    }));
+      })),
+      ...localChoices.map((choice) => ({ ...choice, options: choice.options.slice().sort() })),
+    ];
   }
 
   // Conflicts come from two places: our own base-ISA rules, and UDB's

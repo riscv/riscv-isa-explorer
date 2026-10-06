@@ -39,12 +39,19 @@ import {
   parseMarchString,
   buildMarchString,
   buildCombinedCatalog,
+  BASE_ISA_IDS,
   DATA_PROVENANCE,
 } from './marchUtils.js';
 import { buildIsaConfigYaml } from './exportUtils.js';
-import { resolveParams, impliedVlen, vlenExtension } from './isaGraph.js';
+import {
+  DEPENDENCY_GRAPH,
+  resolveParams,
+  resolveSelection,
+  impliedVlen,
+  vlenExtension,
+} from './isaGraph.js';
 import { describeParameter } from './isaParams.js';
-import { PROFILES } from './profiles.js';
+import { PROFILES, PROFILE_METADATA } from './profiles.js';
 import EncodingDiagram from './EncodingDiagram.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 
@@ -204,6 +211,27 @@ export default function WorkspacePanel({
   );
 
   const totalInstructions = combinedCatalog.length;
+  const profileSummaries = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(PROFILES).map(([name, mandatory]) => [
+          name,
+          {
+            mandatoryCount: mandatory.length,
+            resolvedCount: resolveSelection({ selected: mandatory }).resolved.length,
+            ...PROFILE_METADATA[name],
+          },
+        ]),
+      ),
+    [],
+  );
+  const unverifiedGraphIds = useMemo(
+    () =>
+      [...workspaceIds]
+        .filter((id) => !BASE_ISA_IDS.has(id) && DEPENDENCY_GRAPH.nodes?.[id]?.verified === 'none')
+        .sort(),
+    [workspaceIds],
+  );
 
   const filteredCatalog = useMemo(() => {
     const q = catalogQuery.trim().toLowerCase();
@@ -314,6 +342,7 @@ export default function WorkspacePanel({
           TOP STUDIO NAVIGATION BAR
           ========================================================================= */}
       <header
+        className="workspace-studio-header"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -329,9 +358,11 @@ export default function WorkspacePanel({
       >
         {/* Left: Back button + Title + Stats */}
         <div
+          className="workspace-studio-header-left"
           style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0, flexWrap: 'wrap' }}
         >
           <button
+            className="workspace-studio-back"
             type="button"
             onClick={onClose}
             aria-label="Return to Landscape Explorer"
@@ -362,6 +393,7 @@ export default function WorkspacePanel({
             <ArrowLeft size={14} />
             <span>Landscape Explorer</span>
             <kbd
+              className="workspace-studio-escape-hint"
               style={{
                 fontSize: 10,
                 padding: '1px 5px',
@@ -374,9 +406,15 @@ export default function WorkspacePanel({
             </kbd>
           </button>
 
-          <div style={{ width: 1, height: 20, background: 'var(--riscv-border)' }} />
+          <div
+            className="workspace-studio-divider"
+            style={{ width: 1, height: 20, background: 'var(--riscv-border)' }}
+          />
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div
+            className="workspace-studio-brand"
+            style={{ display: 'flex', alignItems: 'center', gap: 10 }}
+          >
             <div
               style={{
                 width: 30,
@@ -408,7 +446,10 @@ export default function WorkspacePanel({
 
           {/* Stats Badges */}
           {!isEmpty && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 6 }}>
+            <div
+              className="workspace-studio-stats"
+              style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 6 }}
+            >
               <span
                 style={{
                   display: 'inline-flex',
@@ -456,7 +497,7 @@ export default function WorkspacePanel({
                 <button
                   type="button"
                   onClick={() => setProfileDropdownOpen((v) => !v)}
-                  title="Switch or start from a certified profile"
+                  title="Switch or start from a ratified profile"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -523,7 +564,7 @@ export default function WorkspacePanel({
                         background: 'var(--riscv-popover-head)',
                       }}
                     >
-                      Start from Certified Profile
+                      Start from Ratified Profile
                     </div>
                     {Object.entries(PROFILES).map(([pName, pList]) => (
                       <button
@@ -560,7 +601,8 @@ export default function WorkspacePanel({
                           {pName}
                         </span>
                         <span style={{ fontSize: 11, color: 'var(--riscv-text-3)' }}>
-                          {pList.length} extensions
+                          {profileSummaries[pName].mandatoryCount} mandatory ·{' '}
+                          {profileSummaries[pName].resolvedCount} resolved
                         </span>
                       </button>
                     ))}
@@ -572,7 +614,10 @@ export default function WorkspacePanel({
         </div>
 
         {/* Right Actions: Export YAML, Clear all, Close */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <div
+          className="workspace-studio-actions"
+          style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}
+        >
           {!isEmpty && (
             <div ref={exportOptionsRef} style={{ position: 'relative' }}>
               <button
@@ -931,8 +976,7 @@ export default function WorkspacePanel({
                   lineHeight: 1.6,
                 }}
               >
-                Start from a certified ratified profile, pick a base integer ISA, or paste an
-                existing{' '}
+                Start from a ratified profile, pick a base integer ISA, or paste an existing{' '}
                 <code
                   style={{ color: 'var(--riscv-gold)', fontFamily: 'JetBrains Mono, monospace' }}
                 >
@@ -1011,19 +1055,14 @@ export default function WorkspacePanel({
                             fontFamily: 'JetBrains Mono, monospace',
                           }}
                         >
-                          {list.length} ext
+                          {profileSummaries[name].mandatoryCount} mandatory ·{' '}
+                          {profileSummaries[name].resolvedCount} resolved
                         </span>
                       </div>
                       <span
                         style={{ fontSize: 11.5, color: 'var(--riscv-text-2)', lineHeight: 1.4 }}
                       >
-                        {name === 'RVA23'
-                          ? 'Latest 64-bit application profile (Linux/Android)'
-                          : name === 'RVA22'
-                            ? '64-bit application profile baseline'
-                            : name === 'RVA20'
-                              ? 'RV64GC-compatible standard profile'
-                              : '64-bit bare-metal / RTOS microcontroller profile'}
+                        {profileSummaries[name].description}
                       </span>
                     </button>
                   ))}
@@ -1535,6 +1574,26 @@ export default function WorkspacePanel({
                             {copiedMarch ? <CheckCircle2 size={16} /> : <Copy size={16} />}
                           </button>
                         </div>
+
+                        {unverifiedGraphIds.length > 0 && (
+                          <div
+                            role="status"
+                            style={{
+                              borderRadius: 8,
+                              padding: '10px 12px',
+                              background: 'rgba(255,160,122,0.06)',
+                              border: '1px solid rgba(255,160,122,0.18)',
+                              color: 'var(--riscv-text-2)',
+                              fontSize: 11.5,
+                              lineHeight: 1.45,
+                            }}
+                          >
+                            <strong style={{ color: '#ffa07a' }}>Dependency confidence:</strong> no
+                            authoritative dependency source is recorded for{' '}
+                            {unverifiedGraphIds.join(', ')}. The generated closure may be
+                            incomplete.
+                          </div>
+                        )}
 
                         {/* Excluded extensions note */}
                         {encodeResult.excluded.length > 0 && (
@@ -2276,7 +2335,11 @@ export default function WorkspacePanel({
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                   {DATA_PROVENANCE.map((p) => (
-                    <div key={p.label} style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                    <div
+                      key={p.label}
+                      className="workspace-provenance-row"
+                      style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}
+                    >
                       <span style={{ fontSize: 11, color: 'var(--riscv-text-3)', flexShrink: 0 }}>
                         {p.label}
                       </span>
@@ -2299,7 +2362,8 @@ export default function WorkspacePanel({
                           fontSize: 11,
                           color: 'var(--riscv-violet)',
                           textDecoration: 'none',
-                          flexShrink: 0,
+                          minWidth: 0,
+                          overflowWrap: 'anywhere',
                         }}
                       >
                         {p.source} <ExternalLink size={10} />

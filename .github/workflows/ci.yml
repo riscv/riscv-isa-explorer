@@ -29,6 +29,10 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Lint
+        run: npm run lint
+      - name: Check generated instruction data
+        run: npm run sync:check
       - name: Tests
         run: npm test
 
@@ -45,9 +49,8 @@ jobs:
       #
       # The cost is that ubuntu-24.04 ships clang 18, which rejects Ssccptr and
       # calls Zcmop experimental — both ratified, both in RVA23/RVB23. Those four
-      # profile strings are tagged `modern` in the matrix and skipped here. Their
-      # shape is covered by tests/profiles.test.mjs, which asserts no satp mode
-      # is emitted, and they were checked against clang 21 by hand.
+      # profile strings are tagged `modern` in the matrix and skipped here. The
+      # dedicated macOS job below checks them with clang 21 on every run.
       # Use the compiler the runner already has. ubuntu-24.04 ships clang, and
       # every attempt to install one has cost us a build: apt.llvm.org hung to
       # the 6-hour limit twice, and `apt-get install clang` then hung to the
@@ -75,6 +78,11 @@ jobs:
           echo "tier: $CLANG_TIER"
           fail=0 checked=0 skipped=0
           while IFS=$'\t' read -r target march tier; do
+            if [ "$tier" = known-unsupported ]; then
+              echo "skip  $march  <- ratified, but not implemented by clang 21 yet"
+              skipped=$((skipped+1))
+              continue
+            fi
             if [ "$tier" = modern ] && [ "$CLANG_TIER" != modern ]; then
               echo "skip  $march  <- needs a newer clang than this job has"
               skipped=$((skipped+1))
@@ -96,11 +104,58 @@ jobs:
           fi
           exit $fail
 
+  # The distro compiler intentionally covers only the stable/core subset above.
+  # macOS 26 ships Apple clang 21, which checks every profile and every
+  # non-allowlisted ratified catalogue entry in the exhaustive matrix.
+  modern-march:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Validate profiles and ratified catalogue with clang 21
+        run: |
+          set -uo pipefail
+          clang --version | head -1
+          fail=0 checked=0 skipped=0
+          while IFS=$'\t' read -r target march tier; do
+            if [ "$tier" = known-unsupported ]; then
+              if clang --target="$target" -march="$march" -x c /dev/null -fsyntax-only 2>/tmp/err; then
+                echo "FAIL  $march  <- clang now accepts this; remove it from CLANG21_UNSUPPORTED"
+                fail=1
+              else
+                echo "gap   $march  <- $(head -1 /tmp/err)"
+              fi
+              skipped=$((skipped+1))
+              continue
+            fi
+            if [ "$tier" != modern ]; then
+              continue
+            fi
+            checked=$((checked+1))
+            if clang --target="$target" -march="$march" -x c /dev/null -fsyntax-only 2>/tmp/err; then
+              echo "ok    $march"
+            else
+              echo "FAIL  $march  <- $(head -1 /tmp/err)"
+              fail=1
+            fi
+          done < <(node scripts/emit-march-matrix.mjs)
+          echo "checked=$checked skipped=$skipped"
+          if [ "$checked" -lt 4 ]; then
+            echo "::error::profile/catalog matrix was not exercised"
+            fail=1
+          fi
+          exit $fail
+
   # Publishes to the gh-pages branch, which is what Pages serves. Gated on
   # build-and-test so only tested code reaches the live site, and restricted to
   # pushes on main so pull requests never publish.
   deploy:
-    needs: build-and-test
+    needs: [build-and-test, modern-march]
     timeout-minutes: 10
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest

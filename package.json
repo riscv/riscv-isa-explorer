@@ -14,6 +14,8 @@
     "predeploy": "npm run build",
     "sync": "node scripts/sync_instructions.mjs",
     "sync:check": "npm run sync -- --strict",
+    "sync:instruction-metadata": "node scripts/sync_instruction_metadata.mjs",
+    "sync:instruction-metadata:check": "node scripts/sync_instruction_metadata.mjs --check",
     "sync:udb": "node scripts/sync_udb_extensions.cjs",
     "sync:params": "node scripts/sync_udb_params.mjs",
     "test": "node --test tests/*.test.mjs",
@@ -21,7 +23,7 @@
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{js,jsx,css}\"",
     "profiles:optional": "node scripts/sync-profile-optional.mjs",
-    "profiles:check": "node scripts/sync-profile-optional.mjs ../riscv-unified-db --check"
+    "profiles:check": "node scripts/sync-profile-optional.mjs --check"
   },
   "keywords": [],
   "author": "",

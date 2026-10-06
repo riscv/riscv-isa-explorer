@@ -234,7 +234,13 @@ export const NON_MARCH_IDS = new Set([
   'N',
   'P',
   'S',
+  'Sm', // machine-privilege architecture root, not a compiler extension token
   'U', // privilege levels and UI grouping tags
+  // Retired catalogue labels stay rejected for imported or bookmarked configs.
+  'Zv',
+  'Zve',
+  'Zvf',
+  'Zvk',
   ...SATP_MODE_IDS,
 ]); // B removed — ratified, decode-accept + explicit-encode
 
@@ -329,7 +335,7 @@ function dependsOnIncompatible(baseId, extId, seen = new Set()) {
 // parseMarchString
 // ============================================================================
 /**
- * Umbrella / naming prefix tags in the catalog that are not architectural extensions.
+ * Retired naming prefixes that are not architectural extensions.
  * Trailing digits on these (e.g. zve32, zve64) are incomplete names/typos, not version suffixes.
  */
 const UMBRELLA_PREFIX_IDS = new Set(['zv', 'zve', 'zvf', 'zvk', 'zvw']);
@@ -532,6 +538,9 @@ export function buildMarchString(selectedIds, _allExts) {
   // D implies F and both belong in the string. Only these three shorthands
   // absorb their members.
   const absorbed = absorbedByShorthand(selectedIds); // member -> shorthand covering it
+  const hasVectorProvider = selectedIds.some(
+    (id) => id === 'V' || /^Zve(?:32|64)[xfd]$/.test(id),
+  );
 
   for (const id of selectedIds) {
     if (BASE_ISA_IDS.has(id)) continue;
@@ -540,6 +549,14 @@ export function buildMarchString(selectedIds, _allExts) {
       out.excluded.push({
         id,
         reason: `Covered by ${absorbed.get(id)} — a shorthand must not list its own members`,
+      });
+      continue;
+    }
+
+    if (/^Zvl\d+b$/.test(id) && !hasVectorProvider) {
+      out.excluded.push({
+        id,
+        reason: 'Minimum VLEN requires V or a concrete Zve* vector ISA provider',
       });
       continue;
     }
