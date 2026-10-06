@@ -2706,22 +2706,9 @@ const RISCVExplorer = () => {
                   <button
                     type="button"
                     aria-pressed={compareMode}
+                    aria-label="Compare mode"
                     onClick={() => setCompareMode((v) => !v)}
-                    className="compare-mode-toggle relative inline-flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl transition-all duration-200 whitespace-nowrap cursor-pointer"
-                    style={
-                      compareMode
-                        ? {
-                            background: 'var(--riscv-violet)',
-                            color: '#ffffff',
-                            boxShadow: '0 4px 18px rgba(139,124,248,0.35)',
-                            border: '1px solid var(--riscv-violet)',
-                          }
-                        : {
-                            background: 'var(--riscv-surface)',
-                            color: 'var(--riscv-violet)',
-                            border: '1px solid rgba(139,124,248,0.35)',
-                          }
-                    }
+                    className="mode-toggle-button compare-mode-toggle inline-flex items-center gap-2 px-3 py-2 text-xs font-bold rounded-xl transition-all duration-200 whitespace-nowrap cursor-pointer"
                     data-tooltip={
                       compareMode
                         ? 'Compare mode is ON — click to turn off (pinned items are preserved)'
@@ -2731,34 +2718,34 @@ const RISCVExplorer = () => {
                     <GitCompare size={14} className="shrink-0" />
                     <span className="whitespace-nowrap hidden sm:inline">Compare</span>
                     <span
-                      className="inline-flex items-center justify-center px-1.5 h-[16px] rounded-full text-[10px] font-black tracking-wide"
-                      style={
-                        compareMode
-                          ? {
-                              background: 'rgba(0,0,0,0.25)',
-                              color: '#ffffff',
-                            }
-                          : comparePinnedTotal > 0
-                            ? {
-                                background: 'var(--riscv-violet-dim)',
-                                color: 'var(--riscv-violet)',
-                                border: '1px solid rgba(139,124,248,0.3)',
-                              }
-                            : {
-                                background: 'var(--riscv-tint-3)',
-                                color: 'var(--riscv-text-3)',
-                              }
-                      }
+                      className="mode-toggle-status"
+                      data-checked={String(compareMode)}
+                      aria-hidden="true"
                     >
-                      {comparePinnedTotal > 0 ? comparePinnedTotal : compareMode ? 'ON' : 'OFF'}
+                      {compareMode ? 'ON' : 'OFF'}
                     </span>
+                    <span
+                      className="mode-switch"
+                      data-checked={String(compareMode)}
+                      aria-hidden="true"
+                    >
+                      <span className="mode-switch-thumb" />
+                    </span>
+                    {comparePinnedTotal > 0 && (
+                      <span
+                        className="mode-toggle-count"
+                        aria-label={`${comparePinnedTotal} items pinned`}
+                      >
+                        {comparePinnedTotal}
+                      </span>
+                    )}
                   </button>
 
                   {/* ISA Configuration Builder — fused action group */}
                   <div className="riscv-builder-control relative inline-flex items-stretch rounded-xl">
                     {/* Active glow ring */}
                     {builderMode && (
-                      <span className="absolute -inset-px rounded-xl animate-pulse bg-amber-400/20 pointer-events-none z-0" />
+                      <span className="absolute -inset-px rounded-xl animate-pulse bg-green-400/20 pointer-events-none z-0" />
                     )}
 
                     {/* Main body — switches builder mode on and off.
@@ -2769,18 +2756,9 @@ const RISCVExplorer = () => {
                       <button
                         type="button"
                         aria-pressed={builderMode}
+                        aria-label="ISA Configuration Builder mode"
                         onClick={() => setBuilderMode((v) => !v)}
-                        className={[
-                          'relative z-10 inline-flex items-center gap-2 px-3 py-2 text-xs font-bold transition-all duration-300 whitespace-nowrap',
-                          builderMode
-                            ? 'bg-linear-to-b from-amber-400 to-amber-500 text-slate-900 hover:from-amber-300 hover:to-amber-400 rounded-xl'
-                            : 'builder-btn-off bg-slate-800/80 text-amber-300/90 border border-amber-400/30 hover:bg-slate-700/80 hover:text-amber-200 rounded-xl',
-                        ].join(' ')}
-                        style={{
-                          boxShadow: builderMode
-                            ? '0 4px 18px rgba(251,191,36,0.4)'
-                            : '0 2px 10px rgba(0,0,0,0.2)',
-                        }}
+                        className="mode-toggle-button builder-mode-toggle relative z-10 inline-flex items-center gap-2 px-3 py-2 text-xs font-bold transition-all duration-300 whitespace-nowrap rounded-xl"
                         data-tooltip={
                           builderMode
                             ? 'ISA Configuration Builder is ON — click any extension’s + to add it. Click here to turn off.'
@@ -2793,17 +2771,24 @@ const RISCVExplorer = () => {
                         </span>
                         <span className="whitespace-nowrap sm:hidden">ISA Builder</span>
                         <span
-                          className={[
-                            'inline-flex items-center justify-center px-1.5 h-[16px] rounded-full text-[10px] font-black tracking-wide',
-                            builderMode
-                              ? 'builder-badge-on bg-slate-900/75 text-amber-400'
-                              : 'builder-badge-off bg-slate-900/60 text-slate-400',
-                          ].join(' ')}
+                          className="mode-toggle-status"
+                          data-checked={String(builderMode)}
+                          aria-hidden="true"
                         >
                           {builderMode ? 'ON' : 'OFF'}
                         </span>
+                        <span
+                          className="mode-switch"
+                          data-checked={String(builderMode)}
+                          aria-hidden="true"
+                        >
+                          <span className="mode-switch-thumb" />
+                        </span>
                         {workspaceIds.size > 0 && (
-                          <span className="builder-badge-on inline-flex items-center justify-center min-w-[18px] px-1 h-[18px] rounded-full text-[10px] font-black bg-slate-900/75 text-amber-400">
+                          <span
+                            className="mode-toggle-count"
+                            aria-label={`${workspaceIds.size} extensions in configuration`}
+                          >
                             {workspaceIds.size}
                           </span>
                         )}
@@ -4504,8 +4489,7 @@ const RISCVExplorer = () => {
                                       instructionMetadata[
                                         selectedInstruction.mnemonic.toLowerCase()
                                       ].description,
-                                    ) ||
-                                      'No descriptive text is available in the upstream source.'}
+                                    ) || 'No descriptive text is available in the upstream source.'}
                                   </p>
                                   <a
                                     className="mt-1 inline-flex items-center gap-1 text-sky-300 hover:underline"
