@@ -2677,7 +2677,7 @@ const RISCVExplorer = () => {
                     <span className="riscv-toolbar-label-compact">
                       Encoding
                       <br />
-                      Mapping
+                      Map
                     </span>
                   </button>
 

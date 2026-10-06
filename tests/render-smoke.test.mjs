@@ -471,6 +471,17 @@ test('the header is an identity row plus one full-width toolbar', () => {
   for (const action of ['Encoding Validator', 'Encoding Map']) {
     assert.ok(actions.some((t) => t.startsWith(action)), `${action} missing from the actions group`);
   }
+  const encodingMapButton = toolbar.querySelector('button[aria-label="Encoding Map"]');
+  const compactEncodingMapWords = [
+    ...encodingMapButton.querySelector('.riscv-toolbar-label-compact').childNodes,
+  ]
+    .map((node) => node.textContent.trim())
+    .filter(Boolean);
+  assert.deepEqual(
+    compactEncodingMapWords,
+    ['Encoding', 'Map'],
+    'the responsive label must not restore the old Encoding Mapping copy',
+  );
   assert.ok(
     actions.some((t) => t.startsWith('Compare')),
     'the Compare mode toggle should live in the actions group',
