@@ -1638,6 +1638,11 @@ pre,
     display: inline;
   }
 
+  .riscv-toolbar .riscv-toolbar-label-compact {
+    line-height: 1.05;
+    text-align: center;
+  }
+
   .riscv-toolbar-actions > button,
   .riscv-toolbar .builder-mode-toggle {
     gap: 6px;

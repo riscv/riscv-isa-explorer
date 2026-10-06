@@ -2648,15 +2648,19 @@ const RISCVExplorer = () => {
                     ref={encoderTriggerRef}
                     aria-haspopup="dialog"
                     aria-expanded={encoderValidatorOpen}
-                    aria-label="Encoder Validator"
+                    aria-label="Encoding Validator"
                     className="riscv-tool-btn group inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 whitespace-nowrap border"
                     data-tooltip="Validate a proposed instruction encoding against the existing instruction set"
                   >
                     <ScanSearch size={14} className="opacity-80" />
                     <span className="riscv-toolbar-label-full whitespace-nowrap">
-                      Encoder Validator
+                      Encoding Validator
                     </span>
-                    <span className="riscv-toolbar-label-compact whitespace-nowrap">Validate</span>
+                    <span className="riscv-toolbar-label-compact">
+                      Encoding
+                      <br />
+                      Validator
+                    </span>
                   </button>
 
                   {/* Beside the validator because they answer neighbouring
@@ -2667,7 +2671,7 @@ const RISCVExplorer = () => {
                     onClick={() => setEncodingMapOpen(true)}
                     aria-haspopup="dialog"
                     aria-expanded={encodingMapOpen}
-                    aria-label="Encoding Map"
+                    aria-label="Encoding Mapping"
                     className="riscv-tool-btn group inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 whitespace-nowrap border"
                     // Colour, border and hover all come from .riscv-tool-btn.
                     // Deliberately no inline style: an inline `color` outranks
@@ -2678,8 +2682,14 @@ const RISCVExplorer = () => {
                     data-tooltip="See how the 32-bit opcode space is allocated"
                   >
                     <Grid3x3 size={14} className="opacity-80" />
-                    <span className="riscv-toolbar-label-full whitespace-nowrap">Encoding Map</span>
-                    <span className="riscv-toolbar-label-compact whitespace-nowrap">Map</span>
+                    <span className="riscv-toolbar-label-full whitespace-nowrap">
+                      Encoding Mapping
+                    </span>
+                    <span className="riscv-toolbar-label-compact">
+                      Encoding
+                      <br />
+                      Mapping
+                    </span>
                   </button>
 
                   {/* Custom Extension Sandbox — interactive design in custom-0..3 space */}
@@ -2696,7 +2706,11 @@ const RISCVExplorer = () => {
                     <span className="riscv-toolbar-label-full whitespace-nowrap">
                       Extension Sandbox
                     </span>
-                    <span className="riscv-toolbar-label-compact whitespace-nowrap">Sandbox</span>
+                    <span className="riscv-toolbar-label-compact">
+                      Extension
+                      <br />
+                      Sandbox
+                    </span>
                   </button>
 
                   {/* Theme toggle relocated to header */}
