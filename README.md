@@ -1,7 +1,7 @@
 # RISC-V ISA Explorer
 
 An interactive reference for RISC-V extensions, profiles, and per-instruction
-encodings. Pick a base ISA or start from a ratified profile, add extensions, and
+encodings. Pick a base ISA or start from a supported profile, add extensions, and
 get a dependency-resolved configuration with a valid `-march` string.
 
 **[Open the live site](https://riscv.github.io/riscv-isa-explorer/)**
@@ -19,8 +19,8 @@ get a dependency-resolved configuration with a valid `-march` string.
 - **Build a configuration.** Select extensions and dependencies resolve
   automatically, with conflicts blocked and a reason shown for every implied
   extension.
-- **Start from a profile.** RVA23, RVB23 and the other ratified profiles load as
-  a starting point rather than being rebuilt by hand.
+- **Start from a profile.** RVA23, RVB23, their frozen 23.1 minor profiles, and the
+  other supported profiles load as a starting point rather than being rebuilt by hand.
 - **Export** a `-march` string, a YAML configuration, or a `riscv-config`
   compatible file.
 - **Compare entries.** Pin extensions, instructions or profiles and read them
@@ -72,7 +72,7 @@ knowing before changing anything:
 | `src/riscv_extensions.json` | the extension catalogue, plus the instruction encodings routed into each extension | [riscv-unified-db](https://github.com/riscv/riscv-unified-db) for metadata and ratification state; `src/instr_dict.json` for encodings |
 | `src/instr_dict.json` | the instruction encodings themselves | **hand-maintained.** Checked against [riscv-opcodes](https://github.com/riscv/riscv-opcodes), but it carries entries upstream lacks and is never regenerated |
 | `src/isa-dependency-graph.json` | dependencies, conflicts and parameters, with a citation on every edge | [riscv-unified-db](https://github.com/riscv/riscv-unified-db) |
-| `src/profiles.js` | the ratified profiles | the profile specifications |
+| `src/profiles.js` | supported profiles | the profile specifications |
 
 Two things fall outside that table, because no upstream carries them. The
 **Zve\* embedded vector subsets** are derived from V by the EEW/FP rules in

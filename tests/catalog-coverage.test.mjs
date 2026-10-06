@@ -479,6 +479,25 @@ test('RVA23 offers the optional extensions the ratified profile names', () => {
   }
 });
 
+test('the 23.1 profiles inherit their parent options and add the public-review delta', () => {
+  const optional = JSON.parse(
+    fs.readFileSync(path.join(here, '..', 'src', 'profile-optional.json'), 'utf8'),
+  );
+  const additions = ['Svrsw60t59b', 'Ssdbltrp', 'Ssccfg', 'Ssctr', 'Ssqosid'];
+
+  for (const [profile, parent] of [
+    ['RVA23.1', 'RVA23'],
+    ['RVB23.1', 'RVB23'],
+  ]) {
+    for (const id of optional[parent]) {
+      assert.ok(optional[profile].includes(id), `${profile} should inherit ${id} from ${parent}`);
+    }
+    for (const id of additions) {
+      assert.ok(optional[profile].includes(id), `${profile} should add ${id}`);
+    }
+  }
+});
+
 test('RVB23 mandates bit manipulation', () => {
   // RVB23's defining feature is B, and its ratified mandatory list names it
   // outright. It was omitted when the profile was added, so the B profile

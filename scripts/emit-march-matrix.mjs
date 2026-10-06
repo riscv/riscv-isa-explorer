@@ -59,7 +59,7 @@ for (const base of BASES) {
   }
 }
 
-// The ratified profiles, resolved exactly as the ISA builder resolves them.
+// The supported profiles, resolved exactly as the ISA builder resolves them.
 // These are the largest and most realistic strings the tool produces, and they
 // exercise the privileged/supervisor tail that the hand-written selections above
 // never touch — which is how every profile came to emit an Sv39 that clang

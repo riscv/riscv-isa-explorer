@@ -497,7 +497,7 @@ export default function WorkspacePanel({
                 <button
                   type="button"
                   onClick={() => setProfileDropdownOpen((v) => !v)}
-                  title="Switch or start from a ratified profile"
+                  title="Switch or start from a supported profile"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -976,7 +976,7 @@ export default function WorkspacePanel({
                   lineHeight: 1.6,
                 }}
               >
-                Start from a ratified profile, pick a base integer ISA, or paste an existing{' '}
+                Start from a supported profile, pick a base integer ISA, or paste an existing{' '}
                 <code
                   style={{ color: 'var(--riscv-gold)', fontFamily: 'JetBrains Mono, monospace' }}
                 >

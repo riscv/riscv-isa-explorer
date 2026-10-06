@@ -159,7 +159,7 @@ const NON_ISA_EXTENSION_IDS = new Set(['RERI', 'HTI']);
  * "unsupported standard supervisor-level extension 'sv'" (the parser reads `sv`
  * plus version `39`), while every other Sv* extension — Svbare, Svade, Svadu,
  * Svnapot, Svpbmt, Svinval — is accepted. Emitting them produced an invalid
- * -march for all four ratified profiles, each of which mandates Sv39.
+ * -march for the supported application profiles, each of which mandates Sv39.
  */
 /**
  * Shorthand extensions that ABSORB their members in an ISA string.

@@ -2515,7 +2515,7 @@ const RISCVExplorer = () => {
                   column is pushed off the LEFT edge rather than overflowing the
                   right. At 390px that put the controls at left:-179 inside an
                   overflow-x-clip root, which clips rather than scrolls, so the
-                  profile buttons and the builder toggle could not be reached at
+                  profile filter and the builder toggle could not be reached at
                   all. Stretch until there is room to right-align.
                   min-w-0 because a flex item defaults to min-width:auto and
                   refuses to shrink below its content. */}
@@ -2533,70 +2533,59 @@ const RISCVExplorer = () => {
                       borderColor: 'rgba(255,255,255,0.08)',
                     }}
                   >
-                    {/* Profiles. Wraps at 320px, where the label plus four buttons
-                      measured 338px and ran past the edge — so the label stays one
-                      short word rather than spelling the action out.
-                      "Highlight", not "Profile": these chips are a lens over the
-                      catalogue and write nothing, while the builder's "Start from
-                      profile" replaces the workspace. Both said "profile" and looked
-                      alike, so the pair read as duplication (#212). */}
-                    {/* Profiles Segmented Control */}
+                    {/* Profile highlighting is a read-only lens over the catalogue;
+                        the builder's separate "Start from profile" action replaces
+                        the workspace. A dropdown keeps the growing profile list from
+                        turning this toolbar into a horizontal scroller. */}
                     <div className="flex items-center gap-1 bg-slate-500/10 p-1 rounded-xl border border-slate-500/20">
-                      {Object.keys(profiles).map((profile) => (
-                        <span key={profile} className="inline-flex items-center">
-                          <button
-                            onClick={() =>
-                              setActiveProfile((current) => {
-                                // Profile and volume are mutually exclusive. With
-                                // both live, highlight matched either one while
-                                // dimming followed only the volume, so the grid
-                                // gave no clue which filter was acting.
-                                setActiveVolume(null);
-                                setSelectedInstruction(null);
-                                setSearchMatches(null);
-                                return current === profile ? null : profile;
-                              })
-                            }
-                            aria-pressed={activeProfile === profile}
-                            title={
-                              activeProfile === profile
-                                ? `Stop highlighting ${profile}`
-                                : `Highlight the extensions in ${profile} — does not change your ISA configuration`
-                            }
-                            className={[
-                              'px-3 py-1.5 text-[12px] rounded-lg transition-all duration-200 font-medium whitespace-nowrap shrink-0',
-                              activeProfile === profile
-                                ? 'bg-slate-700/80 text-white shadow-inner border border-slate-500/50'
-                                : 'text-slate-300 hover:text-white hover:bg-slate-700/40 border border-transparent hover:border-slate-600/30',
-                            ].join(' ')}
-                          >
-                            {profile}
-                          </button>
-                          {/* Sibling, not nested: a button inside a button is
-                              invalid HTML and React warns about it. */}
-                          {compareMode && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleCompareProfile(profile);
-                              }}
-                              aria-pressed={compareProfileNames.has(profile)}
-                              className="riscv-pin-btn px-1 py-0.5 rounded-sm border text-[11px] inline-flex items-center justify-center transition-all"
-                              title={
-                                compareProfileNames.has(profile)
-                                  ? `Remove ${profile} from comparison`
-                                  : `Pin ${profile} to comparison`
-                              }
-                            >
-                              <GitCompare
-                                size={9}
-                                strokeWidth={compareProfileNames.has(profile) ? 2.5 : 2}
-                              />
-                            </button>
-                          )}
-                        </span>
-                      ))}
+                      <label className="inline-flex items-center gap-2 px-2 text-[12px] font-medium whitespace-nowrap">
+                        <span style={{ color: 'var(--riscv-text-2)' }}>Highlight Profile</span>
+                        <select
+                          aria-label="Highlight Profile"
+                          value={activeProfile ?? ''}
+                          onChange={(event) => {
+                            const profile = event.target.value || null;
+                            // Profile and volume are mutually exclusive. With both
+                            // live, highlight matched either one while dimming followed
+                            // only the volume, so the grid gave no clue which filter acted.
+                            setActiveProfile(profile);
+                            setActiveVolume(null);
+                            setSelectedInstruction(null);
+                            setSearchMatches(null);
+                          }}
+                          title="Highlight a profile without changing your ISA configuration"
+                          className="riscv-profile-select rounded-lg border border-slate-500/40 px-2 py-1.5 text-[12px] font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400/60"
+                          style={{ color: 'var(--riscv-text)' }}
+                        >
+                          <option value="">None</option>
+                          {Object.keys(profiles).map((profile) => (
+                            <option key={profile} value={profile}>
+                              {profile}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+
+                      {/* Selecting then pinning lets Compare retain multiple profiles
+                          without expanding the dropdown back into one button per item. */}
+                      {compareMode && activeProfile && (
+                        <button
+                          type="button"
+                          onClick={() => toggleCompareProfile(activeProfile)}
+                          aria-pressed={compareProfileNames.has(activeProfile)}
+                          className="riscv-pin-btn px-1.5 py-1 rounded-md border text-[11px] inline-flex items-center justify-center transition-all"
+                          title={
+                            compareProfileNames.has(activeProfile)
+                              ? `Remove ${activeProfile} from comparison`
+                              : `Pin ${activeProfile} to comparison`
+                          }
+                        >
+                          <GitCompare
+                            size={11}
+                            strokeWidth={compareProfileNames.has(activeProfile) ? 2.5 : 2}
+                          />
+                        </button>
+                      )}
                     </div>
 
                     {/* Vertical Divider */}
@@ -2859,7 +2848,7 @@ const RISCVExplorer = () => {
                             <button
                               type="button"
                               onClick={() => setProfileMenuOpen((v) => !v)}
-                              data-tooltip="Start the configuration from a ratified profile"
+                              data-tooltip="Start the configuration from a supported profile"
                               className={`builder-action-indigo w-full flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-semibold transition-all duration-300 rounded-lg ${
                                 profileMenuOpen
                                   ? 'bg-indigo-500 text-white shadow-inner'
@@ -2899,7 +2888,7 @@ const RISCVExplorer = () => {
                                     fontWeight: 700,
                                   }}
                                 >
-                                  Start from a ratified profile
+                                  Start from a supported profile
                                 </div>
 
                                 {Object.entries(profiles).map(([name, list]) => (
