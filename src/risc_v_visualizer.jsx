@@ -2648,11 +2648,15 @@ const RISCVExplorer = () => {
                     ref={encoderTriggerRef}
                     aria-haspopup="dialog"
                     aria-expanded={encoderValidatorOpen}
+                    aria-label="Encoder Validator"
                     className="riscv-tool-btn group inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 whitespace-nowrap border"
                     data-tooltip="Validate a proposed instruction encoding against the existing instruction set"
                   >
                     <ScanSearch size={14} className="opacity-80" />
-                    <span className="whitespace-nowrap">Encoder Validator</span>
+                    <span className="riscv-toolbar-label-full whitespace-nowrap">
+                      Encoder Validator
+                    </span>
+                    <span className="riscv-toolbar-label-compact whitespace-nowrap">Validate</span>
                   </button>
 
                   {/* Beside the validator because they answer neighbouring
@@ -2663,6 +2667,7 @@ const RISCVExplorer = () => {
                     onClick={() => setEncodingMapOpen(true)}
                     aria-haspopup="dialog"
                     aria-expanded={encodingMapOpen}
+                    aria-label="Encoding Map"
                     className="riscv-tool-btn group inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 whitespace-nowrap border"
                     // Colour, border and hover all come from .riscv-tool-btn.
                     // Deliberately no inline style: an inline `color` outranks
@@ -2673,7 +2678,8 @@ const RISCVExplorer = () => {
                     data-tooltip="See how the 32-bit opcode space is allocated"
                   >
                     <Grid3x3 size={14} className="opacity-80" />
-                    <span className="whitespace-nowrap">Encoding Map</span>
+                    <span className="riscv-toolbar-label-full whitespace-nowrap">Encoding Map</span>
+                    <span className="riscv-toolbar-label-compact whitespace-nowrap">Map</span>
                   </button>
 
                   {/* Custom Extension Sandbox — interactive design in custom-0..3 space */}
@@ -2682,11 +2688,15 @@ const RISCVExplorer = () => {
                     onClick={() => setSandboxOpen(true)}
                     aria-haspopup="dialog"
                     aria-expanded={sandboxOpen}
+                    aria-label="Extension Sandbox"
                     className="group inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-300 whitespace-nowrap border text-blue-500 bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20 hover:border-blue-500/50 shadow-xs"
                     data-tooltip="A safe sandbox to design, test, and validate your own custom RISC-V extensions and instructions"
                   >
                     <FlaskConical size={14} className="opacity-80" />
-                    <span className="whitespace-nowrap">Extension Sandbox</span>
+                    <span className="riscv-toolbar-label-full whitespace-nowrap">
+                      Extension Sandbox
+                    </span>
+                    <span className="riscv-toolbar-label-compact whitespace-nowrap">Sandbox</span>
                   </button>
 
                   {/* Theme toggle relocated to header */}
@@ -2766,10 +2776,12 @@ const RISCVExplorer = () => {
                         }
                       >
                         <Cpu size={14} className="opacity-80 shrink-0" />
-                        <span className="whitespace-nowrap hidden sm:inline">
+                        <span className="riscv-builder-label-full whitespace-nowrap hidden sm:inline">
                           ISA Configuration Builder
                         </span>
-                        <span className="whitespace-nowrap sm:hidden">ISA Builder</span>
+                        <span className="riscv-builder-label-compact whitespace-nowrap sm:hidden">
+                          ISA Builder
+                        </span>
                         <span
                           className="mode-toggle-status"
                           data-checked={String(builderMode)}
