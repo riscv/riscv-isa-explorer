@@ -2377,7 +2377,7 @@ const RISCVExplorer = () => {
   const activeVolumeCount = React.useMemo(
     () =>
       activeVolume
-        ? allExtsList.filter((ext) => volumeMembership.get(ext.id) === activeVolume).length
+        ? allExtsList.filter((ext) => volumeMembership[activeVolume]?.has(ext.id)).length
         : 0,
     [activeVolume, allExtsList, volumeMembership],
   );
