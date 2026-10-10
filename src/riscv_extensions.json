@@ -6379,7 +6379,7 @@
       "desc": "Packed fixed-point SIMD arithmetic in the integer registers, aimed at DSP kernels on cores with no vector unit.",
       "use": "Packed SIMD / DSP-style operations",
       "discontinued": 0,
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/main/src/unpriv/zp.adoc",
       "instructions": {}
     },
     {
@@ -79822,7 +79822,7 @@
       "tags": [],
       "desc": "Holds memory-tagging tags in a virtually indexed table, with supervisor CSRs giving that table's base address.",
       "use": "Address-tagged translation behavior",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-memory-tagging/blob/main/src/mte_tag.adoc",
       "instructions": {}
     },
     {
@@ -80058,7 +80058,7 @@
       "tags": [],
       "desc": "Holds M-mode memory-tagging tags in a virtually indexed table located by the new mvitt base register.",
       "use": "Machine-level virtual-address tagging",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-memory-tagging/blob/main/src/mte_tag.adoc",
       "instructions": {}
     },
     {
