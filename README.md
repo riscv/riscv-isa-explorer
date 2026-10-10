@@ -24,9 +24,9 @@ get a dependency-resolved configuration with a valid `-march` string.
 - **Export** a `-march` string, a YAML configuration, or a `riscv-config`
   compatible file.
 - **Compare entries.** Pin extensions, instructions or profiles and read them
-  side by side; a comparison has its own URL and can be shared. **Compare
-  profiles** opens a profile comparison directly, marking each extension as
-  mandatory, optional or implied by a mandatory one.
+  side by side; a comparison has its own URL and can be shared. With Compare
+  switched on, **Compare profiles** opens a profile comparison directly,
+  grouping extensions under Mandatory, Implied and Optional (or A–Z).
 - **Download a profile.** While a profile is highlighted, download its
   extensions (mandatory, implied and optional, with status and spec links) as
   YAML, JSON, CSV or Excel.

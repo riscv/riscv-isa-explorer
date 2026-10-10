@@ -12,7 +12,7 @@
  */
 import React from 'react';
 import { X, Copy, Link2, GitCompare } from 'lucide-react';
-import { toMarkdown } from './compareModel.js';
+import { toMarkdown, visibleRows, comparedRows } from './compareModel.js';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import EncodingDiagram from './EncodingDiagram.jsx';
 
@@ -142,6 +142,8 @@ export default function CompareView({
   onToggleExpandDeps,
   profileOptions,
   onToggleProfile,
+  grouped,
+  onToggleGrouped,
 }) {
   const [differencesOnly, setDifferencesOnly] = React.useState(false);
   const dialogRef = React.useRef(null);
@@ -195,8 +197,9 @@ export default function CompareView({
   const pickedProfiles = new Set(model.kind === 'profile' ? model.columns.map((c) => c.key) : []);
 
   // Agreement is context, difference is the signal.
-  const rows = differencesOnly ? model.rows.filter((r) => !r.allSame) : model.rows;
-  const differing = model.rows.filter((r) => !r.allSame).length;
+  const rows = visibleRows(model, { differencesOnly });
+  const compared = comparedRows(model);
+  const differing = compared.filter((r) => !r.allSame).length;
   const heading =
     model.kind === 'instr'
       ? 'Instruction Comparison'
@@ -254,7 +257,7 @@ export default function CompareView({
                   border: `1px solid ${differing > 0 ? 'rgba(139, 124, 248, 0.3)' : 'var(--riscv-border-2)'}`,
                 }}
               >
-                <strong>{differing}</strong> of {model.rows.length} {model.kind === 'profile' ? 'rows' : 'attributes'} differ
+                <strong>{differing}</strong> of {compared.length} {model.kind === 'profile' ? 'rows' : 'attributes'} differ
               </span>
 
               {model.kind === 'profile' && (
@@ -280,6 +283,24 @@ export default function CompareView({
                 </span>
                 <span>Differences only</span>
               </button>
+
+              {/* Profile row order: grouped by requirement, or plain A-Z */}
+              {model.kind === 'profile' && onToggleGrouped && (
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={Boolean(grouped)}
+                  onClick={() => onToggleGrouped(!grouped)}
+                  className="inline-flex items-center gap-2 text-[12px] font-medium cursor-pointer select-none"
+                  style={{ color: 'var(--riscv-text-2)' }}
+                  title="Group extensions under Mandatory, Implied and Optional; off sorts them alphabetically"
+                >
+                  <span className="riscv-switch" data-checked={Boolean(grouped)}>
+                    <span className="riscv-switch-thumb" />
+                  </span>
+                  <span>Group by requirement</span>
+                </button>
+              )}
 
               {/* Profile Implied Extensions Switch */}
               {model.kind === 'profile' && (
@@ -403,23 +424,33 @@ export default function CompareView({
                 </div>
               ))}
 
-              {rows.map((row) => (
-                <React.Fragment key={row.key}>
-                  <div
-                    className={`compare-attr compare-cell ${row.allSame ? 'compare-same' : 'compare-diff'}`}
-                  >
-                    {row.label}
+              {rows.map((row) =>
+                row.render === 'section' ? (
+                  // One full-width band rather than a row of cells: a heading
+                  // has nothing to say per profile.
+                  <div key={row.key} className="compare-section" role="heading" aria-level={3}>
+                    <span>
+                      {row.label} <span className="compare-section-count">({row.count})</span>
+                    </span>
                   </div>
-                  {row.cells.map((value, i) => (
+                ) : (
+                  <React.Fragment key={row.key}>
                     <div
-                      key={`${row.key}-${model.columns[i].key}`}
-                      className={`compare-cell ${row.allSame ? 'compare-same' : 'compare-diff'}`}
+                      className={`compare-attr compare-cell ${row.allSame ? 'compare-same' : 'compare-diff'}`}
                     >
-                      <Cell row={row} value={value} bitDiff={model.bitDiff} />
+                      {row.label}
                     </div>
-                  ))}
-                </React.Fragment>
-              ))}
+                    {row.cells.map((value, i) => (
+                      <div
+                        key={`${row.key}-${model.columns[i].key}`}
+                        className={`compare-cell ${row.allSame ? 'compare-same' : 'compare-diff'}`}
+                      >
+                        <Cell row={row} value={value} bitDiff={model.bitDiff} />
+                      </div>
+                    ))}
+                  </React.Fragment>
+                ),
+              )}
             </div>
 
             {model.columns.length === 0 && (

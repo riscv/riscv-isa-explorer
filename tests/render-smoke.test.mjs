@@ -380,6 +380,11 @@ test('with compare mode off, no pin of any kind is reachable', async () => {
     [],
     'no instruction or profile pin may be reachable while compare mode is off',
   );
+  assert.equal(
+    doc.querySelector('button[aria-label="Open the side-by-side profile comparison"]'),
+    null,
+    'Compare profiles belongs to compare mode and must be hidden while it is off',
+  );
 
   assert.deepEqual(realErrors(errors), [], 'console errors with compare mode off');
 });
