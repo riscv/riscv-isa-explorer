@@ -1585,7 +1585,7 @@ pre,
   backdrop-filter: blur(8px);
 
   /* backdrop-filter creates a stacking context, which traps every z-index
-     inside this toolbar. The builder's "Start from a ratified profile" menu
+     inside this toolbar. The builder's "Start from a supported profile" menu
      asks for z-index 50, but confined to a context that is itself z-auto and
      earlier in the DOM than the detail panel, so the panel painted over the
      open menu. Raising the whole toolbar fixes every popup it contains at
@@ -1597,6 +1597,20 @@ pre,
 
 .riscv-toolbar-label-compact {
   display: none;
+}
+
+.riscv-profile-select {
+  color-scheme: dark;
+  background: var(--riscv-plate);
+}
+
+.riscv-profile-select option {
+  color: var(--riscv-text);
+  background: var(--riscv-plate);
+}
+
+:root[data-theme='light'] .riscv-profile-select {
+  color-scheme: light;
 }
 
 /* Keep the header stable when Compare adds pin controls to every profile. On
@@ -1636,6 +1650,11 @@ pre,
   .riscv-toolbar .riscv-toolbar-label-compact,
   .riscv-toolbar .riscv-builder-label-compact {
     display: inline;
+  }
+
+  .riscv-toolbar .riscv-toolbar-label-compact {
+    line-height: 1.05;
+    text-align: center;
   }
 
   .riscv-toolbar-actions > button,
@@ -1751,7 +1770,7 @@ pre,
   white-space: nowrap;
 }
 
-/* Pin buttons — the compare affordance on instruction chips, profile buttons
+/* Pin buttons — the compare affordance on instruction chips, the profile dropdown,
    and tray chips.
    State lives here rather than in an inline style on purpose: these carried
    their pinned/unpinned colours inline, and an inline declaration outranks a

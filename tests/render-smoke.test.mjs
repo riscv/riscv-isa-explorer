@@ -458,19 +458,61 @@ test('the header is an identity row plus one full-width toolbar', () => {
   assert.ok(toolbar, 'no header toolbar');
   assert.equal(toolbar.children.length, 2, 'toolbar should hold a filters group and an actions group');
 
-  const [filters, actions] = [...toolbar.children].map((g) =>
+  const [, actions] = [...toolbar.children].map((g) =>
     [...g.querySelectorAll('button')].map((b) => b.textContent.trim()),
   );
-  for (const profile of ['RVA20', 'RVA22', 'RVA23', 'RVB23']) {
-    assert.ok(filters.some((t) => t === profile), `${profile} missing from the filters group`);
+  const profileSelect = toolbar.querySelector('select[aria-label="Highlight Profile"]');
+  assert.ok(profileSelect, 'profile highlighting should be a named dropdown');
+  const profileOptions = [...profileSelect.options].map((option) => option.textContent.trim());
+  assert.equal(profileOptions[0], 'None', 'the profile dropdown needs a way to clear the filter');
+  for (const profile of ['RVA20', 'RVA22', 'RVA23', 'RVB23', 'RVA23.1', 'RVB23.1']) {
+    assert.ok(profileOptions.includes(profile), `${profile} missing from the profile dropdown`);
   }
-  for (const action of ['Encoder Validator', 'Encoding Map']) {
+  for (const action of ['Encoding Validator', 'Encoding Map']) {
     assert.ok(actions.some((t) => t.startsWith(action)), `${action} missing from the actions group`);
   }
+  const encodingMapButton = toolbar.querySelector('button[aria-label="Encoding Map"]');
+  const compactEncodingMapWords = [
+    ...encodingMapButton.querySelector('.riscv-toolbar-label-compact').childNodes,
+  ]
+    .map((node) => node.textContent.trim())
+    .filter(Boolean);
+  assert.deepEqual(
+    compactEncodingMapWords,
+    ['Encoding', 'Map'],
+    'the responsive label must not restore the old Encoding Mapping copy',
+  );
   assert.ok(
     actions.some((t) => t.startsWith('Compare')),
     'the Compare mode toggle should live in the actions group',
   );
+});
+
+test('the profile dropdown highlights a 23.1 profile and preserves its compare action', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/');
+  const doc = d.window.document;
+  const select = doc.querySelector('select[aria-label="Highlight Profile"]');
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 50));
+
+  select.value = 'RVA23.1';
+  select.dispatchEvent(new d.window.Event('change', { bubbles: true }));
+  await tick();
+  assert.ok(doc.body.textContent.includes('Highlighting RVA23.1'));
+
+  doc
+    .querySelector('.compare-mode-toggle')
+    .dispatchEvent(new d.window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await tick();
+  assert.ok(
+    doc.querySelector('button[title="Pin RVA23.1 to comparison"]'),
+    'the selected profile should remain pinnable in Compare mode',
+  );
+
+  select.value = '';
+  select.dispatchEvent(new d.window.Event('change', { bubbles: true }));
+  await tick();
+  assert.ok(!doc.body.textContent.includes('Highlighting RVA23.1'));
+  assert.deepEqual(realErrors(errors), [], 'console errors while using the profile dropdown');
 });
 
 test('the page declares itself a tech preview and offers somewhere to report', () => {

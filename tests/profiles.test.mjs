@@ -5,7 +5,7 @@
  * string a real toolchain accepts.
  *
  * That last step is the one that mattered. While `profiles` was a local const
- * inside the React component, nothing could check it — and all four profiles
+ * inside the React component, nothing could check it — and every initial profile
  * generated a string clang rejects, because each mandates Sv39 and `sv39` is a
  * satp translation mode rather than an -march token. The clang check itself
  * lives in CI (scripts/emit-march-matrix.mjs); these tests cover everything
@@ -36,7 +36,7 @@ const CATALOG_IDS = new Set(ALL.map((e) => e.id));
 const entries = Object.entries(PROFILES);
 
 test('there are profiles to start from', () => {
-  assert.ok(entries.length >= 4, `expected the ratified profiles, got ${entries.length}`);
+  assert.ok(entries.length >= 8, `expected the supported profiles, got ${entries.length}`);
 });
 
 test('every profile has complete, XLEN-consistent display metadata', () => {
@@ -161,4 +161,11 @@ test('RVI20 offers its options, and only ones that fit its XLEN', () => {
   assert.ok(optional.RVI20U32.includes('Zcf'), 'RV32 gets Zcf');
   assert.ok(!optional.RVI20U64.includes('Zcf'), 'RV64 must not');
   assert.ok(optional.RVI20U64.includes('Zcd'), 'Zcd is defined for both XLENs');
+});
+
+test('the 23.1 minor profiles retain their parent mandatory floors', () => {
+  assert.deepEqual(PROFILES['RVA23.1'], PROFILES.RVA23);
+  assert.deepEqual(PROFILES['RVB23.1'], PROFILES.RVB23);
+  assert.notEqual(PROFILES['RVA23.1'], PROFILES.RVA23, 'profile arrays must not alias');
+  assert.notEqual(PROFILES['RVB23.1'], PROFILES.RVB23, 'profile arrays must not alias');
 });

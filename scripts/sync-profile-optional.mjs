@@ -58,6 +58,26 @@ const PROFILE_PAIRS = {
 };
 
 /*
+ * The 23.1 profiles are frozen v0.7.1 documents under public review in
+ * riscv-isa-manual PR #3298, but are not in UDB yet. They inherit every option
+ * from their parent profile and add this common supervisor-mode delta. Keep the
+ * override here so a routine UDB sync cannot silently delete the review-stage
+ * profiles from profile-optional.json.
+ * https://github.com/riscv/riscv-isa-manual/pull/3298
+ */
+const MANUAL_MINOR_PROFILES = {
+  'RVA23.1': { parent: 'RVA23' },
+  'RVB23.1': { parent: 'RVB23' },
+};
+const PROFILE_23_1_OPTIONS = [
+  'Ssccfg',
+  'Ssctr',
+  'Ssdbltrp',
+  'Ssqosid',
+  'Svrsw60t59b',
+];
+
+/*
  * Extensions that exist for one XLEN only, and the XLEN they belong to.
  *
  * UDB's RVI20U64 inherits RVI20U32 wholesale with no `$remove`, so Zcf — the
@@ -202,6 +222,12 @@ for (const [family, [u, s]] of Object.entries(PROFILE_PAIRS)) {
   optionalByFamily[family] = optional;
   mandatoryByFamily[family] = [...mandatory].sort();
   void merged;
+}
+
+for (const [family, { parent }] of Object.entries(MANUAL_MINOR_PROFILES)) {
+  optionalByFamily[family] = [
+    ...new Set([...(optionalByFamily[parent] || []), ...PROFILE_23_1_OPTIONS]),
+  ].sort();
 }
 
 let failed = false;

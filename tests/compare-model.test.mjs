@@ -470,6 +470,14 @@ test('a profile comparison round-trips through the permalink', () => {
   assert.deepEqual(parsed.dropped, []);
 });
 
+test('minor profile names with dots round-trip through the permalink', () => {
+  const encoded = buildComparePermalink('profile', ['RVA23.1', 'RVB23.1']);
+  assert.equal(encoded, 'p:RVA23.1,RVB23.1');
+  const parsed = parseComparePermalink(encoded, allExts);
+  assert.deepEqual(parsed.resolved, ['RVA23.1', 'RVB23.1']);
+  assert.deepEqual(parsed.dropped, []);
+});
+
 test('profile names resolve case-insensitively and unknown ones are dropped', () => {
   const parsed = parseComparePermalink('p:rva22,NOPE,RVB23', allExts);
   assert.deepEqual(parsed.resolved, ['RVA22', 'RVB23']);

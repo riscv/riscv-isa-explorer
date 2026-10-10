@@ -1,9 +1,9 @@
 /**
- * profiles.js — ratified RISC-V profile definitions.
+ * profiles.js — RISC-V profile definitions.
  *
  * Extracted from risc_v_visualizer.jsx so that scripts and tests can reach it.
  * While it was a local const inside the component, nothing outside the UI could
- * validate it — which is how all four profiles came to generate a -march string
+ * validate it — which is how every initial profile came to generate a -march string
  * clang rejects (they mandate Sv39, and `sv39` is a satp translation mode rather
  * than an -march token). scripts/emit-march-matrix.mjs now emits a string per
  * profile so CI checks them against a real toolchain on every commit.
@@ -14,14 +14,17 @@
  *
  * For the A and B families an entry is the profile's U64+S64 pair merged, so
  * "RVA23" means RVA23U64 plus RVA23S64. RVI20 has no supervisor half, so its
- * two profiles appear under their own names.
+ * two profiles appear under their own names. The 23.1 minor profiles are
+ * supervisor-only add-ons to their 23 parents. They therefore share the
+ * parent's mandatory floor; their new optional extensions live in
+ * profile-optional.json.
  */
 
 // ---------------------------------------------------------------------------
 // Profile Definitions – RVI20 (unprivileged), and the mandatory U64+S64 sets
 // for RVA20/22/23 and RVB23
 // ---------------------------------------------------------------------------
-export const PROFILES = {
+const BASE_PROFILES = {
   /*
    * RVI20U32 / RVI20U64 — the unprivileged profiles, and the floor of the
    * whole scheme: "the minimum level of compatibility with RISC-V ratified
@@ -226,6 +229,24 @@ export const PROFILES = {
   ],
 };
 
+export const PROFILES = {
+  RVI20U32: BASE_PROFILES.RVI20U32,
+  RVI20U64: BASE_PROFILES.RVI20U64,
+  RVA20: BASE_PROFILES.RVA20,
+  RVA22: BASE_PROFILES.RVA22,
+  RVA23: BASE_PROFILES.RVA23,
+
+  // Frozen v0.7.1 minor profile under public review. It requires RVA23S64 and
+  // adds options, not mandates. Source:
+  // https://github.com/riscv/riscv-isa-manual/pull/3298
+  'RVA23.1': [...BASE_PROFILES.RVA23],
+
+  RVB23: BASE_PROFILES.RVB23,
+
+  // Same minor-release model as RVA23.1, layered on RVB23S64.
+  'RVB23.1': [...BASE_PROFILES.RVB23],
+};
+
 /**
  * Human-facing profile facts used by every profile picker.
  *
@@ -264,5 +285,15 @@ export const PROFILE_METADATA = {
     xlen: 64,
     scope: 'Application',
     description: '2023 64-bit application profile with bit manipulation',
+  },
+  'RVA23.1': {
+    xlen: 64,
+    scope: 'Application',
+    description: 'Frozen 2023.1 supervisor profile add-on under public review',
+  },
+  'RVB23.1': {
+    xlen: 64,
+    scope: 'Application',
+    description: 'Frozen 2023.1 supervisor profile add-on under public review',
   },
 };

@@ -69,7 +69,7 @@ are changing:
 |---|---|---|
 | `src/riscv_extensions.json` | the extension catalogue and instruction encodings | `npm run sync` (riscv-opcodes), `npm run sync:udb` (metadata) |
 | `src/isa-dependency-graph.json` | dependencies, conflicts and parameters, with a citation on every edge | `node scripts/seed-dependency-graph.mjs --udb <path>` |
-| `src/profiles.js` | the ratified profiles | by hand, from the specification |
+| `src/profiles.js` | supported profiles | by hand, from the specification |
 
 `riscv-unified-db` is the normative source for dependencies. clang is the check
 that our output is usable in practice. `riscv-config`, RISC-V International's own
