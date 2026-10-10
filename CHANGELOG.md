@@ -13,26 +13,47 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-10-10
+
+Catalogue: 211 entries, unchanged from 1.6.0. No saved selection or `-march`
+string is invalidated by this release.
+
 ### Added
 
 - **Download a highlighted profile's extensions** as YAML, JSON, CSV or Excel
   (`.xlsx`). Each row says whether the extension is mandatory, implied by a
   mandatory one (and by which), or optional, with its status, version,
   ratification date, group and specification link. The `.xlsx` is written
-  without a new dependency.
+  without a new dependency (#394).
 - **Compare profiles** button beside the Highlight Profile picker, shown while
   Compare is on, opening the profile comparison directly with a picker for
-  which profiles to include.
+  which profiles to include (#394, #395).
 - Profile comparisons group extensions under **Mandatory, Implied and
   Optional** by default, each under the strongest requirement any compared
-  profile gives it; a switch returns to plain alphabetical order.
+  profile gives it; a switch returns to plain alphabetical order (#395).
+- **A static page for every extension** at `ext/<id>/`, plus `sitemap.xml`
+  and structured data, generated from the catalogue on every build. Search
+  engines and AI crawlers that do not run JavaScript can now read what each
+  extension is, its status, dependencies, instructions and CSRs (#392). The
+  crawler index this adds to the app page is hidden from browsers that run
+  JavaScript (#393).
+- A Contributors section in `CONTRIBUTING.md` (#365).
 
 ### Changed
 
+- The public URL is `https://tech.riscv.org/isa-explorer/`. Canonical and
+  Open Graph URLs, the README and `package.json` now say so;
+  `riscv.github.io/riscv-isa-explorer/` keeps working (#390).
 - Profile comparison cells now read Mandatory, Optional or (with "Include
   implied") Implied, instead of present/absent over the mandatory list only.
   Optional extensions are part of the comparison, and columns follow profile
-  order rather than the order they were picked.
+  order rather than the order they were picked (#394).
+
+### Removed
+
+- `Dockerfile`, `docker-compose.yml`, the `gh-pages` package and the
+  `deploy` script. CI publishes every push to `main`; none of these were used
+  (#391).
 
 ## [1.6.0] - 2026-10-10
 

@@ -1,6 +1,6 @@
 {
   "name": "riscv-isa-explorer",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Interactive reference for RISC-V extensions, profiles and per-instruction encodings",
   "homepage": "https://tech.riscv.org/isa-explorer/",
   "scripts": {
