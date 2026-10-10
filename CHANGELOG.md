@@ -13,27 +13,65 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
-Catalogue: 211 entries, down from 219. Removed unsupported prefix and placeholder
-records; `Zimt` remains with its cited development specification. No fabricated
-ratification dates or extension versions were added.
+## [1.6.0] - 2026-10-10
+
+Catalogue: 211 entries, down from 219. Removed 12: the five vector naming
+prefixes `Zv`, `Zve`, `Zvf`, `Zvk` and `Zvw`; six names no specification defines,
+`Smrnpt`, `Smrntt`, `Ssvxscr`, `Zilsme`, `Zilsmea` and `Zilsp`; and the misspelled
+`Smdid`. Added 4 from riscv-unified-db: `Shlcofideleg`, `Smpmpdeleg`, `Sspmp` and
+`Sspmpen`. **A saved selection or `-march` string naming one of the removed
+entries no longer resolves**; none of them was a real extension, so no compiler
+accepted those strings either.
 
 ### Added
 
-- Source-backed instruction names, descriptions, ownership predicates, and
-  commit-pinned UDB links for 1,210 catalogue mnemonics. The 20 mnemonics with
-  no UDB record remain explicitly without a sourced description.
-- Clickable CSR chips with RV32/RV64 field views, access and reset values, source
-  conditions, and a list of catalogue extensions that include the CSR.
-- Catalogue tile status, version, and ratification-date summaries.
-- Ratification metadata and current specification links for RERI and HTI.
+- **Custom Extension Sandbox** (#295): draft a custom extension or a proposed
+  addition to a standard one, place its instructions in legal opcode space, and
+  check them for conflicts against every catalogued encoding. A user guide is in
+  `docs/sandbox.md` (#318)
+- **RVA23.1 and RVB23.1 profiles** (#382), the frozen add-ons from
+  riscv/riscv-isa-manual#3298. Each inherits its parent's mandatory and optional sets
+  and adds the five 23.1 options. Profile highlighting is now a single dropdown
+- **CSR details** (#320, #374): CSR chips open a view of each register's fields
+  for RV32 and RV64, with access and reset values, the conditions a field depends
+  on, and which catalogued extensions include the register
+- **Sourced instruction descriptions** (#374, #375) for 1,210 mnemonics, from
+  riscv-unified-db with commit-pinned links. The 20 mnemonics UDB has no record
+  for are shown without a description rather than given an invented one
+- Extension tiles show status, version and ratification date, and say so when a
+  value is unknown (#374)
+- A test that fails if any removed name returns to the catalogue or the
+  dependency graph (#388)
 
 ### Changed
 
-- Removed the five selectable vector naming-prefix records, the unsupported
-  placeholder extensions, and the misleading `Smdid` record. `Zvw` can no
-  longer appear in generated ISA strings.
-- Corrected 426 CSR addresses to canonical hexadecimal during UDB sync and now
-  preserve field `definedBy` conditions and distinguish dynamic values.
+- The Ask AI assistant is switched off, behind a build-time flag in
+  `feature-flags.cjs` (#364)
+- Zibi moves from System to Integer, next to Zicond (#386)
+- Compare and the ISA Configuration Builder share one explicit on/off switch
+  style (#378)
+- Desktop toolbar stays on one row, its labels stay visible at laptop widths, and
+  "Encoding Mapping" is now "Encoding Map" (#379, #380, #381, #383)
+- Accessibility: keyboard-reachable tile controls, focus trapping and restoration
+  in every modal, landmark and heading semantics, and mobile layout fixes (#372)
+- Data checks are stricter: UDB completeness fails on missing extensions or
+  instructions and on encoding mismatches; match/mask are derived and checked for
+  every encoding; and every ratified selection is compiled with modern Clang
+  (#370)
+- 426 CSR addresses normalised to canonical hexadecimal during UDB sync (#374)
+- Weekly riscv-unified-db syncs (#319, #322–#324, #327, #363, #366, #368)
+- Dependencies: React 19, Tailwind CSS 4, and Babel 8 with the classic JSX
+  runtime pinned (#358, #359, #360), plus routine Renovate updates
+
+### Fixed
+
+- A white page when selecting Volume I or II (#384)
+- Closing the details panel no longer reopens it from a lingering search (#376)
+- Instruction descriptions no longer show raw AsciiDoc markup (#375)
+- Hex parsing no longer corrupts BigInt input such as `0x33n` (#344)
+- YAML export sorts unrecognised single-letter extensions after recognised ones
+  (#338)
+- The UDB completeness parser handles CRLF line endings (#316)
 
 ## [1.5.0] - 2026-09-05
 
