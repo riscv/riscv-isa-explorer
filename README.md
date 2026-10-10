@@ -56,12 +56,6 @@ python3 -m http.server 8080 -d dist
 
 Then open `http://localhost:8080`.
 
-Docker, if you prefer:
-
-```bash
-docker compose up --build
-```
-
 ## Where the data comes from
 
 Four files carry the data, and they do not have the same authority. Worth
@@ -228,12 +222,8 @@ to regenerate: sync the catalogue and the map follows.
 
 ## Deployment
 
-Pushes to `main` build and publish to the `gh-pages` branch automatically. To
-publish by hand:
-
-```bash
-npm run deploy
-```
+Every push to `main` is built by CI and published to the `gh-pages` branch,
+which GitHub Pages serves. Nothing is published by hand.
 
 ## Contributing
 

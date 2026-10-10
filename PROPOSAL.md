@@ -90,7 +90,7 @@ and anyone who needs to navigate the RISC-V ISA quickly and accurately.
                   ┌───────────────┐
                   │  dist/        │   Static site
                   │  bundle.js    │   (GitHub Pages
-                  │  index.html   │    or Docker/Nginx)
+                  │  index.html   │    via gh-pages)
                   └───────────────┘
 ```
 
@@ -376,29 +376,14 @@ appropriate label and color.
 | Transpiler | Babel | JSX to JavaScript |
 | CSS processing | PostCSS + Autoprefixer | Tailwind compilation and vendor prefixes |
 | Deployment | GitHub Pages (gh-pages) | Static site hosting |
-| Containerization | Docker + Nginx | Alternative deployment via container |
 | Data sync | Node.js (ES modules) | Instruction data merge script |
 
 ## 9. Deployment
 
-### GitHub Pages (primary)
+### GitHub Pages
 
-```bash
-npm run deploy
-```
-
-This runs `npm run build` (producing `dist/`), then publishes to the `gh-pages`
-branch. The site is available at:
-`https://riscv.github.io/riscv-isa-explorer/`
-
-### Docker (alternative)
-
-```bash
-docker compose up --build
-```
-
-This uses a multi-stage Dockerfile: Node.js 18 for the build stage, then copies
-`dist/` into an Nginx image for serving. Available at `http://localhost:8080`.
+CI builds every push to `main` and publishes `dist/` to the `gh-pages` branch.
+The site is available at `https://tech.riscv.org/isa-explorer/`.
 
 ### Local development
 
@@ -432,7 +417,7 @@ When the RISC-V ISA manual or `riscv-opcodes` is updated:
    mnemonic assignments.
 4. Run `node scripts/sync_instructions.mjs` to merge changes.
 5. Run `npm run build` and verify.
-6. Deploy with `npm run deploy`.
+6. Merge to `main`; CI publishes the site.
 
 ### Validating new encodings
 

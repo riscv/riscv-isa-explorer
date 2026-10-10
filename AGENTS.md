@@ -47,7 +47,6 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
 | `npm run opcodes:check -- <path-to-riscv-opcodes>` | Report instruction-encoding drift |
 | `npm run udb:check -- <path-to-udb>` | Report ratified extensions/instructions we lack |
-| `npm run deploy` | Manual publish of `dist/` to `gh-pages` (normally automatic) |
 
 There is no separate typecheck (no TypeScript).
 
