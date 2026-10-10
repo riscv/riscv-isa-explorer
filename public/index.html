@@ -26,6 +26,14 @@
   <!-- Matches the two theme grounds, so mobile browser chrome does not clash. -->
   <meta name="theme-color" content="#14141e" media="(prefers-color-scheme: dark)">
   <meta name="theme-color" content="#f7f5fb" media="(prefers-color-scheme: light)">
+
+  <!-- The linked extension index inside #root is for crawlers that do not run
+       JavaScript. A browser that does run it would otherwise show that list
+       until the bundle loads and React replaces it, so mark the document as
+       script-capable before first paint and hide the index there. Crawlers
+       that read the raw HTML still get every link. -->
+  <script>document.documentElement.classList.add('js');</script>
+  <style>.js .static-index{display:none}</style>
   <!-- Favicon: the official RISC-V mark, taken from the logo served by
        docs.riscv.org and cropped to its square leading glyph. The full
        wordmark is 6.3:1 and turns to mush below 128px; the mark alone stays
