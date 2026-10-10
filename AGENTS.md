@@ -215,12 +215,6 @@ Then `npm run sync` and `npm test && npm run build`.
 - **Every commit must be signed off** (`git commit -s`, DCO 1.1). CI enforces it
   (`.github/workflows/dco.yml`). Fix a whole branch with
   `git rebase --signoff origin/main` then force-push with `--force-with-lease`.
-- **Releasing the MCP server** is separate from site releases: bump
-  `mcp/package.json` `version`, merge, then push a signed `mcp-vX.Y.Z` tag.
-  `.github/workflows/publish-mcp.yml` checks the tag matches the version,
-  tests, and publishes `@riscv/isa-explorer-mcp` with provenance through npm
-  trusted publishing (no token). Publish a new version whenever a site
-  release changes the catalogue, so `npx` users get the new data.
 - Before a PR: `npm test && npm run build` (both must pass — see the PR template
   checklist).
 - CI (`.github/workflows/ci.yml`) runs install → build → test → feeds every

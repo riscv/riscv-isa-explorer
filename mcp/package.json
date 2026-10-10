@@ -1,5 +1,5 @@
 {
-  "name": "@riscv/isa-explorer-mcp",
+  "name": "riscv-isa-explorer-mcp",
   "version": "0.1.0",
   "description": "MCP server for the RISC-V ISA Explorer: extensions, dependencies, -march strings, profiles and instruction encodings for LLM clients",
   "type": "module",
@@ -34,9 +34,6 @@
   },
   "bugs": "https://github.com/riscv/riscv-isa-explorer/issues",
   "license": "Apache-2.0",
-  "publishConfig": {
-    "access": "public"
-  },
   "engines": {
     "node": ">=22.12"
   },

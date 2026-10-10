@@ -35,19 +35,19 @@ calls, and every tool is read-only.
 
 ## Setup
 
-Each client starts the server with `npx -y @riscv/isa-explorer-mcp`. The name
+Each client starts the server with `npx -y riscv-isa-explorer-mcp`. The name
 `riscv-isa` below is only the label the client shows.
 
 **Claude Code**
 
 ```bash
-claude mcp add riscv-isa -- npx -y @riscv/isa-explorer-mcp
+claude mcp add riscv-isa -- npx -y riscv-isa-explorer-mcp
 ```
 
 **Codex CLI**
 
 ```bash
-codex mcp add riscv-isa -- npx -y @riscv/isa-explorer-mcp
+codex mcp add riscv-isa -- npx -y riscv-isa-explorer-mcp
 ```
 
 or in `~/.codex/config.toml`:
@@ -55,13 +55,13 @@ or in `~/.codex/config.toml`:
 ```toml
 [mcp_servers.riscv-isa]
 command = "npx"
-args = ["-y", "@riscv/isa-explorer-mcp"]
+args = ["-y", "riscv-isa-explorer-mcp"]
 ```
 
 **Gemini CLI**
 
 ```bash
-gemini mcp add --scope user riscv-isa npx -y @riscv/isa-explorer-mcp
+gemini mcp add --scope user riscv-isa npx -y riscv-isa-explorer-mcp
 ```
 
 **Claude Desktop, Cursor, Windsurf** (`claude_desktop_config.json`,
@@ -70,7 +70,7 @@ gemini mcp add --scope user riscv-isa npx -y @riscv/isa-explorer-mcp
 ```json
 {
   "mcpServers": {
-    "riscv-isa": { "command": "npx", "args": ["-y", "@riscv/isa-explorer-mcp"] }
+    "riscv-isa": { "command": "npx", "args": ["-y", "riscv-isa-explorer-mcp"] }
   }
 }
 ```
@@ -80,7 +80,7 @@ gemini mcp add --scope user riscv-isa npx -y @riscv/isa-explorer-mcp
 ```json
 {
   "servers": {
-    "riscv-isa": { "type": "stdio", "command": "npx", "args": ["-y", "@riscv/isa-explorer-mcp"] }
+    "riscv-isa": { "type": "stdio", "command": "npx", "args": ["-y", "riscv-isa-explorer-mcp"] }
   }
 }
 ```
