@@ -107,6 +107,7 @@ npm run opcodes:check -- <path-to-riscv-opcodes>
 |---|---|
 | extension metadata, CSRs, ratification state | the `sync-udb-extensions` workflow, Mondays at 06:00 UTC, opens or updates a PR when a file changes |
 | the published site | any push to `main` rebuilds and publishes to `gh-pages` |
+| static extension pages and `sitemap.xml` | generated from the catalogue on every build, for search engines and AI crawlers; nothing to run by hand |
 | instruction encodings | **by hand.** The `check-opcodes-drift` workflow, Mondays at 07:00 UTC, files an issue when upstream is ahead |
 
 `src/instr_dict.json` is hand-maintained on purpose and is not regenerated from
