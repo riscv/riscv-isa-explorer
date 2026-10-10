@@ -40,11 +40,13 @@ function ExtensionTile({
   onSelect,
   onToggleWorkspace,
   onToggleCompare,
+  isOptional,
 }) {
   const isDiscontinued = data.discontinued === 1;
   const isSelected = selectedExtId === data.id;
   const highlighted = isHighlighted(data.id) || matchesSearch || isSelected;
   const dimmed = isDimmed(data.id) && !matchesSearch && !isSelected;
+  const optional = isOptional && isOptional(data.id) && !matchesSearch && !isSelected && !highlighted;
   const inWorkspace = workspaceIds.has(data.id);
   // Derived from `data` rather than passed in, so tilePropsAreEqual needs no
   // new comparison: it already returns false when `data` changes identity.
@@ -58,6 +60,7 @@ function ExtensionTile({
         'ext-tile group relative rounded-lg border select-none',
         isSelected ? 'ext-tile-active' : '',
         highlighted && !isSelected ? 'ext-tile-highlighted' : '',
+        optional ? 'ext-tile-optional' : '',
         dimmed ? 'opacity-20 grayscale pointer-events-none' : '',
         isDiscontinued && !dimmed
           ? 'border-(--riscv-border-2) bg-(--riscv-surface)'

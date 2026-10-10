@@ -411,6 +411,12 @@ pre,
     0 4px 16px rgba(245, 197, 66, 0.08);
 }
 
+.ext-tile-optional {
+  border-style: dashed !important;
+  border-color: rgba(245, 197, 66, 0.6) !important;
+  opacity: 0.6;
+}
+
 /* Top accent border gradient */
 .riscv-top-border::before {
   content: '';
