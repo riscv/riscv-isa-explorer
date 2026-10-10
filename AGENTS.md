@@ -74,6 +74,7 @@ src/
   isa-params.json             # UDB parameter DEFINITIONS, generated (see gotchas)
   instr_dict.json             # instruction encodings, HAND-MAINTAINED (see gotchas)
 scripts/                      # sync/seed/check tooling (.mjs / .cjs)
+  static-pages.mjs            # crawler-readable page per extension + sitemap, run by the build
 tests/                        # node:test suites (*.test.mjs)
 public/index.html             # webpack HTML template
 feature-flags.cjs             # build-time switches, read by the config AND the bundle
@@ -165,6 +166,13 @@ Then `npm run sync` and `npm test && npm run build`.
   nothing inside it may write a closing `head` tag even in prose — the plugin
   injects `bundle.js` before the first one it finds by regex, and a mention in
   a comment swallows the script tag and ships a blank page.
+- **Every build writes a static page per extension** (`dist/ext/<id>/`),
+  `dist/sitemap.xml`, and a linked index inside `#root` in `index.html`, all
+  from `scripts/static-pages.mjs`. They exist for search engines and AI
+  crawlers, which mostly do not run JavaScript. Nothing is committed and no
+  sync step is needed: a new catalogue entry gets its page on the next deploy.
+  A new catalogue field shows up there only if the template renders it.
+  `tests/static-pages.test.mjs` guards coverage, escaping and the sitemap.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;
   eslint ignores both). Don't hand-edit `dist/`.
 - **`gh-pages` branch is machine-published** by CI on every push to `main`.

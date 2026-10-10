@@ -5,6 +5,46 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 // file, so a flag cannot be on in the app and off in the HTML.
 const { AI_ASSISTANT_ENABLED } = require('./feature-flags.cjs');
 
+// Static pages for crawlers that do not run JavaScript (scripts/static-pages.mjs).
+// The module is ESM, so it is imported lazily; every caller below is async.
+// Building once per compilation keeps the index in index.html and the emitted
+// pages from ever describing two different catalogues.
+const staticPagesFor = new WeakMap();
+const staticPages = (compilation) => {
+  if (!staticPagesFor.has(compilation)) {
+    staticPagesFor.set(
+      compilation,
+      import('./scripts/static-pages.mjs').then((mod) => ({
+        mod,
+        out: mod.buildStaticPages(mod.loadInputs()),
+      })),
+    );
+  }
+  return staticPagesFor.get(compilation);
+};
+
+/** Emits one page per extension plus sitemap.xml next to the bundle. */
+class StaticPagesPlugin {
+  apply(compiler) {
+    const { RawSource } = compiler.webpack.sources;
+    compiler.hooks.thisCompilation.tap('StaticPagesPlugin', (compilation) => {
+      compilation.hooks.processAssets.tapPromise(
+        {
+          name: 'StaticPagesPlugin',
+          stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+        },
+        async () => {
+          const { mod, out } = await staticPages(compilation);
+          // Rebuild in dev when the catalogue changes, as for any import.
+          for (const file of mod.INPUT_FILES) compilation.fileDependencies.add(file);
+          for (const page of out.pages) compilation.emitAsset(page.path, new RawSource(page.html));
+          compilation.emitAsset('sitemap.xml', new RawSource(out.sitemap));
+        },
+      );
+    });
+  }
+}
+
 /**
  * Exported as a function so one config serves both jobs. `npm run build` passes
  * no --mode and falls through to production, producing exactly the bundle it
@@ -82,13 +122,15 @@ module.exports = (env, argv = {}) => {
         // any templateParameters replaces them wholesale, and `inject` is
         // resolved from them: drop htmlWebpackPlugin.files and the bundle
         // script is never added to the page.
-        templateParameters: (compilation, assets, assetTags, options) => ({
+        templateParameters: async (compilation, assets, assetTags, options) => ({
           compilation,
           webpackConfig: compilation.options,
           htmlWebpackPlugin: { tags: assetTags, files: assets, options },
           aiAssistantEnabled: AI_ASSISTANT_ENABLED,
+          staticIndexHtml: (await staticPages(compilation)).out.indexHtml,
         }),
       }),
+      new StaticPagesPlugin(),
     ],
   };
 };
