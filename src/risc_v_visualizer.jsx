@@ -1873,6 +1873,14 @@ const RISCVExplorer = () => {
     [isHighlightedByProfile, isHighlightedByVolume],
   );
 
+  const isOptional = React.useCallback(
+    (id) => {
+      if (!activeProfile) return false;
+      return PROFILE_OPTIONAL[activeProfile]?.includes(id) ?? false;
+    },
+    [activeProfile],
+  );
+
   // Dim whatever the active filter excludes. The two filters are mutually
   // exclusive (selecting one clears the other), so at most one branch applies.
   // This used to return false as soon as a volume was set, which meant picking
@@ -1881,7 +1889,9 @@ const RISCVExplorer = () => {
   const isDimmed = React.useCallback(
     (id) => {
       if (activeVolume) return !(volumeMembership[activeVolume]?.has(id) ?? false);
-      if (activeProfile) return !profiles[activeProfile].includes(id);
+      if (activeProfile) {
+        return !profiles[activeProfile].includes(id) && !(PROFILE_OPTIONAL[activeProfile]?.includes(id) ?? false);
+      }
       return false;
     },
     [activeVolume, activeProfile, volumeMembership],
@@ -2176,6 +2186,7 @@ const RISCVExplorer = () => {
       onSelect: handleSelectExt,
       onToggleWorkspace: handleToggleWorkspace,
       onToggleCompare: toggleCompareExt,
+      isOptional,
     }),
     [
       // searchQuery is deliberately absent: it is no longer a tile prop, so
@@ -2192,6 +2203,7 @@ const RISCVExplorer = () => {
       handleSelectExt,
       handleToggleWorkspace,
       toggleCompareExt,
+      isOptional,
     ],
   );
 

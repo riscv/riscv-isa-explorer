@@ -34,6 +34,7 @@ export function tilePropsAreEqual(prev, next) {
   if (prev.onToggleCompare !== next.onToggleCompare) return false;
   if (prev.isHighlighted !== next.isHighlighted) return false;
   if (prev.isDimmed !== next.isDimmed) return false;
+  if (prev.isOptional !== next.isOptional) return false;
 
   // Per-tile membership, not container identity. This is the whole point.
   const id = next.data?.id;
