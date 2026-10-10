@@ -20,8 +20,12 @@ someone silently. Each release below records its catalogue size.
   mandatory one (and by which), or optional, with its status, version,
   ratification date, group and specification link. The `.xlsx` is written
   without a new dependency.
-- **Compare profiles** button beside the Highlight Profile picker, opening the
-  profile comparison directly with a picker for which profiles to include.
+- **Compare profiles** button beside the Highlight Profile picker, shown while
+  Compare is on, opening the profile comparison directly with a picker for
+  which profiles to include.
+- Profile comparisons group extensions under **Mandatory, Implied and
+  Optional** by default, each under the strongest requirement any compared
+  profile gives it; a switch returns to plain alphabetical order.
 
 ### Changed
 

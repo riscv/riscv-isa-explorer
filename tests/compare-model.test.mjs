@@ -25,6 +25,8 @@ import {
   parseComparePermalink,
   toMarkdown,
   buildProfileComparison,
+  visibleRows,
+  comparedRows,
 } from '../src/compareModel.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -401,7 +403,8 @@ import PROFILE_OPTIONAL from '../src/profile-optional.json' with { type: 'json' 
 const requirementRows = (m) => m.rows.filter((r) => r.render === 'requirement');
 
 test('the profile model has one row per extension across the union, sorted', () => {
-  const model = buildProfileComparison(['RVA20', 'RVA22']);
+  const model = buildProfileComparison(['RVA20', 'RVA22'], { order: 'alphabetical' });
+  assert.equal(model.rows.filter((r) => r.render === 'section').length, 0);
   assert.equal(model.kind, 'profile');
   assert.deepEqual(model.columns.map((c) => c.key), ['RVA20', 'RVA22']);
 
@@ -415,6 +418,57 @@ test('the profile model has one row per extension across the union, sorted', () 
     ]),
   ].sort();
   assert.deepEqual(requirementRows(model).map((r) => r.label), union);
+});
+
+test('by default rows are grouped Mandatory, Implied, Optional, alphabetical within', () => {
+  const model = buildProfileComparison(['RVA22', 'RVA23'], { expandDependencies: true });
+  assert.equal(model.order, 'grouped');
+  const sections = model.rows.filter((r) => r.render === 'section').map((r) => r.label);
+  assert.deepEqual(sections, ['Mandatory', 'Implied', 'Optional']);
+
+  const strength = ['mandatory', 'implied', 'optional'];
+  let current = null;
+  let previous = '';
+  for (const row of model.rows) {
+    if (row.render === 'section') {
+      current = row.label.toLowerCase();
+      previous = '';
+      continue;
+    }
+    if (row.render !== 'requirement') continue;
+    // Each row sits under the strongest requirement any profile gives it.
+    const strongest = strength[Math.min(...row.cells.filter(Boolean).map((c) => strength.indexOf(c)))];
+    assert.equal(current, strongest, `${row.label} is under ${current}`);
+    assert.ok(previous.localeCompare(row.label) < 0, `${row.label} out of order`);
+    previous = row.label;
+  }
+  // V: optional in RVA22, mandatory in RVA23, so it is in the Mandatory group.
+  const v = model.rows.findIndex((r) => r.label === 'V');
+  const implied = model.rows.findIndex((r) => r.key === 'section:implied');
+  assert.ok(v < implied);
+});
+
+test('a section heading counts toward nothing and is section-row text in markdown', () => {
+  const model = buildProfileComparison(['RVA22', 'RVA23']);
+  const section = model.rows.find((r) => r.key === 'section:mandatory');
+  assert.equal(section.allSame, true);
+  assert.ok(section.count > 0);
+  assert.ok(!comparedRows(model).some((r) => r.render === 'section'));
+  assert.ok(toMarkdown(model).includes('| **Mandatory** |  |  |'));
+});
+
+test('differences only drops agreeing rows and any heading left empty', () => {
+  // Comparing a profile with itself: every row agrees, so nothing survives.
+  const same = buildProfileComparison(['RVA23', 'RVA23']);
+  assert.deepEqual(visibleRows(same, { differencesOnly: true }), []);
+
+  const model = buildProfileComparison(['RVA22', 'RVA23']);
+  const rows = visibleRows(model, { differencesOnly: true });
+  assert.ok(rows.length > 0);
+  rows.forEach((r, i) => {
+    if (r.render === 'section') assert.ok(rows[i + 1] && rows[i + 1].render !== 'section');
+    else assert.equal(r.allSame, false);
+  });
 });
 
 test('cells say mandatory, optional or nothing, and never call a mandate optional', () => {

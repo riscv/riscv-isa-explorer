@@ -1563,6 +1563,26 @@ pre,
 :root[data-theme='light'] .compare-diff {
   background: rgba(109, 91, 208, 0.07);
 }
+.compare-section {
+  grid-column: 1 / -1;
+  padding: 8px 14px;
+  background: var(--riscv-surface-2);
+  border-bottom: 1px solid var(--riscv-border-2);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--riscv-text-2);
+}
+/* The band spans every column, so keep its text in view when scrolled sideways. */
+.compare-section > span {
+  position: sticky;
+  left: 14px;
+}
+.compare-section-count {
+  font-weight: 400;
+  color: var(--riscv-text-3);
+}
 .compare-attr.compare-diff {
   background: var(--riscv-panel) !important;
   box-shadow:

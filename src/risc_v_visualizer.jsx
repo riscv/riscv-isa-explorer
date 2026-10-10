@@ -894,6 +894,7 @@ const RISCVExplorer = () => {
     () => new Set(comparePermalinkSeed.kind === 'profile' ? comparePermalinkSeed.resolved : []),
   );
   const [compareExpandDeps, setCompareExpandDeps] = useState(false);
+  const [compareProfileGrouped, setCompareProfileGrouped] = useState(true);
   const [compareOpen, setCompareOpen] = useState(comparePermalinkSeed.resolved.length >= 2);
 
   // A shared comparison outlives the catalog it was made from. Unresolvable
@@ -2208,7 +2209,10 @@ const RISCVExplorer = () => {
     // A profile comparison is built even when empty: its in-view picker is how
     // profiles are added, so the view has to be able to open with none.
     if (compareKind === 'profile') {
-      return buildProfileComparison(compareKeys, { expandDependencies: compareExpandDeps });
+      return buildProfileComparison(compareKeys, {
+        expandDependencies: compareExpandDeps,
+        order: compareProfileGrouped ? 'grouped' : 'alphabetical',
+      });
     }
     if (compareKeys.length === 0) return null;
     if (compareKind === 'ext') {
@@ -2226,7 +2230,7 @@ const RISCVExplorer = () => {
         })
         .filter(Boolean),
     );
-  }, [compareKind, compareKeys, compareExpandDeps, formattedSandboxExts]);
+  }, [compareKind, compareKeys, compareExpandDeps, compareProfileGrouped, formattedSandboxExts]);
 
   // Mirrors the existing `ext` permalink effect: replaceState, never push, so
   // pinning does not fill the back button with intermediate states.
@@ -2648,16 +2652,19 @@ const RISCVExplorer = () => {
                         <ProfileDownloadMenu profile={activeProfile} onDownload={downloadProfile} />
                       )}
 
-                      <button
-                        type="button"
-                        onClick={openProfileComparison}
-                        title="Open the side-by-side profile comparison"
-                        aria-label="Open the side-by-side profile comparison"
-                        className="riscv-pin-btn px-2 py-1 rounded-md border text-[11px] font-semibold inline-flex items-center gap-1 whitespace-nowrap"
-                      >
-                        <GitCompare size={12} />
-                        <span className="hidden xl:inline">Compare profiles</span>
-                      </button>
+                      {/* Like every compare affordance, shown only while Compare is on. */}
+                      {compareMode && (
+                        <button
+                          type="button"
+                          onClick={openProfileComparison}
+                          title="Open the side-by-side profile comparison"
+                          aria-label="Open the side-by-side profile comparison"
+                          className="riscv-pin-btn px-2 py-1 rounded-md border text-[11px] font-semibold inline-flex items-center gap-1 whitespace-nowrap"
+                        >
+                          <GitCompare size={12} />
+                          <span className="hidden xl:inline">Compare profiles</span>
+                        </button>
+                      )}
                     </div>
 
                     {/* Vertical Divider */}
@@ -4923,6 +4930,8 @@ const RISCVExplorer = () => {
         onToggleExpandDeps={setCompareExpandDeps}
         profileOptions={PROFILE_NAMES}
         onToggleProfile={toggleCompareProfile}
+        grouped={compareProfileGrouped}
+        onToggleGrouped={setCompareProfileGrouped}
       />
 
       {evolutionOpen && (

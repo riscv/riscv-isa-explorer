@@ -14,7 +14,7 @@
 import { closure } from './isaGraph.js';
 import { PROFILES } from './profiles.js';
 import PROFILE_OPTIONAL from './profile-optional.json' with { type: 'json' };
-import { profileMembership } from './profileExport.js';
+import { profileMembership, REQUIREMENTS } from './profileExport.js';
 
 /** Columns past this are refused rather than silently truncated. */
 export const COMPARE_MAX = 6;
@@ -227,11 +227,19 @@ function membershipFor(name, expandDependencies) {
   });
 }
 
+const REQUIREMENT_HEADINGS = { mandatory: 'Mandatory', implied: 'Implied', optional: 'Optional' };
+
 /**
  * @param {string[]} names profile ids, in the order the user pinned them
- * @param {{expandDependencies?: boolean}} [options]
+ * @param {{expandDependencies?: boolean, order?: 'grouped'|'alphabetical'}} [options]
+ *   `grouped` (the default) puts each extension under the strongest
+ *   requirement any compared profile gives it, so the Mandatory group holds
+ *   everything any of them mandates; rows are alphabetical within a group.
  */
-export function buildProfileComparison(names, { expandDependencies = false } = {}) {
+export function buildProfileComparison(
+  names,
+  { expandDependencies = false, order = 'grouped' } = {},
+) {
   const kept = (names || []).filter((n) => PROFILES[n]);
   const maps = kept.map((n) => membershipFor(n, expandDependencies));
 
@@ -244,24 +252,48 @@ export function buildProfileComparison(names, { expandDependencies = false } = {
     return { key, label, render: 'mono', cells, allSame: cellsAllSame(cells) };
   };
 
+  const extensionRows = union.map((id) => {
+    const cells = maps.map((m) => m.get(id)?.requirement ?? null);
+    return {
+      key: `ext:${id}`,
+      label: id,
+      render: 'requirement',
+      cells,
+      allSame: cellsAllSame(cells),
+      // REQUIREMENTS is strongest first, so the lowest index wins.
+      group: REQUIREMENTS[Math.min(...cells.filter(Boolean).map((c) => REQUIREMENTS.indexOf(c)))],
+    };
+  });
+
+  const body =
+    order === 'alphabetical'
+      ? extensionRows
+      : REQUIREMENTS.flatMap((requirement) => {
+          const members = extensionRows.filter((r) => r.group === requirement);
+          if (members.length === 0) return [];
+          return [
+            {
+              key: `section:${requirement}`,
+              label: REQUIREMENT_HEADINGS[requirement],
+              render: 'section',
+              count: members.length,
+              cells: kept.map(() => null),
+              allSame: true,
+            },
+            ...members,
+          ];
+        });
+
   return {
     kind: 'profile',
     expandedDependencies: Boolean(expandDependencies),
+    order: order === 'alphabetical' ? 'alphabetical' : 'grouped',
     columns: kept.map((n) => ({ key: n, label: n, sublabel: null })),
     rows: [
       countRow('extension_count', 'Mandatory', 'mandatory'),
       ...(expandDependencies ? [countRow('implied_count', 'Implied', 'implied')] : []),
       countRow('optional_count', 'Optional', 'optional'),
-      ...union.map((id) => {
-        const cells = maps.map((m) => m.get(id)?.requirement ?? null);
-        return {
-          key: `ext:${id}`,
-          label: id,
-          render: 'requirement',
-          cells,
-          allSame: cellsAllSame(cells),
-        };
-      }),
+      ...body,
     ],
     bitDiff: null,
   };
@@ -356,6 +388,24 @@ export function parseComparePermalink(value, allExts) {
 }
 
 /**
+ * The rows a view shows. With differencesOnly, rows that agree are dropped,
+ * and so is any section heading left with nothing under it: a lone
+ * "Optional" over an empty group reads as a claim that the group exists.
+ * Section headings never count as differences themselves.
+ */
+export function visibleRows(model, { differencesOnly = false } = {}) {
+  if (!model) return [];
+  if (!differencesOnly) return model.rows;
+  const kept = model.rows.filter((r) => r.render === 'section' || !r.allSame);
+  return kept.filter(
+    (r, i) => r.render !== 'section' || (kept[i + 1] && kept[i + 1].render !== 'section'),
+  );
+}
+
+/** Rows that compare something, i.e. everything except section headings. */
+export const comparedRows = (model) => (model?.rows ?? []).filter((r) => r.render !== 'section');
+
+/**
  * Flattens a cell to table text.
  *
  * Newlines collapse because a pipe table is one row per line, and `|` is
@@ -391,13 +441,15 @@ export function toMarkdown(model, { differencesOnly = false } = {}) {
   const headers = model.columns.map((c) =>
     c.sublabel && c.sublabel !== c.label ? `${c.label} (${c.sublabel})` : c.label,
   );
-  const rows = differencesOnly ? model.rows.filter((r) => !r.allSame) : model.rows;
+  const rows = visibleRows(model, { differencesOnly });
 
   return [
     `| Attribute | ${headers.map(cellText).join(' | ')} |`,
     `| --- | ${headers.map(() => '---').join(' | ')} |`,
-    ...rows.map(
-      (r) => `| ${cellText(r.label)} | ${r.cells.map((c) => cellText(c, r.render)).join(' | ')} |`,
+    ...rows.map((r) =>
+      r.render === 'section'
+        ? `| **${cellText(r.label)}** | ${r.cells.map(() => '').join(' | ')} |`
+        : `| ${cellText(r.label)} | ${r.cells.map((c) => cellText(c, r.render)).join(' | ')} |`,
     ),
   ].join('\n');
 }
