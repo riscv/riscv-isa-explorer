@@ -15,7 +15,7 @@ someone silently. Each release below records its catalogue size.
 
 ### Added
 
-- **An MCP server** (`mcp/`, packaged for npm as `riscv-isa-explorer-mcp`)
+- **An MCP server** (`mcp/`, published to npm as `@riscv/isa-explorer-mcp`)
   that gives LLM clients such as Claude, Codex, Gemini, Cursor and VS Code the
   Explorer's data as eleven read-only tools: search and look up extensions,
   explain a dependency with the citation for each step, resolve a

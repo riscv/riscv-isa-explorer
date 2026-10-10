@@ -43,7 +43,7 @@ jobs:
           mkdir "$RUNNER_TEMP/consumer" && cd "$RUNNER_TEMP/consumer"
           npm init -y > /dev/null
           npm install "$RUNNER_TEMP"/riscv-isa-explorer-mcp-*.tgz
-          node node_modules/riscv-isa-explorer-mcp/bin/riscv-isa-explorer-mcp.mjs --version
+          node node_modules/@riscv/isa-explorer-mcp/bin/riscv-isa-explorer-mcp.mjs --version
 
       # Validates generated -march strings against a real toolchain rather than
       # against our own model of the spec. This caught a case the unit tests

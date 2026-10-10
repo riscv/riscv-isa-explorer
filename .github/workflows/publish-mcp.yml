@@ -1,0 +1,54 @@
+name: Publish MCP server
+
+# Publishes mcp/ to npm as @riscv/isa-explorer-mcp when a tag such as
+# mcp-v0.2.0 is pushed. Server releases are tagged separately from site
+# releases (v1.x) because they move at a different pace: a catalogue change
+# needs a new package, a UI change does not.
+#
+# Authentication is npm trusted publishing (OIDC): npm trusts this workflow
+# file in this repository, so there is no NPM_TOKEN to store or rotate, and
+# every release carries a provenance attestation linking it to this run.
+# Configured on npmjs.com under the package's Settings > Trusted Publisher.
+
+on:
+  push:
+    tags: ['mcp-v*']
+
+permissions:
+  contents: read
+  id-token: write # OIDC token for npm trusted publishing and provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          registry-url: 'https://registry.npmjs.org'
+      - name: Tag matches the package version
+        run: |
+          version=$(node -p "require('./mcp/package.json').version")
+          if [ "${GITHUB_REF_NAME}" != "mcp-v${version}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match mcp/package.json version ${version}"
+            exit 1
+          fi
+      # Trusted publishing needs npm 11.5.1 or later; fail plainly rather than
+      # with an authentication error if the runner's Node ships an older one.
+      - name: npm supports trusted publishing
+        run: |
+          npm --version
+          node -e "const [a,b,c]=process.argv[1].split('.').map(Number); process.exit(a>11||(a===11&&(b>5||(b===5&&c>=1)))?0:1)" "$(npm --version)" \
+            || { echo "::error::npm $(npm --version) is older than 11.5.1"; exit 1; }
+      - name: Install dependencies
+        run: npm ci
+      # The render smoke tests read dist/, so build first, as CI does.
+      - name: Build
+        run: npm run build
+      - name: Tests
+        run: npm test
+      - name: Publish
+        run: npm publish --workspace mcp --provenance --access public
