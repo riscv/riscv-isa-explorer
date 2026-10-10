@@ -13,6 +13,16 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Added
+
+- **An MCP server** (`mcp/`, packaged for npm as `riscv-isa-explorer-mcp`)
+  that gives LLM clients such as Claude, Codex, Gemini, Cursor and VS Code the
+  Explorer's data as eleven read-only tools: search and look up extensions,
+  explain a dependency with the citation for each step, resolve a
+  configuration to a canonical `-march` string, parse an existing one, read
+  and compare profiles, and look up or decode instructions. It runs the same
+  modules as the site, locally over stdio, with no network access.
+
 ## [1.7.0] - 2026-10-10
 
 Catalogue: 211 entries, unchanged from 1.6.0. No saved selection or `-march`

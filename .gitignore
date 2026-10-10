@@ -6,3 +6,7 @@ dist/
 
 # Scratch workspace for agent-driven development runs.
 .superpowers/
+
+# Copied from src/ by mcp/scripts/bundle.mjs when the MCP package is packed.
+mcp/explorer/
+mcp/LICENSE

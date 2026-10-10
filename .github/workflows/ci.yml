@@ -35,6 +35,15 @@ jobs:
         run: npm run sync:check
       - name: Tests
         run: npm test
+      # Packs the MCP server as npm would publish it, so a module the bundle
+      # forgets to copy fails here rather than for the first person to install it.
+      - name: Pack the MCP server
+        run: |
+          npm pack --workspace mcp --pack-destination "$RUNNER_TEMP"
+          mkdir "$RUNNER_TEMP/consumer" && cd "$RUNNER_TEMP/consumer"
+          npm init -y > /dev/null
+          npm install "$RUNNER_TEMP"/riscv-isa-explorer-mcp-*.tgz
+          node node_modules/riscv-isa-explorer-mcp/bin/riscv-isa-explorer-mcp.mjs --version
 
       # Validates generated -march strings against a real toolchain rather than
       # against our own model of the spec. This caught a case the unit tests

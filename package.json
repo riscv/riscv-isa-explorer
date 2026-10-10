@@ -1,8 +1,12 @@
 {
   "name": "riscv-isa-explorer",
   "version": "1.7.0",
+  "private": true,
   "description": "Interactive reference for RISC-V extensions, profiles and per-instruction encodings",
   "homepage": "https://tech.riscv.org/isa-explorer/",
+  "workspaces": [
+    "mcp"
+  ],
   "scripts": {
     "build": "webpack",
     "graph:check": "node scripts/seed-dependency-graph.mjs --check --udb",

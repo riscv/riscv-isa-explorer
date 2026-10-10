@@ -47,6 +47,8 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
 | `npm run opcodes:check -- <path-to-riscv-opcodes>` | Report instruction-encoding drift |
 | `npm run udb:check -- <path-to-udb>` | Report ratified extensions/instructions we lack |
+| `node mcp/bin/riscv-isa-explorer-mcp.mjs` | Run the MCP server on stdio from the working tree |
+| `npm pack -w mcp` | Pack the MCP server as npm would publish it (copies `src/` into `mcp/explorer/`) |
 
 There is no separate typecheck (no TypeScript).
 
@@ -79,6 +81,12 @@ src/
 scripts/                      # sync/seed/check tooling (.mjs / .cjs)
   static-pages.mjs            # crawler-readable page per extension + sitemap, run by the build
 tests/                        # node:test suites (*.test.mjs)
+mcp/                          # MCP server for LLM clients (npm workspace, published separately)
+  bin/riscv-isa-explorer-mcp.mjs  # stdio entry point
+  lib/explorer.mjs            # loads src/ modules + data (or the packed copy in mcp/explorer/)
+  lib/tools.mjs               # tool handlers, pure, no SDK
+  lib/server.mjs              # tool names, descriptions, zod schemas
+  scripts/bundle.mjs          # prepack: copies src/ files into mcp/explorer/
 public/index.html             # webpack HTML template
 feature-flags.cjs             # build-time switches, read by the config AND the bundle
 ```
@@ -176,6 +184,17 @@ Then `npm run sync` and `npm test && npm run build`.
   sync step is needed: a new catalogue entry gets its page on the next deploy.
   A new catalogue field shows up there only if the template renders it.
   `tests/static-pages.test.mjs` guards coverage, escaping and the sitemap.
+- **The MCP server (`mcp/`) wraps `src/`, it never reimplements it.** Its
+  tools call `isaGraph.js`, `marchUtils.js` and `profileExport.js` so an
+  answer an LLM gets cannot drift from what the site shows. In a checkout it
+  reads `src/` directly; `npm pack` copies the files listed in
+  `mcp/scripts/bundle.mjs` into `mcp/explorer/` (git-ignored). A new module
+  the server loads, or a new import inside one it already loads, must be added
+  to that list; `tests/mcp-server.test.mjs` fails until it is, and CI installs
+  the packed tarball to prove it runs. The root `package.json` is `private`
+  and lists `mcp` as a workspace, so `npm ci` installs the MCP SDK too.
+  Tool descriptions are read by models: say when to call the tool, not just
+  what it returns.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;
   eslint ignores both). Don't hand-edit `dist/`.
 - **`gh-pages` branch is machine-published** by CI on every push to `main`.

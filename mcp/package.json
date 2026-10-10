@@ -1,0 +1,44 @@
+{
+  "name": "riscv-isa-explorer-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for the RISC-V ISA Explorer: extensions, dependencies, -march strings, profiles and instruction encodings for LLM clients",
+  "type": "module",
+  "bin": {
+    "riscv-isa-explorer-mcp": "bin/riscv-isa-explorer-mcp.mjs"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "explorer/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "bundle": "node scripts/bundle.mjs",
+    "prepack": "node scripts/bundle.mjs",
+    "start": "node bin/riscv-isa-explorer-mcp.mjs"
+  },
+  "keywords": [
+    "risc-v",
+    "riscv",
+    "isa",
+    "mcp",
+    "model-context-protocol",
+    "march"
+  ],
+  "homepage": "https://tech.riscv.org/isa-explorer/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/riscv/riscv-isa-explorer.git",
+    "directory": "mcp"
+  },
+  "bugs": "https://github.com/riscv/riscv-isa-explorer/issues",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.5"
+  }
+}
