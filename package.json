@@ -1,9 +1,8 @@
 {
   "name": "riscv-isa-explorer",
   "version": "1.6.0",
-  "description": "",
-  "main": "index.js",
-  "homepage": "https://riscv.github.io/riscv-isa-explorer/",
+  "description": "Interactive reference for RISC-V extensions, profiles and per-instruction encodings",
+  "homepage": "https://tech.riscv.org/isa-explorer/",
   "scripts": {
     "build": "webpack",
     "deploy": "gh-pages -d dist --branch gh-pages --dotfiles",
@@ -25,8 +24,6 @@
     "profiles:optional": "node scripts/sync-profile-optional.mjs",
     "profiles:check": "node scripts/sync-profile-optional.mjs --check"
   },
-  "keywords": [],
-  "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
     "@babel/core": "^8.0.5",

@@ -9,13 +9,13 @@
        Graph and Twitter consumers do not resolve relative paths, so a relative
        og:url yields no preview at all. -->
   <meta name="description" content="Interactive reference for RISC-V extensions, profiles and per-instruction encodings. Build an ISA configuration with dependencies resolved automatically and export a valid -march string.">
-  <link rel="canonical" href="https://riscv.github.io/riscv-isa-explorer/">
+  <link rel="canonical" href="https://tech.riscv.org/isa-explorer/">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="RISC-V ISA Explorer">
   <meta property="og:title" content="RISC-V ISA Explorer">
   <meta property="og:description" content="Interactive reference for RISC-V extensions, profiles and per-instruction encodings, with dependency-resolved ISA configuration and -march export.">
-  <meta property="og:url" content="https://riscv.github.io/riscv-isa-explorer/">
+  <meta property="og:url" content="https://tech.riscv.org/isa-explorer/">
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="RISC-V ISA Explorer">
@@ -56,7 +56,9 @@
 
        The website id is a public client-side identifier, not a secret: kapa
        gates question submission server-side on the domain allowlist configured
-       in the dashboard, so this string is inert anywhere but riscv.github.io.
+       in the dashboard, so this string is inert on any domain not listed there.
+       The site is served at tech.riscv.org (a proxy) and riscv.github.io, so
+       the allowlist needs whichever of those should accept questions.
 
        data-color-scheme-selector points the widget at the same [data-theme]
        attribute the app writes on <html> (see risc_v_visualizer.jsx), so the

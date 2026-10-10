@@ -23,11 +23,6 @@ export function parameterNames() {
   return Object.keys(PARAMS);
 }
 
-/** The UDB commit these definitions were generated from. */
-export function paramsSource() {
-  return paramData.sources.udb;
-}
-
 function resolveDefinedBy(nameOrNode) {
   if (typeof nameOrNode === 'string') return PARAMS[nameOrNode]?.definedBy ?? null;
   return nameOrNode ?? null;
