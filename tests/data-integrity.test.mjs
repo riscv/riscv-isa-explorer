@@ -222,3 +222,53 @@ test('every privileged catalog group is classified as Volume II', () => {
     );
   }
 });
+
+test('names removed as unsourced or mistaken do not come back', () => {
+  // Each of these was selectable, could be exported into an -march string, and
+  // was removed because no specification defines it (#250, #254, #374). Sync
+  // tooling and hand edits both write to the catalogue, so nothing else stops
+  // one reappearing. If a name here turns out to be real after all, remove it
+  // from this list in the same change that adds it with a citation.
+  const removed = {
+    // Naming prefixes for families, not extensions.
+    K: 'prefix',
+    Zv: 'prefix',
+    Zve: 'prefix',
+    Zvf: 'prefix',
+    Zvk: 'prefix',
+    Zvw: 'prefix',
+    // Found in no specification, toolchain or riscv-unified-db.
+    Sscntrcfg: 'unsourced',
+    Sshpmcfg: 'unsourced',
+    Zitagelide: 'unsourced',
+    'Zilsm*': 'unsourced',
+    'Zilsm<x>b': 'unsourced',
+    Zilsme: 'unsourced',
+    Zilsmea: 'unsourced',
+    Smrnpt: 'unsourced',
+    Smrntt: 'unsourced',
+    Ssvxscr: 'unsourced',
+    Zilsp: 'unsourced',
+    // Wrong names whose real extension is catalogued, or tracked in #387.
+    Zicntrpmf: 'Smcntrpmf',
+    Zcmlsd: 'Zclsd',
+    Ssptead: 'Svade',
+    Zccid: 'Ziccid',
+    Smdid: 'Smsdid',
+  };
+  const banned = new Map(Object.entries(removed).map(([id, why]) => [id.toLowerCase(), [id, why]]));
+  const graph = JSON.parse(
+    readFileSync(join(here, '..', 'src', 'isa-dependency-graph.json'), 'utf8'),
+  );
+
+  const found = [];
+  for (const [category, ext] of allExtensions()) {
+    const hit = banned.get(ext.id.toLowerCase());
+    if (hit) found.push(`${ext.id} in catalogue group ${category} (${hit[1]})`);
+  }
+  for (const id of Object.keys(graph.nodes)) {
+    const hit = banned.get(id.toLowerCase());
+    if (hit) found.push(`${id} in the dependency graph (${hit[1]})`);
+  }
+  assert.deepEqual(found, [], `removed names are back:\n  ${found.join('\n  ')}`);
+});
