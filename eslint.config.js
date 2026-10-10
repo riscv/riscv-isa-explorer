@@ -18,7 +18,7 @@ const globals = require('globals');
  */
 module.exports = [
   {
-    ignores: ['dist/**', 'node_modules/**'],
+    ignores: ['dist/**', 'node_modules/**', 'mcp/explorer/**'],
   },
 
   // Browser code.
@@ -65,7 +65,7 @@ module.exports = [
 
   // Node scripts and tests.
   {
-    files: ['scripts/**/*.{js,mjs,cjs}', 'tests/**/*.mjs'],
+    files: ['scripts/**/*.{js,mjs,cjs}', 'tests/**/*.mjs', 'mcp/**/*.mjs'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',

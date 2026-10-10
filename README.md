@@ -41,6 +41,10 @@ get a dependency-resolved configuration with a valid `-march` string.
   See [docs/sandbox.md](docs/sandbox.md).
 - **Link out to the specification.** Each extension links to its section on
   docs.riscv.org.
+- **Ask from an LLM.** An [MCP server](mcp/README.md) gives Claude, Codex,
+  Gemini, Cursor and other MCP clients the same data as tools: extension
+  lookup, dependency explanations with citations, `-march` building and
+  parsing, profile contents and comparisons, and instruction decoding.
 
 ## Something look wrong?
 
@@ -137,6 +141,7 @@ gaps to fill.
 | `src/marchUtils.js` | `-march` assembly and canonical ordering |
 | `src/exportUtils.js` | YAML and `riscv-config` export |
 | `src/profiles.js` | profile definitions |
+| `mcp/` | MCP server for LLM clients, built on the modules above; see [mcp/README.md](mcp/README.md) |
 
 ## Tests
 
