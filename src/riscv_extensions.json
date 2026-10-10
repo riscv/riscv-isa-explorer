@@ -32307,6 +32307,47 @@
   ],
   "z_integer": [
     {
+      "id": "Zibi",
+      "name": "Zibi",
+      "short": "Branch with Immediate",
+      "tags": [
+        "rv_zibi"
+      ],
+      "desc": "Conditional branches that compare a register against a small constant, avoiding a separate load of that constant.",
+      "use": "Loops and comparisons against small constants",
+      "url": "https://github.com/riscv/riscv-isa-manual",
+      "instructions": {
+        "BEQI": {
+          "encoding": "-----------------010-----1100011",
+          "variable_fields": [
+            "imm12hi",
+            "imm5",
+            "imm12lo"
+          ],
+          "extension": [
+            "rv_zibi"
+          ],
+          "match": "0x2063",
+          "mask": "0x707f"
+        },
+        "BNEI": {
+          "encoding": "-----------------011-----1100011",
+          "variable_fields": [
+            "imm12hi",
+            "imm5",
+            "imm12lo"
+          ],
+          "extension": [
+            "rv_zibi"
+          ],
+          "match": "0x3063",
+          "mask": "0x707f"
+        }
+      },
+      "state": "frozen",
+      "version": "0.7.0"
+    },
+    {
       "id": "Zicond",
       "name": "Zicond",
       "short": "Integer Conditional Ops",
@@ -77318,47 +77359,6 @@
     }
   ],
   "z_system": [
-    {
-      "id": "Zibi",
-      "name": "Zibi",
-      "short": "Branch with Immediate",
-      "tags": [
-        "rv_zibi"
-      ],
-      "desc": "Conditional branches that compare a register against a small constant, avoiding a separate load of that constant.",
-      "use": "Loops and comparisons against small constants",
-      "url": "https://github.com/riscv/riscv-isa-manual",
-      "instructions": {
-        "BEQI": {
-          "encoding": "-----------------010-----1100011",
-          "variable_fields": [
-            "imm12hi",
-            "imm5",
-            "imm12lo"
-          ],
-          "extension": [
-            "rv_zibi"
-          ],
-          "match": "0x2063",
-          "mask": "0x707f"
-        },
-        "BNEI": {
-          "encoding": "-----------------011-----1100011",
-          "variable_fields": [
-            "imm12hi",
-            "imm5",
-            "imm12lo"
-          ],
-          "extension": [
-            "rv_zibi"
-          ],
-          "match": "0x3063",
-          "mask": "0x707f"
-        }
-      },
-      "state": "frozen",
-      "version": "0.7.0"
-    },
     {
       "id": "Zicntr",
       "name": "Zicntr",
