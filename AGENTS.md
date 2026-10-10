@@ -66,6 +66,9 @@ src/
   isaGraph.js                 # dependency resolution: resolveSelection, closure, explain, validateGraph
   marchUtils.js               # -march assembly + canonical ordering (pure, no React, no catalog import)
   exportUtils.js              # YAML + riscv-config export
+  profileExport.js            # profile membership (mandatory/implied/optional) + YAML/JSON/CSV/XLSX download
+  xlsxWriter.js               # dependency-free .xlsx writer (stored zip + CRC-32)
+  ProfileDownloadMenu.jsx     # Download menu shown while a profile is highlighted
   focusTrap.js                # modal focus trapping
   profiles.js                 # ratified profile definitions
   --- data (the source of truth) ---

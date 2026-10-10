@@ -1777,6 +1777,19 @@ pre,
    class rule, so no :hover could ever repaint them. That is the same trap the
    Encoding Map button fell into. Keying off aria-pressed keeps the DOM the
    single source of truth for the state and leaves hover free to work. */
+/* Rows of the profile Download menu (ProfileDownloadMenu.jsx). */
+.riscv-menu-item {
+  cursor: pointer;
+}
+.riscv-menu-item:hover,
+.riscv-menu-item:focus-visible {
+  background: var(--riscv-tint-3);
+  outline: none;
+}
+.riscv-menu-item:focus-visible {
+  box-shadow: inset 0 0 0 2px rgba(139, 124, 248, 0.6);
+}
+
 .riscv-pin-btn {
   border: 1px solid var(--riscv-border-2);
   background: var(--riscv-surface-2);

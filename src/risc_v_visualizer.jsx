@@ -75,7 +75,10 @@ import {
   buildMarchString,
   buildCombinedCatalog,
 } from './marchUtils.js';
-import { resolveSelection } from './isaGraph.js';
+import { resolveSelection, closure } from './isaGraph.js';
+import { profileMembership, profileExtensionRows, buildProfileExport } from './profileExport.js';
+import { CATALOGUE_GROUPS } from './evolutionModel.js';
+import ProfileDownloadMenu from './ProfileDownloadMenu.jsx';
 import RiscvLogo from './RiscvLogo.jsx';
 import { PROFILES, PROFILE_METADATA } from './profiles.js';
 import PROFILE_OPTIONAL from './profile-optional.json';
@@ -292,6 +295,7 @@ function useMediaQuery(query) {
 }
 
 const allExtensionsFlat = Object.values(extensions).flat().filter(Boolean);
+const PROFILE_NAMES = Object.keys(PROFILES);
 
 // Shared so an empty query allocates nothing and searchMatchIds keeps a stable
 // reference for anything that depends on it. Note this is NOT what protects the
@@ -2092,6 +2096,52 @@ const RISCVExplorer = () => {
   const openCompareView = React.useCallback(() => setCompareOpen(true), []);
   const closeCompareView = React.useCallback(() => setCompareOpen(false), []);
 
+  // The direct route into a profile comparison, without Compare mode and
+  // pinning. Brings the highlighted profile along; with nothing pinned and
+  // nothing highlighted it starts from the two current application profiles,
+  // because an empty grid is a worse first sight than a real comparison.
+  const openProfileComparison = React.useCallback(() => {
+    setCompareProfileNames((current) => {
+      const next = new Set(current);
+      if (activeProfile && next.size < COMPARE_MAX) next.add(activeProfile);
+      if (next.size === 0) ['RVA22', 'RVA23'].forEach((n) => PROFILES[n] && next.add(n));
+      return next;
+    });
+    setCompareKind('profile');
+    setCompareOpen(true);
+  }, [activeProfile]);
+
+  const downloadProfile = React.useCallback(
+    (format) => {
+      if (!activeProfile) return;
+      const membership = profileMembership({
+        mandatory: PROFILES[activeProfile] || [],
+        optional: PROFILE_OPTIONAL[activeProfile] || [],
+        closure,
+      });
+      const rows = profileExtensionRows({
+        membership,
+        catalog: extensions,
+        groups: CATALOGUE_GROUPS,
+      });
+      const file = buildProfileExport(format, {
+        profile: activeProfile,
+        metadata: PROFILE_METADATA[activeProfile],
+        rows,
+      });
+      const url = URL.createObjectURL(new Blob([file.data], { type: file.mime }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast(`Downloaded ${file.filename}`);
+    },
+    [activeProfile, showToast],
+  );
+
   /*
    * One pass per query instead of one per tile per keystroke. The tiles are
    * handed the answer, so React can skip every tile whose match state did not
@@ -2148,15 +2198,19 @@ const RISCVExplorer = () => {
 
   const compareKeys = React.useMemo(() => {
     if (compareKind === 'instr') return [...compareInstrKeys];
-    if (compareKind === 'profile') return [...compareProfileNames];
+    // Profiles in their own order (RVI20 to RVB23.1), not the order they were
+    // ticked, so a comparison reads oldest to newest however it was built.
+    if (compareKind === 'profile') return PROFILE_NAMES.filter((n) => compareProfileNames.has(n));
     return [...compareExtIds];
   }, [compareKind, compareInstrKeys, compareProfileNames, compareExtIds]);
 
   const compareModel = React.useMemo(() => {
-    if (compareKeys.length === 0) return null;
+    // A profile comparison is built even when empty: its in-view picker is how
+    // profiles are added, so the view has to be able to open with none.
     if (compareKind === 'profile') {
       return buildProfileComparison(compareKeys, { expandDependencies: compareExpandDeps });
     }
+    if (compareKeys.length === 0) return null;
     if (compareKind === 'ext') {
       return buildExtensionComparison(
         compareKeys.map((id) => findExtensionById(id, formattedSandboxExts)).filter(Boolean),
@@ -2204,9 +2258,11 @@ const RISCVExplorer = () => {
 
   // Unpinning down to one item leaves nothing to compare. Closing beats showing
   // a single column and calling it a comparison.
+  // A profile comparison is exempt: it carries its own picker, so one or no
+  // column is a step towards a comparison rather than a leftover.
   React.useEffect(() => {
-    if (compareOpen && compareKeys.length < 2) setCompareOpen(false);
-  }, [compareOpen, compareKeys]);
+    if (compareOpen && compareKind !== 'profile' && compareKeys.length < 2) setCompareOpen(false);
+  }, [compareOpen, compareKind, compareKeys]);
 
   // Calculate if search has any matching extensions
   const hasSearchMatches = React.useMemo(() => {
@@ -2586,6 +2642,22 @@ const RISCVExplorer = () => {
                           />
                         </button>
                       )}
+
+                      {/* Only a highlighted profile has a list to download. */}
+                      {activeProfile && (
+                        <ProfileDownloadMenu profile={activeProfile} onDownload={downloadProfile} />
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={openProfileComparison}
+                        title="Open the side-by-side profile comparison"
+                        aria-label="Open the side-by-side profile comparison"
+                        className="riscv-pin-btn px-2 py-1 rounded-md border text-[11px] font-semibold inline-flex items-center gap-1 whitespace-nowrap"
+                      >
+                        <GitCompare size={12} />
+                        <span className="hidden xl:inline">Compare profiles</span>
+                      </button>
                     </div>
 
                     {/* Vertical Divider */}
@@ -4849,6 +4921,8 @@ const RISCVExplorer = () => {
         onCopyLink={copyCompareLink}
         expandDeps={compareExpandDeps}
         onToggleExpandDeps={setCompareExpandDeps}
+        profileOptions={PROFILE_NAMES}
+        onToggleProfile={toggleCompareProfile}
       />
 
       {evolutionOpen && (

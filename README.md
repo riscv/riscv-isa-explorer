@@ -24,7 +24,12 @@ get a dependency-resolved configuration with a valid `-march` string.
 - **Export** a `-march` string, a YAML configuration, or a `riscv-config`
   compatible file.
 - **Compare entries.** Pin extensions, instructions or profiles and read them
-  side by side; a comparison has its own URL and can be shared.
+  side by side; a comparison has its own URL and can be shared. **Compare
+  profiles** opens a profile comparison directly, marking each extension as
+  mandatory, optional or implied by a mandatory one.
+- **Download a profile.** While a profile is highlighted, download its
+  extensions (mandatory, implied and optional, with status and spec links) as
+  YAML, JSON, CSV or Excel.
 - **Check an encoding.** The Encoder Validator tests a proposed instruction
   pattern against every existing one and reports overlaps.
 - **See the encoding space.** The Encoding Map draws the 32 base opcode slots,
