@@ -175,3 +175,18 @@ into a fix.
 
 For security reports, see [SECURITY.md](SECURITY.md). Participation is governed
 by our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## Contributors
+
+The first contributors to this project:
+
+- **Aryan Patel** ([@ARYANPATEL-BIT](https://github.com/ARYANPATEL-BIT)) -
+  automated the sync of extension metadata from riscv-unified-db, including the
+  scheduled workflow that keeps the catalogue in step with upstream; mapped the
+  riscv-opcodes tags onto every catalogue entry; and brought CSR bitfield data
+  into the catalogue.
+- **Rohit Sharma** ([@caffeine-rohit](https://github.com/caffeine-rohit)) -
+  built the synchronization and visualization engine the explorer runs on, the
+  ISA Configuration Builder, the side-by-side comparison, the expanded
+  instruction details and the Custom Extension Sandbox, along with much of the
+  interface, mobile layout and light-theme work.
