@@ -13,6 +13,23 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Added
+
+- **Download a highlighted profile's extensions** as YAML, JSON, CSV or Excel
+  (`.xlsx`). Each row says whether the extension is mandatory, implied by a
+  mandatory one (and by which), or optional, with its status, version,
+  ratification date, group and specification link. The `.xlsx` is written
+  without a new dependency.
+- **Compare profiles** button beside the Highlight Profile picker, opening the
+  profile comparison directly with a picker for which profiles to include.
+
+### Changed
+
+- Profile comparison cells now read Mandatory, Optional or (with "Include
+  implied") Implied, instead of present/absent over the mandatory list only.
+  Optional extensions are part of the comparison, and columns follow profile
+  order rather than the order they were picked.
+
 ## [1.6.0] - 2026-10-10
 
 Catalogue: 211 entries, down from 219. Removed 12: the five vector naming

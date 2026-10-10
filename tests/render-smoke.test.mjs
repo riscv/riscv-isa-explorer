@@ -442,9 +442,18 @@ test('a profile comparison permalink opens a membership matrix', async () => {
     'the view should say which dependency mode it is in',
   );
 
-  // Presence renders as marks, never as the words true/false.
+  // Membership renders as words and a dash, never as the words true/false.
   assert.ok(!/\btrue\b|\bfalse\b/.test(dialog.textContent), 'a boolean leaked into the matrix');
-  assert.ok(dialog.querySelector('[aria-label="present"]'), 'expected at least one present mark');
+  assert.ok(dialog.textContent.includes('Mandatory'), 'expected at least one Mandatory cell');
+  assert.ok(
+    dialog.querySelector('[aria-label="not in profile"]'),
+    'RVA20 lacks extensions RVA22 mandates, so some cell must say so',
+  );
+  // The in-view picker lists every profile, with the two in the link pressed.
+  const picked = [...dialog.querySelectorAll('[aria-label="Profiles to compare"] button')]
+    .filter((b) => b.getAttribute('aria-pressed') === 'true')
+    .map((b) => b.textContent);
+  assert.deepEqual(picked, ['RVA20', 'RVA22']);
 
   assert.deepEqual(realErrors(errors), [], 'console errors rendering a profile comparison');
 });

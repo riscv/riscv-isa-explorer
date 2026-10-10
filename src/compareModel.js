@@ -13,6 +13,8 @@
  */
 import { closure } from './isaGraph.js';
 import { PROFILES } from './profiles.js';
+import PROFILE_OPTIONAL from './profile-optional.json' with { type: 'json' };
+import { profileMembership } from './profileExport.js';
 
 /** Columns past this are refused rather than silently truncated. */
 export const COMPARE_MAX = 6;
@@ -206,21 +208,23 @@ export function buildInstructionComparison(items) {
 }
 
 /**
- * The extensions a profile mandates, optionally widened by the dependency graph.
+ * What each profile says about each extension: mandatory, optional, or (with
+ * expandDependencies) implied by a mandatory one. profileExport.js owns the
+ * classification so the comparison and the download cannot disagree.
  *
  * profiles.js is a faithful transcription of the profile specification and
  * deliberately does NOT expand dependencies — the graph owns that. So the two
- * modes answer different questions: the literal list is what the profile
+ * modes answer different questions: the literal lists are what the profile
  * document enumerates, the expanded one is what a conforming implementation
- * actually provides. A row reading "absent" means different things in each,
- * which is why the view says which mode it is in rather than swapping silently.
+ * actually provides. An empty cell means different things in each, which is
+ * why the view says which mode it is in rather than swapping silently.
  */
-function profileExtensions(name, expandDependencies) {
-  const listed = PROFILES[name] || [];
-  if (!expandDependencies) return listed;
-  const out = new Set(listed);
-  for (const id of listed) for (const implied of closure(id)) out.add(implied);
-  return [...out];
+function membershipFor(name, expandDependencies) {
+  return profileMembership({
+    mandatory: PROFILES[name] || [],
+    optional: PROFILE_OPTIONAL[name] || [],
+    closure: expandDependencies ? closure : null,
+  });
 }
 
 /**
@@ -229,17 +233,15 @@ function profileExtensions(name, expandDependencies) {
  */
 export function buildProfileComparison(names, { expandDependencies = false } = {}) {
   const kept = (names || []).filter((n) => PROFILES[n]);
-  const sets = kept.map((n) => new Set(profileExtensions(n, expandDependencies)));
+  const maps = kept.map((n) => membershipFor(n, expandDependencies));
 
   // The union, sorted, so the row order is stable and independent of which
   // profile happens to be pinned first.
-  const union = [...new Set(sets.flatMap((s) => [...s]))].sort();
+  const union = [...new Set(maps.flatMap((m) => [...m.keys()]))].sort();
 
-  const countRow = {
-    key: 'extension_count',
-    label: 'Extensions',
-    render: 'mono',
-    cells: sets.map((s) => s.size),
+  const countRow = (key, label, requirement) => {
+    const cells = maps.map((m) => [...m.values()].filter((v) => v.requirement === requirement).length);
+    return { key, label, render: 'mono', cells, allSame: cellsAllSame(cells) };
   };
 
   return {
@@ -247,10 +249,18 @@ export function buildProfileComparison(names, { expandDependencies = false } = {
     expandedDependencies: Boolean(expandDependencies),
     columns: kept.map((n) => ({ key: n, label: n, sublabel: null })),
     rows: [
-      { ...countRow, allSame: cellsAllSame(countRow.cells) },
+      countRow('extension_count', 'Mandatory', 'mandatory'),
+      ...(expandDependencies ? [countRow('implied_count', 'Implied', 'implied')] : []),
+      countRow('optional_count', 'Optional', 'optional'),
       ...union.map((id) => {
-        const cells = sets.map((s) => s.has(id));
-        return { key: `ext:${id}`, label: id, render: 'presence', cells, allSame: cellsAllSame(cells) };
+        const cells = maps.map((m) => m.get(id)?.requirement ?? null);
+        return {
+          key: `ext:${id}`,
+          label: id,
+          render: 'requirement',
+          cells,
+          allSame: cellsAllSame(cells),
+        };
       }),
     ],
     bitDiff: null,
@@ -356,6 +366,7 @@ function cellText(value, render) {
   // Presence is a claim about membership, so it renders as a mark rather than
   // the word "true" — and false must not fall through to String(false).
   if (render === 'presence') return value ? '\u2713' : '—';
+  if (render === 'requirement') return value ? value.charAt(0).toUpperCase() + value.slice(1) : '—';
   if (value === null || value === undefined) return '—';
   const text = Array.isArray(value) ? value.join(', ') : String(value);
   const flat = text.replace(/\s*\n\s*/g, ' ').trim();

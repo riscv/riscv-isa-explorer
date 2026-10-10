@@ -16,7 +16,45 @@ import { toMarkdown } from './compareModel.js';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import EncodingDiagram from './EncodingDiagram.jsx';
 
+// Each requirement has a word and a colour, and the word alone is enough: the
+// colour only helps a reader scan, so nothing depends on telling hues apart.
+const REQUIREMENT_TONE = {
+  mandatory: 'var(--riscv-success)',
+  implied: 'var(--riscv-violet)',
+  optional: 'var(--riscv-gold)',
+};
+const REQUIREMENT_LABEL = { mandatory: 'Mandatory', implied: 'Implied', optional: 'Optional' };
+
 function Cell({ row, value, bitDiff }) {
+  if (row.render === 'requirement') {
+    // Same rule as presence below: colour is spent only where the profiles
+    // disagree, so an extension every profile mandates does not shout.
+    if (!value) {
+      return (
+        <span
+          aria-label="not in profile"
+          style={{
+            color: row.allSame ? 'var(--riscv-text-3)' : 'var(--riscv-danger)',
+            fontWeight: row.allSame ? 400 : 700,
+          }}
+        >
+          &mdash;
+        </span>
+      );
+    }
+    return (
+      <span
+        className="text-[12px]"
+        style={{
+          color: row.allSame ? 'var(--riscv-text-3)' : REQUIREMENT_TONE[value],
+          fontWeight: row.allSame ? 400 : 700,
+        }}
+      >
+        {REQUIREMENT_LABEL[value] ?? value}
+      </span>
+    );
+  }
+
   if (row.render !== 'presence' && (value === null || value === undefined)) {
     return <span style={{ color: 'var(--riscv-text-3)' }}>—</span>;
   }
@@ -102,6 +140,8 @@ export default function CompareView({
   onCopyLink,
   expandDeps,
   onToggleExpandDeps,
+  profileOptions,
+  onToggleProfile,
 }) {
   const [differencesOnly, setDifferencesOnly] = React.useState(false);
   const dialogRef = React.useRef(null);
@@ -148,7 +188,11 @@ export default function CompareView({
     };
   }, [open]);
 
-  if (!open || !model || model.columns.length === 0) return null;
+  // A profile comparison stays open with no columns, because its own picker is
+  // how columns get added back; the other kinds have no picker.
+  if (!open || !model) return null;
+  if (model.columns.length === 0 && model.kind !== 'profile') return null;
+  const pickedProfiles = new Set(model.kind === 'profile' ? model.columns.map((c) => c.key) : []);
 
   // Agreement is context, difference is the signal.
   const rows = differencesOnly ? model.rows.filter((r) => !r.allSame) : model.rows;
@@ -289,6 +333,41 @@ export default function CompareView({
             </div>
           </div>
 
+          {model.kind === 'profile' && profileOptions?.length > 0 && (
+            <div
+              className="flex flex-wrap items-center gap-2 px-5 py-2.5"
+              style={{ borderBottom: '1px solid var(--riscv-border-2)' }}
+              role="group"
+              aria-label="Profiles to compare"
+            >
+              <span
+                className="text-[11px] font-semibold uppercase tracking-wider"
+                style={{ color: 'var(--riscv-text-3)' }}
+              >
+                Profiles
+              </span>
+              {profileOptions.map((name) => {
+                const picked = pickedProfiles.has(name);
+                return (
+                  <button
+                    key={name}
+                    type="button"
+                    aria-pressed={picked}
+                    onClick={() => onToggleProfile(name)}
+                    className="px-2 py-1 rounded-md border text-[11px] font-mono font-semibold transition-colors"
+                    style={{
+                      borderColor: picked ? 'var(--riscv-violet)' : 'var(--riscv-border-2)',
+                      background: picked ? 'rgba(139, 124, 248, 0.14)' : 'transparent',
+                      color: picked ? 'var(--riscv-text)' : 'var(--riscv-text-2)',
+                    }}
+                  >
+                    {name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {/* Grid View */}
           <div className="flex-1 overflow-auto">
             <div className="compare-grid" style={{ gridTemplateColumns: gridColumns }}>
@@ -343,7 +422,13 @@ export default function CompareView({
               ))}
             </div>
 
-            {rows.length === 0 && (
+            {model.columns.length === 0 && (
+              <div className="p-12 text-center text-sm" style={{ color: 'var(--riscv-text-2)' }}>
+                Pick one or more profiles above to compare them side by side.
+              </div>
+            )}
+
+            {model.columns.length > 0 && rows.length === 0 && (
               <div className="p-12 text-center space-y-2">
                 <div className="text-sm font-semibold" style={{ color: 'var(--riscv-text-2)' }}>
                   All attributes are identical

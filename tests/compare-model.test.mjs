@@ -396,15 +396,46 @@ test('an empty model exports nothing rather than a headerless table', () => {
 // ---------------------------------------------------------------------------
 
 import { PROFILES } from '../src/profiles.js';
+import PROFILE_OPTIONAL from '../src/profile-optional.json' with { type: 'json' };
+
+const requirementRows = (m) => m.rows.filter((r) => r.render === 'requirement');
 
 test('the profile model has one row per extension across the union, sorted', () => {
   const model = buildProfileComparison(['RVA20', 'RVA22']);
   assert.equal(model.kind, 'profile');
   assert.deepEqual(model.columns.map((c) => c.key), ['RVA20', 'RVA22']);
 
-  const union = [...new Set([...PROFILES.RVA20, ...PROFILES.RVA22])].sort();
-  const presenceRows = model.rows.filter((r) => r.render === 'presence');
-  assert.deepEqual(presenceRows.map((r) => r.label), union);
+  // Mandatory and optional lists alike: an option is part of what a profile says.
+  const union = [
+    ...new Set([
+      ...PROFILES.RVA20,
+      ...PROFILES.RVA22,
+      ...PROFILE_OPTIONAL.RVA20,
+      ...PROFILE_OPTIONAL.RVA22,
+    ]),
+  ].sort();
+  assert.deepEqual(requirementRows(model).map((r) => r.label), union);
+});
+
+test('cells say mandatory, optional or nothing, and never call a mandate optional', () => {
+  const model = buildProfileComparison(['RVA22', 'RVA23']);
+  for (const row of requirementRows(model)) {
+    for (const cell of row.cells) assert.ok([null, 'mandatory', 'optional'].includes(cell), cell);
+  }
+  // V is optional in RVA22 and mandatory in RVA23.
+  const v = requirementRows(model).find((r) => r.label === 'V');
+  assert.deepEqual(v.cells, ['optional', 'mandatory']);
+  assert.equal(v.allSame, false);
+});
+
+test('with dependencies expanded, required-but-unlisted extensions read as implied', () => {
+  const model = buildProfileComparison(['RVA23'], { expandDependencies: true });
+  const cells = new Map(requirementRows(model).map((r) => [r.label, r.cells[0]]));
+  // RVA23 lists H, which requires S; the profile does not list S itself.
+  assert.ok(!PROFILES.RVA23.includes('S'));
+  assert.equal(cells.get('S'), 'implied');
+  for (const id of PROFILES.RVA23) assert.equal(cells.get(id), 'mandatory', id);
+  assert.ok(model.rows.some((r) => r.key === 'implied_count'));
 });
 
 test('a summary row reports each profile\'s extension count', () => {
@@ -413,22 +444,26 @@ test('a summary row reports each profile\'s extension count', () => {
   assert.ok(counts, 'expected an extension_count row');
   assert.deepEqual(counts.cells, [PROFILES.RVA20.length, PROFILES.RVA22.length]);
   assert.equal(counts.allSame, false, 'RVA20 and RVA22 list different numbers');
+  const optional = model.rows.find((r) => r.key === 'optional_count');
+  assert.ok(optional, 'expected an optional_count row');
 });
 
 test('an extension in every profile is dimmed, one that differs is not', () => {
   const model = buildProfileComparison(['RVA20', 'RVA22']);
-  const rowFor = (id) => model.rows.find((r) => r.render === 'presence' && r.label === id);
+  const rowFor = (id) => requirementRows(model).find((r) => r.label === id);
 
   // RV64I is mandatory in both.
   assert.equal(rowFor('RV64I').allSame, true);
-  assert.deepEqual(rowFor('RV64I').cells, [true, true]);
+  assert.deepEqual(rowFor('RV64I').cells, ['mandatory', 'mandatory']);
 
   // Zba arrived with RVA22.
-  const added = PROFILES.RVA22.filter((id) => !PROFILES.RVA20.includes(id));
+  const added = PROFILES.RVA22.filter(
+    (id) => !PROFILES.RVA20.includes(id) && !PROFILE_OPTIONAL.RVA20.includes(id),
+  );
   assert.ok(added.length > 0, 'expected RVA22 to add something over RVA20');
   const row = rowFor(added[0]);
   assert.equal(row.allSame, false);
-  assert.deepEqual(row.cells, [false, true]);
+  assert.deepEqual(row.cells, [null, 'mandatory']);
 });
 
 test('comparing a profile with itself marks every row as agreeing', () => {
@@ -440,7 +475,7 @@ test('expanding dependencies widens the union and never narrows it', () => {
   const literal = buildProfileComparison(['RVA20', 'RVA22']);
   const expanded = buildProfileComparison(['RVA20', 'RVA22'], { expandDependencies: true });
 
-  const ids = (m) => m.rows.filter((r) => r.render === 'presence').map((r) => r.label);
+  const ids = (m) => requirementRows(m).map((r) => r.label);
   const literalIds = new Set(ids(literal));
   for (const id of literalIds) {
     assert.ok(ids(expanded).includes(id), `${id} vanished when dependencies were expanded`);
@@ -484,10 +519,13 @@ test('profile names resolve case-insensitively and unknown ones are dropped', ()
   assert.deepEqual(parsed.dropped, ['NOPE']);
 });
 
-test('markdown renders presence as a check or a dash, never as true/false', () => {
-  const md = toMarkdown(buildProfileComparison(['RVA20', 'RVA22']));
-  const line = md.split('\n').find((l) => l.startsWith('| RV64I |'));
-  assert.ok(line, 'expected an RV64I row in the export');
-  assert.ok(!/true|false/.test(line), `presence leaked a boolean: ${line}`);
-  assert.ok(line.includes('\u2713'), `expected a check mark in: ${line}`);
+test('markdown renders requirements as words and absence as a dash', () => {
+  const md = toMarkdown(buildProfileComparison(['RVA22', 'RVA23']));
+  const line = md.split('\n').find((l) => l.startsWith('| V |'));
+  assert.ok(line, 'expected a V row in the export');
+  assert.equal(line, '| V | Optional | Mandatory |');
+  const absent = toMarkdown(buildProfileComparison(['RVA20', 'RVA23']))
+    .split('\n')
+    .find((l) => l.startsWith('| Zicond |'));
+  assert.ok(absent.includes('| — |'), `expected a dash in: ${absent}`);
 });
