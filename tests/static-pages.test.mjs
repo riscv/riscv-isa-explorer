@@ -77,3 +77,17 @@ test('the index placed in index.html links to every page', () => {
     assert.ok(indexHtml.includes(`href="ext/${ext.id.toLowerCase()}/"`), `${ext.id} missing`);
   }
 });
+
+test('browsers that run JavaScript never see the crawler index', async () => {
+  // Without this, the index shows until the 2 MB bundle loads and React
+  // replaces it, a visible flash of a link list on every page load (#392).
+  const { readFileSync } = await import('node:fs');
+  const template = readFileSync(new URL('../public/index.html', import.meta.url), 'utf8');
+  assert.ok(indexHtml.startsWith('<main class="static-index">'));
+  assert.ok(template.includes("document.documentElement.classList.add('js')"));
+  assert.ok(template.includes('.js .static-index{display:none}'));
+  assert.ok(
+    template.indexOf('.static-index{display:none}') < template.indexOf('<%= staticIndexHtml %>'),
+    'the hiding rule must come before the index it hides',
+  );
+});
