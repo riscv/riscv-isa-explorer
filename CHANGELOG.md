@@ -34,6 +34,11 @@ someone silently. Each release below records its catalogue size.
 
 ### Changed
 
+- **P (Packed SIMD) is marked as in development, v0.6.0.** It showed "Status
+  unknown" while RV128I showed Draft, which read as P being further along than
+  it is. The status comes from the P specification's v0.6 release (Development
+  Milestone Approved, 2026-09-29); riscv-unified-db does not carry P yet.
+
 - **Profiles are now treated as Volume III of the ISA manual**, which the
   manual adopted in 2026 (riscv-isa-manual#2771). The header counts three
   volumes, the profile picker is labelled Vol III, and a highlighted ratified
