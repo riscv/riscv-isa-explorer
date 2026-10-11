@@ -82,6 +82,7 @@ import ProfileDownloadMenu from './ProfileDownloadMenu.jsx';
 import RiscvLogo from './RiscvLogo.jsx';
 import { PROFILES, PROFILE_METADATA } from './profiles.js';
 import PROFILE_OPTIONAL from './profile-optional.json';
+import { noInstructionReason } from './extensionNotes.js';
 import AskAiLauncher from './AskAiLauncher.jsx';
 // The same switch webpack.config.js reads to decide whether the kapa.ai widget
 // goes into index.html at all, so the chip and the widget it opens can only be
@@ -196,8 +197,8 @@ const loadSavedBuilderState = () => {
 
   const paramChoices =
     parsed.paramChoices &&
-    typeof parsed.paramChoices === 'object' &&
-    !Array.isArray(parsed.paramChoices)
+      typeof parsed.paramChoices === 'object' &&
+      !Array.isArray(parsed.paramChoices)
       ? parsed.paramChoices
       : {};
 
@@ -1222,7 +1223,7 @@ const RISCVExplorer = () => {
         if (unsatisfiedChoice) {
           showToast(
             `Architecturally Incomplete: ${unsatisfiedChoice.node} requires one of ` +
-              unsatisfiedChoice.options.join(', '),
+            unsatisfiedChoice.options.join(', '),
           );
           return prev;
         }
@@ -1506,8 +1507,8 @@ const RISCVExplorer = () => {
     Boolean(standardEquivalentMnemonic) && instructionIndex.get(standardEquivalentMnemonic)?.length;
   const compressedEquivalents = selectedInstruction
     ? (COMPRESSED_BY_STANDARD[normalizeMnemonicKey(selectedInstruction.mnemonic)] || []).filter(
-        (entry) => instructionIndex.has(normalizeMnemonicKey(entry.mnemonic)),
-      )
+      (entry) => instructionIndex.has(normalizeMnemonicKey(entry.mnemonic)),
+    )
     : [];
 
   const formatInstructionForClipboard = React.useCallback((ext, instr) => {
@@ -2932,11 +2933,10 @@ const RISCVExplorer = () => {
                               type="button"
                               onClick={() => setProfileMenuOpen((v) => !v)}
                               data-tooltip="Start the configuration from a supported profile"
-                              className={`builder-action-indigo w-full flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-semibold transition-all duration-300 rounded-lg ${
-                                profileMenuOpen
+                              className={`builder-action-indigo w-full flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-semibold transition-all duration-300 rounded-lg ${profileMenuOpen
                                   ? 'bg-indigo-500 text-white shadow-inner'
                                   : 'text-indigo-300 hover:bg-indigo-500/30 hover:text-indigo-100 hover:shadow-[0_0_12px_rgba(99,102,241,0.3)]'
-                              }`}
+                                }`}
                             >
                               <Layers size={14} className="transition-transform hover:scale-110" />
                               {workspaceIds.size === 0 && (
@@ -3066,11 +3066,10 @@ const RISCVExplorer = () => {
                                   data-tooltip="Export configuration YAML"
                                   aria-label="Export configuration YAML"
                                   onClick={() => setQuickExportOpen((v) => !v)}
-                                  className={`builder-action-emerald w-full flex items-center justify-center py-1.5 transition-all duration-300 rounded-lg ${
-                                    quickExportOpen
+                                  className={`builder-action-emerald w-full flex items-center justify-center py-1.5 transition-all duration-300 rounded-lg ${quickExportOpen
                                       ? 'bg-emerald-500 text-white shadow-inner'
                                       : 'text-emerald-300 hover:bg-emerald-500/30 hover:text-emerald-100 hover:shadow-[0_0_12px_rgba(16,185,129,0.3)]'
-                                  }`}
+                                    }`}
                                 >
                                   <Download
                                     size={14}
@@ -3378,9 +3377,8 @@ const RISCVExplorer = () => {
             id="extension-grid"
             tabIndex={-1}
             aria-label="Extension catalogue"
-            className={`${
-              selectedExt ? 'lg:col-span-8' : 'lg:col-span-12'
-            } grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-min`}
+            className={`${selectedExt ? 'lg:col-span-8' : 'lg:col-span-12'
+              } grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-min`}
           >
             {/* Search Bar */}
             <div className="col-span-full mb-2 flex items-center gap-3">
@@ -4141,15 +4139,15 @@ const RISCVExplorer = () => {
                               : 'Status unconfirmed';
                           const tip = ratified
                             ? // Deliberately does not name a source. Most states
-                              // are synced from riscv-unified-db, but not all:
-                              // UDB has no E extension and no RV128, so RV32E,
-                              // RV64E and RV128I carry states set here against
-                              // the specification itself. Crediting UDB for
-                              // those would be a false claim about provenance —
-                              // the same mistake as RV128I inheriting I's
-                              // ratification. The linked chapter is the source
-                              // a reader can actually check.
-                              'Ratified — see the linked specification chapter'
+                            // are synced from riscv-unified-db, but not all:
+                            // UDB has no E extension and no RV128, so RV32E,
+                            // RV64E and RV128I carry states set here against
+                            // the specification itself. Crediting UDB for
+                            // those would be a false claim about provenance —
+                            // the same mistake as RV128I inheriting I's
+                            // ratification. The linked chapter is the source
+                            // a reader can actually check.
+                            'Ratified — see the linked specification chapter'
                             : state
                               ? `Reported as ${state}; see the linked specification chapter`
                               : 'Neither riscv-unified-db nor riscv-opcodes describes this extension, so its status could not be confirmed';
@@ -4160,15 +4158,15 @@ const RISCVExplorer = () => {
                               style={
                                 ratified
                                   ? {
-                                      background: 'var(--riscv-check-fill)',
-                                      color: 'var(--riscv-check)',
-                                      borderColor: 'var(--riscv-check-edge)',
-                                    }
+                                    background: 'var(--riscv-check-fill)',
+                                    color: 'var(--riscv-check)',
+                                    borderColor: 'var(--riscv-check-edge)',
+                                  }
                                   : {
-                                      background: 'var(--riscv-gold-dim)',
-                                      color: 'var(--riscv-gold)',
-                                      borderColor: 'rgba(245,197,66,0.35)',
-                                    }
+                                    background: 'var(--riscv-gold-dim)',
+                                    color: 'var(--riscv-gold)',
+                                    borderColor: 'rgba(245,197,66,0.35)',
+                                  }
                               }
                             >
                               {label}
@@ -4360,8 +4358,7 @@ const RISCVExplorer = () => {
                                         return { ...current, index: idx };
                                       });
                                     }}
-                                    className={`px-1.5 py-0.5 rounded-l border text-[11px] font-mono tracking-tight ${
-                                      isActive
+                                    className={`px-1.5 py-0.5 rounded-l border text-[11px] font-mono tracking-tight ${isActive
                                         ? isDeprecated
                                           ? 'border-red-400 bg-red-500/10 text-red-200'
                                           : 'border-emerald-400 bg-emerald-500/10 text-emerald-200'
@@ -4370,7 +4367,7 @@ const RISCVExplorer = () => {
                                           : isDeprecated
                                             ? 'border-red-500/60 bg-red-500/5 text-red-200'
                                             : 'border-slate-700 bg-slate-800/70'
-                                    }`}
+                                      }`}
                                     title={
                                       isClickable
                                         ? `View details for ${mnemonic}`
@@ -4416,6 +4413,34 @@ const RISCVExplorer = () => {
                               );
                             })}
                           </div>
+                        </div>
+                      )}
+
+                      {Object.keys(selectedExt.instructions || {}).length === 0 && (
+                        <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
+                          <h4
+                            className="text-[11px] uppercase tracking-wider font-bold mb-1.5 flex items-center gap-1"
+                            style={{ color: 'var(--riscv-text-3)' }}
+                          >
+                            <Info size={10} /> Instruction Set Snapshot
+                          </h4>
+                          <p
+                            className="text-sm leading-relaxed"
+                            style={{ color: 'var(--riscv-text-2)' }}
+                          >
+                            {noInstructionReason(selectedExt)}
+                          </p>
+                          {typeof selectedExt.behavior === 'string' &&
+                            selectedExt.behavior.trim().length > 0 &&
+                            selectedExt.behavior.trim() !== selectedExt.desc?.trim() &&
+                            selectedExt.behavior.trim() !== selectedExt.use?.trim() && (
+                              <p
+                                className="text-xs leading-relaxed mt-2 whitespace-pre-line"
+                                style={{ color: 'var(--riscv-text-2)' }}
+                              >
+                                {selectedExt.behavior}
+                              </p>
+                            )}
                         </div>
                       )}
 
@@ -4510,10 +4535,10 @@ const RISCVExplorer = () => {
                                     style={
                                       isPinned
                                         ? {
-                                            background: 'var(--riscv-violet-dim)',
-                                            color: 'var(--riscv-violet)',
-                                            borderColor: 'rgba(139, 124, 248, 0.4)',
-                                          }
+                                          background: 'var(--riscv-violet-dim)',
+                                          color: 'var(--riscv-violet)',
+                                          borderColor: 'rgba(139, 124, 248, 0.4)',
+                                        }
                                         : undefined
                                     }
                                     onClick={() => {
@@ -4668,14 +4693,13 @@ const RISCVExplorer = () => {
                                   Match
                                 </div>
                                 <div
-                                  className={`font-mono text-[12px] text-slate-100 bg-slate-800/70 border rounded px-2 py-1 ${
-                                    searchQuery.trim().length &&
-                                    String(selectedInstruction.match || '')
-                                      .toLowerCase()
-                                      .includes(searchQuery.trim().toLowerCase())
+                                  className={`font-mono text-[12px] text-slate-100 bg-slate-800/70 border rounded px-2 py-1 ${searchQuery.trim().length &&
+                                      String(selectedInstruction.match || '')
+                                        .toLowerCase()
+                                        .includes(searchQuery.trim().toLowerCase())
                                       ? 'border-yellow-400 bg-yellow-500/10'
                                       : 'border-slate-700'
-                                  }`}
+                                    }`}
                                 >
                                   {selectedInstruction.match}
                                 </div>
@@ -4685,14 +4709,13 @@ const RISCVExplorer = () => {
                                   Mask
                                 </div>
                                 <div
-                                  className={`font-mono text-[12px] text-slate-100 bg-slate-800/70 border rounded px-2 py-1 ${
-                                    searchQuery.trim().length &&
-                                    String(selectedInstruction.mask || '')
-                                      .toLowerCase()
-                                      .includes(searchQuery.trim().toLowerCase())
+                                  className={`font-mono text-[12px] text-slate-100 bg-slate-800/70 border rounded px-2 py-1 ${searchQuery.trim().length &&
+                                      String(selectedInstruction.mask || '')
+                                        .toLowerCase()
+                                        .includes(searchQuery.trim().toLowerCase())
                                       ? 'border-yellow-400 bg-yellow-500/10'
                                       : 'border-slate-700'
-                                  }`}
+                                    }`}
                                 >
                                   {selectedInstruction.mask}
                                 </div>
@@ -4809,11 +4832,10 @@ const RISCVExplorer = () => {
                         <div
                           className={`
                       mt-4 p-3 rounded text-xs flex items-center gap-2 border
-                      ${
-                        isHighlighted(selectedExt.id)
-                          ? 'bg-yellow-900/20 border-yellow-700/30 text-yellow-200'
-                          : 'bg-slate-800 border-slate-700 text-slate-500'
-                      }
+                      ${isHighlighted(selectedExt.id)
+                              ? 'bg-yellow-900/20 border-yellow-700/30 text-yellow-200'
+                              : 'bg-slate-800 border-slate-700 text-slate-500'
+                            }
                     `}
                         >
                           {isHighlighted(selectedExt.id) ? (
@@ -5555,10 +5577,10 @@ const RISCVExplorer = () => {
                         style={
                           isPinned
                             ? {
-                                background: 'var(--riscv-violet-dim)',
-                                color: 'var(--riscv-violet)',
-                                borderColor: 'rgba(139, 124, 248, 0.4)',
-                              }
+                              background: 'var(--riscv-violet-dim)',
+                              color: 'var(--riscv-violet)',
+                              borderColor: 'rgba(139, 124, 248, 0.4)',
+                            }
                             : undefined
                         }
                         onClick={() => {
@@ -5684,14 +5706,13 @@ const RISCVExplorer = () => {
                         Match
                       </div>
                       <div
-                        className={`font-mono text-[14px] px-4 py-3 rounded-lg border flex items-center justify-between group ${
-                          searchQuery.trim().length &&
-                          String(selectedInstruction.match || '')
-                            .toLowerCase()
-                            .includes(searchQuery.trim().toLowerCase())
+                        className={`font-mono text-[14px] px-4 py-3 rounded-lg border flex items-center justify-between group ${searchQuery.trim().length &&
+                            String(selectedInstruction.match || '')
+                              .toLowerCase()
+                              .includes(searchQuery.trim().toLowerCase())
                             ? 'border-yellow-400 bg-yellow-500/10 text-yellow-200'
                             : 'border-slate-700 bg-slate-800/70 text-slate-100'
-                        }`}
+                          }`}
                       >
                         <span>{selectedInstruction.match || '—'}</span>
                         {selectedInstruction.match && (
@@ -5717,14 +5738,13 @@ const RISCVExplorer = () => {
                         Mask
                       </div>
                       <div
-                        className={`font-mono text-[14px] px-4 py-3 rounded-lg border flex items-center justify-between group ${
-                          searchQuery.trim().length &&
-                          String(selectedInstruction.mask || '')
-                            .toLowerCase()
-                            .includes(searchQuery.trim().toLowerCase())
+                        className={`font-mono text-[14px] px-4 py-3 rounded-lg border flex items-center justify-between group ${searchQuery.trim().length &&
+                            String(selectedInstruction.mask || '')
+                              .toLowerCase()
+                              .includes(searchQuery.trim().toLowerCase())
                             ? 'border-yellow-400 bg-yellow-500/10 text-yellow-200'
                             : 'border-slate-700 bg-slate-800/70 text-slate-100'
-                        }`}
+                          }`}
                       >
                         <span>{selectedInstruction.mask || '—'}</span>
                         {selectedInstruction.mask && (
@@ -5952,10 +5972,9 @@ const RISCVExplorer = () => {
                   <div
                     className={`
                       mt-2 p-4 rounded-xl flex items-center gap-3 border text-[13px]
-                      ${
-                        isHighlighted(selectedExt.id)
-                          ? 'bg-yellow-900/20 border-yellow-700/30 text-yellow-200'
-                          : 'bg-slate-800/50 border-slate-700/50 text-slate-400'
+                      ${isHighlighted(selectedExt.id)
+                        ? 'bg-yellow-900/20 border-yellow-700/30 text-yellow-200'
+                        : 'bg-slate-800/50 border-slate-700/50 text-slate-400'
                       }
                     `}
                   >
