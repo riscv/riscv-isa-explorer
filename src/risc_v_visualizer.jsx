@@ -1873,12 +1873,25 @@ const RISCVExplorer = () => {
     [isHighlightedByProfile, isHighlightedByVolume],
   );
 
-  const isOptional = React.useCallback(
-    (id) => {
-      if (!activeProfile) return false;
-      return PROFILE_OPTIONAL[activeProfile]?.includes(id) ?? false;
-    },
-    [activeProfile],
+  // Where each extension stands in the highlighted profile: mandatory, implied
+  // by a mandatory one, or optional. The same profileMembership the download
+  // and the profile comparison use, so the grid cannot disagree with either.
+  // Before this, implied extensions were dimmed like non-members, which read as
+  // "not in the profile" for 24 of RVA23's 78 required extensions.
+  const activeProfileMembership = React.useMemo(() => {
+    if (!activeProfile) return null;
+    const membership = profileMembership({
+      mandatory: profiles[activeProfile],
+      optional: PROFILE_OPTIONAL[activeProfile] || [],
+      closure,
+    });
+    for (const entry of membership.values()) entry.profile = activeProfile;
+    return membership;
+  }, [activeProfile, profiles]);
+
+  const profileRequirement = React.useCallback(
+    (id) => activeProfileMembership?.get(id) ?? null,
+    [activeProfileMembership],
   );
 
   // Dim whatever the active filter excludes. The two filters are mutually
@@ -1889,12 +1902,10 @@ const RISCVExplorer = () => {
   const isDimmed = React.useCallback(
     (id) => {
       if (activeVolume) return !(volumeMembership[activeVolume]?.has(id) ?? false);
-      if (activeProfile) {
-        return !profiles[activeProfile].includes(id) && !(PROFILE_OPTIONAL[activeProfile]?.includes(id) ?? false);
-      }
+      if (activeProfileMembership) return !activeProfileMembership.has(id);
       return false;
     },
-    [activeVolume, activeProfile, volumeMembership],
+    [activeVolume, activeProfileMembership, volumeMembership],
   );
 
   // The tile lives in ./ExtensionTile.jsx. It used to be defined here, inside
@@ -2186,7 +2197,7 @@ const RISCVExplorer = () => {
       onSelect: handleSelectExt,
       onToggleWorkspace: handleToggleWorkspace,
       onToggleCompare: toggleCompareExt,
-      isOptional,
+      profileRequirement,
     }),
     [
       // searchQuery is deliberately absent: it is no longer a tile prop, so
@@ -2203,7 +2214,7 @@ const RISCVExplorer = () => {
       handleSelectExt,
       handleToggleWorkspace,
       toggleCompareExt,
-      isOptional,
+      profileRequirement,
     ],
   );
 
@@ -2444,8 +2455,11 @@ const RISCVExplorer = () => {
       ...PROFILE_METADATA[activeProfile],
       mandatoryCount: mandatory.length,
       resolvedCount: resolveSelection({ selected: mandatory }).resolved.length,
+      optionalCount: [...(activeProfileMembership?.values() ?? [])].filter(
+        (entry) => entry.requirement === 'optional',
+      ).length,
     };
-  }, [activeProfile, profiles]);
+  }, [activeProfile, profiles, activeProfileMembership]);
   const activeVolumeCount = React.useMemo(
     () =>
       activeVolume
@@ -3340,8 +3354,11 @@ const RISCVExplorer = () => {
                           Highlighting {activeProfile}:
                         </strong>{' '}
                         {activeProfileSummary.mandatoryCount} mandatory requirements ·{' '}
-                        {activeProfileSummary.resolvedCount} after dependencies.{' '}
-                        {activeProfileSummary.description}.
+                        {activeProfileSummary.resolvedCount} after dependencies
+                        {activeProfileSummary.optionalCount > 0 && (
+                          <> · {activeProfileSummary.optionalCount} optional, outlined dashed</>
+                        )}
+                        . {activeProfileSummary.description}.
                         {activeProfileSummary.specUrl ? (
                           <>
                             {' '}

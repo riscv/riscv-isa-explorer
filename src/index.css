@@ -411,10 +411,20 @@ pre,
     0 4px 16px rgba(245, 197, 66, 0.08);
 }
 
+/* Optional in the highlighted profile. An outline rather than the border, so
+   the group colour classes need no !important to override, and nothing is
+   faded: the old opacity: 0.6 took the tile text to 2.3:1 in the light theme. */
 .ext-tile-optional {
-  border-style: dashed !important;
-  border-color: rgba(245, 197, 66, 0.6) !important;
-  opacity: 0.6;
+  outline: 1.5px dashed var(--riscv-gold);
+  outline-offset: -1.5px;
+}
+
+/* "implied" / "optional" beside the name while a profile is highlighted. */
+.ext-profile-tag {
+  color: var(--riscv-text-2);
+  border: 1px solid var(--riscv-border-2);
+  background: var(--riscv-surface-2);
+  line-height: 1;
 }
 
 /* Top accent border gradient */

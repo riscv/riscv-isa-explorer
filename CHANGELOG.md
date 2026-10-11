@@ -13,6 +13,16 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Added
+
+- **A highlighted profile now shows all of its extensions, not only the
+  mandatory ones.** Extensions implied by a mandatory one carry an "implied"
+  tag naming what implies them, and optional ones carry an "optional" tag and a
+  dashed outline. Before, both were dimmed like extensions outside the profile.
+  The banner counts the optional ones. The grid uses the same classification
+  as the profile download and comparison. Idea and first version by Nicolas
+  Brunie (#397).
+
 ### Changed
 
 - **Profiles are now treated as Volume III of the ISA manual**, which the

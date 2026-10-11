@@ -34,7 +34,6 @@ export function tilePropsAreEqual(prev, next) {
   if (prev.onToggleCompare !== next.onToggleCompare) return false;
   if (prev.isHighlighted !== next.isHighlighted) return false;
   if (prev.isDimmed !== next.isDimmed) return false;
-  if (prev.isOptional !== next.isOptional) return false;
 
   // Per-tile membership, not container identity. This is the whole point.
   const id = next.data?.id;
@@ -44,6 +43,14 @@ export function tilePropsAreEqual(prev, next) {
 
   // The tooltip names who requires this extension, so a change in the reason is
   // user-visible even when the locked flag itself has not moved.
+  // Profile standing, compared per tile like the sets above. impliedBy is in
+  // the tag's tooltip, so a change there is visible even when the kind is not.
+  const prevReq = prev.profileRequirement?.(id) ?? null;
+  const nextReq = next.profileRequirement?.(id) ?? null;
+  if (prevReq?.requirement !== nextReq?.requirement) return false;
+  if (prevReq?.profile !== nextReq?.profile) return false;
+  if (prevReq?.impliedBy.join() !== nextReq?.impliedBy.join()) return false;
+
   const prevLock = prev.lockedExtensions.get(id);
   const nextLock = next.lockedExtensions.get(id);
   if ((prevLock?.length ?? 0) !== (nextLock?.length ?? 0)) return false;
