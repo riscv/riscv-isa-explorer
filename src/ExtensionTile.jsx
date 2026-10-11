@@ -40,11 +40,24 @@ function ExtensionTile({
   onSelect,
   onToggleWorkspace,
   onToggleCompare,
+  profileRequirement,
 }) {
   const isDiscontinued = data.discontinued === 1;
   const isSelected = selectedExtId === data.id;
   const highlighted = isHighlighted(data.id) || matchesSearch || isSelected;
   const dimmed = isDimmed(data.id) && !matchesSearch && !isSelected;
+  // Where this extension stands in the highlighted profile, if one is. Mandatory
+  // members already get the highlight ring; implied and optional ones get a tag
+  // that says which, so the difference is not carried by an outline alone.
+  const inProfile = profileRequirement?.(data.id) ?? null;
+  const profileTag =
+    inProfile && inProfile.requirement !== 'mandatory' && !dimmed ? inProfile : null;
+  const optional = profileTag?.requirement === 'optional' && !isSelected;
+  const profileTagLabel = profileTag
+    ? profileTag.requirement === 'optional'
+      ? `Optional in ${profileTag.profile}`
+      : `Implied in ${profileTag.profile} by ${profileTag.impliedBy.join(', ')}`
+    : null;
   const inWorkspace = workspaceIds.has(data.id);
   // Derived from `data` rather than passed in, so tilePropsAreEqual needs no
   // new comparison: it already returns false when `data` changes identity.
@@ -58,6 +71,7 @@ function ExtensionTile({
         'ext-tile group relative rounded-lg border select-none',
         isSelected ? 'ext-tile-active' : '',
         highlighted && !isSelected ? 'ext-tile-highlighted' : '',
+        optional ? 'ext-tile-optional' : '',
         dimmed ? 'opacity-20 grayscale pointer-events-none' : '',
         isDiscontinued && !dimmed
           ? 'border-(--riscv-border-2) bg-(--riscv-surface)'
@@ -83,7 +97,7 @@ function ExtensionTile({
       <button
         type="button"
         className="ext-tile-primary absolute inset-0 z-0 rounded-lg"
-        aria-label={`View ${data.id} details`}
+        aria-label={`View ${data.id} details${profileTagLabel ? ` (${profileTagLabel})` : ''}`}
         onClick={() => onSelect(data)}
         disabled={dimmed}
       />
@@ -237,6 +251,15 @@ function ExtensionTile({
           >
             {data.name}
           </span>
+          {profileTag && (
+            <span
+              className="ext-profile-tag px-1 py-px mt-px rounded-sm text-[8.5px] font-mono uppercase tracking-wider font-semibold shrink-0"
+              data-requirement={profileTag.requirement}
+              title={profileTagLabel}
+            >
+              {profileTag.requirement}
+            </span>
+          )}
           {data.isSandbox && (
             <span
               className="px-1 py-px mt-px rounded-sm text-[8.5px] font-mono uppercase tracking-wider font-semibold shrink-0"

@@ -13,6 +13,25 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Added
+
+- **Filter a profile comparison to required or optional extensions.** A
+  Show: All / Required / Optional control beside the profile picker. Required
+  keeps an extension any compared profile mandates (or implies, with Include
+  implied on); Optional keeps one any lists as optional. An extension that
+  moved between them, such as V (optional in RVA22, mandatory in RVA23), shows
+  under both. Group headings recount, and the Markdown copy follows the filter.
+
+- **A highlighted profile now shows all of its extensions, not only the
+  mandatory ones.** Extensions implied by a mandatory one carry an "implied"
+  tag naming what implies them, and optional ones carry an "optional" tag and a
+  dashed outline. Before, both were dimmed like extensions outside the profile.
+  The two tags are colour-coded, teal for implied and gold for optional, and
+  stay above 4.5:1 contrast in both themes. The banner counts the optional
+  ones. The grid uses the same classification
+  as the profile download and comparison. Idea and first version by Nicolas
+  Brunie (#397).
+
 ### Changed
 
 - **Profiles are now treated as Volume III of the ISA manual**, which the

@@ -111,6 +111,42 @@ test('everything the tile displays forces a re-render when it changes', () => {
   }
 });
 
+test('profile standing is compared per tile, not by function identity', () => {
+  // A new lookup with the same answer for THIS tile must skip, the same rule as
+  // the Sets above. A change of kind, profile or implying extension must not.
+  const standing = (entries) => (id) => entries[id] ?? null;
+  const optional = { requirement: 'optional', impliedBy: [], profile: 'RVA23' };
+  const prev = baseProps({ profileRequirement: standing({ Zfa: optional }) });
+  const same = baseProps({ ...prev, profileRequirement: standing({ Zfa: { ...optional } }) });
+  assert.equal(tilePropsAreEqual(prev, same), true, 'same standing should not re-render');
+
+  const otherTile = baseProps({
+    ...prev,
+    profileRequirement: standing({ Zfa: optional, D: optional }),
+  });
+  assert.equal(
+    tilePropsAreEqual(prev, otherTile),
+    true,
+    'another tile changing must not repaint this one',
+  );
+
+  const changes = {
+    implied: { requirement: 'implied', impliedBy: ['V'], profile: 'RVA23' },
+    profile: { ...optional, profile: 'RVB23' },
+    gone: null,
+  };
+  for (const [why, entry] of Object.entries(changes)) {
+    const next = baseProps({ ...prev, profileRequirement: standing({ Zfa: entry }) });
+    assert.equal(tilePropsAreEqual(prev, next), false, `${why}: the tile would not re-render`);
+  }
+  const impliedA = baseProps({ profileRequirement: standing({ Zfa: changes.implied }) });
+  const impliedB = baseProps({
+    ...impliedA,
+    profileRequirement: standing({ Zfa: { ...changes.implied, impliedBy: ['V', 'Zve64d'] } }),
+  });
+  assert.equal(tilePropsAreEqual(impliedA, impliedB), false, 'the tooltip names who implies it');
+});
+
 test('the loop above can fail: an ignored prop does not force a re-render', () => {
   // Guards the fixture itself. If baseProps() ever goes back to minting fresh
   // references, this is the test that catches it, because a prop the

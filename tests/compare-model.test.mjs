@@ -471,6 +471,67 @@ test('differences only drops agreeing rows and any heading left empty', () => {
   });
 });
 
+test('the requirement filter keeps a row when any compared profile matches', () => {
+  const model = buildProfileComparison(['RVA22', 'RVA23'], { expandDependencies: true });
+  const ext = (rows) => rows.filter((r) => r.render === 'requirement');
+  const all = ext(model.rows);
+
+  const required = visibleRows(model, { requirement: 'required' });
+  const optional = visibleRows(model, { requirement: 'optional' });
+  assert.deepEqual(
+    ext(required).map((r) => r.label),
+    all.filter((r) => r.cells.some((c) => c === 'mandatory' || c === 'implied')).map((r) => r.label),
+  );
+  assert.deepEqual(
+    ext(optional).map((r) => r.label),
+    all.filter((r) => r.cells.includes('optional')).map((r) => r.label),
+  );
+
+  // V moved from optional (RVA22) to mandatory (RVA23): it belongs to both
+  // views, with both cells intact.
+  for (const rows of [required, optional]) {
+    assert.deepEqual(ext(rows).find((r) => r.label === 'V').cells, ['optional', 'mandatory']);
+  }
+
+  // Only the summary rows that belong with the filter survive.
+  const summaries = (rows) => rows.filter((r) => r.render === 'mono').map((r) => r.key);
+  assert.deepEqual(summaries(required), ['extension_count', 'implied_count']);
+  assert.deepEqual(summaries(optional), ['optional_count']);
+
+  // 'all', or an unknown value, is no filter at all.
+  assert.equal(visibleRows(model, { requirement: 'all' }), model.rows);
+  assert.equal(visibleRows(model, { requirement: 'bogus' }), model.rows);
+});
+
+test('a filtered heading counts only what is under it, and empty headings go', () => {
+  const model = buildProfileComparison(['RVA22', 'RVA23'], { expandDependencies: true });
+  for (const requirement of ['required', 'optional']) {
+    for (const differencesOnly of [false, true]) {
+      const rows = visibleRows(model, { requirement, differencesOnly });
+      rows.forEach((r, i) => {
+        if (r.render !== 'section') return;
+        let n = 0;
+        while (rows[i + 1 + n] && rows[i + 1 + n].render !== 'section') n++;
+        assert.ok(n > 0, `${requirement}: empty ${r.label} heading`);
+        assert.equal(r.count, n, `${requirement}/${differencesOnly}: ${r.label} count`);
+      });
+    }
+  }
+  // Filtering must not edit the model's own headings.
+  const before = model.rows.filter((r) => r.render === 'section').map((r) => r.count);
+  visibleRows(model, { requirement: 'optional' });
+  assert.deepEqual(model.rows.filter((r) => r.render === 'section').map((r) => r.count), before);
+});
+
+test('markdown follows the requirement filter', () => {
+  const model = buildProfileComparison(['RVA22', 'RVA23']);
+  const md = toMarkdown(model, { requirement: 'optional' });
+  assert.match(md, /^\| V \|/m, 'V is optional in RVA22');
+  assert.doesNotMatch(md, /^\| Zicsr \|/m, 'Zicsr is optional in neither');
+  assert.doesNotMatch(md, /^\| Mandatory \|/m, 'the mandatory count row belongs to the required view');
+  assert.match(md, /^\| Optional \|/m, 'the optional count row stays');
+});
+
 test('cells say mandatory, optional or nothing, and never call a mandate optional', () => {
   const model = buildProfileComparison(['RVA22', 'RVA23']);
   for (const row of requirementRows(model)) {

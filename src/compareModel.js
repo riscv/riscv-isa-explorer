@@ -248,7 +248,9 @@ export function buildProfileComparison(
   const union = [...new Set(maps.flatMap((m) => [...m.keys()]))].sort();
 
   const countRow = (key, label, requirement) => {
-    const cells = maps.map((m) => [...m.values()].filter((v) => v.requirement === requirement).length);
+    const cells = maps.map(
+      (m) => [...m.values()].filter((v) => v.requirement === requirement).length,
+    );
     return { key, label, render: 'mono', cells, allSame: cellsAllSame(cells) };
   };
 
@@ -387,19 +389,56 @@ export function parseComparePermalink(value, allExts) {
   return { kind, resolved, dropped, overflow };
 }
 
+/** What each profile-comparison filter keeps, by cell value. */
+const REQUIREMENT_FILTERS = {
+  required: new Set(['mandatory', 'implied']),
+  optional: new Set(['optional']),
+};
+
+/** The summary rows that belong with each filter. */
+const SUMMARY_FILTERS = {
+  required: new Set(['extension_count', 'implied_count']),
+  optional: new Set(['optional_count']),
+};
+
 /**
- * The rows a view shows. With differencesOnly, rows that agree are dropped,
- * and so is any section heading left with nothing under it: a lone
- * "Optional" over an empty group reads as a claim that the group exists.
- * Section headings never count as differences themselves.
+ * The rows a view shows. With differencesOnly, rows that agree are dropped.
+ *
+ * `requirement` narrows a profile comparison to 'required' (mandatory or
+ * implied) or 'optional' extensions. A row stays when ANY compared profile
+ * gives it that requirement, so an extension that moved — V is optional in
+ * RVA22 and mandatory in RVA23 — shows under both filters, which is the
+ * change a comparison exists to surface. Its other cells stay as they are.
+ *
+ * Either way, a section heading left with nothing under it is dropped (a lone
+ * "Optional" over an empty group reads as a claim that the group exists), and
+ * a kept heading counts only the rows now under it. Section headings never
+ * count as differences themselves.
  */
-export function visibleRows(model, { differencesOnly = false } = {}) {
+export function visibleRows(model, { differencesOnly = false, requirement = 'all' } = {}) {
   if (!model) return [];
-  if (!differencesOnly) return model.rows;
-  const kept = model.rows.filter((r) => r.render === 'section' || !r.allSame);
-  return kept.filter(
-    (r, i) => r.render !== 'section' || (kept[i + 1] && kept[i + 1].render !== 'section'),
-  );
+  const wanted = REQUIREMENT_FILTERS[requirement];
+  if (!differencesOnly && !wanted) return model.rows;
+  const keep = (r) => {
+    if (r.render === 'section') return true;
+    if (differencesOnly && r.allSame) return false;
+    if (!wanted) return true;
+    if (r.render === 'requirement') return r.cells.some((c) => wanted.has(c));
+    return SUMMARY_FILTERS[requirement].has(r.key);
+  };
+  const kept = model.rows.filter(keep);
+  const out = [];
+  for (let i = 0; i < kept.length; i++) {
+    const r = kept[i];
+    if (r.render !== 'section') {
+      out.push(r);
+      continue;
+    }
+    let n = 0;
+    while (kept[i + 1 + n] && kept[i + 1 + n].render !== 'section') n++;
+    if (n > 0) out.push(n === r.count ? r : { ...r, count: n });
+  }
+  return out;
 }
 
 /** Rows that compare something, i.e. everything except section headings. */
@@ -435,13 +474,13 @@ function cellText(value, render) {
  * @param {{differencesOnly?: boolean}} [options] pass the view's current toggle
  *   so the export matches what the user is looking at
  */
-export function toMarkdown(model, { differencesOnly = false } = {}) {
+export function toMarkdown(model, { differencesOnly = false, requirement = 'all' } = {}) {
   if (!model || !Array.isArray(model.columns) || model.columns.length === 0) return '';
 
   const headers = model.columns.map((c) =>
     c.sublabel && c.sublabel !== c.label ? `${c.label} (${c.sublabel})` : c.label,
   );
-  const rows = visibleRows(model, { differencesOnly });
+  const rows = visibleRows(model, { differencesOnly, requirement });
 
   return [
     `| Attribute | ${headers.map(cellText).join(' | ')} |`,
