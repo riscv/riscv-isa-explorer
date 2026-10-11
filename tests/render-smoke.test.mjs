@@ -541,6 +541,20 @@ const builderStudio = (d) =>
 const sharedBanner = (d) =>
   d.window.document.querySelector('[role="region"][aria-label="Shared configuration"]');
 
+test('an extension link brings its tile into view and focuses it, as search does', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?ext=RERI');
+  // jsdom has no layout, so the scroll itself is checked in a browser; focus
+  // moving to the tile is what this can see.
+  const tile = d.window.document.getElementById('ext-RERI');
+  assert.ok(tile, 'RERI has no tile');
+  assert.equal(
+    d.window.document.activeElement?.getAttribute('aria-label'),
+    'View RERI details',
+    'focus should be on the linked extension',
+  );
+  assert.deepEqual(realErrors(errors), []);
+});
+
 test('a profile link highlights that profile, whatever its case', async () => {
   const { dom: d, errors } = await mountAt('https://example.test/?profile=rva23.1');
   const doc = d.window.document;

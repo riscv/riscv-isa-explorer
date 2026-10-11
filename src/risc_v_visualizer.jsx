@@ -2009,6 +2009,32 @@ const RISCVExplorer = () => {
     return () => clearTimeout(id);
   }, [selectedExt]);
 
+  /*
+   * Follow a ?ext= link to its tile, as search does. The link already selected
+   * the extension on first paint, but the tile stayed wherever it sits in the
+   * grid, often several screens down, so the page opened with nothing visibly
+   * chosen. Scroll it to the middle of the screen and move focus onto it, so a
+   * keyboard user continues from the extension the link was about.
+   *
+   * Once, on mount, for the id the URL carried: later selections are clicks or
+   * searches, which already put the tile where the reader is looking.
+   */
+  const linkedExtIdRef = React.useRef(selectedExt?.id ?? null);
+  React.useEffect(() => {
+    const id = linkedExtIdRef.current;
+    if (!id || typeof window === 'undefined') return undefined;
+    const timer = window.setTimeout(() => {
+      const tile = document.getElementById(`ext-${id}`);
+      if (!tile) return;
+      tile.querySelector('.ext-tile-primary')?.focus({ preventScroll: true });
+      // Instant, unlike search: there is no earlier position to animate from
+      // on a fresh load, and a smooth scroll this early was cut short by the
+      // page still settling, stopping a few rows down.
+      tile.scrollIntoView({ block: 'center' });
+    }, 120);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   // A fresh selection invalidates the "Copied" confirmation.
   React.useEffect(() => {
     setPermalinkCopied(false);
@@ -3492,15 +3518,25 @@ const RISCVExplorer = () => {
 
               {(activeProfile || activeVolume) && (
                 <div
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 text-[12px]"
-                  style={{
-                    color: 'var(--riscv-text-2)',
-                    background: 'var(--riscv-surface-2)',
-                    borderColor: 'var(--riscv-border-2)',
-                  }}
+                  className="riscv-highlight-banner flex items-start gap-3 rounded-lg px-3 py-2 text-[12px]"
+                  style={{ color: 'var(--riscv-text-2)' }}
                   role="status"
                 >
-                  <span>
+                  {/* First, not last: it sits under the profile picker that set
+                      the highlight, where the eye already is. At the far end of
+                      a line this long it was easy to miss on a wide screen. */}
+                  <button
+                    type="button"
+                    className="riscv-clear-highlight shrink-0 inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-[11px] font-bold"
+                    onClick={() => {
+                      setActiveProfile(null);
+                      setActiveVolume(null);
+                    }}
+                  >
+                    <X size={12} strokeWidth={2.75} aria-hidden="true" />
+                    Clear highlight
+                  </button>
+                  <span className="pt-0.5">
                     {activeProfile ? (
                       <>
                         <strong style={{ color: 'var(--riscv-text)' }}>
@@ -3541,16 +3577,6 @@ const RISCVExplorer = () => {
                     )}{' '}
                     Catalogue highlight only; your builder configuration is unchanged.
                   </span>
-                  <button
-                    type="button"
-                    className="riscv-btn shrink-0 px-2 py-1 text-[11px]"
-                    onClick={() => {
-                      setActiveProfile(null);
-                      setActiveVolume(null);
-                    }}
-                  >
-                    Clear highlight
-                  </button>
                 </div>
               )}
             </div>
