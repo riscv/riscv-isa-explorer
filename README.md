@@ -21,12 +21,20 @@ get a dependency-resolved configuration with a valid `-march` string.
   extension.
 - **Start from a profile.** RVA23, RVB23, their frozen 23.1 minor profiles, and the
   other supported profiles load as a starting point rather than being rebuilt by hand.
-- **Export** a `-march` string, a YAML configuration, or a `riscv-config`
-  compatible file.
+  Profiles are Volume III of the ISA manual, so each ratified profile links to
+  its specification on docs.riscv.org.
+- **Highlight a profile** to see everything in it: mandatory extensions in full,
+  implied ones tagged with the extension that pulls them in, optional ones tagged
+  and outlined. The grid, the download and the comparison all use the same
+  classification.
+- **Export** a `-march` string, a YAML configuration (optionally with every
+  instruction), or a UDB architecture configuration for riscv-arch-test.
+  Parameters chosen in the ISA Configuration Builder go into both files.
 - **Compare entries.** Pin extensions, instructions or profiles and read them
   side by side; a comparison has its own URL and can be shared. With Compare
   switched on, **Compare profiles** opens a profile comparison directly,
-  grouping extensions under Mandatory, Implied and Optional (or A–Z).
+  grouping extensions under Mandatory, Implied and Optional (or A–Z), and
+  **Show** narrows it to required or optional extensions only.
 - **Download a profile.** While a profile is highlighted, download its
   extensions (mandatory, implied and optional, with status and spec links) as
   YAML, JSON, CSV or Excel.
@@ -39,8 +47,14 @@ get a dependency-resolved configuration with a valid `-march` string.
   lay out the bit encodings, check them against every instruction in the
   catalogue, and export `riscv-opcodes` JSON plus a proposal document.
   See [docs/sandbox.md](docs/sandbox.md).
-- **Link out to the specification.** Each extension links to its section on
-  docs.riscv.org.
+- **Read the registers and instructions.** CSR chips open each register's
+  fields, and instructions carry descriptions taken from riscv-unified-db, each
+  with a link to its source.
+- **Watch the ISA grow.** **Evolution** plots every dated extension on the month
+  it was ratified, over a cumulative curve banded by family.
+- **Link out to the specification.** Each extension links to the page that
+  defines it: docs.riscv.org when it is published there, otherwise the
+  specification's source repository.
 
 ## Something look wrong?
 
@@ -63,15 +77,18 @@ Then open `http://localhost:8080`.
 
 ## Where the data comes from
 
-Four files carry the data, and they do not have the same authority. Worth
+These files carry the data, and they do not have the same authority. Worth
 knowing before changing anything:
 
 | file | holds | source of truth |
 |---|---|---|
 | `src/riscv_extensions.json` | the extension catalogue, plus the instruction encodings routed into each extension | [riscv-unified-db](https://github.com/riscv/riscv-unified-db) for metadata and ratification state; `src/instr_dict.json` for encodings |
 | `src/instr_dict.json` | the instruction encodings themselves | **hand-maintained.** Checked against [riscv-opcodes](https://github.com/riscv/riscv-opcodes), but it carries entries upstream lacks and is never regenerated |
-| `src/isa-dependency-graph.json` | dependencies, conflicts and parameters, with a citation on every edge | [riscv-unified-db](https://github.com/riscv/riscv-unified-db) |
-| `src/profiles.js` | supported profiles | the profile specifications |
+| `src/isa-dependency-graph.json` | dependencies, conflicts and parameter constraints, with a citation on every edge | [riscv-unified-db](https://github.com/riscv/riscv-unified-db) |
+| `src/isa-params.json` | parameter definitions: type, admissible values, when each exists | riscv-unified-db, generated; never edited by hand |
+| `src/instruction-metadata.json` | instruction descriptions and ownership | riscv-unified-db, generated |
+| `src/profiles.js` | supported profiles, mandatory extensions, spec links | the profile specifications (Volume III), by hand |
+| `src/profile-optional.json` | each profile's optional extensions | riscv-unified-db, resolved through its profile inheritance |
 
 Two things fall outside that table, because no upstream carries them. The
 **Zve\* embedded vector subsets** are derived from V by the EEW/FP rules in
@@ -93,6 +110,9 @@ Regenerate with:
 ```bash
 npm run sync          # route src/instr_dict.json into the catalogue
 npm run sync:udb      # extension metadata from riscv-unified-db
+npm run sync:params -- <path-to-riscv-unified-db>
+npm run sync:instruction-metadata -- <path-to-riscv-unified-db>
+node scripts/sync-profile-optional.mjs <path-to-riscv-unified-db>
 node scripts/seed-dependency-graph.mjs --udb <path-to-riscv-unified-db>
 node scripts/map-doc-links.mjs                # documentation links
 ```
@@ -101,10 +121,16 @@ Or check for drift without writing anything:
 
 ```bash
 npm run sync:check
+npm run sync:instruction-metadata:check   # expects riscv-unified-db beside this repo
 npm run graph:check -- <path-to-riscv-unified-db>
 npm run links:check
 npm run opcodes:check -- <path-to-riscv-opcodes>
+npm run udb:check -- <path-to-riscv-unified-db>   # ratified extensions/instructions we lack
 ```
+
+`map-doc-links.mjs` reads the ISA manual and profile pages on docs.riscv.org and
+links each extension to the page that names it. Entries no page names keep a
+hand-written link to their specification's repository.
 
 ### What updates itself, and what does not
 
@@ -114,6 +140,7 @@ npm run opcodes:check -- <path-to-riscv-opcodes>
 | the published site | any push to `main` rebuilds and publishes to `gh-pages` |
 | static extension pages and `sitemap.xml` | generated from the catalogue on every build, for search engines and AI crawlers; nothing to run by hand |
 | instruction encodings | **by hand.** The `check-opcodes-drift` workflow, Mondays at 07:00 UTC, files an issue when upstream is ahead |
+| new extensions | **by hand.** The weekly sync only enriches entries we already have; the `check-udb-completeness` workflow, Mondays at 09:00 UTC, keeps one issue updated with what riscv-unified-db has and we do not |
 
 `src/instr_dict.json` is hand-maintained on purpose and is not regenerated from
 riscv-opcodes. It carries entries upstream does not: 252 expanded vector segment
@@ -135,8 +162,15 @@ gaps to fill.
 | `src/WorkspacePanel.jsx` | the ISA Configuration Builder panel |
 | `src/isaGraph.js` | dependency resolution: `resolveSelection`, `closure`, `explain`, `validateGraph` |
 | `src/marchUtils.js` | `-march` assembly and canonical ordering |
-| `src/exportUtils.js` | YAML and `riscv-config` export |
+| `src/exportUtils.js` | YAML and UDB configuration export |
 | `src/profiles.js` | profile definitions |
+| `src/profileExport.js` | profile membership (mandatory, implied, optional) and the profile download |
+| `src/CompareView.jsx`, `src/compareModel.js` | side-by-side comparison |
+| `src/EncodingMap.jsx`, `src/encodingMap.js` | the opcode-space map |
+| `src/SandboxPanel.jsx`, `src/sandboxModel.js` | the Custom Extension Sandbox |
+| `scripts/static-pages.mjs` | the per-extension static pages and sitemap, run by the build |
+
+[AGENTS.md](AGENTS.md) has the full map and the gotchas.
 
 ## Tests
 
@@ -168,8 +202,9 @@ Add an entry to the appropriate group in `src/riscv_extensions.json`:
 
 - `tags` are riscv-opcodes extension names. Instruction membership is derived
   from them, so a wrong tag produces a wrong instruction count.
-- `url` points at the extension's page on docs.riscv.org; `npm run links:check`
-  verifies it resolves.
+- `url` points at the extension's page on docs.riscv.org, or at its
+  specification's source when docs.riscv.org does not carry it;
+  `npm run links:check` verifies it resolves.
 - `discontinued: 1` adds the "Discontinued" badge.
 
 Then add a graph node, or the tests fail:
@@ -229,7 +264,10 @@ to regenerate: sync the catalogue and the map follows.
 ## Deployment
 
 Every push to `main` is built by CI and published to the `gh-pages` branch,
-which GitHub Pages serves. Nothing is published by hand.
+which GitHub Pages serves at
+[tech.riscv.org/isa-explorer](https://tech.riscv.org/isa-explorer/). Nothing is
+published by hand. Releases are tagged and described in
+[CHANGELOG.md](CHANGELOG.md).
 
 ## Contributing
 
