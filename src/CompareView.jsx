@@ -11,7 +11,7 @@
  * differences have to be the thing that stands out.
  */
 import React from 'react';
-import { X, Copy, Link2, GitCompare } from 'lucide-react';
+import { X, Copy, Share2, GitCompare } from 'lucide-react';
 import { toMarkdown, visibleRows, comparedRows } from './compareModel.js';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import EncodingDiagram from './EncodingDiagram.jsx';
@@ -371,8 +371,8 @@ export default function CompareView({
                 onClick={onCopyLink}
                 title="Copy shareable permalink for this comparison"
               >
-                <Link2 size={12} className="opacity-75" />
-                <span>Share Link</span>
+                <Share2 size={12} className="opacity-75" />
+                <span>Share</span>
               </button>
 
               <button

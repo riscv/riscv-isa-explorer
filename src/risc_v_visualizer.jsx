@@ -7,7 +7,7 @@ import {
   ArrowUpRight,
   Copy,
   Grid3x3,
-  Link2,
+  Share2,
   Search,
   Cpu,
   Shield,
@@ -2788,7 +2788,7 @@ const RISCVExplorer = () => {
                           title={`Copy a link that opens the explorer with ${activeProfile} highlighted`}
                           className="riscv-pin-btn px-2 py-1 rounded-md border text-[11px] font-semibold inline-flex items-center gap-1 whitespace-nowrap"
                         >
-                          <Link2 size={12} />
+                          <Share2 size={12} />
                           <span>Share</span>
                         </button>
                       )}
@@ -4387,12 +4387,12 @@ const RISCVExplorer = () => {
                         <button
                           type="button"
                           onClick={copyPermalink}
-                          aria-label={`Copy a link to ${selectedExt.id}`}
+                          aria-label={`Share ${selectedExt.id}: copy a link to it`}
                           title={`Copy a link to ${selectedExt.id}`}
                           className="riscv-btn inline-flex items-center gap-1 px-2 py-1 text-[11px]"
                         >
-                          <Link2 size={12} />
-                          {permalinkCopied ? 'Copied' : 'Link'}
+                          <Share2 size={12} />
+                          {permalinkCopied ? 'Copied' : 'Share'}
                         </button>
                         {selectedExt.isSandbox && (
                           <button

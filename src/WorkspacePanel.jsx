@@ -33,7 +33,7 @@ import {
   Lock,
   Unlock,
   AlertTriangle,
-  Link2,
+  Share2,
 } from 'lucide-react';
 
 import {
@@ -640,7 +640,7 @@ export default function WorkspacePanel({
                 transition: 'all 0.15s ease',
               }}
             >
-              <Link2 size={13} />
+              <Share2 size={13} />
               <span>Share</span>
             </button>
           )}

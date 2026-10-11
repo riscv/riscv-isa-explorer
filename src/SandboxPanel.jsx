@@ -21,7 +21,7 @@ import {
   Info,
   Download,
   ChevronDown,
-  Link,
+  Share2,
   Activity,
   Undo2,
   Search,
@@ -613,8 +613,8 @@ export default function SandboxPanel({
                   color: copiedState === 'share' ? 'var(--riscv-green)' : 'var(--riscv-text-2)',
                 }}
               >
-                {copiedState === 'share' ? <CheckCircle2 size={14} /> : <Link size={14} />}
-                {copiedState === 'share' ? 'Copied URL!' : 'Share'}
+                {copiedState === 'share' ? <CheckCircle2 size={14} /> : <Share2 size={14} />}
+                {copiedState === 'share' ? 'Copied' : 'Share'}
               </button>
               <button
                 type="button"
