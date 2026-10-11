@@ -19,7 +19,9 @@ someone silently. Each release below records its catalogue size.
   mandatory ones.** Extensions implied by a mandatory one carry an "implied"
   tag naming what implies them, and optional ones carry an "optional" tag and a
   dashed outline. Before, both were dimmed like extensions outside the profile.
-  The banner counts the optional ones. The grid uses the same classification
+  The two tags are colour-coded, teal for implied and gold for optional, and
+  stay above 4.5:1 contrast in both themes. The banner counts the optional
+  ones. The grid uses the same classification
   as the profile download and comparison. Idea and first version by Nicolas
   Brunie (#397).
 

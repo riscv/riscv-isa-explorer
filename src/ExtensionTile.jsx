@@ -254,6 +254,7 @@ function ExtensionTile({
           {profileTag && (
             <span
               className="ext-profile-tag px-1 py-px mt-px rounded-sm text-[8.5px] font-mono uppercase tracking-wider font-semibold shrink-0"
+              data-requirement={profileTag.requirement}
               title={profileTagLabel}
             >
               {profileTag.requirement}

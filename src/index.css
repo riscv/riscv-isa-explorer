@@ -419,12 +419,30 @@ pre,
   outline-offset: -1.5px;
 }
 
-/* "implied" / "optional" beside the name while a profile is highlighted. */
+/* "implied" / "optional" beside the name while a profile is highlighted.
+   Optional is gold to match its dashed outline; implied is teal. Green and
+   violet are taken (in the builder, pinned to compare). Both tokens have
+   light-theme values that keep the tag text above 4.5:1. */
 .ext-profile-tag {
-  color: var(--riscv-text-2);
-  border: 1px solid var(--riscv-border-2);
-  background: var(--riscv-surface-2);
+  --tag: var(--riscv-text-2);
+  color: var(--tag);
+  border: 1px solid color-mix(in srgb, var(--tag) 45%, transparent);
+  background: color-mix(in srgb, var(--tag) 12%, var(--riscv-surface-2));
   line-height: 1;
+}
+
+.ext-profile-tag[data-requirement='implied'] {
+  --tag: var(--riscv-accent-3);
+}
+
+.ext-profile-tag[data-requirement='optional'] {
+  --tag: var(--riscv-gold);
+}
+
+/* On the light theme's tinted tiles the plain token sat at about 4:1. A darker
+   shade of the same hue clears AA without changing which colour means what. */
+:root[data-theme='light'] .ext-profile-tag {
+  color: color-mix(in srgb, var(--tag) 70%, #000);
 }
 
 /* Top accent border gradient */
