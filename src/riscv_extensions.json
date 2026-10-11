@@ -6380,7 +6380,9 @@
       "use": "Packed SIMD / DSP-style operations",
       "discontinued": 0,
       "url": "https://github.com/riscv/riscv-isa-manual",
-      "instructions": {}
+      "instructions": {},
+      "state": "development",
+      "version": "0.6.0"
     },
     {
       "id": "Q",
