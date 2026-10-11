@@ -18,9 +18,15 @@ someone silently. Each release below records its catalogue size.
 - **Profiles are now treated as Volume III of the ISA manual**, which the
   manual adopted in 2026 (riscv-isa-manual#2771). The header counts three
   volumes, the profile picker is labelled Vol III, and a highlighted ratified
-  profile links its chapter in that volume. The profile download carries the
-  same link as `specification`. RVA23.1 and RVB23.1 are not in the manual yet
-  and say so.
+  profile links its specification on docs.riscv.org. The profile download
+  carries the same link as `specification`. RVA23.1 and RVB23.1 are not
+  ratified yet and say so (#400).
+- **28 catalogue entries now link to docs.riscv.org instead of the manual
+  repository root.** The profile-named extensions (Ziccrse, Za64rs, Sstvala,
+  Shgatpa and the rest) link to the ratified profile specification that
+  defines them, and the privileged version tags (Sm1p11 to Ss1p13) link to the
+  privileged preface. `scripts/map-doc-links.mjs` now reads the profile pages,
+  so these links are generated rather than hand-written.
 
 ## [1.7.0] - 2026-10-10
 

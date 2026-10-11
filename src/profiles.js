@@ -248,18 +248,19 @@ export const PROFILES = {
 };
 
 /**
- * Volume III of the ISA manual, where the ratified profiles are defined. It
- * joined the manual in 2026 (riscv-isa-manual#2771); docs.riscv.org does not
- * serve it yet, so this is the manual's own HTML snapshot. Move to
- * docs.riscv.org once it publishes the volume.
+ * The ratified profile specifications on docs.riscv.org. Profiles are also
+ * Volume III of the ISA manual (riscv-isa-manual#2771), but docs.riscv.org
+ * does not publish that volume; it publishes each ratified profile
+ * specification as its own component, and those are what get linked. The
+ * URLs are unversioned redirects, so they follow the current release.
  */
-export const PROFILES_VOLUME_URL = 'https://riscv.github.io/riscv-isa-manual/snapshot/spec/';
+export const PROFILE_SPEC_BASE = 'https://docs.riscv.org/reference/';
 
 /**
  * Human-facing profile facts used by every profile picker.
  *
- * `specUrl` is the profile's chapter in Volume III. The 23.1 minor profiles
- * have none: they are frozen, not ratified, and not in the manual.
+ * `specUrl` is the profile's ratified specification. The 23.1 minor profiles
+ * have none: they are frozen, not ratified, and not published.
  *
  * Keep these beside the mandatory lists so the landing page and builder cannot
  * quietly disagree about XLEN or intended use. `mandatoryCount` is deliberately
@@ -271,37 +272,37 @@ export const PROFILE_METADATA = {
     xlen: 32,
     scope: 'Unprivileged',
     description: '32-bit minimum compatibility profile',
-    specUrl: `${PROFILES_VOLUME_URL}#_rvi20_profiles`,
+    specUrl: `${PROFILE_SPEC_BASE}rva20-rvi20-rva22/rvi20.html`,
   },
   RVI20U64: {
     xlen: 64,
     scope: 'Unprivileged',
     description: '64-bit minimum compatibility profile',
-    specUrl: `${PROFILES_VOLUME_URL}#_rvi20_profiles`,
+    specUrl: `${PROFILE_SPEC_BASE}rva20-rvi20-rva22/rvi20.html`,
   },
   RVA20: {
     xlen: 64,
     scope: 'Application',
     description: 'Baseline RV64GC-compatible application profile',
-    specUrl: `${PROFILES_VOLUME_URL}#_rva20_profiles`,
+    specUrl: `${PROFILE_SPEC_BASE}rva20-rvi20-rva22/rva20.html`,
   },
   RVA22: {
     xlen: 64,
     scope: 'Application',
     description: '2022 64-bit application profile',
-    specUrl: `${PROFILES_VOLUME_URL}#_rva22_profiles`,
+    specUrl: `${PROFILE_SPEC_BASE}rva20-rvi20-rva22/rva22.html`,
   },
   RVA23: {
     xlen: 64,
     scope: 'Application',
     description: '2023 64-bit application profile',
-    specUrl: `${PROFILES_VOLUME_URL}#_rva23_profiles`,
+    specUrl: `${PROFILE_SPEC_BASE}rva23/rva23-profiles.html`,
   },
   RVB23: {
     xlen: 64,
     scope: 'Application',
     description: '2023 64-bit application profile with bit manipulation',
-    specUrl: `${PROFILES_VOLUME_URL}#_rvb23_profiles`,
+    specUrl: `${PROFILE_SPEC_BASE}rvb23/rvb23.html`,
   },
   'RVA23.1': {
     xlen: 64,

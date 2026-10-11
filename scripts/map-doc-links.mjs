@@ -36,10 +36,19 @@
  * Unprivileged chapters are searched first: an extension defined in Volume I
  * should not be attributed to a privileged chapter that merely mentions it.
  *
- * Extensions with no home in either volume keep whatever URL they had. Roughly
- * a third of the catalog is in that position — profile mandate tags, privileged
- * spec version tags, unratified drafts, and extensions documented in separate
- * specifications. A handful of those separate specs are mapped by hand below.
+ * Extensions with no home in either volume fall back to the ratified profile
+ * specifications, which docs.riscv.org publishes as their own components
+ * (rva20-rvi20-rva22, rva23, rvb23). Those define the profile-named
+ * extensions (Ziccrse, Za64rs, Sstvala, Shgatpa, ...) that the ISA volumes do
+ * not have chapters for yet. Only a bold list term counts as a match: every
+ * name in a profile page sits in such a list, and a body mention of an
+ * extension there usually means "not in this profile". The profiles come after
+ * the volumes, so an extension that gets its own chapter moves to it on the
+ * next run.
+ *
+ * What is left keeps whatever URL it had: unratified drafts and extensions
+ * documented in separate specifications. A handful of those separate specs
+ * are mapped by hand below.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -70,7 +79,25 @@ const EXPLICIT = {
   // so it fell through to the generic repo link despite being ratified and
   // carrying 51 instructions.
   Zk: 'unpriv/scalar-crypto',
+
+  // Privileged-spec version tags. The profiles name them ("Ss1p13: Supervisor
+  // architecture version 1.13") but no page defines them as extensions; the
+  // privileged preface is where each version's changes are listed.
+  Sm1p11: 'priv/priv-preface', Ss1p11: 'priv/priv-preface',
+  Sm1p12: 'priv/priv-preface', Ss1p12: 'priv/priv-preface',
+  Sm1p13: 'priv/priv-preface', Ss1p13: 'priv/priv-preface',
 };
+
+/**
+ * Ratified profile pages, oldest first. The RVA22 page is the profile
+ * specification's "New ISA Extensions" list, which defines the extensions it
+ * introduces; RVA23 and RVB23 define theirs inline in the profile lists.
+ */
+const PROFILE_PAGES = [
+  'rva20-rvi20-rva22/extensions',
+  'rva23/rva23-profiles',
+  'rvb23/rvb23',
+];
 
 /** Extensions whose home is a different ratified specification. */
 const OTHER_SPECS = {
@@ -151,12 +178,34 @@ async function build() {
   const order = [...index.keys()].sort((a, b) =>
     (a.startsWith('unpriv/') ? 0 : 1) - (b.startsWith('unpriv/') ? 0 : 1) || a.localeCompare(b));
 
-  return { version, index, order, url: (key) => `${REF}/isa/${key}.html` };
+  return { version, index, order, url: (key) => `${REF}/isa/${key}.html`, profiles: await readProfiles() };
+}
+
+/**
+ * Bold list terms on each profile page, as [page, Set<lowercased id>].
+ * Like the ISA chapters, the unversioned profile URL is a redirect stub; the
+ * content is read from the version it names and the stub is what gets linked.
+ */
+async function readProfiles() {
+  const pages = [];
+  for (const page of PROFILE_PAGES) {
+    const [component, name] = page.split('/');
+    const stub = await get(`${REF}/${page}.html`);
+    const target = stub.match(/url=(v[\d.]+\/[\w.-]+\.html)/)?.[1];
+    if (!target) throw new Error(`could not follow the redirect stub for ${page}`);
+    const html = await get(`${REF}/${component}/${target}`);
+    const terms = new Set(
+      [...html.matchAll(/<li>\s*<p><strong>([A-Za-z][A-Za-z0-9]*)<\/strong>/g)].map((m) => m[1].toLowerCase()),
+    );
+    if (!terms.size) throw new Error(`no extension terms found on ${page}; has the page layout changed?`);
+    pages.push([`${REF}/${component}/${name}.html`, terms]);
+  }
+  return pages;
 }
 
 const catalog = JSON.parse(fs.readFileSync(CATALOG, 'utf8'));
 const entries = Object.values(catalog).flat().filter(Boolean);
-const { version, index, order, url } = await build();
+const { version, index, order, url, profiles } = await build();
 
 const resolve = (id) => {
   if (EXPLICIT[id]) return { url: url(EXPLICIT[id]), via: 'explicit' };
@@ -172,6 +221,8 @@ const resolve = (id) => {
     const key = order.find((k) => test(index.get(k)));
     if (key) return { url: url(key), via };
   }
+  const profile = profiles.find(([, terms]) => terms.has(low));
+  if (profile) return { url: profile[0], via: 'profile' };
   return null;
 };
 

@@ -3333,7 +3333,7 @@ const RISCVExplorer = () => {
                         {activeProfileSummary.specUrl ? (
                           <>
                             {' '}
-                            Defined in{' '}
+                            Defined in the{' '}
                             <a
                               href={activeProfileSummary.specUrl}
                               target="_blank"
@@ -3341,12 +3341,12 @@ const RISCVExplorer = () => {
                               className="underline underline-offset-2"
                               style={{ color: 'var(--riscv-text)' }}
                             >
-                              Volume III of the ISA manual
+                              {activeProfile.replace(/U(32|64)$/, '')} profile specification
                             </a>
                             .
                           </>
                         ) : (
-                          ' Not yet in the ISA manual.'
+                          ' Not yet ratified.'
                         )}
                       </>
                     ) : (

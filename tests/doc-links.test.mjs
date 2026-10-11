@@ -50,7 +50,8 @@ test('doc links are unversioned, so they follow the current snapshot', () => {
   // this time"), so its presence in the manual moves between releases and a
   // dated link is the only one that resolves today. If a later snapshot serves
   // it undated, drop this exemption and the link with it.
-  const dated = docLinked.filter((e) => e.id !== 'RV128I' && /\/v\d{8}\//.test(e.url));
+  // The profile components version as v1.0 rather than by date; same rule.
+  const dated = docLinked.filter((e) => e.id !== 'RV128I' && /\/v(\d{8}|\d+\.\d+)\//.test(e.url));
   assert.deepEqual(
     dated.map((e) => `${e.id} -> ${e.url}`),
     [],
@@ -87,6 +88,12 @@ test('a few well-known extensions land on the right chapter', () => {
     H: '/priv/hypervisor.html',
     Smaia: '/aia/index.html',
     RERI: '/ras-eri/index.html',
+    // Profile-named extensions have no ISA chapter; the ratified profile
+    // specification that introduced each one defines it.
+    Ziccrse: '/rva20-rvi20-rva22/extensions.html',
+    Shgatpa: '/rva20-rvi20-rva22/extensions.html',
+    Ssstrict: '/rva23/rva23-profiles.html',
+    Ss1p13: '/priv/priv-preface.html',
   };
   for (const [id, suffix] of Object.entries(expected)) {
     const ext = ALL.find((e) => e.id === id);
