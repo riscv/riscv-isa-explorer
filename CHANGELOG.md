@@ -13,6 +13,15 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Changed
+
+- **Profiles are now treated as Volume III of the ISA manual**, which the
+  manual adopted in 2026 (riscv-isa-manual#2771). The header counts three
+  volumes, the profile picker is labelled Vol III, and a highlighted ratified
+  profile links its chapter in that volume. The profile download carries the
+  same link as `specification`. RVA23.1 and RVB23.1 are not in the manual yet
+  and say so.
+
 ## [1.7.0] - 2026-10-10
 
 Catalogue: 211 entries, unchanged from 1.6.0. No saved selection or `-march`

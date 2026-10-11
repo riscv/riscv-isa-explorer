@@ -140,6 +140,8 @@ test('JSON carries the profile, its counts and every row', () => {
   const doc = JSON.parse(exportOf('json').data);
   const rows = rowsFor('RVA23');
   assert.equal(doc.profile, 'RVA23');
+  assert.match(doc.specification, /#_rva23_profiles$/, 'links the Volume III chapter');
+  assert.equal(JSON.parse(exportOf('json', 'RVA23.1').data).specification, '');
   assert.equal(doc.extensions.length, rows.length);
   assert.equal(doc.counts.mandatory, PROFILES.RVA23.length);
   assert.equal(

@@ -16,7 +16,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { PROFILES, PROFILE_METADATA } from '../src/profiles.js';
+import { PROFILES, PROFILE_METADATA, PROFILES_VOLUME_URL } from '../src/profiles.js';
 import { resolveSelection } from '../src/isaGraph.js';
 import { buildMarchString, NON_MARCH_IDS } from '../src/marchUtils.js';
 
@@ -168,4 +168,16 @@ test('the 23.1 minor profiles retain their parent mandatory floors', () => {
   assert.deepEqual(PROFILES['RVB23.1'], PROFILES.RVB23);
   assert.notEqual(PROFILES['RVA23.1'], PROFILES.RVA23, 'profile arrays must not alias');
   assert.notEqual(PROFILES['RVB23.1'], PROFILES.RVB23, 'profile arrays must not alias');
+});
+
+test('every ratified profile links its chapter in Volume III; the 23.1 add-ons do not', () => {
+  for (const [name, metadata] of Object.entries(PROFILE_METADATA)) {
+    if (name.endsWith('.1')) {
+      assert.equal(metadata.specUrl, undefined, `${name} is frozen, not in the manual`);
+      continue;
+    }
+    assert.ok(metadata.specUrl?.startsWith(`${PROFILES_VOLUME_URL}#_`), `${name} needs a specUrl`);
+    const family = name.replace(/U(32|64)$/, '').toLowerCase();
+    assert.ok(metadata.specUrl.endsWith(`#_${family}_profiles`), `${name}: ${metadata.specUrl}`);
+  }
 });

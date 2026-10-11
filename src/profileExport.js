@@ -184,6 +184,7 @@ function profileHeader(profile, metadata, rows) {
     description: metadata.description ?? '',
     xlen: metadata.xlen ?? '',
     scope: metadata.scope ?? '',
+    specification: metadata.specUrl ?? '',
     counts: {
       mandatory: count('mandatory'),
       implied: count('implied'),

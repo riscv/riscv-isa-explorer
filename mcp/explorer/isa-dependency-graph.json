@@ -1,0 +1,2127 @@
+{
+  "$comment": "Dependency graph for RISC-V extensions. Source of truth, maintained by hand. Every catalog extension must appear here — tests/isa-graph.test.mjs enforces it. Reconcile against upstream with scripts/seed-dependency-graph.mjs --check.",
+  "version": 1,
+  "sources": {
+    "udb": {
+      "repo": "riscv/riscv-unified-db",
+      "commit": "788785b57a5011a8ad96044463c7b2e621297351",
+      "branch": "main",
+      "path": "spec/std/isa/ext"
+    },
+    "isa-manual": {
+      "repo": "riscv/riscv-isa-manual",
+      "note": "section cited per edge"
+    },
+    "clang": {
+      "repo": "llvm/llvm-project",
+      "note": "RISCVISAInfo implication, cited per edge; weaker backing than udb or isa-manual"
+    },
+    "spec": {
+      "note": "standalone ratified specification; document and section cited per edge"
+    }
+  },
+  "nodes": {
+    "A": {
+      "requires": [
+        {
+          "ext": "Zaamo",
+          "src": "udb",
+          "ref": "A.yaml requirements.extension"
+        },
+        {
+          "ext": "Zalrsc",
+          "src": "udb",
+          "ref": "A.yaml requirements.extension"
+        }
+      ]
+    },
+    "B": {
+      "requires": [
+        {
+          "ext": "Zba",
+          "src": "udb",
+          "ref": "B.yaml requirements.extension"
+        },
+        {
+          "ext": "Zbb",
+          "src": "udb",
+          "ref": "B.yaml requirements.extension"
+        },
+        {
+          "ext": "Zbs",
+          "src": "udb",
+          "ref": "B.yaml requirements.extension"
+        }
+      ]
+    },
+    "C": {
+      "requires": [
+        {
+          "ext": "Zca",
+          "src": "udb",
+          "ref": "C.yaml requirements.extension"
+        }
+      ],
+      "conditionalRequirements": true
+    },
+    "D": {
+      "requires": [
+        {
+          "ext": "F",
+          "src": "udb",
+          "ref": "D.yaml requirements.extension"
+        }
+      ]
+    },
+    "F": {
+      "requires": [
+        {
+          "ext": "Zicsr",
+          "src": "udb",
+          "ref": "F.yaml requirements.extension"
+        }
+      ]
+    },
+    "H": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "H.yaml requirements.extension"
+        }
+      ]
+    },
+    "HTI": {
+      "requires": [],
+      "verified": "none"
+    },
+    "M": {
+      "requires": [
+        {
+          "ext": "Zmmul",
+          "src": "udb",
+          "ref": "M.yaml requirements.extension"
+        }
+      ]
+    },
+    "N": {
+      "requires": [],
+      "verified": "none"
+    },
+    "P": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Q": {
+      "requires": [
+        {
+          "ext": "D",
+          "src": "udb",
+          "ref": "Q.yaml requirements.extension"
+        }
+      ]
+    },
+    "RERI": {
+      "requires": [],
+      "verified": "none"
+    },
+    "RV128I": {
+      "requires": [],
+      "verified": "none"
+    },
+    "RV32E": {
+      "requires": [],
+      "conflicts": [
+        {
+          "ext": "F",
+          "src": "isa-manual",
+          "ref": "Vol.I §5 — RV32E has 16 GPRs and no F register file"
+        }
+      ],
+      "verified": "none"
+    },
+    "RV32I": {
+      "requires": [],
+      "verified": "none"
+    },
+    "RV64E": {
+      "requires": [],
+      "conflicts": [
+        {
+          "ext": "F",
+          "src": "isa-manual",
+          "ref": "Vol.I §5 — RV64E has 16 GPRs and no F register file"
+        }
+      ],
+      "verified": "none"
+    },
+    "RV64I": {
+      "requires": [],
+      "verified": "none"
+    },
+    "S": {
+      "requires": [
+        {
+          "ext": "Sm",
+          "src": "udb",
+          "ref": "S.yaml requirements.extension"
+        },
+        {
+          "ext": "U",
+          "src": "udb",
+          "ref": "S.yaml requirements.extension"
+        }
+      ]
+    },
+    "Sddbltrp": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Sdext": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Sdtrig": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Sdtrigepm": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Sdtrigpend": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Sha": {
+      "requires": [
+        {
+          "ext": "H",
+          "src": "udb",
+          "ref": "Sha.yaml requirements.extension"
+        },
+        {
+          "ext": "Shcounterenw",
+          "src": "udb",
+          "ref": "Sha.yaml requirements.extension"
+        },
+        {
+          "ext": "Shgatpa",
+          "src": "udb",
+          "ref": "Sha.yaml requirements.extension"
+        },
+        {
+          "ext": "Shtvala",
+          "src": "udb",
+          "ref": "Sha.yaml requirements.extension"
+        },
+        {
+          "ext": "Shvsatpa",
+          "src": "udb",
+          "ref": "Sha.yaml requirements.extension"
+        },
+        {
+          "ext": "Shvstvala",
+          "src": "udb",
+          "ref": "Sha.yaml requirements.extension"
+        },
+        {
+          "ext": "Shvstvecd",
+          "src": "udb",
+          "ref": "Sha.yaml requirements.extension"
+        },
+        {
+          "ext": "Ssstateen",
+          "src": "udb",
+          "ref": "Sha.yaml requirements.extension"
+        }
+      ]
+    },
+    "Shcounterenw": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Shgatpa": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Shlcofideleg": {
+      "requires": [
+        {
+          "ext": "H",
+          "src": "udb",
+          "ref": "Shlcofideleg.yaml requirements.extension"
+        },
+        {
+          "ext": "Sscofpmf",
+          "src": "udb",
+          "ref": "Shlcofideleg.yaml requirements.extension"
+        }
+      ]
+    },
+    "Shtvala": {
+      "requires": [
+        {
+          "ext": "H",
+          "src": "udb",
+          "ref": "Shtvala.yaml requirements.extension"
+        }
+      ],
+      "params": [
+        {
+          "name": "REPORT_GPA_IN_HTVAL_ON_GUEST_PAGE_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shtvala.yaml requirements … param"
+        }
+      ]
+    },
+    "Shvsatpa": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Shvstvala": {
+      "requires": [
+        {
+          "ext": "H",
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements.extension"
+        }
+      ]
+    },
+    "Shvstvecd": {
+      "requires": [],
+      "params": [
+        {
+          "name": "VSTVEC_MODES",
+          "kind": "includes",
+          "value": 0,
+          "src": "udb",
+          "ref": "Shvstvecd.yaml requirements … param"
+        }
+      ],
+      "verified": "udb"
+    },
+    "Sm": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Sm1p11": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Sm1p12": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Sm1p13": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Smaia": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Smcdeleg": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Smcfiss": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Smclic": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Smclicconfig": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Smclicshv": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Smcntrpmf": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Smcsrind": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Smcsrind.yaml requirements.extension"
+        }
+      ]
+    },
+    "Smctr": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Smctr.yaml requirements.extension"
+        },
+        {
+          "ext": "Smcsrind",
+          "src": "udb",
+          "ref": "Smctr.yaml requirements.extension"
+        },
+        {
+          "ext": "Ssctr",
+          "src": "udb",
+          "ref": "Smctr.yaml requirements.extension"
+        }
+      ]
+    },
+    "Smdbltrp": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Smepmp": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Smmpm": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Smnpm": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Smpmpdeleg": {
+      "requires": [
+        {
+          "ext": "Smcsrind",
+          "src": "spec",
+          "ref": "SPMP v1.0 §4 — \"The Smcsrind extension for indirect CSR access must be implemented.\""
+        },
+        {
+          "ext": "Sspmp",
+          "src": "spec",
+          "ref": "SPMP v1.0 §4.1 — delegates PMP entries to S-mode, \"thereby creating SPMP entries\""
+        }
+      ]
+    },
+    "Smpmpmt": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Smrnmi": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Smsdia": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Smstateen": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Smtdeleg": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Smvatag": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Ss1p11": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Ss1p12": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Ss1p13": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Ssaia": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Ssaia.yaml requirements.extension"
+        }
+      ]
+    },
+    "Ssccfg": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Ssccptr": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Ssclic": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Sscofpmf": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Sscounterenw": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Sscsrind": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Sscsrind.yaml requirements.extension"
+        },
+        {
+          "ext": "Smcsrind",
+          "src": "udb",
+          "ref": "Sscsrind.yaml requirements.extension"
+        }
+      ]
+    },
+    "Ssctr": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Ssctr.yaml requirements.extension"
+        },
+        {
+          "ext": "Sscsrind",
+          "src": "udb",
+          "ref": "Ssctr.yaml requirements.extension"
+        }
+      ]
+    },
+    "Ssdbltrp": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Ssdtso": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Ssnpm": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Sspm": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Sspm.yaml requirements.extension"
+        },
+        {
+          "ext": "Smnpm",
+          "src": "udb",
+          "ref": "Sspm.yaml requirements.extension"
+        }
+      ]
+    },
+    "Sspmp": {
+      "requires": [
+        {
+          "ext": "Sscsrind",
+          "src": "spec",
+          "ref": "SPMP v1.0 §2.1 — \"The Sscsrind extension for indirect CSR access must be implemented.\""
+        }
+      ]
+    },
+    "Sspmpen": {
+      "requires": [
+        {
+          "ext": "Sspmp",
+          "src": "spec",
+          "ref": "SPMP v1.0 §3 — an SPMP entry is active only when spmpen[i] is set and spmpcfg[i].A is non-zero"
+        }
+      ]
+    },
+    "Ssqosid": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Ssqosid.yaml requirements.extension"
+        }
+      ]
+    },
+    "Ssstateen": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Ssstrict": {
+      "requires": [],
+      "params": [
+        {
+          "name": "TRAP_ON_RESERVED_INSTRUCTION",
+          "kind": "equal",
+          "value": true,
+          "reason": "Ssstrict requires unimplemented opcodes in the standard or reserved encoding spaces to trap",
+          "src": "udb",
+          "ref": "Ssstrict.yaml requirements … param"
+        },
+        {
+          "name": "TRAP_ON_UNIMPLEMENTED_CSR",
+          "kind": "equal",
+          "value": true,
+          "reason": "Ssstrict requires unimplemented CSR accesses to trap",
+          "src": "udb",
+          "ref": "Ssstrict.yaml requirements … param"
+        }
+      ],
+      "verified": "udb"
+    },
+    "Sstc": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Sstcfg": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Sstvala": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Sstvecd": {
+      "requires": [],
+      "params": [
+        {
+          "name": "STVEC_MODES",
+          "kind": "includes",
+          "value": 0,
+          "src": "udb",
+          "ref": "Sstvecd.yaml requirements … param"
+        }
+      ],
+      "verified": "udb"
+    },
+    "Sstvecv": {
+      "requires": [],
+      "params": [
+        {
+          "name": "STVEC_MODES",
+          "kind": "includes",
+          "value": 1,
+          "src": "udb",
+          "ref": "Sstvecv.yaml requirements … param"
+        }
+      ],
+      "verified": "udb"
+    },
+    "Ssu32xl": {
+      "requires": [],
+      "params": [
+        {
+          "name": "UXLEN",
+          "kind": "includes",
+          "value": 32,
+          "src": "udb",
+          "ref": "Ssu32xl.yaml requirements … param"
+        }
+      ],
+      "verified": "udb"
+    },
+    "Ssu64xl": {
+      "requires": [],
+      "params": [
+        {
+          "name": "UXLEN",
+          "kind": "includes",
+          "value": 64,
+          "src": "udb",
+          "ref": "Ssu64xl.yaml requirements … param"
+        }
+      ],
+      "verified": "udb"
+    },
+    "Ssube": {
+      "requires": [],
+      "params": [
+        {
+          "name": "U_MODE_ENDIANNESS",
+          "kind": "oneOf",
+          "value": [
+            "big",
+            "dynamic"
+          ],
+          "src": "udb",
+          "ref": "Ssube.yaml requirements … param"
+        }
+      ],
+      "verified": "udb"
+    },
+    "Suclic": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Supm": {
+      "requires": [
+        {
+          "ext": "U",
+          "src": "udb",
+          "ref": "Supm.yaml requirements.extension"
+        }
+      ],
+      "conditionalRequirements": true
+    },
+    "Sv32": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Sv32.yaml requirements.extension"
+        }
+      ],
+      "params": [
+        {
+          "name": "SXLEN",
+          "kind": "includes",
+          "value": 32,
+          "src": "udb",
+          "ref": "Sv32.yaml requirements … param"
+        }
+      ]
+    },
+    "Sv39": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Sv39.yaml requirements.extension"
+        }
+      ],
+      "params": [
+        {
+          "name": "SXLEN",
+          "kind": "includes",
+          "value": 64,
+          "src": "udb",
+          "ref": "Sv39.yaml requirements … param"
+        }
+      ]
+    },
+    "Sv48": {
+      "requires": [
+        {
+          "ext": "Sv39",
+          "src": "udb",
+          "ref": "Sv48.yaml requirements.extension"
+        }
+      ]
+    },
+    "Sv57": {
+      "requires": [
+        {
+          "ext": "Sv48",
+          "src": "udb",
+          "ref": "Sv57.yaml requirements.extension"
+        }
+      ]
+    },
+    "Svade": {
+      "requires": [
+        {
+          "ext": "Sm",
+          "src": "udb",
+          "ref": "Svade.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "Sv32",
+            "Sv39"
+          ],
+          "default": "Sv32",
+          "src": "udb",
+          "ref": "Svade.yaml requirements.extension.anyOf"
+        }
+      ]
+    },
+    "Svadu": {
+      "requires": [
+        {
+          "ext": "Sm",
+          "src": "udb",
+          "ref": "Svadu.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "Sv32",
+            "Sv39"
+          ],
+          "default": "Sv32",
+          "src": "udb",
+          "ref": "Svadu.yaml requirements.extension.anyOf"
+        }
+      ]
+    },
+    "Svatag": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Svbare": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Svbare.yaml requirements.extension"
+        }
+      ],
+      "params": [
+        {
+          "name": "SATP_MODE_BARE",
+          "kind": "equal",
+          "value": true,
+          "reason": "Svbare mandates that the `satp` mode Bare must be supported.",
+          "src": "udb",
+          "ref": "Svbare.yaml requirements … param"
+        }
+      ]
+    },
+    "Svinval": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Svinval.yaml requirements.extension"
+        }
+      ]
+    },
+    "Svnapot": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Svnapot.yaml requirements.extension"
+        },
+        {
+          "ext": "Sv39",
+          "src": "udb",
+          "ref": "Svnapot.yaml requirements.extension"
+        }
+      ]
+    },
+    "Svpbmt": {
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Svpbmt.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "Sv39",
+            "Sv48",
+            "Sv57"
+          ],
+          "default": "Sv39",
+          "src": "udb",
+          "ref": "Svpbmt.yaml requirements.extension.anyOf"
+        }
+      ]
+    },
+    "Svrsw60t59b": {
+      "requires": [
+        {
+          "ext": "Sv39",
+          "src": "udb",
+          "ref": "Svrsw60t59b.yaml requirements.extension"
+        }
+      ]
+    },
+    "Svukte": {
+      "requires": [
+        {
+          "ext": "Sv39",
+          "src": "udb",
+          "ref": "Svukte.yaml requirements.extension"
+        }
+      ]
+    },
+    "Svvptc": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "U": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "V": {
+      "requires": [
+        {
+          "ext": "Zve64d",
+          "src": "udb",
+          "ref": "V.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvl128b",
+          "src": "udb",
+          "ref": "V.yaml requirements.extension"
+        }
+      ]
+    },
+    "Za128rs": {
+      "requires": [],
+      "params": [
+        {
+          "name": "LRSC_RESERVATION_STRATEGY",
+          "kind": "oneOf",
+          "value": [
+            "reserve exactly enough to cover the access",
+            "reserve naturally-aligned 64-byte region",
+            "reserve naturally-aligned 128-byte region"
+          ],
+          "src": "udb",
+          "ref": "Za128rs.yaml requirements … param"
+        }
+      ],
+      "verified": "udb"
+    },
+    "Za64rs": {
+      "requires": [
+        {
+          "ext": "Za128rs",
+          "src": "udb",
+          "ref": "Za64rs.yaml requirements.extension"
+        }
+      ],
+      "params": [
+        {
+          "name": "LRSC_RESERVATION_STRATEGY",
+          "kind": "oneOf",
+          "value": [
+            "reserve exactly enough to cover the access",
+            "reserve naturally-aligned 64-byte region"
+          ],
+          "src": "udb",
+          "ref": "Za64rs.yaml requirements … param"
+        }
+      ]
+    },
+    "Zaamo": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zabha": {
+      "requires": [
+        {
+          "ext": "Zaamo",
+          "src": "udb",
+          "ref": "Zabha.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zacas": {
+      "requires": [
+        {
+          "ext": "Zaamo",
+          "src": "udb",
+          "ref": "Zacas.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zalasr": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zalrsc": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zama16b": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zawrs": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zba": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zbb": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zbc": {
+      "requires": [
+        {
+          "ext": "Zbkc",
+          "src": "udb",
+          "ref": "Zbc.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zbkb": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zbkc": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zbkx": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zbs": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zca": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zcb": {
+      "requires": [
+        {
+          "ext": "Zca",
+          "src": "udb",
+          "ref": "Zcb.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zcd": {
+      "requires": [
+        {
+          "ext": "D",
+          "src": "udb",
+          "ref": "Zcd.yaml requirements.extension"
+        },
+        {
+          "ext": "Zca",
+          "src": "udb",
+          "ref": "Zcd.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zce": {
+      "requires": [
+        {
+          "ext": "Zca",
+          "src": "udb",
+          "ref": "Zce.yaml requirements.extension"
+        },
+        {
+          "ext": "Zcb",
+          "src": "udb",
+          "ref": "Zce.yaml requirements.extension"
+        },
+        {
+          "ext": "Zcmp",
+          "src": "udb",
+          "ref": "Zce.yaml requirements.extension"
+        },
+        {
+          "ext": "Zcmt",
+          "src": "udb",
+          "ref": "Zce.yaml requirements.extension"
+        }
+      ],
+      "conflicts": [
+        {
+          "ext": "Zcd",
+          "src": "udb",
+          "ref": "Zce.yaml requirements … not: Zcd"
+        }
+      ],
+      "conditionalRequirements": true
+    },
+    "Zcf": {
+      "requires": [
+        {
+          "ext": "F",
+          "src": "udb",
+          "ref": "Zcf.yaml requirements.extension"
+        },
+        {
+          "ext": "Zca",
+          "src": "udb",
+          "ref": "Zcf.yaml requirements.extension"
+        }
+      ],
+      "conflicts": [
+        {
+          "ext": "RV64I",
+          "src": "isa-manual",
+          "ref": "Vol.I Zc §3 — Zcf is defined only for RV32"
+        },
+        {
+          "ext": "RV64E",
+          "src": "isa-manual",
+          "ref": "Vol.I Zc §3 — Zcf is defined only for RV32"
+        },
+        {
+          "ext": "RV128I",
+          "src": "isa-manual",
+          "ref": "Vol.I Zc §3 — Zcf is defined only for RV32"
+        }
+      ]
+    },
+    "Zclsd": {
+      "requires": [
+        {
+          "ext": "Zca",
+          "src": "udb",
+          "ref": "Zclsd.yaml requirements.extension"
+        },
+        {
+          "ext": "Zilsd",
+          "src": "udb",
+          "ref": "Zclsd.yaml requirements.extension"
+        }
+      ],
+      "conflicts": [
+        {
+          "ext": "Zcf",
+          "src": "udb",
+          "ref": "Zclsd.yaml requirements … not: Zcf"
+        },
+        {
+          "ext": "RV64I",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zclsd is defined only for RV32"
+        },
+        {
+          "ext": "RV64E",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zclsd is defined only for RV32"
+        },
+        {
+          "ext": "RV128I",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zclsd is defined only for RV32"
+        }
+      ]
+    },
+    "Zcmop": {
+      "requires": [
+        {
+          "ext": "Zca",
+          "src": "udb",
+          "ref": "Zcmop.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zcmp": {
+      "requires": [
+        {
+          "ext": "Zca",
+          "src": "udb",
+          "ref": "Zcmp.yaml requirements.extension"
+        }
+      ],
+      "conflicts": [
+        {
+          "ext": "Zcd",
+          "src": "udb",
+          "ref": "Zcmp.yaml requirements … not: Zcd"
+        }
+      ]
+    },
+    "Zcmt": {
+      "requires": [
+        {
+          "ext": "Zca",
+          "src": "udb",
+          "ref": "Zcmt.yaml requirements.extension"
+        },
+        {
+          "ext": "Zicsr",
+          "src": "udb",
+          "ref": "Zcmt.yaml requirements.extension"
+        }
+      ],
+      "conflicts": [
+        {
+          "ext": "Zcd",
+          "src": "udb",
+          "ref": "Zcmt.yaml requirements … not: Zcd"
+        }
+      ]
+    },
+    "Zdinx": {
+      "requires": [
+        {
+          "ext": "Zfinx",
+          "src": "udb",
+          "ref": "Zdinx.yaml requirements.extension"
+        },
+        {
+          "ext": "Zicsr",
+          "src": "isa-manual",
+          "ref": "Vol.I §21 — Zdinx uses the fcsr/frm/fflags CSRs"
+        }
+      ]
+    },
+    "Zfa": {
+      "requires": [
+        {
+          "ext": "F",
+          "src": "udb",
+          "ref": "Zfa.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zfbfmin": {
+      "requires": [
+        {
+          "ext": "F",
+          "src": "udb",
+          "ref": "Zfbfmin.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zfh": {
+      "requires": [
+        {
+          "ext": "Zfhmin",
+          "src": "udb",
+          "ref": "Zfh.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zfhmin": {
+      "requires": [
+        {
+          "ext": "F",
+          "src": "udb",
+          "ref": "Zfhmin.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zfinx": {
+      "requires": [
+        {
+          "ext": "Zicsr",
+          "src": "udb",
+          "ref": "Zfinx.yaml requirements.extension"
+        }
+      ],
+      "conflicts": [
+        {
+          "ext": "F",
+          "src": "udb",
+          "ref": "Zfinx.yaml requirements … not: F"
+        }
+      ]
+    },
+    "Zhinx": {
+      "requires": [
+        {
+          "ext": "Zhinxmin",
+          "src": "udb",
+          "ref": "Zhinx.yaml requirements.extension"
+        },
+        {
+          "ext": "Zicsr",
+          "src": "isa-manual",
+          "ref": "Vol.I §21 — Zhinx uses the fcsr/frm/fflags CSRs"
+        }
+      ]
+    },
+    "Zhinxmin": {
+      "requires": [
+        {
+          "ext": "Zfinx",
+          "src": "udb",
+          "ref": "Zhinxmin.yaml requirements.extension"
+        },
+        {
+          "ext": "Zicsr",
+          "src": "isa-manual",
+          "ref": "Vol.I §21 — Zhinxmin uses the fcsr/frm/fflags CSRs"
+        }
+      ],
+      "conflicts": [
+        {
+          "ext": "Zfhmin",
+          "src": "udb",
+          "ref": "Zhinxmin.yaml requirements … not: Zfhmin"
+        }
+      ]
+    },
+    "Zibi": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zic64b": {
+      "requires": [],
+      "params": [
+        {
+          "name": "CACHE_BLOCK_SIZE",
+          "kind": "equal",
+          "value": 64,
+          "reason": "Zic64b mandates 64-byte cache block sizes",
+          "src": "udb",
+          "ref": "Zic64b.yaml requirements … param"
+        }
+      ],
+      "verified": "udb"
+    },
+    "Zicbom": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zicbop": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zicboz": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Ziccamoa": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Ziccamoc": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Ziccid": {
+      "requires": [
+        {
+          "ext": "Ziccif",
+          "src": "udb",
+          "ref": "Ziccid.yaml requirements.extension"
+        }
+      ]
+    },
+    "Ziccif": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zicclsm": {
+      "requires": [],
+      "params": [
+        {
+          "name": "MISALIGNED_LDST",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Zicclsm.yaml requirements … param"
+        }
+      ],
+      "verified": "udb"
+    },
+    "Ziccrse": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zicfilp": {
+      "requires": [
+        {
+          "ext": "Zicsr",
+          "src": "udb",
+          "ref": "Zicfilp.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zicfiss": {
+      "requires": [
+        {
+          "ext": "Zaamo",
+          "src": "udb",
+          "ref": "Zicfiss.yaml requirements.extension"
+        },
+        {
+          "ext": "Zicsr",
+          "src": "udb",
+          "ref": "Zicfiss.yaml requirements.extension"
+        },
+        {
+          "ext": "Zimop",
+          "src": "udb",
+          "ref": "Zicfiss.yaml requirements.extension"
+        }
+      ],
+      "conditionalRequirements": true
+    },
+    "Zicntr": {
+      "requires": [
+        {
+          "ext": "Zicsr",
+          "src": "udb",
+          "ref": "Zicntr.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zicond": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zicsr": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zifencei": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zihintntl": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zihintpause": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zihpm": {
+      "requires": [
+        {
+          "ext": "Zicsr",
+          "src": "udb",
+          "ref": "Zihpm.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zilsd": {
+      "requires": [],
+      "conflicts": [
+        {
+          "ext": "RV64I",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zilsd is defined only for RV32"
+        },
+        {
+          "ext": "RV64E",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zilsd is defined only for RV32"
+        },
+        {
+          "ext": "RV128I",
+          "src": "isa-manual",
+          "ref": "Zilsd v1.0 — Zilsd is defined only for RV32"
+        }
+      ],
+      "verified": "udb"
+    },
+    "Zimop": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zimt": {
+      "requires": [
+        {
+          "ext": "Zimop",
+          "src": "spec",
+          "ref": "riscv/riscv-memory-tagging@76a5deef39782a8286104c74ff5a604a90d87fa8, src/mte_tag.adoc — Zimt encoding compatibility paragraph"
+        }
+      ]
+    },
+    "Zjid": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Zjpm": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Zk": {
+      "requires": [
+        {
+          "ext": "Zkn",
+          "src": "udb",
+          "ref": "Zk.yaml requirements.extension"
+        },
+        {
+          "ext": "Zkr",
+          "src": "udb",
+          "ref": "Zk.yaml requirements.extension"
+        },
+        {
+          "ext": "Zkt",
+          "src": "udb",
+          "ref": "Zk.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zkn": {
+      "requires": [
+        {
+          "ext": "Zbkb",
+          "src": "udb",
+          "ref": "Zkn.yaml requirements.extension"
+        },
+        {
+          "ext": "Zbkc",
+          "src": "udb",
+          "ref": "Zkn.yaml requirements.extension"
+        },
+        {
+          "ext": "Zbkx",
+          "src": "udb",
+          "ref": "Zkn.yaml requirements.extension"
+        },
+        {
+          "ext": "Zknd",
+          "src": "udb",
+          "ref": "Zkn.yaml requirements.extension"
+        },
+        {
+          "ext": "Zkne",
+          "src": "udb",
+          "ref": "Zkn.yaml requirements.extension"
+        },
+        {
+          "ext": "Zknh",
+          "src": "udb",
+          "ref": "Zkn.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zknd": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zkne": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zknh": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zkr": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zks": {
+      "requires": [
+        {
+          "ext": "Zbkb",
+          "src": "udb",
+          "ref": "Zks.yaml requirements.extension"
+        },
+        {
+          "ext": "Zbkc",
+          "src": "udb",
+          "ref": "Zks.yaml requirements.extension"
+        },
+        {
+          "ext": "Zbkx",
+          "src": "udb",
+          "ref": "Zks.yaml requirements.extension"
+        },
+        {
+          "ext": "Zksed",
+          "src": "udb",
+          "ref": "Zks.yaml requirements.extension"
+        },
+        {
+          "ext": "Zksh",
+          "src": "udb",
+          "ref": "Zks.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zksed": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zksh": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zkt": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zmmul": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Ztso": {
+      "requires": [],
+      "verified": "udb"
+    },
+    "Zvabd": {
+      "requires": [
+        {
+          "ext": "Zve32x",
+          "src": "udb",
+          "ref": "Zvabd.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvbb": {
+      "requires": [
+        {
+          "ext": "Zvkb",
+          "src": "udb",
+          "ref": "Zvbb.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvbc": {
+      "requires": [
+        {
+          "ext": "Zve64x",
+          "src": "udb",
+          "ref": "Zvbc.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvbc32e": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Zvbdota": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Zvdot4a": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Zvdota": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Zve32f": {
+      "requires": [
+        {
+          "ext": "F",
+          "src": "udb",
+          "ref": "Zve32f.yaml requirements.extension"
+        },
+        {
+          "ext": "Zve32x",
+          "src": "udb",
+          "ref": "Zve32f.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zve32x": {
+      "requires": [
+        {
+          "ext": "Zicsr",
+          "src": "udb",
+          "ref": "Zve32x.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvl32b",
+          "src": "udb",
+          "ref": "Zve32x.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zve64d": {
+      "requires": [
+        {
+          "ext": "D",
+          "src": "udb",
+          "ref": "Zve64d.yaml requirements.extension"
+        },
+        {
+          "ext": "Zve64f",
+          "src": "udb",
+          "ref": "Zve64d.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zve64f": {
+      "requires": [
+        {
+          "ext": "Zve32f",
+          "src": "udb",
+          "ref": "Zve64f.yaml requirements.extension"
+        },
+        {
+          "ext": "Zve64x",
+          "src": "udb",
+          "ref": "Zve64f.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zve64x": {
+      "requires": [
+        {
+          "ext": "Zve32x",
+          "src": "udb",
+          "ref": "Zve64x.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvl64b",
+          "src": "udb",
+          "ref": "Zve64x.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvfbfa": {
+      "requires": [
+        {
+          "ext": "Zfbfmin",
+          "src": "udb",
+          "ref": "Zvfbfa.yaml requirements.extension"
+        },
+        {
+          "ext": "Zve32f",
+          "src": "udb",
+          "ref": "Zvfbfa.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvfbfmin": {
+      "requires": [
+        {
+          "ext": "Zve32f",
+          "src": "udb",
+          "ref": "Zvfbfmin.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvfbfwma": {
+      "requires": [
+        {
+          "ext": "Zfbfmin",
+          "src": "udb",
+          "ref": "Zvfbfwma.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvfbfmin",
+          "src": "udb",
+          "ref": "Zvfbfwma.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvfh": {
+      "requires": [
+        {
+          "ext": "Zfhmin",
+          "src": "udb",
+          "ref": "Zvfh.yaml requirements.extension"
+        },
+        {
+          "ext": "Zve32f",
+          "src": "udb",
+          "ref": "Zvfh.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvfhmin",
+          "src": "clang",
+          "ref": "clang -march=rv64i_zvfh implies +zvfhmin; UDB Zvfh.yaml is silent"
+        }
+      ]
+    },
+    "Zvfhmin": {
+      "requires": [
+        {
+          "ext": "Zve32f",
+          "src": "udb",
+          "ref": "Zvfhmin.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvfofp8min": {
+      "requires": [
+        {
+          "ext": "Zve32f",
+          "src": "udb",
+          "ref": "Zvfofp8min.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvkb": {
+      "requires": [
+        {
+          "ext": "Zve32x",
+          "src": "udb",
+          "ref": "Zvkb.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvkg": {
+      "requires": [
+        {
+          "ext": "Zve32x",
+          "src": "udb",
+          "ref": "Zvkg.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvkgs": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Zvkn": {
+      "requires": [
+        {
+          "ext": "Zvkb",
+          "src": "udb",
+          "ref": "Zvkn.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvkned",
+          "src": "udb",
+          "ref": "Zvkn.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvknhb",
+          "src": "udb",
+          "ref": "Zvkn.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvkt",
+          "src": "udb",
+          "ref": "Zvkn.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvknc": {
+      "requires": [
+        {
+          "ext": "Zvbc",
+          "src": "udb",
+          "ref": "Zvknc.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvkn",
+          "src": "udb",
+          "ref": "Zvknc.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvkned": {
+      "requires": [
+        {
+          "ext": "Zve32x",
+          "src": "udb",
+          "ref": "Zvkned.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvknf": {
+      "requires": [],
+      "verified": "none"
+    },
+    "Zvkng": {
+      "requires": [
+        {
+          "ext": "Zvkg",
+          "src": "udb",
+          "ref": "Zvkng.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvkn",
+          "src": "udb",
+          "ref": "Zvkng.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvknha": {
+      "requires": [
+        {
+          "ext": "Zve32x",
+          "src": "udb",
+          "ref": "Zvknha.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvknhb": {
+      "requires": [
+        {
+          "ext": "Zve64x",
+          "src": "udb",
+          "ref": "Zvknhb.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvknha",
+          "src": "udb",
+          "ref": "Zvknhb.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvks": {
+      "requires": [
+        {
+          "ext": "Zvkb",
+          "src": "udb",
+          "ref": "Zvks.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvksed",
+          "src": "udb",
+          "ref": "Zvks.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvksh",
+          "src": "udb",
+          "ref": "Zvks.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvkt",
+          "src": "udb",
+          "ref": "Zvks.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvksc": {
+      "requires": [
+        {
+          "ext": "Zvbc",
+          "src": "udb",
+          "ref": "Zvksc.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvks",
+          "src": "udb",
+          "ref": "Zvksc.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvksed": {
+      "requires": [
+        {
+          "ext": "Zve32x",
+          "src": "udb",
+          "ref": "Zvksed.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvksg": {
+      "requires": [
+        {
+          "ext": "Zvkg",
+          "src": "udb",
+          "ref": "Zvksg.yaml requirements.extension"
+        },
+        {
+          "ext": "Zvks",
+          "src": "udb",
+          "ref": "Zvksg.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvksh": {
+      "requires": [
+        {
+          "ext": "Zve32x",
+          "src": "udb",
+          "ref": "Zvksh.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvkt": {
+      "requires": [
+        {
+          "ext": "Zvl32b",
+          "src": "udb",
+          "ref": "Zvkt.yaml requirements.extension"
+        }
+      ]
+    },
+    "Zvl1024b": {
+      "requires": [
+        {
+          "ext": "Zvl512b",
+          "src": "udb",
+          "ref": "Zvl1024b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 1024,
+          "src": "udb",
+          "ref": "Zvl1024b.yaml requirements … param"
+        }
+      ]
+    },
+    "Zvl128b": {
+      "requires": [
+        {
+          "ext": "Zvl64b",
+          "src": "udb",
+          "ref": "Zvl128b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 128,
+          "src": "udb",
+          "ref": "Zvl128b.yaml requirements … param"
+        }
+      ]
+    },
+    "Zvl256b": {
+      "requires": [
+        {
+          "ext": "Zvl128b",
+          "src": "udb",
+          "ref": "Zvl256b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 256,
+          "src": "udb",
+          "ref": "Zvl256b.yaml requirements … param"
+        }
+      ]
+    },
+    "Zvl32b": {
+      "requires": [],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 32,
+          "src": "udb",
+          "ref": "Zvl32b.yaml requirements … param"
+        }
+      ]
+    },
+    "Zvl512b": {
+      "requires": [
+        {
+          "ext": "Zvl256b",
+          "src": "udb",
+          "ref": "Zvl512b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 512,
+          "src": "udb",
+          "ref": "Zvl512b.yaml requirements … param"
+        }
+      ]
+    },
+    "Zvl64b": {
+      "requires": [
+        {
+          "ext": "Zvl32b",
+          "src": "udb",
+          "ref": "Zvl64b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 64,
+          "src": "udb",
+          "ref": "Zvl64b.yaml requirements … param"
+        }
+      ]
+    }
+  }
+}

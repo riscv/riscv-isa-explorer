@@ -248,7 +248,18 @@ export const PROFILES = {
 };
 
 /**
+ * Volume III of the ISA manual, where the ratified profiles are defined. It
+ * joined the manual in 2026 (riscv-isa-manual#2771); docs.riscv.org does not
+ * serve it yet, so this is the manual's own HTML snapshot. Move to
+ * docs.riscv.org once it publishes the volume.
+ */
+export const PROFILES_VOLUME_URL = 'https://riscv.github.io/riscv-isa-manual/snapshot/spec/';
+
+/**
  * Human-facing profile facts used by every profile picker.
+ *
+ * `specUrl` is the profile's chapter in Volume III. The 23.1 minor profiles
+ * have none: they are frozen, not ratified, and not in the manual.
  *
  * Keep these beside the mandatory lists so the landing page and builder cannot
  * quietly disagree about XLEN or intended use. `mandatoryCount` is deliberately
@@ -260,31 +271,37 @@ export const PROFILE_METADATA = {
     xlen: 32,
     scope: 'Unprivileged',
     description: '32-bit minimum compatibility profile',
+    specUrl: `${PROFILES_VOLUME_URL}#_rvi20_profiles`,
   },
   RVI20U64: {
     xlen: 64,
     scope: 'Unprivileged',
     description: '64-bit minimum compatibility profile',
+    specUrl: `${PROFILES_VOLUME_URL}#_rvi20_profiles`,
   },
   RVA20: {
     xlen: 64,
     scope: 'Application',
     description: 'Baseline RV64GC-compatible application profile',
+    specUrl: `${PROFILES_VOLUME_URL}#_rva20_profiles`,
   },
   RVA22: {
     xlen: 64,
     scope: 'Application',
     description: '2022 64-bit application profile',
+    specUrl: `${PROFILES_VOLUME_URL}#_rva22_profiles`,
   },
   RVA23: {
     xlen: 64,
     scope: 'Application',
     description: '2023 64-bit application profile',
+    specUrl: `${PROFILES_VOLUME_URL}#_rva23_profiles`,
   },
   RVB23: {
     xlen: 64,
     scope: 'Application',
     description: '2023 64-bit application profile with bit manipulation',
+    specUrl: `${PROFILES_VOLUME_URL}#_rvb23_profiles`,
   },
   'RVA23.1': {
     xlen: 64,

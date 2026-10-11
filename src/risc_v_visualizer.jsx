@@ -2506,7 +2506,7 @@ const RISCVExplorer = () => {
                     { label: 'Extensions', value: totalExtensions },
                     { label: 'Profiles', value: Object.keys(profiles).length },
                     { label: 'Instructions', value: `${(totalInstructions / 1000).toFixed(1)}k+` },
-                    { label: 'Volumes', value: 2 },
+                    { label: 'Volumes', value: 3 },
                   ].map(({ label, value }) => (
                     <span
                       key={label}
@@ -2599,7 +2599,13 @@ const RISCVExplorer = () => {
                         turning this toolbar into a horizontal scroller. */}
                     <div className="flex items-center gap-1 bg-slate-500/10 p-1 rounded-xl border border-slate-500/20">
                       <label className="inline-flex items-center gap-2 px-2 text-[12px] font-medium whitespace-nowrap">
-                        <span style={{ color: 'var(--riscv-text-2)' }}>Highlight Profile</span>
+                        <span style={{ color: 'var(--riscv-text-2)' }}>
+                          Highlight Profile
+                          {/* Profiles are the manual's third volume, beside the
+                              Vol I / Vol II filter. Wide screens only: the
+                              toolbar has no room for it on a phone. */}
+                          <span className="hidden xl:inline opacity-60"> (Vol III)</span>
+                        </span>
                         <select
                           aria-label="Highlight Profile"
                           value={activeProfile ?? ''}
@@ -2750,9 +2756,7 @@ const RISCVExplorer = () => {
                     data-tooltip="See how the 32-bit opcode space is allocated"
                   >
                     <Grid3x3 size={14} className="opacity-80" />
-                    <span className="riscv-toolbar-label-full whitespace-nowrap">
-                      Encoding Map
-                    </span>
+                    <span className="riscv-toolbar-label-full whitespace-nowrap">Encoding Map</span>
                     <span className="riscv-toolbar-label-compact">
                       Encoding
                       <br />
@@ -3326,6 +3330,24 @@ const RISCVExplorer = () => {
                         {activeProfileSummary.mandatoryCount} mandatory requirements ·{' '}
                         {activeProfileSummary.resolvedCount} after dependencies.{' '}
                         {activeProfileSummary.description}.
+                        {activeProfileSummary.specUrl ? (
+                          <>
+                            {' '}
+                            Defined in{' '}
+                            <a
+                              href={activeProfileSummary.specUrl}
+                              target="_blank"
+                              rel="noreferrer noopener"
+                              className="underline underline-offset-2"
+                              style={{ color: 'var(--riscv-text)' }}
+                            >
+                              Volume III of the ISA manual
+                            </a>
+                            .
+                          </>
+                        ) : (
+                          ' Not yet in the ISA manual.'
+                        )}
                       </>
                     ) : (
                       <>
