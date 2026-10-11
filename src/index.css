@@ -347,6 +347,39 @@ pre,
   background: rgba(245, 197, 66, 0.18);
 }
 
+/* The profile / volume highlight banner. Gold, like the highlighted tiles, so
+   the banner reads as part of the same state rather than as page chrome. */
+.riscv-highlight-banner {
+  background: var(--riscv-gold-dim);
+  border: 1px solid rgba(245, 197, 66, 0.35);
+  border-left: 3px solid var(--riscv-gold);
+}
+
+/* Solid, so the way out of the highlight is the most visible control in the
+   banner. #1b1405 on the dark-theme gold is 11.3:1. */
+.riscv-clear-highlight {
+  background: var(--riscv-gold);
+  color: #1b1405;
+  border: 1px solid var(--riscv-gold);
+  cursor: pointer;
+  transition:
+    filter 0.15s ease,
+    transform 0.1s ease;
+}
+
+.riscv-clear-highlight:hover {
+  filter: brightness(1.08);
+}
+
+.riscv-clear-highlight:active {
+  transform: scale(0.97);
+}
+
+.riscv-clear-highlight:focus-visible {
+  outline: 2px solid var(--riscv-text);
+  outline-offset: 2px;
+}
+
 .riscv-btn-violet {
   border-color: rgba(139, 124, 248, 0.35);
   background: var(--riscv-violet-dim);
@@ -441,6 +474,16 @@ pre,
 
 /* On the light theme's tinted tiles the plain token sat at about 4:1. A darker
    shade of the same hue clears AA without changing which colour means what. */
+/* Light theme gold is #8f6408; white on it is 5.3:1. */
+:root[data-theme='light'] .riscv-clear-highlight {
+  color: #ffffff;
+}
+
+:root[data-theme='light'] .riscv-highlight-banner {
+  border-color: rgba(143, 100, 8, 0.35);
+  border-left-color: var(--riscv-gold);
+}
+
 :root[data-theme='light'] .ext-profile-tag {
   color: color-mix(in srgb, var(--tag) 70%, #000);
 }
