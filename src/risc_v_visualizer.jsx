@@ -54,6 +54,18 @@ import EncodingDiagram from './EncodingDiagram.jsx';
 import CsrDetails from './CsrDetails.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import { computeLockedExtensions, missingMandatory } from './workspaceLock.js';
+import { parameterNames } from './isaParams.js';
+import {
+  CONFIG_PARAM,
+  PROFILE_PARAM,
+  configQuery,
+  decodeBuilderConfig,
+  encodeBuilderConfig,
+  findProfileName,
+  readConfigParam,
+  sameBuilderConfig,
+  sanitizeBuilderState,
+} from './configPermalink.js';
 import CompareTray from './CompareTray.jsx';
 import {
   COMPARE_MAX,
@@ -157,22 +169,8 @@ const BUILDER_STORAGE_KEY = 'riscv-landscape-builder-state';
 
 /**
  * Restore the builder from localStorage, validating rather than trusting.
- *
- * Everything here has been out of our hands since it was written: the payload
- * may predate a catalogue sync that renamed an extension, predate a change to
- * a profile's mandatory set, or simply have been edited by hand. A shape check
- * alone let unknown ids and a non-object paramChoices flow into -march
- * assembly, so each field is checked against live data and dropped if it no
- * longer refers to anything.
- *
- * The reconciliation at the end matters most. `baselineLocked` was stored
- * independently of `workspaceIds`, so a payload could come back claiming the
- * profile floor was held while the selection had already lost a mandatory
- * extension — the false-compliance state #214 exists to prevent, reachable
- * through a reload rather than a click. When the two disagree we believe the
- * extension set and release the lock, which tells the truth and leaves the
- * user's configuration untouched; re-locking restores the floor as it always
- * has.
+ * The checks live in sanitizeBuilderState, shared with configuration links
+ * (#407), since both are payloads that have been out of our hands.
  */
 const loadSavedBuilderState = () => {
   if (typeof window === 'undefined') return null;
@@ -184,44 +182,35 @@ const loadSavedBuilderState = () => {
   } catch {
     /* storage unavailable or corrupt — start clean */
   }
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+  return sanitizeBuilderState(parsed, BUILDER_CHECKS);
+};
 
-  const knownProfile = (name) =>
-    typeof name === 'string' && Object.hasOwn(PROFILES, name) ? name : null;
-
-  const catalogIds = new Set(allExtensionsFlat.map((ext) => ext.id));
-  const workspaceIds = Array.isArray(parsed.workspaceIds)
-    ? parsed.workspaceIds.filter((id) => catalogIds.has(id))
-    : [];
-
-  const paramChoices =
-    parsed.paramChoices &&
-    typeof parsed.paramChoices === 'object' &&
-    !Array.isArray(parsed.paramChoices)
-      ? parsed.paramChoices
-      : {};
-
-  let seedProfile = knownProfile(parsed.seedProfile);
-  let customFromProfile = knownProfile(parsed.customFromProfile);
-  let baselineLocked = typeof parsed.baselineLocked === 'boolean' ? parsed.baselineLocked : true;
-
-  if (seedProfile && baselineLocked) {
-    const missing = missingMandatory({ workspaceIds, seedProfile, profiles: PROFILES });
-    if (missing.length > 0) {
-      customFromProfile = seedProfile;
-      seedProfile = null;
-      baselineLocked = false;
-    }
+/**
+ * A configuration someone shared as ?cfg=, checked the same way. Null when the
+ * URL has none, or carries nothing that still exists.
+ */
+const sharedBuilderStateFromUrl = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const value = readConfigParam(window.location.search);
+    const state = sanitizeBuilderState(decodeBuilderConfig(value, PROFILES), BUILDER_CHECKS);
+    return state && state.workspaceIds.length > 0 ? state : null;
+  } catch {
+    return null;
   }
+};
 
-  return {
-    workspaceIds,
-    seedProfile,
-    customFromProfile,
-    paramChoices,
-    baselineLocked,
-    builderMode: typeof parsed.builderMode === 'boolean' ? parsed.builderMode : undefined,
-  };
+/** ?profile=rva23.1 highlights that profile on first paint. */
+const profileFromUrl = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    return findProfileName(
+      new URLSearchParams(window.location.search).get(PROFILE_PARAM),
+      PROFILES,
+    );
+  } catch {
+    return null;
+  }
 };
 
 /*
@@ -295,6 +284,12 @@ function useMediaQuery(query) {
 }
 
 const allExtensionsFlat = Object.values(extensions).flat().filter(Boolean);
+const BUILDER_CHECKS = {
+  catalogIds: new Set(allExtensionsFlat.map((ext) => ext.id)),
+  profiles: PROFILES,
+  missingMandatory,
+  paramNames: new Set(parameterNames()),
+};
 const PROFILE_NAMES = Object.keys(PROFILES);
 
 // Shared so an empty query allocates nothing and searchMatchIds keeps a stable
@@ -619,7 +614,8 @@ const extensionCsrLabels = {
 };
 
 const RISCVExplorer = () => {
-  const [activeProfile, setActiveProfile] = useState(null);
+  // Lazy, like selectedExt below, so ?profile=RVA23.1 highlights on first paint.
+  const [activeProfile, setActiveProfile] = useState(profileFromUrl);
   const [activeVolume, setActiveVolume] = useState(null);
   // Lazy initialiser, so ?ext=Zba is honoured on first paint rather than
   // selecting nothing and then correcting itself.
@@ -853,7 +849,27 @@ const RISCVExplorer = () => {
       }
     };
   }, [instructionExpandOpen]);
-  const savedBuilderState = React.useMemo(() => loadSavedBuilderState(), []);
+  /*
+   * A ?cfg= link (#407) and the configuration this visitor already saved can
+   * disagree. Silently replacing theirs would lose work they never chose to
+   * discard, so a differing link waits behind a banner (pendingSharedConfig)
+   * and is applied only when they say so. With nothing saved, or the same
+   * configuration saved, there is nothing to lose and the link opens directly.
+   */
+  const { savedBuilderState, sharedConfigApplied, sharedConfigPending } = React.useMemo(() => {
+    const saved = loadSavedBuilderState();
+    const shared = sharedBuilderStateFromUrl();
+    if (!shared) return { savedBuilderState: saved, sharedConfigApplied: false };
+    const savedHasConfig = saved && saved.workspaceIds.length > 0;
+    if (!savedHasConfig || sameBuilderConfig(saved, shared, PROFILES)) {
+      return {
+        savedBuilderState: { ...shared, builderMode: true },
+        sharedConfigApplied: true,
+      };
+    }
+    return { savedBuilderState: saved, sharedConfigApplied: false, sharedConfigPending: shared };
+  }, []);
+  const [pendingSharedConfig, setPendingSharedConfig] = useState(sharedConfigPending ?? null);
 
   // ── ISA Workspace state ────────────────────────────────────────────────────
   const [workspaceIds, setWorkspaceIds] = useState(() => {
@@ -950,7 +966,9 @@ const RISCVExplorer = () => {
   // Deliberately not restored: see the persistence effect. The studio is a
   // full-screen opaque overlay, so reopening it on load hid whatever the
   // visitor had actually navigated to.
-  const [workspacePanelOpen, setWorkspacePanelOpen] = useState(false);
+  // The one exception: a shared configuration link opens on the builder, since
+  // showing that configuration is the whole point of following it.
+  const [workspacePanelOpen, setWorkspacePanelOpen] = useState(sharedConfigApplied);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = React.useRef(null);
   // Which profile seeded the workspace, so the panel can offer that profile's
@@ -1011,6 +1029,42 @@ const RISCVExplorer = () => {
       /* ignore */
     }
   }, [workspaceIds, seedProfile, customFromProfile, paramChoices, baselineLocked, builderMode]);
+
+  /*
+   * Once a ?cfg= link is applied or declined it has done its job: from then on
+   * the builder state is the visitor's own and lives in localStorage. Leaving
+   * the parameter in place would make the address bar describe a configuration
+   * they have since edited, and a reload would offer the banner again.
+   */
+  const dropConfigParam = React.useCallback(() => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has(CONFIG_PARAM)) return;
+    url.searchParams.delete(CONFIG_PARAM);
+    window.history.replaceState(null, '', url.toString());
+  }, []);
+
+  React.useEffect(() => {
+    if (sharedConfigApplied) dropConfigParam();
+  }, [sharedConfigApplied, dropConfigParam]);
+
+  const applyPendingSharedConfig = React.useCallback(() => {
+    if (!pendingSharedConfig) return;
+    setWorkspaceIds(new Set(pendingSharedConfig.workspaceIds));
+    setSeedProfile(pendingSharedConfig.seedProfile);
+    setCustomFromProfile(pendingSharedConfig.customFromProfile);
+    setParamChoices(pendingSharedConfig.paramChoices);
+    setBaselineLocked(pendingSharedConfig.baselineLocked);
+    setBuilderMode(true);
+    setWorkspacePanelOpen(true);
+    setPendingSharedConfig(null);
+    dropConfigParam();
+  }, [pendingSharedConfig, dropConfigParam]);
+
+  const declinePendingSharedConfig = React.useCallback(() => {
+    setPendingSharedConfig(null);
+    dropConfigParam();
+  }, [dropConfigParam]);
 
   const handleSetParam = React.useCallback((name, value) => {
     setParamChoices((prev) => {
@@ -2283,6 +2337,50 @@ const RISCVExplorer = () => {
     showToast(ok ? 'Comparison link copied' : 'Could not copy to the clipboard');
   }, [compareKind, compareKeys, copyTextToClipboard, showToast]);
 
+  // Same pattern as `ext` and `cmp`: replaceState, so the address bar always
+  // holds a link to the highlighted profile without adding history entries.
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const url = new URL(window.location.href);
+    if ((url.searchParams.get(PROFILE_PARAM) || null) === activeProfile) return;
+    if (activeProfile) url.searchParams.set(PROFILE_PARAM, activeProfile);
+    else url.searchParams.delete(PROFILE_PARAM);
+    window.history.replaceState(null, '', url.toString());
+  }, [activeProfile]);
+
+  const copyProfileLink = React.useCallback(async () => {
+    if (!activeProfile) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set(PROFILE_PARAM, activeProfile);
+    url.hash = '';
+    const ok = await copyTextToClipboard(url.toString());
+    showToast(ok ? `Link to ${activeProfile} copied` : 'Could not copy to the clipboard');
+  }, [activeProfile, copyTextToClipboard, showToast]);
+
+  /*
+   * A configuration link carries the configuration and nothing else. The
+   * sender's selected tile or open comparison is their browsing, not part of
+   * what they meant to share.
+   */
+  const copyConfigLink = React.useCallback(async () => {
+    const value = encodeBuilderConfig(
+      { workspaceIds, seedProfile, customFromProfile, paramChoices, baselineLocked },
+      PROFILES,
+    );
+    if (!value) return;
+    const url = `${window.location.origin}${window.location.pathname}${configQuery(value)}`;
+    const ok = await copyTextToClipboard(url);
+    showToast(ok ? 'Configuration link copied' : 'Could not copy to the clipboard');
+  }, [
+    workspaceIds,
+    seedProfile,
+    customFromProfile,
+    paramChoices,
+    baselineLocked,
+    copyTextToClipboard,
+    showToast,
+  ]);
+
   // Unpinning down to one item leaves nothing to compare. Closing beats showing
   // a single column and calling it a comparison.
   // A profile comparison is exempt: it carries its own picker, so one or no
@@ -2682,6 +2780,17 @@ const RISCVExplorer = () => {
                       {/* Only a highlighted profile has a list to download. */}
                       {activeProfile && (
                         <ProfileDownloadMenu profile={activeProfile} onDownload={downloadProfile} />
+                      )}
+                      {activeProfile && (
+                        <button
+                          type="button"
+                          onClick={copyProfileLink}
+                          title={`Copy a link that opens the explorer with ${activeProfile} highlighted`}
+                          className="riscv-pin-btn px-2 py-1 rounded-md border text-[11px] font-semibold inline-flex items-center gap-1 whitespace-nowrap"
+                        >
+                          <Link2 size={12} />
+                          <span>Share</span>
+                        </button>
                       )}
 
                       {/* Like every compare affordance, shown only while Compare is on. */}
@@ -3336,6 +3445,50 @@ const RISCVExplorer = () => {
                   </div>
                 </div>
               </nav>
+
+              {pendingSharedConfig && (
+                <div
+                  role="region"
+                  aria-label="Shared configuration"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2 text-[12px]"
+                  style={{
+                    color: 'var(--riscv-text-2)',
+                    background: 'var(--riscv-surface-2)',
+                    borderColor: 'var(--riscv-border-2)',
+                  }}
+                >
+                  <span>
+                    This link contains an ISA configuration
+                    {pendingSharedConfig.seedProfile || pendingSharedConfig.customFromProfile ? (
+                      <>
+                        {' '}
+                        based on{' '}
+                        <strong style={{ color: 'var(--riscv-text)' }}>
+                          {pendingSharedConfig.seedProfile || pendingSharedConfig.customFromProfile}
+                        </strong>
+                      </>
+                    ) : null}{' '}
+                    ({pendingSharedConfig.workspaceIds.length} extensions). Opening it replaces the
+                    configuration saved in this browser.
+                  </span>
+                  <span className="flex shrink-0 gap-2">
+                    <button
+                      type="button"
+                      className="riscv-btn px-2 py-1 text-[11px]"
+                      onClick={applyPendingSharedConfig}
+                    >
+                      Open shared configuration
+                    </button>
+                    <button
+                      type="button"
+                      className="riscv-btn px-2 py-1 text-[11px]"
+                      onClick={declinePendingSharedConfig}
+                    >
+                      Keep mine
+                    </button>
+                  </span>
+                </div>
+              )}
 
               {(activeProfile || activeVolume) && (
                 <div
@@ -6028,6 +6181,7 @@ const RISCVExplorer = () => {
             profileOptional={PROFILE_OPTIONAL}
             paramChoices={paramChoices}
             onSetParam={handleSetParam}
+            onShare={copyConfigLink}
             baselineLocked={baselineLocked}
             customFromProfile={customFromProfile}
             onToggleBaseline={() => {

@@ -13,6 +13,19 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Added
+
+- **Share links for a profile and for a configuration.** Highlighting a profile
+  now puts `?profile=` in the address bar, matched case-insensitively, and a
+  Share button beside Download copies the link. The ISA Configuration Builder
+  has a Share button beside Export YAML that copies a link to the whole
+  configuration: the profile it started from, extensions added and removed,
+  the profile-floor lock and the chosen parameters, written as a short,
+  readable `?cfg=` value rather than the full export. Opening one checks every
+  field against the current catalogue, as a restore from the browser does. If
+  the visitor has a different configuration saved, a banner asks before
+  replacing it. Suggested by Nicolas Brunie (#407).
+
 ## [1.8.0] - 2026-10-11
 
 Catalogue: 211 entries, unchanged from 1.7.0. No saved selection or `-march`

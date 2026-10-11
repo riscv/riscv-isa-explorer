@@ -27,6 +27,12 @@ get a dependency-resolved configuration with a valid `-march` string.
   implied ones tagged with the extension that pulls them in, optional ones tagged
   and outlined. The grid, the download and the comparison all use the same
   classification.
+- **Share a view.** Selecting an extension puts `?ext=` in the address bar, a
+  highlighted profile puts `?profile=` there (`?profile=rva23.1` works), and
+  **Share** copies a link to either the highlighted profile or the whole builder
+  configuration. A configuration link records the profile it started from, the
+  extensions added and removed, and the parameters chosen. If the visitor
+  already has a different configuration saved, the page asks before replacing it.
 - **Export** a `-march` string, a YAML configuration (optionally with every
   instruction), or a UDB architecture configuration for riscv-arch-test.
   Parameters chosen in the ISA Configuration Builder go into both files.

@@ -70,6 +70,7 @@ src/
   xlsxWriter.js               # dependency-free .xlsx writer (stored zip + CRC-32)
   ProfileDownloadMenu.jsx     # Download menu shown while a profile is highlighted
   focusTrap.js                # modal focus trapping
+  configPermalink.js          # ?profile= and ?cfg= share links; shared builder-state sanitiser
   profiles.js                 # ratified profile definitions
   --- data (the source of truth) ---
   riscv_extensions.json       # extension catalogue + per-extension instruction encodings

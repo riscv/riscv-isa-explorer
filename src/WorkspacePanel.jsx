@@ -33,6 +33,7 @@ import {
   Lock,
   Unlock,
   AlertTriangle,
+  Link2,
 } from 'lucide-react';
 
 import {
@@ -83,6 +84,7 @@ export default function WorkspacePanel({
   customFromProfile,
   paramChoices,
   onSetParam,
+  onShare,
   baselineLocked,
   onToggleBaseline,
 }) {
@@ -613,11 +615,36 @@ export default function WorkspacePanel({
           )}
         </div>
 
-        {/* Right Actions: Export YAML, Clear all, Close */}
+        {/* Right Actions: Share, Export YAML, Clear all, Close */}
         <div
           className="workspace-studio-actions"
           style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}
         >
+          {!isEmpty && onShare && (
+            <button
+              type="button"
+              onClick={onShare}
+              title="Copy a link that opens this configuration"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '7px 12px',
+                borderRadius: 8,
+                background: 'var(--riscv-surface-2)',
+                border: '1px solid var(--riscv-border-2)',
+                color: 'var(--riscv-text-2)',
+                fontSize: 12,
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Link2 size={13} />
+              <span>Share</span>
+            </button>
+          )}
+
           {!isEmpty && (
             <div ref={exportOptionsRef} style={{ position: 'relative' }}>
               <button

@@ -146,12 +146,13 @@ test('nothing threw during the first render', () => {
  * compiles JSX to React.createElement. Lint and build both stayed green; the
  * page only broke when a comparison opened.
  */
-async function mountAt(url) {
+async function mountAt(url, { storage = {} } = {}) {
   const win = new JSDOM(fs.readFileSync(path.join(dist, 'index.html'), 'utf8'), {
     runScripts: 'outside-only',
     pretendToBeVisual: true,
     url,
   });
+  for (const [key, value] of Object.entries(storage)) win.window.localStorage.setItem(key, value);
   const errors = [];
   win.window.console.error = (...args) => errors.push(args.join(' '));
   win.window.Element.prototype.scrollIntoView = () => {};
@@ -527,6 +528,102 @@ test('the profile dropdown highlights a 23.1 profile and preserves its compare a
   await tick();
   assert.ok(!doc.body.textContent.includes('Highlighting RVA23.1'));
   assert.deepEqual(realErrors(errors), [], 'console errors while using the profile dropdown');
+});
+
+/*
+ * Share links (#407). A profile link highlights on first paint; a configuration
+ * link opens the builder, unless the visitor already has a different
+ * configuration saved, in which case it asks first.
+ */
+const BUILDER_KEY = 'riscv-landscape-builder-state';
+const builderStudio = (d) =>
+  d.window.document.querySelector('[role="dialog"][aria-label="ISA Configuration Builder Studio"]');
+const sharedBanner = (d) =>
+  d.window.document.querySelector('[role="region"][aria-label="Shared configuration"]');
+
+test('a profile link highlights that profile, whatever its case', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?profile=rva23.1');
+  const doc = d.window.document;
+  assert.equal(doc.querySelector('select[aria-label="Highlight Profile"]').value, 'RVA23.1');
+  assert.ok(doc.body.textContent.includes('Highlighting RVA23.1'));
+  assert.equal(new d.window.URL(d.window.location.href).searchParams.get('profile'), 'RVA23.1');
+
+  const select = doc.querySelector('select[aria-label="Highlight Profile"]');
+  select.value = '';
+  select.dispatchEvent(new d.window.Event('change', { bubbles: true }));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.ok(!d.window.location.search.includes('profile='), 'clearing must drop the parameter');
+  assert.deepEqual(realErrors(errors), []);
+});
+
+test('an unknown profile in a link highlights nothing', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?profile=RVA99');
+  assert.equal(
+    d.window.document.querySelector('select[aria-label="Highlight Profile"]').value,
+    '',
+  );
+  assert.deepEqual(realErrors(errors), []);
+});
+
+test('a configuration link opens the builder when nothing is saved', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?cfg=1;p:RVB23;a:Zbc');
+  // WorkspacePanel is a lazy chunk, which jsdom cannot load (see the note on
+  // React.lazy in risc_v_visualizer.jsx), so the open studio is checked in a
+  // browser. What this can see is that the configuration was taken.
+  assert.equal(sharedBanner(d), null);
+  assert.ok(!d.window.location.search.includes('cfg='), 'the link must be consumed');
+  const saved = JSON.parse(d.window.localStorage.getItem(BUILDER_KEY));
+  assert.equal(saved.seedProfile, 'RVB23');
+  assert.ok(saved.workspaceIds.includes('Zbc'));
+  assert.deepEqual(realErrors(errors), []);
+});
+
+test('a configuration link asks before replacing a different saved one', async () => {
+  const mine = JSON.stringify({
+    workspaceIds: ['RV64I', 'M'],
+    seedProfile: null,
+    customFromProfile: null,
+    paramChoices: {},
+    baselineLocked: true,
+    builderMode: true,
+  });
+  const { dom: d, errors } = await mountAt('https://example.test/?cfg=1;p:RVB23', {
+    storage: { [BUILDER_KEY]: mine },
+  });
+  const banner = sharedBanner(d);
+  assert.ok(banner, 'expected the shared-configuration banner');
+  assert.ok(banner.textContent.includes('RVB23'));
+  assert.equal(builderStudio(d), null, 'must not open over the visitor before they choose');
+  assert.deepEqual(JSON.parse(d.window.localStorage.getItem(BUILDER_KEY)).workspaceIds, [
+    'RV64I',
+    'M',
+  ]);
+
+  const keep = [...banner.querySelectorAll('button')].find((b) => b.textContent === 'Keep mine');
+  keep.dispatchEvent(new d.window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.equal(sharedBanner(d), null);
+  assert.ok(!d.window.location.search.includes('cfg='));
+  assert.deepEqual(JSON.parse(d.window.localStorage.getItem(BUILDER_KEY)).workspaceIds, [
+    'RV64I',
+    'M',
+  ]);
+  assert.deepEqual(realErrors(errors), []);
+});
+
+test('opening a shared configuration from the banner loads it', async () => {
+  const mine = JSON.stringify({ workspaceIds: ['RV64I', 'M'], builderMode: true });
+  const { dom: d, errors } = await mountAt('https://example.test/?cfg=1;p:RVB23', {
+    storage: { [BUILDER_KEY]: mine },
+  });
+  const open = [...sharedBanner(d).querySelectorAll('button')].find(
+    (b) => b.textContent === 'Open shared configuration',
+  );
+  open.dispatchEvent(new d.window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.equal(sharedBanner(d), null);
+  assert.equal(JSON.parse(d.window.localStorage.getItem(BUILDER_KEY)).seedProfile, 'RVB23');
+  assert.deepEqual(realErrors(errors), []);
 });
 
 test('the page declares itself a tech preview and offers somewhere to report', () => {
