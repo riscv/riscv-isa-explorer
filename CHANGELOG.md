@@ -13,49 +13,51 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-10-11
+
+Catalogue: 211 entries, unchanged from 1.7.0. No saved selection or `-march`
+string is invalidated by this release.
+
 ### Added
 
-- **Filter a profile comparison to required or optional extensions.** A
-  Show: All / Required / Optional control beside the profile picker. Required
-  keeps an extension any compared profile mandates (or implies, with Include
-  implied on); Optional keeps one any lists as optional. An extension that
-  moved between them, such as V (optional in RVA22, mandatory in RVA23), shows
-  under both. Group headings recount, and the Markdown copy follows the filter.
-
-- **A highlighted profile now shows all of its extensions, not only the
-  mandatory ones.** Extensions implied by a mandatory one carry an "implied"
-  tag naming what implies them, and optional ones carry an "optional" tag and a
+- **A highlighted profile shows all of its extensions, not only the mandatory
+  ones.** Extensions implied by a mandatory one carry a teal "implied" tag
+  naming what implies them. Optional ones carry a gold "optional" tag and a
   dashed outline. Before, both were dimmed like extensions outside the profile.
-  The two tags are colour-coded, teal for implied and gold for optional, and
-  stay above 4.5:1 contrast in both themes. The banner counts the optional
-  ones. The grid uses the same classification
-  as the profile download and comparison. Idea and first version by Nicolas
-  Brunie (#397).
+  The banner counts the optional ones. The grid uses the same classification
+  as the profile download and comparison, and both tags stay above 4.5:1
+  contrast in both themes. The idea and first version are by Nicolas Brunie
+  (#397, #402, #403).
+- **Filter a profile comparison to required or optional extensions.** A Show:
+  All / Required / Optional control sits beside the profile picker. Required
+  keeps an extension that any compared profile mandates, or implies when
+  "Include implied" is on. Optional keeps one that any compared profile lists
+  as optional. An extension that moved between the two, such as V (optional
+  in RVA22, mandatory in RVA23), shows under both. Group headings recount, and
+  the Markdown copy follows the filter (#404).
 
 ### Changed
 
-- **P (Packed SIMD) is marked as in development, v0.6.0.** It showed "Status
-  unknown" while RV128I showed Draft, which read as P being further along than
-  it is. The status comes from the P specification's v0.6 release (Development
-  Milestone Approved, 2026-09-29); riscv-unified-db does not carry P yet.
-
-- **Profiles are now treated as Volume III of the ISA manual**, which the
-  manual adopted in 2026 (riscv-isa-manual#2771). The header counts three
-  volumes, the profile picker is labelled Vol III, and a highlighted ratified
-  profile links its specification on docs.riscv.org. The profile download
-  carries the same link as `specification`. RVA23.1 and RVB23.1 are not
-  ratified yet and say so (#400).
-- **28 catalogue entries now link to docs.riscv.org instead of the manual
-  repository root.** The profile-named extensions (Ziccrse, Za64rs, Sstvala,
-  Shgatpa and the rest) link to the ratified profile specification that
-  defines them, and the privileged version tags (Sm1p11 to Ss1p13) link to the
-  privileged preface. `scripts/map-doc-links.mjs` now reads the profile pages,
-  so these links are generated rather than hand-written.
-- **P, Svatag, Smvatag, Zvknf, Smsdia and Ssdtso link to the source file that
-  defines them** instead of the manual repository root: the P placeholder
-  chapter in the ISA manual, the memory-tagging specification, the vector
-  crypto Zvknf page, the Smsdia chapter of the SMMTT specification and the
-  Ssdtso specification (#399).
+- **Profiles are treated as Volume III of the ISA manual**, which the manual
+  adopted in 2026 (riscv-isa-manual#2771). The header counts three volumes,
+  the profile picker is labelled Vol III, and a highlighted ratified profile
+  links its specification on docs.riscv.org. The profile download carries the
+  same link as `specification`. RVA23.1 and RVB23.1 are not ratified yet, and
+  the banner says so (#400, #401).
+- **34 catalogue entries link to the page that defines them** instead of the
+  ISA manual repository root:
+  - 28 link to docs.riscv.org. The profile-named extensions (Ziccrse, Za64rs,
+    Sstvala, Shgatpa and the rest) go to the ratified profile specification
+    that defines them. The privileged version tags (Sm1p11 to Ss1p13) go to
+    the privileged preface. `scripts/map-doc-links.mjs` now reads the profile
+    pages, so these links are generated rather than hand-written (#401).
+  - Six link to the specification source: P, Svatag, Smvatag, Zvknf, Smsdia
+    and Ssdtso. Thanks to shubhamrai9122-creator (#399).
+- **P (Packed SIMD) is marked as in development, v0.6.0.** It used to show
+  "Status unknown" while RV128I showed Draft, which made P look further along
+  than it is. The status comes from the P specification's v0.6 release
+  (Development Milestone Approved, 2026-09-29), since riscv-unified-db does
+  not carry P yet (#405).
 
 ## [1.7.0] - 2026-10-10
 
