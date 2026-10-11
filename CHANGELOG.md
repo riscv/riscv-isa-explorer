@@ -46,9 +46,11 @@ someone silently. Each release below records its catalogue size.
   defines them, and the privileged version tags (Sm1p11 to Ss1p13) link to the
   privileged preface. `scripts/map-doc-links.mjs` now reads the profile pages,
   so these links are generated rather than hand-written.
-- **P, Svatag and Smvatag link to the source file that defines them** instead
-  of the manual repository root: the P placeholder chapter in the ISA manual
-  and the memory-tagging specification (#399).
+- **P, Svatag, Smvatag, Zvknf, Smsdia and Ssdtso link to the source file that
+  defines them** instead of the manual repository root: the P placeholder
+  chapter in the ISA manual, the memory-tagging specification, the vector
+  crypto Zvknf page, the Smsdia chapter of the SMMTT specification and the
+  Ssdtso specification (#399).
 
 ## [1.7.0] - 2026-10-10
 

@@ -75977,7 +75977,7 @@
       "tags": [],
       "desc": "Proposed full-round AES-128 and AES-256 encrypt, decrypt, and key-schedule vector instructions.",
       "use": "Vector AES finite-field helpers",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-crypto/blob/main/doc/vector-allrounds/riscv-crypto-vector-zvknf.adoc",
       "instructions": {}
     },
     {
@@ -81165,7 +81165,7 @@
       "tags": [],
       "desc": "Assigns IMSIC interrupt files and APLIC domains to individual supervisor domains for isolated delivery.",
       "use": "Soft-debug / diagnostics assist",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-smmtt/blob/main/chapter7.adoc",
       "instructions": {}
     }
   ],
@@ -85375,7 +85375,7 @@
       "tags": [],
       "desc": "Lets supervisor software switch a hart between the RVWMO and TSO memory models at run time, per process.",
       "use": "Supervisors opt into TSO behavior",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-ssdtso/blob/main/ssdtso.adoc",
       "instructions": {}
     },
     {
