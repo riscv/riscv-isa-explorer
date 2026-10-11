@@ -15,6 +15,13 @@ someone silently. Each release below records its catalogue size.
 
 ### Added
 
+- **Filter a profile comparison to required or optional extensions.** A
+  Show: All / Required / Optional control beside the profile picker. Required
+  keeps an extension any compared profile mandates (or implies, with Include
+  implied on); Optional keeps one any lists as optional. An extension that
+  moved between them, such as V (optional in RVA22, mandatory in RVA23), shows
+  under both. Group headings recount, and the Markdown copy follows the filter.
+
 - **A highlighted profile now shows all of its extensions, not only the
   mandatory ones.** Extensions implied by a mandatory one carry an "implied"
   tag naming what implies them, and optional ones carry an "optional" tag and a

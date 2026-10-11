@@ -131,6 +131,23 @@ function Cell({ row, value, bitDiff }) {
   return <span className="text-[12px] leading-snug">{value}</span>;
 }
 
+// Narrows a profile comparison by requirement. "Required" takes in implied
+// extensions too, which only appear while "Include implied" is on.
+const REQUIREMENT_FILTER_OPTIONS = [
+  { key: 'all', label: 'All', title: 'Every extension in any compared profile' },
+  {
+    key: 'required',
+    label: 'Required',
+    title:
+      'Extensions at least one compared profile mandates (or implies, with "Include implied" on)',
+  },
+  {
+    key: 'optional',
+    label: 'Optional',
+    title: 'Extensions at least one compared profile lists as optional',
+  },
+];
+
 export default function CompareView({
   open,
   model,
@@ -146,6 +163,9 @@ export default function CompareView({
   onToggleGrouped,
 }) {
   const [differencesOnly, setDifferencesOnly] = React.useState(false);
+  // Profile comparisons only: 'all', 'required' (mandatory or implied) or
+  // 'optional'. visibleRows owns what each one keeps.
+  const [requirementFilter, setRequirementFilter] = React.useState('all');
   const dialogRef = React.useRef(null);
   const restoreFocusRef = React.useRef(null);
 
@@ -197,7 +217,8 @@ export default function CompareView({
   const pickedProfiles = new Set(model.kind === 'profile' ? model.columns.map((c) => c.key) : []);
 
   // Agreement is context, difference is the signal.
-  const rows = visibleRows(model, { differencesOnly });
+  const requirement = model.kind === 'profile' ? requirementFilter : 'all';
+  const rows = visibleRows(model, { differencesOnly, requirement });
   const compared = comparedRows(model);
   const differing = compared.filter((r) => !r.allSame).length;
   const heading =
@@ -214,7 +235,11 @@ export default function CompareView({
       {/* Backdrop */}
       <div
         className="absolute inset-0"
-        style={{ background: 'rgba(7,7,14,0.85)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
+        style={{
+          background: 'rgba(7,7,14,0.85)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+        }}
         onClick={onClose}
         role="presentation"
       />
@@ -252,17 +277,24 @@ export default function CompareView({
               <span
                 className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono"
                 style={{
-                  background: differing > 0 ? 'rgba(139, 124, 248, 0.12)' : 'var(--riscv-surface-2)',
+                  background:
+                    differing > 0 ? 'rgba(139, 124, 248, 0.12)' : 'var(--riscv-surface-2)',
                   color: differing > 0 ? 'var(--riscv-violet)' : 'var(--riscv-text-3)',
                   border: `1px solid ${differing > 0 ? 'rgba(139, 124, 248, 0.3)' : 'var(--riscv-border-2)'}`,
                 }}
               >
-                <strong>{differing}</strong> of {compared.length} {model.kind === 'profile' ? 'rows' : 'attributes'} differ
+                <strong>{differing}</strong> of {compared.length}{' '}
+                {model.kind === 'profile' ? 'rows' : 'attributes'} differ
               </span>
 
               {model.kind === 'profile' && (
-                <span className="text-[11px] font-mono hidden md:inline" style={{ color: 'var(--riscv-text-3)' }}>
-                  {model.expandedDependencies ? '(with implied extensions)' : '(as listed in the specification)'}
+                <span
+                  className="text-[11px] font-mono hidden md:inline"
+                  style={{ color: 'var(--riscv-text-3)' }}
+                >
+                  {model.expandedDependencies
+                    ? '(with implied extensions)'
+                    : '(as listed in the specification)'}
                 </span>
               )}
             </div>
@@ -326,7 +358,7 @@ export default function CompareView({
               <button
                 type="button"
                 className="riscv-btn px-2.5 py-1.5 text-[11px] inline-flex items-center gap-1.5 font-medium"
-                onClick={() => onCopyMarkdown(toMarkdown(model, { differencesOnly }))}
+                onClick={() => onCopyMarkdown(toMarkdown(model, { differencesOnly, requirement }))}
                 title="Copy comparison as Markdown table"
               >
                 <Copy size={12} className="opacity-75" />
@@ -386,6 +418,40 @@ export default function CompareView({
                   </button>
                 );
               })}
+
+              <div
+                className="ml-auto flex items-center gap-1"
+                role="radiogroup"
+                aria-label="Show extensions"
+              >
+                <span
+                  className="text-[11px] font-semibold uppercase tracking-wider mr-1"
+                  style={{ color: 'var(--riscv-text-3)' }}
+                >
+                  Show
+                </span>
+                {REQUIREMENT_FILTER_OPTIONS.map(({ key, label, title }) => {
+                  const active = requirementFilter === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      onClick={() => setRequirementFilter(key)}
+                      title={title}
+                      className="px-2 py-1 rounded-md border text-[11px] font-semibold transition-colors"
+                      style={{
+                        borderColor: active ? 'var(--riscv-violet)' : 'var(--riscv-border-2)',
+                        background: active ? 'rgba(139, 124, 248, 0.14)' : 'transparent',
+                        color: active ? 'var(--riscv-text)' : 'var(--riscv-text-2)',
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
@@ -404,7 +470,10 @@ export default function CompareView({
                         {col.label}
                       </div>
                       {col.sublabel && col.sublabel !== col.label && (
-                        <div className="text-[11px] font-mono mt-0.5 truncate" style={{ color: 'var(--riscv-text-3)' }}>
+                        <div
+                          className="text-[11px] font-mono mt-0.5 truncate"
+                          style={{ color: 'var(--riscv-text-3)' }}
+                        >
                           {col.sublabel}
                         </div>
                       )}
@@ -461,12 +530,22 @@ export default function CompareView({
 
             {model.columns.length > 0 && rows.length === 0 && (
               <div className="p-12 text-center space-y-2">
-                <div className="text-sm font-semibold" style={{ color: 'var(--riscv-text-2)' }}>
-                  All attributes are identical
-                </div>
-                <div className="text-[12px]" style={{ color: 'var(--riscv-text-3)' }}>
-                  These items agree on every compared attribute. Toggle off "Differences only" to view the full specification.
-                </div>
+                {requirement !== 'all' ? (
+                  <div className="text-sm font-semibold" style={{ color: 'var(--riscv-text-2)' }}>
+                    No {requirement} extensions
+                    {differencesOnly ? ' differ between these profiles' : ' in these profiles'}
+                  </div>
+                ) : (
+                  <>
+                    <div className="text-sm font-semibold" style={{ color: 'var(--riscv-text-2)' }}>
+                      All attributes are identical
+                    </div>
+                    <div className="text-[12px]" style={{ color: 'var(--riscv-text-3)' }}>
+                      These items agree on every compared attribute. Toggle off "Differences only"
+                      to view the full specification.
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
