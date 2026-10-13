@@ -4325,24 +4325,25 @@ const RISCVExplorer = () => {
               <div className="flex-1 overflow-y-auto overscroll-contain p-4 pt-3">
                 {selectedExt ? (
                   <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                    {/* Two rows: what the extension is (name and status) and
-                        what you can do with it (read, share, edit). */}
-                    <div className="mb-6 space-y-3">
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-                        <a
-                          href={selectedExt.url || 'https://github.com/riscv/riscv-isa-manual'}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="font-black tracking-tight wrap-break-word hover:opacity-80"
-                          style={{
-                            fontSize: '1.5rem',
-                            lineHeight: 1.2,
-                            color: 'var(--riscv-gold)',
-                          }}
-                          data-tooltip="Open the specification"
-                        >
-                          <span>{selectedExt.name}</span>
-                        </a>
+                    {/* The name first, alone on the left; status and actions
+                        sit small on the right so they never compete with it, and
+                        drop below it, still on the right, when the panel is narrow. */}
+                    <div className="mb-6 flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+                      <a
+                        href={selectedExt.url || 'https://github.com/riscv/riscv-isa-manual'}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-black tracking-tight wrap-break-word hover:opacity-80"
+                        style={{
+                          fontSize: '1.5rem',
+                          lineHeight: 1.2,
+                          color: 'var(--riscv-gold)',
+                        }}
+                        data-tooltip="Open the specification"
+                      >
+                        <span>{selectedExt.name}</span>
+                      </a>
+                      <div className="ml-auto flex flex-wrap items-center justify-end gap-1.5 pt-1">
                         {/* Ratification status. Without this, a proposal such as
                             Zvabd reads exactly as settled as Zbb, which is the
                             same hazard as publishing a withdrawn encoding: the
@@ -4384,7 +4385,7 @@ const RISCVExplorer = () => {
                           return (
                             <span
                               title={tip}
-                              className="px-2 py-1 rounded-md text-[11px] font-mono uppercase tracking-wide border whitespace-nowrap"
+                              className="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase tracking-wide border whitespace-nowrap"
                               style={
                                 ratified
                                   ? {
@@ -4405,7 +4406,7 @@ const RISCVExplorer = () => {
                         })()}
                         {selectedExt.discontinued === 1 && (
                           <span
-                            className="px-2 py-1 rounded-md text-[11px] font-mono uppercase tracking-wide border"
+                            className="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase tracking-wide border"
                             style={{
                               background: 'var(--riscv-report-tint)',
                               color: 'var(--riscv-danger)',
@@ -4417,7 +4418,7 @@ const RISCVExplorer = () => {
                         )}
                         {selectedExt.isSandbox && (
                           <span
-                            className="px-2 py-1 rounded-md text-[11px] font-mono uppercase tracking-wide border whitespace-nowrap"
+                            className="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase tracking-wide border whitespace-nowrap"
                             style={{
                               background: 'rgba(59,130,246,0.15)',
                               color: 'var(--riscv-accent-4, #60a5fa)',
@@ -4427,8 +4428,6 @@ const RISCVExplorer = () => {
                             Custom (Sandbox)
                           </span>
                         )}
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
                         {/* The linked name alone read as a heading: people did
                             not realise it opened the specification. An explicit
                             button says where it goes, and names the host so a
@@ -4441,12 +4440,12 @@ const RISCVExplorer = () => {
                               href={spec.url}
                               target="_blank"
                               rel="noreferrer"
-                              className="riscv-spec-link tooltip-bottom-left inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold"
+                              className="riscv-spec-link tooltip-bottom-right-wrap inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap"
                               data-tooltip={spec.url}
                             >
-                              <BookOpen size={12} />
+                              <BookOpen size={11} />
                               {spec.label}
-                              <ArrowUpRight size={11} />
+                              <ArrowUpRight size={10} />
                             </a>
                           );
                         })()}
@@ -4458,9 +4457,9 @@ const RISCVExplorer = () => {
                           onClick={copyPermalink}
                           aria-label={`Share ${selectedExt.id}: copy a link to it`}
                           title={`Copy a link to ${selectedExt.id}`}
-                          className="riscv-btn inline-flex items-center gap-1 px-2 py-1 text-[11px]"
+                          className="riscv-btn inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px]"
                         >
-                          <Share2 size={12} />
+                          <Share2 size={11} />
                           {permalinkCopied ? 'Copied' : 'Share'}
                         </button>
                         {selectedExt.isSandbox && (
@@ -4469,13 +4468,13 @@ const RISCVExplorer = () => {
                             onClick={() => setSandboxOpen(true)}
                             aria-label="Edit this extension in the sandbox"
                             title="Edit this extension in the sandbox"
-                            className="riscv-btn inline-flex items-center gap-1 px-2 py-1 text-[11px]"
+                            className="riscv-btn inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px]"
                             style={{
                               borderColor: 'rgba(59,130,246,0.4)',
                               color: 'var(--riscv-accent-4, #60a5fa)',
                             }}
                           >
-                            <FlaskConical size={12} />
+                            <FlaskConical size={11} />
                             <span>Edit in Sandbox</span>
                           </button>
                         )}

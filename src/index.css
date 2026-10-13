@@ -1427,26 +1427,26 @@ pre,
   transform: translateX(0) translateY(0);
 }
 
-/* Below its trigger, starting at its left edge, for controls whose tooltip
-   would otherwise cover what sits above them (the extension name over the
-   specification link). Long text such as a URL wraps rather than running out
-   of the details panel. */
-.tooltip-bottom-left[data-tooltip]::after {
+/* Below its trigger, ending at its right edge, for a control at the right of
+   the details panel whose tooltip would otherwise cover the extension name.
+   Long text such as a URL wraps rather than running out of the panel. */
+.tooltip-bottom-right-wrap[data-tooltip]::after {
   bottom: auto;
   top: calc(100% + 6px);
-  left: 0;
+  left: auto;
+  right: 0;
   transform: translateX(0) translateY(-4px);
   white-space: normal;
   overflow-wrap: anywhere;
   width: max-content;
   max-width: 320px;
 }
-.tooltip-bottom-left[data-tooltip]:hover::after {
+.tooltip-bottom-right-wrap[data-tooltip]:hover::after {
   transform: translateX(0) translateY(0);
 }
 
 /* The details panel's specification link: a light tint of the gold used for
-   the extension name above it, so the two read as one unit. */
+   the extension name, so the two read as one unit. */
 .riscv-spec-link {
   background: var(--riscv-gold-dim);
   color: var(--riscv-gold);
