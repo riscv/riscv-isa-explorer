@@ -43,6 +43,7 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run sync:check` | Check instruction drift, write nothing (`sync --strict`) |
 | `npm run sync:udb` | Sync extension metadata from riscv-unified-db |
 | `npm run sync:intrinsics -- <rvv-intrinsic-doc> <riscv-c-api-doc>` | Regenerate `src/instruction-intrinsics.json` |
+| `npm run sync:references -- <sail-riscv> <riscv-isa-sim>` | Regenerate `src/instruction-references.json` |
 | `npm run sync:params -- <path-to-udb>` | Regenerate `src/isa-params.json` (UDB parameter definitions) |
 | `npm run graph:check -- <path-to-udb>` | Check dependency graph vs UDB |
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
@@ -72,8 +73,8 @@ src/
   ProfileDownloadMenu.jsx     # Download menu shown while a profile is highlighted
   focusTrap.js                # modal focus trapping
   configPermalink.js          # ?profile= and ?cfg= share links; shared builder-state sanitiser
-  InstructionUsage.jsx        # instruction syntax, intrinsic and Compiler Explorer link
-  instructionUsage.js         # syntax, concrete examples, per-instruction -march, godbolt URL
+  InstructionUsage.jsx        # syntax, intrinsic, Compiler Explorer, Sail/Spike links
+  instructionUsage.js         # syntax, examples, per-instruction -march, godbolt and Sail/Spike URLs
   profiles.js                 # ratified profile definitions
   --- data (the source of truth) ---
   riscv_extensions.json       # extension catalogue + per-extension instruction encodings
@@ -82,6 +83,7 @@ src/
   instr_dict.json             # instruction encodings, HAND-MAINTAINED (see gotchas)
   instruction-metadata.json   # UDB descriptions + assembly templates, generated
   instruction-intrinsics.json # C intrinsics per instruction, generated (sync:intrinsics)
+  instruction-references.json # Sail and Spike source locations, generated (sync:references)
 scripts/                      # sync/seed/check tooling (.mjs / .cjs)
   static-pages.mjs            # crawler-readable page per extension + sitemap, run by the build
 tests/                        # node:test suites (*.test.mjs)
@@ -192,6 +194,16 @@ Then `npm run sync` and `npm test && npm run build`.
   clang 23.1; extensions it only takes as experimental are listed in
   `COMPILER_EXPLORER_UNSUPPORTED` and get no link. Re-check that list when
   bumping the compiler.
+- **Sail links come from a parser, not a table.** Sail shares one execute
+  clause between many instructions and builds mnemonics from pieces
+  (`"l" ^ width_mnemonic(width) ^ maybe_u(...)`), so `scripts/sail-assembly.mjs`
+  expands each assembly mapping into a pattern and follows the enum to its
+  match arm. A clause using a helper it cannot expand is skipped and the sync
+  prints it; it never falls back to a wildcard, which would link instructions
+  to another extension's code. Instructions sharing an encoding with another
+  (hints, `c.addiw` in `c_jal.h`) are listed in `SHARED_ENCODING` in
+  `scripts/sync_reference_impls.mjs`. The RV32 register-pair forms (`ld.rv32`)
+  deliberately get no Sail link until Sail has Zilsd.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;
   eslint ignores both). Don't hand-edit `dist/`.
 - **`gh-pages` branch is machine-published** by CI on every push to `main`.

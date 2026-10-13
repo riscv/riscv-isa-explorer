@@ -12,6 +12,7 @@ import React from 'react';
 import { ArrowUpRight, Terminal } from 'lucide-react';
 import instructionMetadata from './instruction-metadata.json';
 import instructionIntrinsics from './instruction-intrinsics.json';
+import instructionReferences from './instruction-references.json';
 import {
   assemblySyntax,
   compilerExplorerUrl,
@@ -22,6 +23,7 @@ import {
   intrinsicSource,
   preferredXlen,
   prototypeFor,
+  referenceLinks,
   takesImmediate,
   xlenRestriction,
 } from './instructionUsage.js';
@@ -70,6 +72,42 @@ function Fact({ children, title }) {
   );
 }
 
+const REFERENCE_MODELS = [
+  { key: 'sail', name: 'Sail', model: 'the Sail formal model' },
+  { key: 'spike', name: 'Spike', model: 'the Spike simulator' },
+];
+
+function ReferenceLink({ name, model, url, commit }) {
+  if (!url) {
+    return (
+      <span
+        className="inline-flex items-center px-2 py-1 rounded-sm text-[11px] cursor-not-allowed"
+        title={`Not implemented in ${model} yet (checked at ${commit})`}
+        style={{
+          color: 'var(--riscv-text-3)',
+          border: '1px dashed var(--riscv-border-2)',
+          opacity: 0.7,
+        }}
+      >
+        {name}
+        <span className="sr-only"> (not available)</span>
+      </span>
+    );
+  }
+  return (
+    <a
+      className="inline-flex items-center gap-0.5 px-2 py-1 riscv-btn"
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      data-tooltip={`Open the implementation in ${model} (commit ${commit})`}
+    >
+      {name}
+      <ArrowUpRight size={11} />
+    </a>
+  );
+}
+
 export default function InstructionUsage({ extension, instruction, catalogIds, expanded = false }) {
   const usage = React.useMemo(() => {
     const key = String(instruction?.mnemonic || '').toLowerCase();
@@ -109,10 +147,11 @@ export default function InstructionUsage({ extension, instruction, catalogIds, e
       explorer: compilerExplorerUrl({ source, march }),
       explorerKind: cSource ? 'intrinsic' : 'assembly',
       march,
+      references: referenceLinks(instructionReferences, key),
     };
   }, [extension?.id, instruction, catalogIds]);
 
-  if (!usage || (!usage.syntax && !usage.intrinsic)) return null;
+  if (!usage) return null;
 
   return (
     <div className="space-y-3">
@@ -173,6 +212,15 @@ export default function InstructionUsage({ extension, instruction, catalogIds, e
           </div>
         </div>
       )}
+
+      <div>
+        <Label expanded={expanded}>Reference implementations</Label>
+        <div className="flex flex-wrap gap-1.5">
+          {REFERENCE_MODELS.map(({ key, name, model }) => (
+            <ReferenceLink key={key} name={name} model={model} {...usage.references[key]} />
+          ))}
+        </div>
+      </div>
 
       {usage.explorer && (
         <a

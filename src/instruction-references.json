@@ -1,0 +1,8351 @@
+{
+  "sail": {
+    "repo": "riscv/sail-riscv",
+    "commit": "319335c923c91983f2dfd3b18e216a4b7b728e18",
+    "files": [
+      "model/extensions/I/base_insts.sail",
+      "model/extensions/B/zba_insts.sail",
+      "model/extensions/K/zkn_insts.sail",
+      "model/extensions/A/zaamo_insts.sail",
+      "model/extensions/B/zbb_insts.sail",
+      "model/extensions/B/zbs_insts.sail",
+      "model/extensions/Zibi/zibi_insts.sail",
+      "model/extensions/K/zbkb_insts.sail",
+      "model/extensions/C/zca_insts.sail",
+      "model/extensions/FD/zcd_insts.sail",
+      "model/extensions/FD/zcf_insts.sail",
+      "model/extensions/C/zcb_insts.sail",
+      "model/mops/Zcmop/zcmop_insts.sail",
+      "model/extensions/Zicbom/zicbom_insts.sail",
+      "model/extensions/Zicboz/zicboz_insts.sail",
+      "model/extensions/B/zbc_insts.sail",
+      "model/extensions/Zicsr/zicsr_insts.sail",
+      "model/extensions/Zicond/zicond_insts.sail",
+      "model/extensions/M/mext_insts.sail",
+      "model/extensions/FD/dext_insts.sail",
+      "model/extensions/FD/zfh_insts.sail",
+      "model/extensions/FD/fext_insts.sail",
+      "model/extensions/bfloat16/zfbfmin_insts.sail",
+      "model/extensions/FD/zfa_insts.sail",
+      "model/extensions/Zifencei/zifencei_insts.sail",
+      "model/extensions/H/hext_insts.sail",
+      "model/extensions/Svinval/svinval_insts.sail",
+      "model/extensions/I/jalr_rmem.sail",
+      "model/extensions/cfi/zicfilp_insts.sail",
+      "model/extensions/A/zalrsc_insts.sail",
+      "model/mops/Zimop/zimop_insts.sail",
+      "model/extensions/Zihintntl/zihintntl_insts.sail",
+      "model/extensions/Zihintpause/zihintpause_insts.sail",
+      "model/extensions/Zicbop/zicbop_insts.sail",
+      "model/extensions/K/zks_insts.sail",
+      "model/extensions/cfi/zicfiss_insts.sail",
+      "model/extensions/V/vext_arith_insts.sail",
+      "model/extensions/Zvabd/zvabd_insts.sail",
+      "model/extensions/V/vext_vm_insts.sail",
+      "model/extensions/vector_crypto/zvkned_insts.sail",
+      "model/extensions/vector_crypto/zvbb_insts.sail",
+      "model/extensions/vector_crypto/zvbc_insts.sail",
+      "model/extensions/V/vext_mask_insts.sail",
+      "model/extensions/V/vext_fp_insts.sail",
+      "model/extensions/bfloat16/zvfbfmin_insts.sail",
+      "model/extensions/V/vext_fp_red_insts.sail",
+      "model/extensions/bfloat16/zvfbfwma_insts.sail",
+      "model/extensions/vector_crypto/zvkg_insts.sail",
+      "model/extensions/V/vext_mem_insts.sail",
+      "model/extensions/V/vext_fp_vm_insts.sail",
+      "model/extensions/V/vext_red_insts.sail",
+      "model/extensions/V/vext_vset_insts.sail",
+      "model/extensions/vector_crypto/zvknhab_insts.sail",
+      "model/extensions/vector_crypto/zvksh_insts.sail",
+      "model/extensions/vector_crypto/zvksed_insts.sail",
+      "model/extensions/Zawrs/zawrs_insts.sail",
+      "model/extensions/K/zbkx_insts.sail"
+    ]
+  },
+  "spike": {
+    "repo": "riscv-software-src/riscv-isa-sim",
+    "commit": "f8a060b7bea8da6f738f193ed1b66b665978d092"
+  },
+  "instructions": {
+    "add": {
+      "sail": [
+        0,
+        239
+      ],
+      "spike": "add"
+    },
+    "add.uw": {
+      "sail": [
+        1,
+        53
+      ],
+      "spike": "add_uw"
+    },
+    "addi": {
+      "sail": [
+        0,
+        161
+      ],
+      "spike": "addi"
+    },
+    "addiw": {
+      "sail": [
+        0,
+        344
+      ],
+      "spike": "addiw"
+    },
+    "addw": {
+      "sail": [
+        0,
+        378
+      ],
+      "spike": "addw"
+    },
+    "aes32dsi": {
+      "sail": [
+        2,
+        159
+      ],
+      "spike": "aes32dsi"
+    },
+    "aes32dsmi": {
+      "sail": [
+        2,
+        139
+      ],
+      "spike": "aes32dsmi"
+    },
+    "aes32esi": {
+      "sail": [
+        2,
+        115
+      ],
+      "spike": "aes32esi"
+    },
+    "aes32esmi": {
+      "sail": [
+        2,
+        95
+      ],
+      "spike": "aes32esmi"
+    },
+    "aes64ds": {
+      "sail": [
+        2,
+        384
+      ],
+      "spike": "aes64ds"
+    },
+    "aes64dsm": {
+      "sail": [
+        2,
+        375
+      ],
+      "spike": "aes64dsm"
+    },
+    "aes64es": {
+      "sail": [
+        2,
+        367
+      ],
+      "spike": "aes64es"
+    },
+    "aes64esm": {
+      "sail": [
+        2,
+        358
+      ],
+      "spike": "aes64esm"
+    },
+    "aes64im": {
+      "sail": [
+        2,
+        350
+      ],
+      "spike": "aes64im"
+    },
+    "aes64ks1i": {
+      "sail": [
+        2,
+        332
+      ],
+      "spike": "aes64ks1i"
+    },
+    "aes64ks2": {
+      "sail": [
+        2,
+        342
+      ],
+      "spike": "aes64ks2"
+    },
+    "amoadd.b": {
+      "sail": [
+        3,
+        129
+      ],
+      "spike": "amoadd_b"
+    },
+    "amoadd.d": {
+      "sail": [
+        3,
+        129
+      ],
+      "spike": "amoadd_d"
+    },
+    "amoadd.h": {
+      "sail": [
+        3,
+        129
+      ],
+      "spike": "amoadd_h"
+    },
+    "amoadd.w": {
+      "sail": [
+        3,
+        129
+      ],
+      "spike": "amoadd_w"
+    },
+    "amoand.b": {
+      "sail": [
+        3,
+        131
+      ],
+      "spike": "amoand_b"
+    },
+    "amoand.d": {
+      "sail": [
+        3,
+        131
+      ],
+      "spike": "amoand_d"
+    },
+    "amoand.h": {
+      "sail": [
+        3,
+        131
+      ],
+      "spike": "amoand_h"
+    },
+    "amoand.w": {
+      "sail": [
+        3,
+        131
+      ],
+      "spike": "amoand_w"
+    },
+    "amocas.b": {
+      "sail": [
+        3,
+        138
+      ],
+      "spike": "amocas_b"
+    },
+    "amocas.d": {
+      "sail": [
+        3,
+        138
+      ],
+      "spike": "amocas_d"
+    },
+    "amocas.h": {
+      "sail": [
+        3,
+        138
+      ],
+      "spike": "amocas_h"
+    },
+    "amocas.q": {
+      "sail": [
+        3,
+        138
+      ],
+      "spike": "amocas_q"
+    },
+    "amocas.w": {
+      "sail": [
+        3,
+        138
+      ],
+      "spike": "amocas_w"
+    },
+    "amomax.b": {
+      "sail": [
+        3,
+        134
+      ],
+      "spike": "amomax_b"
+    },
+    "amomax.d": {
+      "sail": [
+        3,
+        134
+      ],
+      "spike": "amomax_d"
+    },
+    "amomax.h": {
+      "sail": [
+        3,
+        134
+      ],
+      "spike": "amomax_h"
+    },
+    "amomax.w": {
+      "sail": [
+        3,
+        134
+      ],
+      "spike": "amomax_w"
+    },
+    "amomaxu.b": {
+      "sail": [
+        3,
+        136
+      ],
+      "spike": "amomaxu_b"
+    },
+    "amomaxu.d": {
+      "sail": [
+        3,
+        136
+      ],
+      "spike": "amomaxu_d"
+    },
+    "amomaxu.h": {
+      "sail": [
+        3,
+        136
+      ],
+      "spike": "amomaxu_h"
+    },
+    "amomaxu.w": {
+      "sail": [
+        3,
+        136
+      ],
+      "spike": "amomaxu_w"
+    },
+    "amomin.b": {
+      "sail": [
+        3,
+        133
+      ],
+      "spike": "amomin_b"
+    },
+    "amomin.d": {
+      "sail": [
+        3,
+        133
+      ],
+      "spike": "amomin_d"
+    },
+    "amomin.h": {
+      "sail": [
+        3,
+        133
+      ],
+      "spike": "amomin_h"
+    },
+    "amomin.w": {
+      "sail": [
+        3,
+        133
+      ],
+      "spike": "amomin_w"
+    },
+    "amominu.b": {
+      "sail": [
+        3,
+        135
+      ],
+      "spike": "amominu_b"
+    },
+    "amominu.d": {
+      "sail": [
+        3,
+        135
+      ],
+      "spike": "amominu_d"
+    },
+    "amominu.h": {
+      "sail": [
+        3,
+        135
+      ],
+      "spike": "amominu_h"
+    },
+    "amominu.w": {
+      "sail": [
+        3,
+        135
+      ],
+      "spike": "amominu_w"
+    },
+    "amoor.b": {
+      "sail": [
+        3,
+        132
+      ],
+      "spike": "amoor_b"
+    },
+    "amoor.d": {
+      "sail": [
+        3,
+        132
+      ],
+      "spike": "amoor_d"
+    },
+    "amoor.h": {
+      "sail": [
+        3,
+        132
+      ],
+      "spike": "amoor_h"
+    },
+    "amoor.w": {
+      "sail": [
+        3,
+        132
+      ],
+      "spike": "amoor_w"
+    },
+    "amoswap.b": {
+      "sail": [
+        3,
+        128
+      ],
+      "spike": "amoswap_b"
+    },
+    "amoswap.d": {
+      "sail": [
+        3,
+        128
+      ],
+      "spike": "amoswap_d"
+    },
+    "amoswap.h": {
+      "sail": [
+        3,
+        128
+      ],
+      "spike": "amoswap_h"
+    },
+    "amoswap.w": {
+      "sail": [
+        3,
+        128
+      ],
+      "spike": "amoswap_w"
+    },
+    "amoxor.b": {
+      "sail": [
+        3,
+        130
+      ],
+      "spike": "amoxor_b"
+    },
+    "amoxor.d": {
+      "sail": [
+        3,
+        130
+      ],
+      "spike": "amoxor_d"
+    },
+    "amoxor.h": {
+      "sail": [
+        3,
+        130
+      ],
+      "spike": "amoxor_h"
+    },
+    "amoxor.w": {
+      "sail": [
+        3,
+        130
+      ],
+      "spike": "amoxor_w"
+    },
+    "and": {
+      "sail": [
+        0,
+        242
+      ],
+      "spike": "and"
+    },
+    "andi": {
+      "sail": [
+        0,
+        164
+      ],
+      "spike": "andi"
+    },
+    "andn": {
+      "sail": [
+        4,
+        146
+      ],
+      "spike": "andn"
+    },
+    "auipc": {
+      "sail": [
+        0,
+        31
+      ],
+      "spike": "auipc"
+    },
+    "bclr": {
+      "sail": [
+        5,
+        101
+      ],
+      "spike": "bclr"
+    },
+    "bclri": {
+      "sail": [
+        5,
+        51
+      ],
+      "spike": "bclri"
+    },
+    "beq": {
+      "sail": [
+        0,
+        118
+      ],
+      "spike": "beq"
+    },
+    "beqi": {
+      "sail": [
+        6,
+        29
+      ],
+      "spike": "beqi"
+    },
+    "bext": {
+      "sail": [
+        5,
+        102
+      ],
+      "spike": "bext"
+    },
+    "bexti": {
+      "sail": [
+        5,
+        52
+      ],
+      "spike": "bexti"
+    },
+    "bge": {
+      "sail": [
+        0,
+        121
+      ],
+      "spike": "bge"
+    },
+    "bgeu": {
+      "sail": [
+        0,
+        123
+      ],
+      "spike": "bgeu"
+    },
+    "binv": {
+      "sail": [
+        5,
+        103
+      ],
+      "spike": "binv"
+    },
+    "binvi": {
+      "sail": [
+        5,
+        53
+      ],
+      "spike": "binvi"
+    },
+    "blt": {
+      "sail": [
+        0,
+        120
+      ],
+      "spike": "blt"
+    },
+    "bltu": {
+      "sail": [
+        0,
+        122
+      ],
+      "spike": "bltu"
+    },
+    "bne": {
+      "sail": [
+        0,
+        119
+      ],
+      "spike": "bne"
+    },
+    "bnei": {
+      "sail": [
+        6,
+        30
+      ],
+      "spike": "bnei"
+    },
+    "brev8": {
+      "sail": [
+        7,
+        119
+      ],
+      "spike": "brev8"
+    },
+    "bset": {
+      "sail": [
+        5,
+        104
+      ],
+      "spike": "bset"
+    },
+    "bseti": {
+      "sail": [
+        5,
+        54
+      ],
+      "spike": "bseti"
+    },
+    "c.add": {
+      "sail": [
+        8,
+        546
+      ],
+      "spike": "c_add"
+    },
+    "c.addi": {
+      "sail": [
+        8,
+        129
+      ],
+      "spike": "c_addi"
+    },
+    "c.addi16sp": {
+      "sail": [
+        8,
+        189
+      ],
+      "spike": "c_lui"
+    },
+    "c.addi4spn": {
+      "sail": [
+        8,
+        40
+      ],
+      "spike": "c_addi4spn"
+    },
+    "c.addiw": {
+      "sail": [
+        8,
+        159
+      ],
+      "spike": "c_jal"
+    },
+    "c.addw": {
+      "sail": [
+        8,
+        353
+      ],
+      "spike": "c_addw"
+    },
+    "c.and": {
+      "sail": [
+        8,
+        320
+      ],
+      "spike": "c_and"
+    },
+    "c.andi": {
+      "sail": [
+        8,
+        257
+      ],
+      "spike": "c_andi"
+    },
+    "c.beqz": {
+      "sail": [
+        8,
+        383
+      ],
+      "spike": "c_beqz"
+    },
+    "c.bnez": {
+      "sail": [
+        8,
+        396
+      ],
+      "spike": "c_bnez"
+    },
+    "c.ebreak": {
+      "sail": [
+        8,
+        532
+      ],
+      "spike": "c_ebreak"
+    },
+    "c.fld": {
+      "sail": [
+        9,
+        47
+      ],
+      "spike": "c_fld"
+    },
+    "c.fldsp": {
+      "sail": [
+        9,
+        17
+      ],
+      "spike": "c_fldsp"
+    },
+    "c.flw": {
+      "sail": [
+        10,
+        49
+      ],
+      "spike": "c_flw"
+    },
+    "c.flwsp": {
+      "sail": [
+        10,
+        17
+      ],
+      "spike": "c_flwsp"
+    },
+    "c.fsd": {
+      "sail": [
+        9,
+        64
+      ],
+      "spike": "c_fsd"
+    },
+    "c.fsdsp": {
+      "sail": [
+        9,
+        32
+      ],
+      "spike": "c_fsdsp"
+    },
+    "c.fsw": {
+      "sail": [
+        10,
+        67
+      ],
+      "spike": "c_fsw"
+    },
+    "c.fswsp": {
+      "sail": [
+        10,
+        33
+      ],
+      "spike": "c_fswsp"
+    },
+    "c.j": {
+      "sail": [
+        8,
+        370
+      ],
+      "spike": "c_j"
+    },
+    "c.jal": {
+      "sail": [
+        8,
+        145
+      ],
+      "spike": "c_jal"
+    },
+    "c.jalr": {
+      "sail": [
+        8,
+        501
+      ],
+      "spike": "c_jalr"
+    },
+    "c.jr": {
+      "sail": [
+        8,
+        487
+      ],
+      "spike": "c_jr"
+    },
+    "c.lbu": {
+      "sail": [
+        11,
+        21
+      ],
+      "spike": "c_lbu"
+    },
+    "c.ld": {
+      "sail": [
+        8,
+        74
+      ],
+      "spike": "c_ld"
+    },
+    "c.ld.rv32": {
+      "spike": "c_ld"
+    },
+    "c.ldsp": {
+      "sail": [
+        8,
+        440
+      ],
+      "spike": "c_ldsp"
+    },
+    "c.ldsp.rv32": {
+      "spike": "c_ldsp"
+    },
+    "c.lh": {
+      "sail": [
+        11,
+        59
+      ],
+      "spike": "c_lh"
+    },
+    "c.lhu": {
+      "sail": [
+        11,
+        40
+      ],
+      "spike": "c_lhu"
+    },
+    "c.li": {
+      "sail": [
+        8,
+        174
+      ],
+      "spike": "c_li"
+    },
+    "c.lui": {
+      "sail": [
+        8,
+        208
+      ],
+      "spike": "c_lui"
+    },
+    "c.lw": {
+      "sail": [
+        8,
+        57
+      ],
+      "spike": "c_lw"
+    },
+    "c.lwsp": {
+      "sail": [
+        8,
+        424
+      ],
+      "spike": "c_lwsp"
+    },
+    "c.mop.1": {
+      "sail": [
+        12,
+        20
+      ],
+      "spike": "c_mop_N"
+    },
+    "c.mop.11": {
+      "sail": [
+        12,
+        20
+      ],
+      "spike": "c_mop_N"
+    },
+    "c.mop.13": {
+      "sail": [
+        12,
+        20
+      ],
+      "spike": "c_mop_N"
+    },
+    "c.mop.15": {
+      "sail": [
+        12,
+        20
+      ],
+      "spike": "c_mop_N"
+    },
+    "c.mop.3": {
+      "sail": [
+        12,
+        20
+      ],
+      "spike": "c_mop_N"
+    },
+    "c.mop.5": {
+      "sail": [
+        12,
+        20
+      ],
+      "spike": "c_mop_N"
+    },
+    "c.mop.7": {
+      "sail": [
+        12,
+        20
+      ],
+      "spike": "c_mop_N"
+    },
+    "c.mop.9": {
+      "sail": [
+        12,
+        20
+      ],
+      "spike": "c_mop_N"
+    },
+    "c.mul": {
+      "sail": [
+        11,
+        220
+      ],
+      "spike": "c_mul"
+    },
+    "c.mv": {
+      "sail": [
+        8,
+        517
+      ],
+      "spike": "c_mv"
+    },
+    "c.nop": {
+      "sail": [
+        8,
+        22
+      ],
+      "spike": "c_addi"
+    },
+    "c.not": {
+      "sail": [
+        11,
+        202
+      ],
+      "spike": "c_not"
+    },
+    "c.or": {
+      "sail": [
+        8,
+        304
+      ],
+      "spike": "c_or"
+    },
+    "c.sb": {
+      "sail": [
+        11,
+        78
+      ],
+      "spike": "c_sb"
+    },
+    "c.sd": {
+      "sail": [
+        8,
+        109
+      ],
+      "spike": "c_sd"
+    },
+    "c.sd.rv32": {
+      "spike": "c_sd"
+    },
+    "c.sdsp": {
+      "sail": [
+        8,
+        471
+      ],
+      "spike": "c_sdsp"
+    },
+    "c.sdsp.rv32": {
+      "spike": "c_sdsp"
+    },
+    "c.sext.b": {
+      "sail": [
+        11,
+        134
+      ],
+      "spike": "c_sext_b"
+    },
+    "c.sext.h": {
+      "sail": [
+        11,
+        168
+      ],
+      "spike": "c_sext_h"
+    },
+    "c.sh": {
+      "sail": [
+        11,
+        97
+      ],
+      "spike": "c_sh"
+    },
+    "c.slli": {
+      "sail": [
+        8,
+        411
+      ],
+      "spike": "c_slli"
+    },
+    "c.srai": {
+      "sail": [
+        8,
+        241
+      ],
+      "spike": "c_srai"
+    },
+    "c.srli": {
+      "sail": [
+        8,
+        225
+      ],
+      "spike": "c_srli"
+    },
+    "c.sub": {
+      "sail": [
+        8,
+        272
+      ],
+      "spike": "c_sub"
+    },
+    "c.subw": {
+      "sail": [
+        8,
+        336
+      ],
+      "spike": "c_subw"
+    },
+    "c.sw": {
+      "sail": [
+        8,
+        92
+      ],
+      "spike": "c_sw"
+    },
+    "c.swsp": {
+      "sail": [
+        8,
+        456
+      ],
+      "spike": "c_swsp"
+    },
+    "c.xor": {
+      "sail": [
+        8,
+        288
+      ],
+      "spike": "c_xor"
+    },
+    "c.zext.b": {
+      "sail": [
+        11,
+        116
+      ],
+      "spike": "c_zext_b"
+    },
+    "c.zext.h": {
+      "sail": [
+        11,
+        151
+      ],
+      "spike": "c_zext_h"
+    },
+    "c.zext.w": {
+      "sail": [
+        11,
+        185
+      ],
+      "spike": "c_zext_w"
+    },
+    "cbo.clean": {
+      "sail": [
+        13,
+        112
+      ],
+      "spike": "cbo_clean"
+    },
+    "cbo.flush": {
+      "sail": [
+        13,
+        119
+      ],
+      "spike": "cbo_flush"
+    },
+    "cbo.inval": {
+      "sail": [
+        13,
+        126
+      ],
+      "spike": "cbo_inval"
+    },
+    "cbo.zero": {
+      "sail": [
+        14,
+        24
+      ],
+      "spike": "cbo_zero"
+    },
+    "clmul": {
+      "sail": [
+        15,
+        23
+      ],
+      "spike": "clmul"
+    },
+    "clmulh": {
+      "sail": [
+        15,
+        40
+      ],
+      "spike": "clmulh"
+    },
+    "clmulr": {
+      "sail": [
+        15,
+        57
+      ],
+      "spike": "clmulr"
+    },
+    "clz": {
+      "sail": [
+        4,
+        289
+      ],
+      "spike": "clz"
+    },
+    "clzw": {
+      "sail": [
+        4,
+        305
+      ],
+      "spike": "clzw"
+    },
+    "cm.jalt": {
+      "spike": "cm_jalt"
+    },
+    "cm.jt": {
+      "spike": "cm_jalt"
+    },
+    "cm.mva01s": {
+      "spike": "cm_mva01s"
+    },
+    "cm.mvsa01": {
+      "spike": "cm_mvsa01"
+    },
+    "cm.pop": {
+      "spike": "cm_pop"
+    },
+    "cm.popret": {
+      "spike": "cm_popret"
+    },
+    "cm.popretz": {
+      "spike": "cm_popretz"
+    },
+    "cm.push": {
+      "spike": "cm_push"
+    },
+    "cpop": {
+      "sail": [
+        4,
+        257
+      ],
+      "spike": "cpop"
+    },
+    "cpopw": {
+      "sail": [
+        4,
+        273
+      ],
+      "spike": "cpopw"
+    },
+    "csrrc": {
+      "sail": [
+        16,
+        99
+      ],
+      "spike": "csrrc"
+    },
+    "csrrci": {
+      "sail": [
+        16,
+        104
+      ],
+      "spike": "csrrci"
+    },
+    "csrrs": {
+      "sail": [
+        16,
+        99
+      ],
+      "spike": "csrrs"
+    },
+    "csrrsi": {
+      "sail": [
+        16,
+        104
+      ],
+      "spike": "csrrsi"
+    },
+    "csrrw": {
+      "sail": [
+        16,
+        99
+      ],
+      "spike": "csrrw"
+    },
+    "csrrwi": {
+      "sail": [
+        16,
+        104
+      ],
+      "spike": "csrrwi"
+    },
+    "ctz": {
+      "sail": [
+        4,
+        321
+      ],
+      "spike": "ctz"
+    },
+    "ctzw": {
+      "sail": [
+        4,
+        337
+      ],
+      "spike": "ctzw"
+    },
+    "czero.eqz": {
+      "sail": [
+        17,
+        34
+      ],
+      "spike": "czero_eqz"
+    },
+    "czero.nez": {
+      "sail": [
+        17,
+        35
+      ],
+      "spike": "czero_nez"
+    },
+    "div": {
+      "sail": [
+        18,
+        53
+      ],
+      "spike": "div"
+    },
+    "divu": {
+      "sail": [
+        18,
+        53
+      ],
+      "spike": "divu"
+    },
+    "divuw": {
+      "sail": [
+        18,
+        120
+      ],
+      "spike": "divuw"
+    },
+    "divw": {
+      "sail": [
+        18,
+        120
+      ],
+      "spike": "divw"
+    },
+    "dret": {
+      "spike": "dret"
+    },
+    "ebreak": {
+      "sail": [
+        0,
+        725
+      ],
+      "spike": "ebreak"
+    },
+    "ecall": {
+      "sail": [
+        0,
+        544
+      ],
+      "spike": "ecall"
+    },
+    "fadd.d": {
+      "sail": [
+        19,
+        344
+      ],
+      "spike": "fadd_d"
+    },
+    "fadd.h": {
+      "sail": [
+        20,
+        203
+      ],
+      "spike": "fadd_h"
+    },
+    "fadd.q": {
+      "spike": "fadd_q"
+    },
+    "fadd.s": {
+      "sail": [
+        21,
+        440
+      ],
+      "spike": "fadd_s"
+    },
+    "fclass.d": {
+      "sail": [
+        19,
+        846
+      ],
+      "spike": "fclass_d"
+    },
+    "fclass.h": {
+      "sail": [
+        20,
+        812
+      ],
+      "spike": "fclass_h"
+    },
+    "fclass.q": {
+      "spike": "fclass_q"
+    },
+    "fclass.s": {
+      "sail": [
+        21,
+        896
+      ],
+      "spike": "fclass_s"
+    },
+    "fcvt.bf16.s": {
+      "sail": [
+        22,
+        20
+      ],
+      "spike": "fcvt_bf16_s"
+    },
+    "fcvt.d.h": {
+      "sail": [
+        20,
+        669
+      ],
+      "spike": "fcvt_d_h"
+    },
+    "fcvt.d.l": {
+      "sail": [
+        19,
+        568
+      ],
+      "spike": "fcvt_d_l"
+    },
+    "fcvt.d.lu": {
+      "sail": [
+        19,
+        584
+      ],
+      "spike": "fcvt_d_lu"
+    },
+    "fcvt.d.q": {
+      "spike": "fcvt_d_q"
+    },
+    "fcvt.d.s": {
+      "sail": [
+        19,
+        521
+      ],
+      "spike": "fcvt_d_s"
+    },
+    "fcvt.d.w": {
+      "sail": [
+        19,
+        476
+      ],
+      "spike": "fcvt_d_w"
+    },
+    "fcvt.d.wu": {
+      "sail": [
+        19,
+        491
+      ],
+      "spike": "fcvt_d_wu"
+    },
+    "fcvt.h.d": {
+      "sail": [
+        20,
+        639
+      ],
+      "spike": "fcvt_h_d"
+    },
+    "fcvt.h.l": {
+      "sail": [
+        20,
+        716
+      ],
+      "spike": "fcvt_h_l"
+    },
+    "fcvt.h.lu": {
+      "sail": [
+        20,
+        732
+      ],
+      "spike": "fcvt_h_lu"
+    },
+    "fcvt.h.q": {
+      "spike": "fcvt_h_q"
+    },
+    "fcvt.h.s": {
+      "sail": [
+        20,
+        624
+      ],
+      "spike": "fcvt_h_s"
+    },
+    "fcvt.h.w": {
+      "sail": [
+        20,
+        594
+      ],
+      "spike": "fcvt_h_w"
+    },
+    "fcvt.h.wu": {
+      "sail": [
+        20,
+        609
+      ],
+      "spike": "fcvt_h_wu"
+    },
+    "fcvt.l.d": {
+      "sail": [
+        19,
+        536
+      ],
+      "spike": "fcvt_l_d"
+    },
+    "fcvt.l.h": {
+      "sail": [
+        20,
+        684
+      ],
+      "spike": "fcvt_l_h"
+    },
+    "fcvt.l.q": {
+      "spike": "fcvt_l_q"
+    },
+    "fcvt.l.s": {
+      "sail": [
+        21,
+        594
+      ],
+      "spike": "fcvt_l_s"
+    },
+    "fcvt.lu.d": {
+      "sail": [
+        19,
+        552
+      ],
+      "spike": "fcvt_lu_d"
+    },
+    "fcvt.lu.h": {
+      "sail": [
+        20,
+        700
+      ],
+      "spike": "fcvt_lu_h"
+    },
+    "fcvt.lu.q": {
+      "spike": "fcvt_lu_q"
+    },
+    "fcvt.lu.s": {
+      "sail": [
+        21,
+        610
+      ],
+      "spike": "fcvt_lu_s"
+    },
+    "fcvt.q.d": {
+      "spike": "fcvt_q_d"
+    },
+    "fcvt.q.h": {
+      "spike": "fcvt_q_h"
+    },
+    "fcvt.q.l": {
+      "spike": "fcvt_q_l"
+    },
+    "fcvt.q.lu": {
+      "spike": "fcvt_q_lu"
+    },
+    "fcvt.q.s": {
+      "spike": "fcvt_q_s"
+    },
+    "fcvt.q.w": {
+      "spike": "fcvt_q_w"
+    },
+    "fcvt.q.wu": {
+      "spike": "fcvt_q_wu"
+    },
+    "fcvt.s.bf16": {
+      "sail": [
+        22,
+        45
+      ],
+      "spike": "fcvt_s_bf16"
+    },
+    "fcvt.s.d": {
+      "sail": [
+        19,
+        506
+      ],
+      "spike": "fcvt_s_d"
+    },
+    "fcvt.s.h": {
+      "sail": [
+        20,
+        654
+      ],
+      "spike": "fcvt_s_h"
+    },
+    "fcvt.s.l": {
+      "sail": [
+        21,
+        626
+      ],
+      "spike": "fcvt_s_l"
+    },
+    "fcvt.s.lu": {
+      "sail": [
+        21,
+        642
+      ],
+      "spike": "fcvt_s_lu"
+    },
+    "fcvt.s.q": {
+      "spike": "fcvt_s_q"
+    },
+    "fcvt.s.w": {
+      "sail": [
+        21,
+        564
+      ],
+      "spike": "fcvt_s_w"
+    },
+    "fcvt.s.wu": {
+      "sail": [
+        21,
+        579
+      ],
+      "spike": "fcvt_s_wu"
+    },
+    "fcvt.w.d": {
+      "sail": [
+        19,
+        446
+      ],
+      "spike": "fcvt_w_d"
+    },
+    "fcvt.w.h": {
+      "sail": [
+        20,
+        564
+      ],
+      "spike": "fcvt_w_h"
+    },
+    "fcvt.w.q": {
+      "spike": "fcvt_w_q"
+    },
+    "fcvt.w.s": {
+      "sail": [
+        21,
+        534
+      ],
+      "spike": "fcvt_w_s"
+    },
+    "fcvt.wu.d": {
+      "sail": [
+        19,
+        461
+      ],
+      "spike": "fcvt_wu_d"
+    },
+    "fcvt.wu.h": {
+      "sail": [
+        20,
+        579
+      ],
+      "spike": "fcvt_wu_h"
+    },
+    "fcvt.wu.q": {
+      "spike": "fcvt_wu_q"
+    },
+    "fcvt.wu.s": {
+      "sail": [
+        21,
+        549
+      ],
+      "spike": "fcvt_wu_s"
+    },
+    "fcvtmod.w.d": {
+      "sail": [
+        23,
+        788
+      ],
+      "spike": "fcvtmod_w_d"
+    },
+    "fdiv.d": {
+      "sail": [
+        19,
+        347
+      ],
+      "spike": "fdiv_d"
+    },
+    "fdiv.h": {
+      "sail": [
+        20,
+        206
+      ],
+      "spike": "fdiv_h"
+    },
+    "fdiv.q": {
+      "spike": "fdiv_q"
+    },
+    "fdiv.s": {
+      "sail": [
+        21,
+        443
+      ],
+      "spike": "fdiv_s"
+    },
+    "fence": {
+      "sail": [
+        0,
+        463
+      ],
+      "spike": "fence"
+    },
+    "fence.i": {
+      "sail": [
+        24,
+        24
+      ],
+      "spike": "fence_i"
+    },
+    "fence.tso": {
+      "sail": [
+        0,
+        441
+      ],
+      "spike": "fence"
+    },
+    "feq.d": {
+      "sail": [
+        19,
+        758
+      ],
+      "spike": "feq_d"
+    },
+    "feq.h": {
+      "sail": [
+        20,
+        415
+      ],
+      "spike": "feq_h"
+    },
+    "feq.q": {
+      "spike": "feq_q"
+    },
+    "feq.s": {
+      "sail": [
+        21,
+        810
+      ],
+      "spike": "feq_s"
+    },
+    "fld": {
+      "sail": [
+        21,
+        280
+      ],
+      "spike": "fld"
+    },
+    "fle.d": {
+      "sail": [
+        19,
+        782
+      ],
+      "spike": "fle_d"
+    },
+    "fle.h": {
+      "sail": [
+        20,
+        439
+      ],
+      "spike": "fle_h"
+    },
+    "fle.q": {
+      "spike": "fle_q"
+    },
+    "fle.s": {
+      "sail": [
+        21,
+        834
+      ],
+      "spike": "fle_s"
+    },
+    "fleq.d": {
+      "sail": [
+        23,
+        682
+      ],
+      "spike": "fleq_d"
+    },
+    "fleq.h": {
+      "sail": [
+        23,
+        581
+      ],
+      "spike": "fleq_h"
+    },
+    "fleq.q": {
+      "spike": "fleq_q"
+    },
+    "fleq.s": {
+      "sail": [
+        23,
+        631
+      ],
+      "spike": "fleq_s"
+    },
+    "flh": {
+      "sail": [
+        21,
+        280
+      ],
+      "spike": "flh"
+    },
+    "fli.d": {
+      "sail": [
+        23,
+        122
+      ],
+      "spike": "fli_d"
+    },
+    "fli.h": {
+      "sail": [
+        23,
+        22
+      ],
+      "spike": "fli_h"
+    },
+    "fli.q": {
+      "spike": "fli_q"
+    },
+    "fli.s": {
+      "sail": [
+        23,
+        72
+      ],
+      "spike": "fli_s"
+    },
+    "flq": {
+      "spike": "flq"
+    },
+    "flt.d": {
+      "sail": [
+        19,
+        770
+      ],
+      "spike": "flt_d"
+    },
+    "flt.h": {
+      "sail": [
+        20,
+        427
+      ],
+      "spike": "flt_h"
+    },
+    "flt.q": {
+      "spike": "flt_q"
+    },
+    "flt.s": {
+      "sail": [
+        21,
+        822
+      ],
+      "spike": "flt_s"
+    },
+    "fltq.d": {
+      "sail": [
+        23,
+        707
+      ],
+      "spike": "fltq_d"
+    },
+    "fltq.h": {
+      "sail": [
+        23,
+        606
+      ],
+      "spike": "fltq_h"
+    },
+    "fltq.q": {
+      "spike": "fltq_q"
+    },
+    "fltq.s": {
+      "sail": [
+        23,
+        656
+      ],
+      "spike": "fltq_s"
+    },
+    "flw": {
+      "sail": [
+        21,
+        280
+      ],
+      "spike": "flw"
+    },
+    "fmadd.d": {
+      "sail": [
+        19,
+        279
+      ],
+      "spike": "fmadd_d"
+    },
+    "fmadd.h": {
+      "sail": [
+        20,
+        269
+      ],
+      "spike": "fmadd_h"
+    },
+    "fmadd.q": {
+      "spike": "fmadd_q"
+    },
+    "fmadd.s": {
+      "sail": [
+        21,
+        375
+      ],
+      "spike": "fmadd_s"
+    },
+    "fmax.d": {
+      "sail": [
+        19,
+        738
+      ],
+      "spike": "fmax_d"
+    },
+    "fmax.h": {
+      "sail": [
+        20,
+        395
+      ],
+      "spike": "fmax_h"
+    },
+    "fmax.q": {
+      "spike": "fmax_q"
+    },
+    "fmax.s": {
+      "sail": [
+        21,
+        790
+      ],
+      "spike": "fmax_s"
+    },
+    "fmaxm.d": {
+      "sail": [
+        23,
+        329
+      ],
+      "spike": "fmaxm_d"
+    },
+    "fmaxm.h": {
+      "sail": [
+        23,
+        205
+      ],
+      "spike": "fmaxm_h"
+    },
+    "fmaxm.q": {
+      "spike": "fmaxm_q"
+    },
+    "fmaxm.s": {
+      "sail": [
+        23,
+        267
+      ],
+      "spike": "fmaxm_s"
+    },
+    "fmin.d": {
+      "sail": [
+        19,
+        718
+      ],
+      "spike": "fmin_d"
+    },
+    "fmin.h": {
+      "sail": [
+        20,
+        375
+      ],
+      "spike": "fmin_h"
+    },
+    "fmin.q": {
+      "spike": "fmin_q"
+    },
+    "fmin.s": {
+      "sail": [
+        21,
+        770
+      ],
+      "spike": "fmin_s"
+    },
+    "fminm.d": {
+      "sail": [
+        23,
+        298
+      ],
+      "spike": "fminm_d"
+    },
+    "fminm.h": {
+      "sail": [
+        23,
+        174
+      ],
+      "spike": "fminm_h"
+    },
+    "fminm.q": {
+      "spike": "fminm_q"
+    },
+    "fminm.s": {
+      "sail": [
+        23,
+        236
+      ],
+      "spike": "fminm_s"
+    },
+    "fmsub.d": {
+      "sail": [
+        19,
+        280
+      ],
+      "spike": "fmsub_d"
+    },
+    "fmsub.h": {
+      "sail": [
+        20,
+        270
+      ],
+      "spike": "fmsub_h"
+    },
+    "fmsub.q": {
+      "spike": "fmsub_q"
+    },
+    "fmsub.s": {
+      "sail": [
+        21,
+        376
+      ],
+      "spike": "fmsub_s"
+    },
+    "fmul.d": {
+      "sail": [
+        19,
+        346
+      ],
+      "spike": "fmul_d"
+    },
+    "fmul.h": {
+      "sail": [
+        20,
+        205
+      ],
+      "spike": "fmul_h"
+    },
+    "fmul.q": {
+      "spike": "fmul_q"
+    },
+    "fmul.s": {
+      "sail": [
+        21,
+        442
+      ],
+      "spike": "fmul_s"
+    },
+    "fmv.d.x": {
+      "sail": [
+        19,
+        858
+      ],
+      "spike": "fmv_d_x"
+    },
+    "fmv.h.x": {
+      "sail": [
+        20,
+        825
+      ],
+      "spike": "fmv_h_x"
+    },
+    "fmv.w.x": {
+      "sail": [
+        21,
+        907
+      ],
+      "spike": "fmv_w_x"
+    },
+    "fmv.x.d": {
+      "sail": [
+        19,
+        852
+      ],
+      "spike": "fmv_x_d"
+    },
+    "fmv.x.h": {
+      "sail": [
+        20,
+        818
+      ],
+      "spike": "fmv_x_h"
+    },
+    "fmv.x.w": {
+      "sail": [
+        21,
+        902
+      ],
+      "spike": "fmv_x_w"
+    },
+    "fmvh.x.d": {
+      "sail": [
+        23,
+        533
+      ],
+      "spike": "fmvh_x_d"
+    },
+    "fmvh.x.q": {
+      "spike": "fmvh_x_q"
+    },
+    "fmvp.d.x": {
+      "sail": [
+        23,
+        553
+      ],
+      "spike": "fmvp_d_x"
+    },
+    "fmvp.q.x": {
+      "spike": "fmvp_q_x"
+    },
+    "fnmadd.d": {
+      "sail": [
+        19,
+        282
+      ],
+      "spike": "fnmadd_d"
+    },
+    "fnmadd.h": {
+      "sail": [
+        20,
+        272
+      ],
+      "spike": "fnmadd_h"
+    },
+    "fnmadd.q": {
+      "spike": "fnmadd_q"
+    },
+    "fnmadd.s": {
+      "sail": [
+        21,
+        378
+      ],
+      "spike": "fnmadd_s"
+    },
+    "fnmsub.d": {
+      "sail": [
+        19,
+        281
+      ],
+      "spike": "fnmsub_d"
+    },
+    "fnmsub.h": {
+      "sail": [
+        20,
+        271
+      ],
+      "spike": "fnmsub_h"
+    },
+    "fnmsub.q": {
+      "spike": "fnmsub_q"
+    },
+    "fnmsub.s": {
+      "sail": [
+        21,
+        377
+      ],
+      "spike": "fnmsub_s"
+    },
+    "fround.d": {
+      "sail": [
+        23,
+        476
+      ],
+      "spike": "fround_d"
+    },
+    "fround.h": {
+      "sail": [
+        23,
+        360
+      ],
+      "spike": "fround_h"
+    },
+    "fround.q": {
+      "spike": "fround_q"
+    },
+    "fround.s": {
+      "sail": [
+        23,
+        418
+      ],
+      "spike": "fround_s"
+    },
+    "froundnx.d": {
+      "sail": [
+        23,
+        505
+      ],
+      "spike": "froundnx_d"
+    },
+    "froundnx.h": {
+      "sail": [
+        23,
+        389
+      ],
+      "spike": "froundnx_h"
+    },
+    "froundnx.q": {
+      "spike": "froundnx_q"
+    },
+    "froundnx.s": {
+      "sail": [
+        23,
+        447
+      ],
+      "spike": "froundnx_s"
+    },
+    "fsd": {
+      "sail": [
+        21,
+        316
+      ],
+      "spike": "fsd"
+    },
+    "fsgnj.d": {
+      "sail": [
+        19,
+        684
+      ],
+      "spike": "fsgnj_d"
+    },
+    "fsgnj.h": {
+      "sail": [
+        20,
+        342
+      ],
+      "spike": "fsgnj_h"
+    },
+    "fsgnj.q": {
+      "spike": "fsgnj_q"
+    },
+    "fsgnj.s": {
+      "sail": [
+        21,
+        737
+      ],
+      "spike": "fsgnj_s"
+    },
+    "fsgnjn.d": {
+      "sail": [
+        19,
+        696
+      ],
+      "spike": "fsgnjn_d"
+    },
+    "fsgnjn.h": {
+      "sail": [
+        20,
+        353
+      ],
+      "spike": "fsgnjn_h"
+    },
+    "fsgnjn.q": {
+      "spike": "fsgnjn_q"
+    },
+    "fsgnjn.s": {
+      "sail": [
+        21,
+        748
+      ],
+      "spike": "fsgnjn_s"
+    },
+    "fsgnjx.d": {
+      "sail": [
+        19,
+        707
+      ],
+      "spike": "fsgnjx_d"
+    },
+    "fsgnjx.h": {
+      "sail": [
+        20,
+        364
+      ],
+      "spike": "fsgnjx_h"
+    },
+    "fsgnjx.q": {
+      "spike": "fsgnjx_q"
+    },
+    "fsgnjx.s": {
+      "sail": [
+        21,
+        759
+      ],
+      "spike": "fsgnjx_s"
+    },
+    "fsh": {
+      "sail": [
+        21,
+        316
+      ],
+      "spike": "fsh"
+    },
+    "fsq": {
+      "spike": "fsq"
+    },
+    "fsqrt.d": {
+      "sail": [
+        19,
+        431
+      ],
+      "spike": "fsqrt_d"
+    },
+    "fsqrt.h": {
+      "sail": [
+        20,
+        549
+      ],
+      "spike": "fsqrt_h"
+    },
+    "fsqrt.q": {
+      "spike": "fsqrt_q"
+    },
+    "fsqrt.s": {
+      "sail": [
+        21,
+        519
+      ],
+      "spike": "fsqrt_s"
+    },
+    "fsub.d": {
+      "sail": [
+        19,
+        345
+      ],
+      "spike": "fsub_d"
+    },
+    "fsub.h": {
+      "sail": [
+        20,
+        204
+      ],
+      "spike": "fsub_h"
+    },
+    "fsub.q": {
+      "spike": "fsub_q"
+    },
+    "fsub.s": {
+      "sail": [
+        21,
+        441
+      ],
+      "spike": "fsub_s"
+    },
+    "fsw": {
+      "sail": [
+        21,
+        316
+      ],
+      "spike": "fsw"
+    },
+    "hfence.gvma": {
+      "sail": [
+        25,
+        132
+      ],
+      "spike": "hfence_gvma"
+    },
+    "hfence.vvma": {
+      "sail": [
+        25,
+        109
+      ],
+      "spike": "hfence_vvma"
+    },
+    "hinval.gvma": {
+      "sail": [
+        26,
+        83
+      ],
+      "spike": "hinval_gvma"
+    },
+    "hinval.vvma": {
+      "sail": [
+        26,
+        68
+      ],
+      "spike": "hinval_vvma"
+    },
+    "hlv.b": {
+      "sail": [
+        25,
+        38
+      ],
+      "spike": "hlv_b"
+    },
+    "hlv.bu": {
+      "sail": [
+        25,
+        38
+      ],
+      "spike": "hlv_bu"
+    },
+    "hlv.d": {
+      "sail": [
+        25,
+        38
+      ],
+      "spike": "hlv_d"
+    },
+    "hlv.h": {
+      "sail": [
+        25,
+        38
+      ],
+      "spike": "hlv_h"
+    },
+    "hlv.hu": {
+      "sail": [
+        25,
+        38
+      ],
+      "spike": "hlv_hu"
+    },
+    "hlv.w": {
+      "sail": [
+        25,
+        38
+      ],
+      "spike": "hlv_w"
+    },
+    "hlv.wu": {
+      "sail": [
+        25,
+        38
+      ],
+      "spike": "hlv_wu"
+    },
+    "hlvx.hu": {
+      "sail": [
+        25,
+        39
+      ],
+      "spike": "hlvx_hu"
+    },
+    "hlvx.wu": {
+      "sail": [
+        25,
+        39
+      ],
+      "spike": "hlvx_wu"
+    },
+    "hsv.b": {
+      "sail": [
+        25,
+        74
+      ],
+      "spike": "hsv_b"
+    },
+    "hsv.d": {
+      "sail": [
+        25,
+        74
+      ],
+      "spike": "hsv_d"
+    },
+    "hsv.h": {
+      "sail": [
+        25,
+        74
+      ],
+      "spike": "hsv_h"
+    },
+    "hsv.w": {
+      "sail": [
+        25,
+        74
+      ],
+      "spike": "hsv_w"
+    },
+    "jal": {
+      "sail": [
+        0,
+        75
+      ],
+      "spike": "jal"
+    },
+    "jalr": {
+      "sail": [
+        27,
+        11
+      ],
+      "spike": "jalr"
+    },
+    "lb": {
+      "sail": [
+        0,
+        285
+      ],
+      "spike": "lb"
+    },
+    "lb.aq": {
+      "spike": "lb_aq"
+    },
+    "lbu": {
+      "sail": [
+        0,
+        285
+      ],
+      "spike": "lbu"
+    },
+    "ld": {
+      "sail": [
+        0,
+        285
+      ],
+      "spike": "ld"
+    },
+    "ld.aq": {
+      "spike": "ld_aq"
+    },
+    "ld.rv32": {
+      "spike": "ld"
+    },
+    "lh": {
+      "sail": [
+        0,
+        285
+      ],
+      "spike": "lh"
+    },
+    "lh.aq": {
+      "spike": "lh_aq"
+    },
+    "lhu": {
+      "sail": [
+        0,
+        285
+      ],
+      "spike": "lhu"
+    },
+    "lpad": {
+      "sail": [
+        28,
+        22
+      ],
+      "spike": "lpad"
+    },
+    "lr.d": {
+      "sail": [
+        29,
+        41
+      ],
+      "spike": "lr_d"
+    },
+    "lr.w": {
+      "sail": [
+        29,
+        41
+      ],
+      "spike": "lr_w"
+    },
+    "lui": {
+      "sail": [
+        0,
+        30
+      ],
+      "spike": "lui"
+    },
+    "lw": {
+      "sail": [
+        0,
+        285
+      ],
+      "spike": "lw"
+    },
+    "lw.aq": {
+      "spike": "lw_aq"
+    },
+    "lwu": {
+      "sail": [
+        0,
+        285
+      ],
+      "spike": "lwu"
+    },
+    "max": {
+      "sail": [
+        4,
+        149
+      ],
+      "spike": "max"
+    },
+    "maxu": {
+      "sail": [
+        4,
+        150
+      ],
+      "spike": "maxu"
+    },
+    "min": {
+      "sail": [
+        4,
+        151
+      ],
+      "spike": "min"
+    },
+    "minu": {
+      "sail": [
+        4,
+        152
+      ],
+      "spike": "minu"
+    },
+    "mnret": {
+      "spike": "mnret"
+    },
+    "mop.r.0": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.1": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.10": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.11": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.12": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.13": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.14": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.15": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.16": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.17": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.18": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.19": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.2": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.20": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.21": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.22": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.23": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.24": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.25": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.26": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.27": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.28": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.29": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.3": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.30": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.31": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.4": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.5": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.6": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.7": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.8": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.r.9": {
+      "sail": [
+        30,
+        30
+      ],
+      "spike": "mop_r_N"
+    },
+    "mop.rr.0": {
+      "sail": [
+        30,
+        35
+      ],
+      "spike": "mop_rr_N"
+    },
+    "mop.rr.1": {
+      "sail": [
+        30,
+        35
+      ],
+      "spike": "mop_rr_N"
+    },
+    "mop.rr.2": {
+      "sail": [
+        30,
+        35
+      ],
+      "spike": "mop_rr_N"
+    },
+    "mop.rr.3": {
+      "sail": [
+        30,
+        35
+      ],
+      "spike": "mop_rr_N"
+    },
+    "mop.rr.4": {
+      "sail": [
+        30,
+        35
+      ],
+      "spike": "mop_rr_N"
+    },
+    "mop.rr.5": {
+      "sail": [
+        30,
+        35
+      ],
+      "spike": "mop_rr_N"
+    },
+    "mop.rr.6": {
+      "sail": [
+        30,
+        35
+      ],
+      "spike": "mop_rr_N"
+    },
+    "mop.rr.7": {
+      "sail": [
+        30,
+        35
+      ],
+      "spike": "mop_rr_N"
+    },
+    "mret": {
+      "sail": [
+        0,
+        605
+      ],
+      "spike": "mret"
+    },
+    "mul": {
+      "sail": [
+        18,
+        29
+      ],
+      "spike": "mul"
+    },
+    "mulh": {
+      "sail": [
+        18,
+        29
+      ],
+      "spike": "mulh"
+    },
+    "mulhsu": {
+      "sail": [
+        18,
+        29
+      ],
+      "spike": "mulhsu"
+    },
+    "mulhu": {
+      "sail": [
+        18,
+        29
+      ],
+      "spike": "mulhu"
+    },
+    "mulw": {
+      "sail": [
+        18,
+        98
+      ],
+      "spike": "mulw"
+    },
+    "ntl.all": {
+      "sail": [
+        31,
+        21
+      ],
+      "spike": "add"
+    },
+    "ntl.p1": {
+      "sail": [
+        31,
+        21
+      ],
+      "spike": "add"
+    },
+    "ntl.pall": {
+      "sail": [
+        31,
+        21
+      ],
+      "spike": "add"
+    },
+    "ntl.s1": {
+      "sail": [
+        31,
+        21
+      ],
+      "spike": "add"
+    },
+    "or": {
+      "sail": [
+        0,
+        243
+      ],
+      "spike": "or"
+    },
+    "orc.b": {
+      "sail": [
+        4,
+        235
+      ],
+      "spike": "orc_b"
+    },
+    "ori": {
+      "sail": [
+        0,
+        165
+      ],
+      "spike": "ori"
+    },
+    "orn": {
+      "sail": [
+        4,
+        147
+      ],
+      "spike": "orn"
+    },
+    "pack": {
+      "sail": [
+        7,
+        35
+      ],
+      "spike": "pack"
+    },
+    "packh": {
+      "sail": [
+        7,
+        36
+      ],
+      "spike": "packh"
+    },
+    "packw": {
+      "sail": [
+        7,
+        53
+      ],
+      "spike": "packw"
+    },
+    "pause": {
+      "sail": [
+        32,
+        19
+      ],
+      "spike": "fence"
+    },
+    "prefetch.i": {
+      "sail": [
+        33,
+        36
+      ],
+      "spike": "ori"
+    },
+    "prefetch.r": {
+      "sail": [
+        33,
+        36
+      ],
+      "spike": "ori"
+    },
+    "prefetch.w": {
+      "sail": [
+        33,
+        36
+      ],
+      "spike": "ori"
+    },
+    "rdcycle": {
+      "sail": [
+        16,
+        99
+      ],
+      "spike": "csrrs"
+    },
+    "rdcycleh": {
+      "sail": [
+        16,
+        99
+      ],
+      "spike": "csrrs"
+    },
+    "rdinstret": {
+      "sail": [
+        16,
+        99
+      ],
+      "spike": "csrrs"
+    },
+    "rdinstreth": {
+      "sail": [
+        16,
+        99
+      ],
+      "spike": "csrrs"
+    },
+    "rdtime": {
+      "sail": [
+        16,
+        99
+      ],
+      "spike": "csrrs"
+    },
+    "rdtimeh": {
+      "sail": [
+        16,
+        99
+      ],
+      "spike": "csrrs"
+    },
+    "rem": {
+      "sail": [
+        18,
+        76
+      ],
+      "spike": "rem"
+    },
+    "remu": {
+      "sail": [
+        18,
+        76
+      ],
+      "spike": "remu"
+    },
+    "remuw": {
+      "sail": [
+        18,
+        144
+      ],
+      "spike": "remuw"
+    },
+    "remw": {
+      "sail": [
+        18,
+        144
+      ],
+      "spike": "remw"
+    },
+    "rev8": {
+      "sail": [
+        4,
+        219
+      ],
+      "spike": "rev8"
+    },
+    "rev8.rv32": {
+      "sail": [
+        4,
+        219
+      ],
+      "spike": "rev8_rv32"
+    },
+    "rol": {
+      "sail": [
+        4,
+        153
+      ],
+      "spike": "rol"
+    },
+    "rolw": {
+      "sail": [
+        4,
+        71
+      ],
+      "spike": "rolw"
+    },
+    "ror": {
+      "sail": [
+        4,
+        154
+      ],
+      "spike": "ror"
+    },
+    "rori": {
+      "sail": [
+        4,
+        39
+      ],
+      "spike": "rori"
+    },
+    "roriw": {
+      "sail": [
+        4,
+        23
+      ],
+      "spike": "roriw"
+    },
+    "rorw": {
+      "sail": [
+        4,
+        72
+      ],
+      "spike": "rorw"
+    },
+    "sb": {
+      "sail": [
+        0,
+        316
+      ],
+      "spike": "sb"
+    },
+    "sb.rl": {
+      "spike": "sb_rl"
+    },
+    "sc.d": {
+      "sail": [
+        29,
+        66
+      ],
+      "spike": "sc_d"
+    },
+    "sc.w": {
+      "sail": [
+        29,
+        66
+      ],
+      "spike": "sc_w"
+    },
+    "sd": {
+      "sail": [
+        0,
+        316
+      ],
+      "spike": "sd"
+    },
+    "sd.rl": {
+      "spike": "sd_rl"
+    },
+    "sd.rv32": {
+      "spike": "sd"
+    },
+    "sext.b": {
+      "sail": [
+        4,
+        196
+      ],
+      "spike": "sext_b"
+    },
+    "sext.h": {
+      "sail": [
+        4,
+        197
+      ],
+      "spike": "sext_h"
+    },
+    "sfence.inval.ir": {
+      "sail": [
+        26,
+        50
+      ],
+      "spike": "sfence_inval_ir"
+    },
+    "sfence.vma": {
+      "sail": [
+        0,
+        763
+      ],
+      "spike": "sfence_vma"
+    },
+    "sfence.w.inval": {
+      "sail": [
+        26,
+        32
+      ],
+      "spike": "sfence_w_inval"
+    },
+    "sh": {
+      "sail": [
+        0,
+        316
+      ],
+      "spike": "sh"
+    },
+    "sh.rl": {
+      "spike": "sh_rl"
+    },
+    "sh1add": {
+      "sail": [
+        1,
+        74
+      ],
+      "spike": "sh1add"
+    },
+    "sh1add.uw": {
+      "sail": [
+        1,
+        53
+      ],
+      "spike": "sh1add_uw"
+    },
+    "sh2add": {
+      "sail": [
+        1,
+        74
+      ],
+      "spike": "sh2add"
+    },
+    "sh2add.uw": {
+      "sail": [
+        1,
+        53
+      ],
+      "spike": "sh2add_uw"
+    },
+    "sh3add": {
+      "sail": [
+        1,
+        74
+      ],
+      "spike": "sh3add"
+    },
+    "sh3add.uw": {
+      "sail": [
+        1,
+        53
+      ],
+      "spike": "sh3add_uw"
+    },
+    "sha256sig0": {
+      "sail": [
+        2,
+        52
+      ],
+      "spike": "sha256sig0"
+    },
+    "sha256sig1": {
+      "sail": [
+        2,
+        59
+      ],
+      "spike": "sha256sig1"
+    },
+    "sha256sum0": {
+      "sail": [
+        2,
+        66
+      ],
+      "spike": "sha256sum0"
+    },
+    "sha256sum1": {
+      "sail": [
+        2,
+        73
+      ],
+      "spike": "sha256sum1"
+    },
+    "sha512sig0": {
+      "sail": [
+        2,
+        434
+      ],
+      "spike": "sha512sig0"
+    },
+    "sha512sig0h": {
+      "sail": [
+        2,
+        226
+      ],
+      "spike": "sha512sig0h"
+    },
+    "sha512sig0l": {
+      "sail": [
+        2,
+        232
+      ],
+      "spike": "sha512sig0l"
+    },
+    "sha512sig1": {
+      "sail": [
+        2,
+        442
+      ],
+      "spike": "sha512sig1"
+    },
+    "sha512sig1h": {
+      "sail": [
+        2,
+        238
+      ],
+      "spike": "sha512sig1h"
+    },
+    "sha512sig1l": {
+      "sail": [
+        2,
+        244
+      ],
+      "spike": "sha512sig1l"
+    },
+    "sha512sum0": {
+      "sail": [
+        2,
+        450
+      ],
+      "spike": "sha512sum0"
+    },
+    "sha512sum0r": {
+      "sail": [
+        2,
+        250
+      ],
+      "spike": "sha512sum0r"
+    },
+    "sha512sum1": {
+      "sail": [
+        2,
+        458
+      ],
+      "spike": "sha512sum1"
+    },
+    "sha512sum1r": {
+      "sail": [
+        2,
+        256
+      ],
+      "spike": "sha512sum1r"
+    },
+    "sinval.vma": {
+      "sail": [
+        26,
+        17
+      ],
+      "spike": "sinval_vma"
+    },
+    "sll": {
+      "sail": [
+        0,
+        245
+      ],
+      "spike": "sll"
+    },
+    "slli": {
+      "sail": [
+        0,
+        206
+      ],
+      "spike": "slli"
+    },
+    "slli.uw": {
+      "sail": [
+        1,
+        23
+      ],
+      "spike": "slli_uw"
+    },
+    "slliw": {
+      "sail": [
+        0,
+        417
+      ],
+      "spike": "slliw"
+    },
+    "sllw": {
+      "sail": [
+        0,
+        380
+      ],
+      "spike": "sllw"
+    },
+    "slt": {
+      "sail": [
+        0,
+        240
+      ],
+      "spike": "slt"
+    },
+    "slti": {
+      "sail": [
+        0,
+        162
+      ],
+      "spike": "slti"
+    },
+    "sltiu": {
+      "sail": [
+        0,
+        163
+      ],
+      "spike": "sltiu"
+    },
+    "sltu": {
+      "sail": [
+        0,
+        241
+      ],
+      "spike": "sltu"
+    },
+    "sm3p0": {
+      "sail": [
+        34,
+        33
+      ],
+      "spike": "sm3p0"
+    },
+    "sm3p1": {
+      "sail": [
+        34,
+        40
+      ],
+      "spike": "sm3p1"
+    },
+    "sm4ed": {
+      "sail": [
+        34,
+        71
+      ],
+      "spike": "sm4ed"
+    },
+    "sm4ks": {
+      "sail": [
+        34,
+        84
+      ],
+      "spike": "sm4ks"
+    },
+    "sra": {
+      "sail": [
+        0,
+        248
+      ],
+      "spike": "sra"
+    },
+    "srai": {
+      "sail": [
+        0,
+        208
+      ],
+      "spike": "srai"
+    },
+    "sraiw": {
+      "sail": [
+        0,
+        419
+      ],
+      "spike": "sraiw"
+    },
+    "sraw": {
+      "sail": [
+        0,
+        382
+      ],
+      "spike": "sraw"
+    },
+    "sret": {
+      "sail": [
+        0,
+        653
+      ],
+      "spike": "sret"
+    },
+    "srl": {
+      "sail": [
+        0,
+        246
+      ],
+      "spike": "srl"
+    },
+    "srli": {
+      "sail": [
+        0,
+        207
+      ],
+      "spike": "srli"
+    },
+    "srliw": {
+      "sail": [
+        0,
+        418
+      ],
+      "spike": "srliw"
+    },
+    "srlw": {
+      "sail": [
+        0,
+        381
+      ],
+      "spike": "srlw"
+    },
+    "ssamoswap.d": {
+      "sail": [
+        35,
+        160
+      ],
+      "spike": "ssamoswap_d"
+    },
+    "ssamoswap.w": {
+      "sail": [
+        35,
+        160
+      ],
+      "spike": "ssamoswap_w"
+    },
+    "ssrdp": {
+      "sail": [
+        35,
+        137
+      ],
+      "spike": "ssrdp"
+    },
+    "sub": {
+      "sail": [
+        0,
+        247
+      ],
+      "spike": "sub"
+    },
+    "subw": {
+      "sail": [
+        0,
+        379
+      ],
+      "spike": "subw"
+    },
+    "sw": {
+      "sail": [
+        0,
+        316
+      ],
+      "spike": "sw"
+    },
+    "sw.rl": {
+      "spike": "sw_rl"
+    },
+    "unzip": {
+      "sail": [
+        7,
+        96
+      ],
+      "spike": "unzip"
+    },
+    "vaadd.vv": {
+      "sail": [
+        36,
+        1473
+      ],
+      "spike": "vaadd_vv"
+    },
+    "vaadd.vx": {
+      "sail": [
+        36,
+        2085
+      ],
+      "spike": "vaadd_vx"
+    },
+    "vaaddu.vv": {
+      "sail": [
+        36,
+        1468
+      ],
+      "spike": "vaaddu_vv"
+    },
+    "vaaddu.vx": {
+      "sail": [
+        36,
+        2080
+      ],
+      "spike": "vaaddu_vx"
+    },
+    "vabd.vv": {
+      "sail": [
+        37,
+        53
+      ],
+      "spike": "vabd_vv"
+    },
+    "vabdu.vv": {
+      "sail": [
+        37,
+        54
+      ],
+      "spike": "vabdu_vv"
+    },
+    "vabs.v": {
+      "sail": [
+        37,
+        104
+      ]
+    },
+    "vadc.vim": {
+      "sail": [
+        38,
+        691
+      ],
+      "spike": "vadc_vim"
+    },
+    "vadc.vvm": {
+      "sail": [
+        38,
+        184
+      ],
+      "spike": "vadc_vvm"
+    },
+    "vadc.vxm": {
+      "sail": [
+        38,
+        439
+      ],
+      "spike": "vadc_vxm"
+    },
+    "vadd.vi": {
+      "sail": [
+        36,
+        969
+      ],
+      "spike": "vadd_vi"
+    },
+    "vadd.vv": {
+      "sail": [
+        36,
+        107
+      ],
+      "spike": "vadd_vv"
+    },
+    "vadd.vx": {
+      "sail": [
+        36,
+        511
+      ],
+      "spike": "vadd_vx"
+    },
+    "vaesdf.vs": {
+      "sail": [
+        39,
+        47
+      ],
+      "spike": "vaesdf_vs"
+    },
+    "vaesdf.vv": {
+      "sail": [
+        39,
+        46
+      ],
+      "spike": "vaesdf_vv"
+    },
+    "vaesdm.vs": {
+      "sail": [
+        39,
+        104
+      ],
+      "spike": "vaesdm_vs"
+    },
+    "vaesdm.vv": {
+      "sail": [
+        39,
+        103
+      ],
+      "spike": "vaesdm_vv"
+    },
+    "vaesef.vs": {
+      "sail": [
+        39,
+        162
+      ],
+      "spike": "vaesef_vs"
+    },
+    "vaesef.vv": {
+      "sail": [
+        39,
+        161
+      ],
+      "spike": "vaesef_vv"
+    },
+    "vaesem.vs": {
+      "sail": [
+        39,
+        219
+      ],
+      "spike": "vaesem_vs"
+    },
+    "vaesem.vv": {
+      "sail": [
+        39,
+        218
+      ],
+      "spike": "vaesem_vv"
+    },
+    "vaeskf1.vi": {
+      "sail": [
+        39,
+        248
+      ],
+      "spike": "vaeskf1_vi"
+    },
+    "vaeskf2.vi": {
+      "sail": [
+        39,
+        302
+      ],
+      "spike": "vaeskf2_vi"
+    },
+    "vaesz.vs": {
+      "sail": [
+        39,
+        357
+      ],
+      "spike": "vaesz_vs"
+    },
+    "vand.vi": {
+      "sail": [
+        36,
+        971
+      ],
+      "spike": "vand_vi"
+    },
+    "vand.vv": {
+      "sail": [
+        36,
+        109
+      ],
+      "spike": "vand_vv"
+    },
+    "vand.vx": {
+      "sail": [
+        36,
+        514
+      ],
+      "spike": "vand_vx"
+    },
+    "vandn.vv": {
+      "sail": [
+        40,
+        22
+      ],
+      "spike": "vandn_vv"
+    },
+    "vandn.vx": {
+      "sail": [
+        40,
+        66
+      ],
+      "spike": "vandn_vx"
+    },
+    "vasub.vv": {
+      "sail": [
+        36,
+        1483
+      ],
+      "spike": "vasub_vv"
+    },
+    "vasub.vx": {
+      "sail": [
+        36,
+        2095
+      ],
+      "spike": "vasub_vx"
+    },
+    "vasubu.vv": {
+      "sail": [
+        36,
+        1478
+      ],
+      "spike": "vasubu_vv"
+    },
+    "vasubu.vx": {
+      "sail": [
+        36,
+        2090
+      ],
+      "spike": "vasubu_vx"
+    },
+    "vbrev.v": {
+      "sail": [
+        40,
+        108
+      ],
+      "spike": "vbrev_v"
+    },
+    "vbrev8.v": {
+      "sail": [
+        40,
+        153
+      ],
+      "spike": "vbrev8_v"
+    },
+    "vclmul.vv": {
+      "sail": [
+        41,
+        21
+      ],
+      "spike": "vclmul_vv"
+    },
+    "vclmul.vx": {
+      "sail": [
+        41,
+        67
+      ],
+      "spike": "vclmul_vx"
+    },
+    "vclmulh.vv": {
+      "sail": [
+        41,
+        111
+      ],
+      "spike": "vclmulh_vv"
+    },
+    "vclmulh.vx": {
+      "sail": [
+        41,
+        157
+      ],
+      "spike": "vclmulh_vx"
+    },
+    "vclz.v": {
+      "sail": [
+        40,
+        237
+      ],
+      "spike": "vclz_v"
+    },
+    "vcompress.vm": {
+      "sail": [
+        36,
+        1969
+      ],
+      "spike": "vcompress_vm"
+    },
+    "vcpop.m": {
+      "sail": [
+        42,
+        91
+      ],
+      "spike": "vcpop_m"
+    },
+    "vcpop.v": {
+      "sail": [
+        40,
+        323
+      ],
+      "spike": "vcpop_v"
+    },
+    "vctz.v": {
+      "sail": [
+        40,
+        280
+      ],
+      "spike": "vctz_v"
+    },
+    "vdiv.vv": {
+      "sail": [
+        36,
+        1498
+      ],
+      "spike": "vdiv_vv"
+    },
+    "vdiv.vx": {
+      "sail": [
+        36,
+        2116
+      ],
+      "spike": "vdiv_vx"
+    },
+    "vdivu.vv": {
+      "sail": [
+        36,
+        1492
+      ],
+      "spike": "vdivu_vv"
+    },
+    "vdivu.vx": {
+      "sail": [
+        36,
+        2110
+      ],
+      "spike": "vdivu_vx"
+    },
+    "vfadd.vf": {
+      "sail": [
+        43,
+        986
+      ],
+      "spike": "vfadd_vf"
+    },
+    "vfadd.vv": {
+      "sail": [
+        43,
+        67
+      ],
+      "spike": "vfadd_vv"
+    },
+    "vfclass.v": {
+      "sail": [
+        43,
+        867
+      ],
+      "spike": "vfclass_v"
+    },
+    "vfcvt.f.x.v": {
+      "sail": [
+        43,
+        470
+      ],
+      "spike": "vfcvt_f_x_v"
+    },
+    "vfcvt.f.xu.v": {
+      "sail": [
+        43,
+        461
+      ],
+      "spike": "vfcvt_f_xu_v"
+    },
+    "vfcvt.rtz.x.f.v": {
+      "sail": [
+        43,
+        488
+      ],
+      "spike": "vfcvt_rtz_x_f_v"
+    },
+    "vfcvt.rtz.xu.f.v": {
+      "sail": [
+        43,
+        479
+      ],
+      "spike": "vfcvt_rtz_xu_f_v"
+    },
+    "vfcvt.x.f.v": {
+      "sail": [
+        43,
+        452
+      ],
+      "spike": "vfcvt_x_f_v"
+    },
+    "vfcvt.xu.f.v": {
+      "sail": [
+        43,
+        443
+      ],
+      "spike": "vfcvt_xu_f_v"
+    },
+    "vfdiv.vf": {
+      "sail": [
+        43,
+        992
+      ],
+      "spike": "vfdiv_vf"
+    },
+    "vfdiv.vv": {
+      "sail": [
+        43,
+        72
+      ],
+      "spike": "vfdiv_vv"
+    },
+    "vfirst.m": {
+      "sail": [
+        42,
+        119
+      ],
+      "spike": "vfirst_m"
+    },
+    "vfmacc.vf": {
+      "sail": [
+        43,
+        1083
+      ],
+      "spike": "vfmacc_vf"
+    },
+    "vfmacc.vv": {
+      "sail": [
+        43,
+        152
+      ],
+      "spike": "vfmacc_vv"
+    },
+    "vfmadd.vf": {
+      "sail": [
+        43,
+        1087
+      ],
+      "spike": "vfmadd_vf"
+    },
+    "vfmadd.vv": {
+      "sail": [
+        43,
+        156
+      ],
+      "spike": "vfmadd_vv"
+    },
+    "vfmax.vf": {
+      "sail": [
+        43,
+        990
+      ],
+      "spike": "vfmax_vf"
+    },
+    "vfmax.vv": {
+      "sail": [
+        43,
+        70
+      ],
+      "spike": "vfmax_vv"
+    },
+    "vfmerge.vfm": {
+      "sail": [
+        43,
+        1330
+      ],
+      "spike": "vfmerge_vfm"
+    },
+    "vfmin.vf": {
+      "sail": [
+        43,
+        989
+      ],
+      "spike": "vfmin_vf"
+    },
+    "vfmin.vv": {
+      "sail": [
+        43,
+        69
+      ],
+      "spike": "vfmin_vv"
+    },
+    "vfmsac.vf": {
+      "sail": [
+        43,
+        1085
+      ],
+      "spike": "vfmsac_vf"
+    },
+    "vfmsac.vv": {
+      "sail": [
+        43,
+        154
+      ],
+      "spike": "vfmsac_vv"
+    },
+    "vfmsub.vf": {
+      "sail": [
+        43,
+        1089
+      ],
+      "spike": "vfmsub_vf"
+    },
+    "vfmsub.vv": {
+      "sail": [
+        43,
+        158
+      ],
+      "spike": "vfmsub_vv"
+    },
+    "vfmul.vf": {
+      "sail": [
+        43,
+        991
+      ],
+      "spike": "vfmul_vf"
+    },
+    "vfmul.vv": {
+      "sail": [
+        43,
+        71
+      ],
+      "spike": "vfmul_vv"
+    },
+    "vfmv.f.s": {
+      "sail": [
+        43,
+        896
+      ],
+      "spike": "vfmv_f_s"
+    },
+    "vfmv.s.f": {
+      "sail": [
+        43,
+        1433
+      ],
+      "spike": "vfmv_s_f"
+    },
+    "vfmv.v.f": {
+      "sail": [
+        43,
+        1390
+      ],
+      "spike": "vfmv_v_f"
+    },
+    "vfncvt.f.f.q": {
+      "spike": "vfncvt_f_f_q"
+    },
+    "vfncvt.f.f.w": {
+      "sail": [
+        43,
+        737
+      ],
+      "spike": "vfncvt_f_f_w"
+    },
+    "vfncvt.f.x.w": {
+      "sail": [
+        43,
+        728
+      ],
+      "spike": "vfncvt_f_x_w"
+    },
+    "vfncvt.f.xu.w": {
+      "sail": [
+        43,
+        719
+      ],
+      "spike": "vfncvt_f_xu_w"
+    },
+    "vfncvt.rod.f.f.w": {
+      "sail": [
+        43,
+        746
+      ],
+      "spike": "vfncvt_rod_f_f_w"
+    },
+    "vfncvt.rtz.x.f.w": {
+      "sail": [
+        43,
+        764
+      ],
+      "spike": "vfncvt_rtz_x_f_w"
+    },
+    "vfncvt.rtz.xu.f.w": {
+      "sail": [
+        43,
+        755
+      ],
+      "spike": "vfncvt_rtz_xu_f_w"
+    },
+    "vfncvt.sat.f.f.q": {
+      "spike": "vfncvt_sat_f_f_q"
+    },
+    "vfncvt.x.f.w": {
+      "sail": [
+        43,
+        710
+      ],
+      "spike": "vfncvt_x_f_w"
+    },
+    "vfncvt.xu.f.w": {
+      "sail": [
+        43,
+        701
+      ],
+      "spike": "vfncvt_xu_f_w"
+    },
+    "vfncvtbf16.f.f.w": {
+      "sail": [
+        44,
+        18
+      ],
+      "spike": "vfncvtbf16_f_f_w"
+    },
+    "vfncvtbf16.sat.f.f.w": {
+      "spike": "vfncvtbf16_sat_f_f_w"
+    },
+    "vfnmacc.vf": {
+      "sail": [
+        43,
+        1084
+      ],
+      "spike": "vfnmacc_vf"
+    },
+    "vfnmacc.vv": {
+      "sail": [
+        43,
+        153
+      ],
+      "spike": "vfnmacc_vv"
+    },
+    "vfnmadd.vf": {
+      "sail": [
+        43,
+        1088
+      ],
+      "spike": "vfnmadd_vf"
+    },
+    "vfnmadd.vv": {
+      "sail": [
+        43,
+        157
+      ],
+      "spike": "vfnmadd_vv"
+    },
+    "vfnmsac.vf": {
+      "sail": [
+        43,
+        1086
+      ],
+      "spike": "vfnmsac_vf"
+    },
+    "vfnmsac.vv": {
+      "sail": [
+        43,
+        155
+      ],
+      "spike": "vfnmsac_vv"
+    },
+    "vfnmsub.vf": {
+      "sail": [
+        43,
+        1090
+      ],
+      "spike": "vfnmsub_vf"
+    },
+    "vfnmsub.vv": {
+      "sail": [
+        43,
+        159
+      ],
+      "spike": "vfnmsub_vv"
+    },
+    "vfrdiv.vf": {
+      "sail": [
+        43,
+        993
+      ],
+      "spike": "vfrdiv_vf"
+    },
+    "vfrec7.v": {
+      "sail": [
+        43,
+        858
+      ],
+      "spike": "vfrec7_v"
+    },
+    "vfredmax.vs": {
+      "sail": [
+        45,
+        65
+      ],
+      "spike": "vfredmax_vs"
+    },
+    "vfredmin.vs": {
+      "sail": [
+        45,
+        66
+      ],
+      "spike": "vfredmin_vs"
+    },
+    "vfredosum.vs": {
+      "sail": [
+        45,
+        63
+      ],
+      "spike": "vfredosum_vs"
+    },
+    "vfredusum.vs": {
+      "sail": [
+        45,
+        64
+      ],
+      "spike": "vfredusum_vs"
+    },
+    "vfrsqrt7.v": {
+      "sail": [
+        43,
+        849
+      ],
+      "spike": "vfrsqrt7_v"
+    },
+    "vfrsub.vf": {
+      "sail": [
+        43,
+        988
+      ],
+      "spike": "vfrsub_vf"
+    },
+    "vfsgnj.vf": {
+      "sail": [
+        43,
+        994
+      ],
+      "spike": "vfsgnj_vf"
+    },
+    "vfsgnj.vv": {
+      "sail": [
+        43,
+        73
+      ],
+      "spike": "vfsgnj_vv"
+    },
+    "vfsgnjn.vf": {
+      "sail": [
+        43,
+        995
+      ],
+      "spike": "vfsgnjn_vf"
+    },
+    "vfsgnjn.vv": {
+      "sail": [
+        43,
+        74
+      ],
+      "spike": "vfsgnjn_vv"
+    },
+    "vfsgnjx.vf": {
+      "sail": [
+        43,
+        996
+      ],
+      "spike": "vfsgnjx_vf"
+    },
+    "vfsgnjx.vv": {
+      "sail": [
+        43,
+        75
+      ],
+      "spike": "vfsgnjx_vv"
+    },
+    "vfslide1down.vf": {
+      "sail": [
+        43,
+        1000
+      ],
+      "spike": "vfslide1down_vf"
+    },
+    "vfslide1up.vf": {
+      "sail": [
+        43,
+        997
+      ],
+      "spike": "vfslide1up_vf"
+    },
+    "vfsqrt.v": {
+      "sail": [
+        43,
+        840
+      ],
+      "spike": "vfsqrt_v"
+    },
+    "vfsub.vf": {
+      "sail": [
+        43,
+        987
+      ],
+      "spike": "vfsub_vf"
+    },
+    "vfsub.vv": {
+      "sail": [
+        43,
+        68
+      ],
+      "spike": "vfsub_vv"
+    },
+    "vfwadd.vf": {
+      "sail": [
+        43,
+        1161
+      ],
+      "spike": "vfwadd_vf"
+    },
+    "vfwadd.vv": {
+      "sail": [
+        43,
+        232
+      ],
+      "spike": "vfwadd_vv"
+    },
+    "vfwadd.wf": {
+      "sail": [
+        43,
+        1301
+      ],
+      "spike": "vfwadd_wf"
+    },
+    "vfwadd.wv": {
+      "sail": [
+        43,
+        378
+      ],
+      "spike": "vfwadd_wv"
+    },
+    "vfwcvt.f.f.v": {
+      "sail": [
+        43,
+        603
+      ],
+      "spike": "vfwcvt_f_f_v"
+    },
+    "vfwcvt.f.x.v": {
+      "sail": [
+        43,
+        594
+      ],
+      "spike": "vfwcvt_f_x_v"
+    },
+    "vfwcvt.f.xu.v": {
+      "sail": [
+        43,
+        585
+      ],
+      "spike": "vfwcvt_f_xu_v"
+    },
+    "vfwcvt.rtz.x.f.v": {
+      "sail": [
+        43,
+        621
+      ],
+      "spike": "vfwcvt_rtz_x_f_v"
+    },
+    "vfwcvt.rtz.xu.f.v": {
+      "sail": [
+        43,
+        612
+      ],
+      "spike": "vfwcvt_rtz_xu_f_v"
+    },
+    "vfwcvt.x.f.v": {
+      "sail": [
+        43,
+        576
+      ],
+      "spike": "vfwcvt_x_f_v"
+    },
+    "vfwcvt.xu.f.v": {
+      "sail": [
+        43,
+        567
+      ],
+      "spike": "vfwcvt_xu_f_v"
+    },
+    "vfwcvtbf16.f.f.v": {
+      "sail": [
+        44,
+        70
+      ],
+      "spike": "vfwcvtbf16_f_f_v"
+    },
+    "vfwmacc.vf": {
+      "sail": [
+        43,
+        1231
+      ],
+      "spike": "vfwmacc_vf"
+    },
+    "vfwmacc.vv": {
+      "sail": [
+        43,
+        307
+      ],
+      "spike": "vfwmacc_vv"
+    },
+    "vfwmaccbf16.vf": {
+      "sail": [
+        46,
+        74
+      ],
+      "spike": "vfwmaccbf16_vf"
+    },
+    "vfwmaccbf16.vv": {
+      "sail": [
+        46,
+        18
+      ],
+      "spike": "vfwmaccbf16_vv"
+    },
+    "vfwmsac.vf": {
+      "sail": [
+        43,
+        1233
+      ],
+      "spike": "vfwmsac_vf"
+    },
+    "vfwmsac.vv": {
+      "sail": [
+        43,
+        309
+      ],
+      "spike": "vfwmsac_vv"
+    },
+    "vfwmul.vf": {
+      "sail": [
+        43,
+        1163
+      ],
+      "spike": "vfwmul_vf"
+    },
+    "vfwmul.vv": {
+      "sail": [
+        43,
+        234
+      ],
+      "spike": "vfwmul_vv"
+    },
+    "vfwnmacc.vf": {
+      "sail": [
+        43,
+        1232
+      ],
+      "spike": "vfwnmacc_vf"
+    },
+    "vfwnmacc.vv": {
+      "sail": [
+        43,
+        308
+      ],
+      "spike": "vfwnmacc_vv"
+    },
+    "vfwnmsac.vf": {
+      "sail": [
+        43,
+        1234
+      ],
+      "spike": "vfwnmsac_vf"
+    },
+    "vfwnmsac.vv": {
+      "sail": [
+        43,
+        310
+      ],
+      "spike": "vfwnmsac_vv"
+    },
+    "vfwredosum.vs": {
+      "sail": [
+        45,
+        106
+      ],
+      "spike": "vfwredosum_vs"
+    },
+    "vfwredusum.vs": {
+      "sail": [
+        45,
+        106
+      ],
+      "spike": "vfwredusum_vs"
+    },
+    "vfwsub.vf": {
+      "sail": [
+        43,
+        1162
+      ],
+      "spike": "vfwsub_vf"
+    },
+    "vfwsub.vv": {
+      "sail": [
+        43,
+        233
+      ],
+      "spike": "vfwsub_vv"
+    },
+    "vfwsub.wf": {
+      "sail": [
+        43,
+        1302
+      ],
+      "spike": "vfwsub_wf"
+    },
+    "vfwsub.wv": {
+      "sail": [
+        43,
+        379
+      ],
+      "spike": "vfwsub_wv"
+    },
+    "vghsh.vv": {
+      "sail": [
+        47,
+        18
+      ],
+      "spike": "vghsh_vv"
+    },
+    "vgmul.vv": {
+      "sail": [
+        47,
+        72
+      ],
+      "spike": "vgmul_vv"
+    },
+    "vid.v": {
+      "sail": [
+        42,
+        321
+      ],
+      "spike": "vid_v"
+    },
+    "viota.m": {
+      "sail": [
+        42,
+        276
+      ],
+      "spike": "viota_m"
+    },
+    "vl1re16.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl1re16_v"
+    },
+    "vl1re32.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl1re32_v"
+    },
+    "vl1re64.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl1re64_v"
+    },
+    "vl1re8.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl1re8_v"
+    },
+    "vl2re16.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl2re16_v"
+    },
+    "vl2re32.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl2re32_v"
+    },
+    "vl2re64.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl2re64_v"
+    },
+    "vl2re8.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl2re8_v"
+    },
+    "vl4re16.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl4re16_v"
+    },
+    "vl4re32.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl4re32_v"
+    },
+    "vl4re64.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl4re64_v"
+    },
+    "vl4re8.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl4re8_v"
+    },
+    "vl8re16.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl8re16_v"
+    },
+    "vl8re32.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl8re32_v"
+    },
+    "vl8re64.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl8re64_v"
+    },
+    "vl8re8.v": {
+      "sail": [
+        48,
+        487
+      ],
+      "spike": "vl8re8_v"
+    },
+    "vle16.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle16_v"
+    },
+    "vle16ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle16ff_v"
+    },
+    "vle32.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle32_v"
+    },
+    "vle32ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle32ff_v"
+    },
+    "vle64.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle64_v"
+    },
+    "vle64ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle64ff_v"
+    },
+    "vle8.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle8_v"
+    },
+    "vle8ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle8ff_v"
+    },
+    "vlm.v": {
+      "sail": [
+        48,
+        610
+      ],
+      "spike": "vlm_v"
+    },
+    "vloxei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei16_v"
+    },
+    "vloxei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei32_v"
+    },
+    "vloxei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei64_v"
+    },
+    "vloxei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei8_v"
+    },
+    "vloxseg2ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei16_v"
+    },
+    "vloxseg2ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei32_v"
+    },
+    "vloxseg2ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei64_v"
+    },
+    "vloxseg2ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei8_v"
+    },
+    "vloxseg3ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei16_v"
+    },
+    "vloxseg3ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei32_v"
+    },
+    "vloxseg3ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei64_v"
+    },
+    "vloxseg3ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei8_v"
+    },
+    "vloxseg4ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei16_v"
+    },
+    "vloxseg4ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei32_v"
+    },
+    "vloxseg4ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei64_v"
+    },
+    "vloxseg4ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei8_v"
+    },
+    "vloxseg5ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei16_v"
+    },
+    "vloxseg5ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei32_v"
+    },
+    "vloxseg5ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei64_v"
+    },
+    "vloxseg5ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei8_v"
+    },
+    "vloxseg6ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei16_v"
+    },
+    "vloxseg6ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei32_v"
+    },
+    "vloxseg6ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei64_v"
+    },
+    "vloxseg6ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei8_v"
+    },
+    "vloxseg7ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei16_v"
+    },
+    "vloxseg7ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei32_v"
+    },
+    "vloxseg7ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei64_v"
+    },
+    "vloxseg7ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei8_v"
+    },
+    "vloxseg8ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei16_v"
+    },
+    "vloxseg8ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei32_v"
+    },
+    "vloxseg8ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei64_v"
+    },
+    "vloxseg8ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vloxei8_v"
+    },
+    "vlse16.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse16_v"
+    },
+    "vlse32.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse32_v"
+    },
+    "vlse64.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse64_v"
+    },
+    "vlse8.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse8_v"
+    },
+    "vlseg2e16.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle16_v"
+    },
+    "vlseg2e16ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle16ff_v"
+    },
+    "vlseg2e32.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle32_v"
+    },
+    "vlseg2e32ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle32ff_v"
+    },
+    "vlseg2e64.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle64_v"
+    },
+    "vlseg2e64ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle64ff_v"
+    },
+    "vlseg2e8.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle8_v"
+    },
+    "vlseg2e8ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle8ff_v"
+    },
+    "vlseg3e16.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle16_v"
+    },
+    "vlseg3e16ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle16ff_v"
+    },
+    "vlseg3e32.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle32_v"
+    },
+    "vlseg3e32ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle32ff_v"
+    },
+    "vlseg3e64.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle64_v"
+    },
+    "vlseg3e64ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle64ff_v"
+    },
+    "vlseg3e8.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle8_v"
+    },
+    "vlseg3e8ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle8ff_v"
+    },
+    "vlseg4e16.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle16_v"
+    },
+    "vlseg4e16ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle16ff_v"
+    },
+    "vlseg4e32.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle32_v"
+    },
+    "vlseg4e32ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle32ff_v"
+    },
+    "vlseg4e64.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle64_v"
+    },
+    "vlseg4e64ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle64ff_v"
+    },
+    "vlseg4e8.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle8_v"
+    },
+    "vlseg4e8ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle8ff_v"
+    },
+    "vlseg5e16.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle16_v"
+    },
+    "vlseg5e16ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle16ff_v"
+    },
+    "vlseg5e32.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle32_v"
+    },
+    "vlseg5e32ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle32ff_v"
+    },
+    "vlseg5e64.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle64_v"
+    },
+    "vlseg5e64ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle64ff_v"
+    },
+    "vlseg5e8.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle8_v"
+    },
+    "vlseg5e8ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle8ff_v"
+    },
+    "vlseg6e16.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle16_v"
+    },
+    "vlseg6e16ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle16ff_v"
+    },
+    "vlseg6e32.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle32_v"
+    },
+    "vlseg6e32ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle32ff_v"
+    },
+    "vlseg6e64.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle64_v"
+    },
+    "vlseg6e64ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle64ff_v"
+    },
+    "vlseg6e8.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle8_v"
+    },
+    "vlseg6e8ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle8ff_v"
+    },
+    "vlseg7e16.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle16_v"
+    },
+    "vlseg7e16ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle16ff_v"
+    },
+    "vlseg7e32.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle32_v"
+    },
+    "vlseg7e32ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle32ff_v"
+    },
+    "vlseg7e64.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle64_v"
+    },
+    "vlseg7e64ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle64ff_v"
+    },
+    "vlseg7e8.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle8_v"
+    },
+    "vlseg7e8ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle8ff_v"
+    },
+    "vlseg8e16.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle16_v"
+    },
+    "vlseg8e16ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle16ff_v"
+    },
+    "vlseg8e32.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle32_v"
+    },
+    "vlseg8e32ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle32ff_v"
+    },
+    "vlseg8e64.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle64_v"
+    },
+    "vlseg8e64ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle64ff_v"
+    },
+    "vlseg8e8.v": {
+      "sail": [
+        48,
+        53
+      ],
+      "spike": "vle8_v"
+    },
+    "vlseg8e8ff.v": {
+      "sail": [
+        48,
+        110
+      ],
+      "spike": "vle8ff_v"
+    },
+    "vlsseg2e16.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse16_v"
+    },
+    "vlsseg2e32.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse32_v"
+    },
+    "vlsseg2e64.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse64_v"
+    },
+    "vlsseg2e8.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse8_v"
+    },
+    "vlsseg3e16.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse16_v"
+    },
+    "vlsseg3e32.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse32_v"
+    },
+    "vlsseg3e64.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse64_v"
+    },
+    "vlsseg3e8.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse8_v"
+    },
+    "vlsseg4e16.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse16_v"
+    },
+    "vlsseg4e32.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse32_v"
+    },
+    "vlsseg4e64.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse64_v"
+    },
+    "vlsseg4e8.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse8_v"
+    },
+    "vlsseg5e16.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse16_v"
+    },
+    "vlsseg5e32.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse32_v"
+    },
+    "vlsseg5e64.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse64_v"
+    },
+    "vlsseg5e8.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse8_v"
+    },
+    "vlsseg6e16.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse16_v"
+    },
+    "vlsseg6e32.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse32_v"
+    },
+    "vlsseg6e64.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse64_v"
+    },
+    "vlsseg6e8.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse8_v"
+    },
+    "vlsseg7e16.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse16_v"
+    },
+    "vlsseg7e32.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse32_v"
+    },
+    "vlsseg7e64.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse64_v"
+    },
+    "vlsseg7e8.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse8_v"
+    },
+    "vlsseg8e16.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse16_v"
+    },
+    "vlsseg8e32.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse32_v"
+    },
+    "vlsseg8e64.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse64_v"
+    },
+    "vlsseg8e8.v": {
+      "sail": [
+        48,
+        241
+      ],
+      "spike": "vlse8_v"
+    },
+    "vluxei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei16_v"
+    },
+    "vluxei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei32_v"
+    },
+    "vluxei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei64_v"
+    },
+    "vluxei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei8_v"
+    },
+    "vluxseg2ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei16_v"
+    },
+    "vluxseg2ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei32_v"
+    },
+    "vluxseg2ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei64_v"
+    },
+    "vluxseg2ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei8_v"
+    },
+    "vluxseg3ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei16_v"
+    },
+    "vluxseg3ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei32_v"
+    },
+    "vluxseg3ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei64_v"
+    },
+    "vluxseg3ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei8_v"
+    },
+    "vluxseg4ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei16_v"
+    },
+    "vluxseg4ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei32_v"
+    },
+    "vluxseg4ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei64_v"
+    },
+    "vluxseg4ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei8_v"
+    },
+    "vluxseg5ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei16_v"
+    },
+    "vluxseg5ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei32_v"
+    },
+    "vluxseg5ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei64_v"
+    },
+    "vluxseg5ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei8_v"
+    },
+    "vluxseg6ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei16_v"
+    },
+    "vluxseg6ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei32_v"
+    },
+    "vluxseg6ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei64_v"
+    },
+    "vluxseg6ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei8_v"
+    },
+    "vluxseg7ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei16_v"
+    },
+    "vluxseg7ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei32_v"
+    },
+    "vluxseg7ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei64_v"
+    },
+    "vluxseg7ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei8_v"
+    },
+    "vluxseg8ei16.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei16_v"
+    },
+    "vluxseg8ei32.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei32_v"
+    },
+    "vluxseg8ei64.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei64_v"
+    },
+    "vluxseg8ei8.v": {
+      "sail": [
+        48,
+        359
+      ],
+      "spike": "vluxei8_v"
+    },
+    "vmacc.vv": {
+      "sail": [
+        36,
+        1593
+      ],
+      "spike": "vmacc_vv"
+    },
+    "vmacc.vx": {
+      "sail": [
+        36,
+        2211
+      ],
+      "spike": "vmacc_vx"
+    },
+    "vmadc.vi": {
+      "sail": [
+        38,
+        629
+      ],
+      "spike": "vmadc_vi"
+    },
+    "vmadc.vim": {
+      "sail": [
+        38,
+        575
+      ],
+      "spike": "vmadc_vim"
+    },
+    "vmadc.vv": {
+      "sail": [
+        38,
+        117
+      ],
+      "spike": "vmadc_vv"
+    },
+    "vmadc.vvm": {
+      "sail": [
+        38,
+        57
+      ],
+      "spike": "vmadc_vvm"
+    },
+    "vmadc.vx": {
+      "sail": [
+        38,
+        374
+      ],
+      "spike": "vmadc_vx"
+    },
+    "vmadc.vxm": {
+      "sail": [
+        38,
+        317
+      ],
+      "spike": "vmadc_vxm"
+    },
+    "vmadd.vv": {
+      "sail": [
+        36,
+        1595
+      ],
+      "spike": "vmadd_vv"
+    },
+    "vmadd.vx": {
+      "sail": [
+        36,
+        2213
+      ],
+      "spike": "vmadd_vx"
+    },
+    "vmand.mm": {
+      "sail": [
+        42,
+        52
+      ],
+      "spike": "vmand_mm"
+    },
+    "vmandn.mm": {
+      "sail": [
+        42,
+        54
+      ],
+      "spike": "vmandn_mm"
+    },
+    "vmax.vv": {
+      "sail": [
+        36,
+        155
+      ],
+      "spike": "vmax_vv"
+    },
+    "vmax.vx": {
+      "sail": [
+        36,
+        560
+      ],
+      "spike": "vmax_vx"
+    },
+    "vmaxu.vv": {
+      "sail": [
+        36,
+        154
+      ],
+      "spike": "vmaxu_vv"
+    },
+    "vmaxu.vx": {
+      "sail": [
+        36,
+        559
+      ],
+      "spike": "vmaxu_vx"
+    },
+    "vmerge.vim": {
+      "sail": [
+        36,
+        1266
+      ],
+      "spike": "vmerge_vim"
+    },
+    "vmerge.vvm": {
+      "sail": [
+        36,
+        365
+      ],
+      "spike": "vmerge_vvm"
+    },
+    "vmerge.vxm": {
+      "sail": [
+        36,
+        836
+      ],
+      "spike": "vmerge_vxm"
+    },
+    "vmfeq.vf": {
+      "sail": [
+        49,
+        132
+      ],
+      "spike": "vmfeq_vf"
+    },
+    "vmfeq.vv": {
+      "sail": [
+        49,
+        61
+      ],
+      "spike": "vmfeq_vv"
+    },
+    "vmfge.vf": {
+      "sail": [
+        49,
+        136
+      ],
+      "spike": "vmfge_vf"
+    },
+    "vmfgt.vf": {
+      "sail": [
+        49,
+        137
+      ],
+      "spike": "vmfgt_vf"
+    },
+    "vmfle.vf": {
+      "sail": [
+        49,
+        134
+      ],
+      "spike": "vmfle_vf"
+    },
+    "vmfle.vv": {
+      "sail": [
+        49,
+        63
+      ],
+      "spike": "vmfle_vv"
+    },
+    "vmflt.vf": {
+      "sail": [
+        49,
+        135
+      ],
+      "spike": "vmflt_vf"
+    },
+    "vmflt.vv": {
+      "sail": [
+        49,
+        64
+      ],
+      "spike": "vmflt_vv"
+    },
+    "vmfne.vf": {
+      "sail": [
+        49,
+        133
+      ],
+      "spike": "vmfne_vf"
+    },
+    "vmfne.vv": {
+      "sail": [
+        49,
+        62
+      ],
+      "spike": "vmfne_vv"
+    },
+    "vmin.vv": {
+      "sail": [
+        36,
+        153
+      ],
+      "spike": "vmin_vv"
+    },
+    "vmin.vx": {
+      "sail": [
+        36,
+        558
+      ],
+      "spike": "vmin_vx"
+    },
+    "vminu.vv": {
+      "sail": [
+        36,
+        152
+      ],
+      "spike": "vminu_vv"
+    },
+    "vminu.vx": {
+      "sail": [
+        36,
+        557
+      ],
+      "spike": "vminu_vx"
+    },
+    "vmnand.mm": {
+      "sail": [
+        42,
+        53
+      ],
+      "spike": "vmnand_mm"
+    },
+    "vmnor.mm": {
+      "sail": [
+        42,
+        57
+      ],
+      "spike": "vmnor_mm"
+    },
+    "vmor.mm": {
+      "sail": [
+        42,
+        56
+      ],
+      "spike": "vmor_mm"
+    },
+    "vmorn.mm": {
+      "sail": [
+        42,
+        58
+      ],
+      "spike": "vmorn_mm"
+    },
+    "vmsbc.vv": {
+      "sail": [
+        38,
+        118
+      ],
+      "spike": "vmsbc_vv"
+    },
+    "vmsbc.vvm": {
+      "sail": [
+        38,
+        58
+      ],
+      "spike": "vmsbc_vvm"
+    },
+    "vmsbc.vx": {
+      "sail": [
+        38,
+        375
+      ],
+      "spike": "vmsbc_vx"
+    },
+    "vmsbc.vxm": {
+      "sail": [
+        38,
+        318
+      ],
+      "spike": "vmsbc_vxm"
+    },
+    "vmsbf.m": {
+      "sail": [
+        42,
+        149
+      ],
+      "spike": "vmsbf_m"
+    },
+    "vmseq.vi": {
+      "sail": [
+        38,
+        751
+      ],
+      "spike": "vmseq_vi"
+    },
+    "vmseq.vv": {
+      "sail": [
+        38,
+        248
+      ],
+      "spike": "vmseq_vv"
+    },
+    "vmseq.vx": {
+      "sail": [
+        38,
+        503
+      ],
+      "spike": "vmseq_vx"
+    },
+    "vmsgt.vi": {
+      "sail": [
+        38,
+        756
+      ],
+      "spike": "vmsgt_vi"
+    },
+    "vmsgt.vx": {
+      "sail": [
+        38,
+        510
+      ],
+      "spike": "vmsgt_vx"
+    },
+    "vmsgtu.vi": {
+      "sail": [
+        38,
+        755
+      ],
+      "spike": "vmsgtu_vi"
+    },
+    "vmsgtu.vx": {
+      "sail": [
+        38,
+        509
+      ],
+      "spike": "vmsgtu_vx"
+    },
+    "vmsif.m": {
+      "sail": [
+        42,
+        190
+      ],
+      "spike": "vmsif_m"
+    },
+    "vmsle.vi": {
+      "sail": [
+        38,
+        754
+      ],
+      "spike": "vmsle_vi"
+    },
+    "vmsle.vv": {
+      "sail": [
+        38,
+        253
+      ],
+      "spike": "vmsle_vv"
+    },
+    "vmsle.vx": {
+      "sail": [
+        38,
+        508
+      ],
+      "spike": "vmsle_vx"
+    },
+    "vmsleu.vi": {
+      "sail": [
+        38,
+        753
+      ],
+      "spike": "vmsleu_vi"
+    },
+    "vmsleu.vv": {
+      "sail": [
+        38,
+        252
+      ],
+      "spike": "vmsleu_vv"
+    },
+    "vmsleu.vx": {
+      "sail": [
+        38,
+        507
+      ],
+      "spike": "vmsleu_vx"
+    },
+    "vmslt.vv": {
+      "sail": [
+        38,
+        251
+      ],
+      "spike": "vmslt_vv"
+    },
+    "vmslt.vx": {
+      "sail": [
+        38,
+        506
+      ],
+      "spike": "vmslt_vx"
+    },
+    "vmsltu.vv": {
+      "sail": [
+        38,
+        250
+      ],
+      "spike": "vmsltu_vv"
+    },
+    "vmsltu.vx": {
+      "sail": [
+        38,
+        505
+      ],
+      "spike": "vmsltu_vx"
+    },
+    "vmsne.vi": {
+      "sail": [
+        38,
+        752
+      ],
+      "spike": "vmsne_vi"
+    },
+    "vmsne.vv": {
+      "sail": [
+        38,
+        249
+      ],
+      "spike": "vmsne_vv"
+    },
+    "vmsne.vx": {
+      "sail": [
+        38,
+        504
+      ],
+      "spike": "vmsne_vx"
+    },
+    "vmsof.m": {
+      "sail": [
+        42,
+        231
+      ],
+      "spike": "vmsof_m"
+    },
+    "vmul.vv": {
+      "sail": [
+        36,
+        1488
+      ],
+      "spike": "vmul_vv"
+    },
+    "vmul.vx": {
+      "sail": [
+        36,
+        2106
+      ],
+      "spike": "vmul_vx"
+    },
+    "vmulh.vv": {
+      "sail": [
+        36,
+        1489
+      ],
+      "spike": "vmulh_vv"
+    },
+    "vmulh.vx": {
+      "sail": [
+        36,
+        2107
+      ],
+      "spike": "vmulh_vx"
+    },
+    "vmulhsu.vv": {
+      "sail": [
+        36,
+        1491
+      ],
+      "spike": "vmulhsu_vv"
+    },
+    "vmulhsu.vx": {
+      "sail": [
+        36,
+        2109
+      ],
+      "spike": "vmulhsu_vx"
+    },
+    "vmulhu.vv": {
+      "sail": [
+        36,
+        1490
+      ],
+      "spike": "vmulhu_vv"
+    },
+    "vmulhu.vx": {
+      "sail": [
+        36,
+        2108
+      ],
+      "spike": "vmulhu_vx"
+    },
+    "vmv.s.x": {
+      "sail": [
+        36,
+        2465
+      ],
+      "spike": "vmv_s_x"
+    },
+    "vmv.v.i": {
+      "sail": [
+        36,
+        1321
+      ],
+      "spike": "vmv_v_i"
+    },
+    "vmv.v.v": {
+      "sail": [
+        36,
+        422
+      ],
+      "spike": "vmv_v_v"
+    },
+    "vmv.v.x": {
+      "sail": [
+        36,
+        891
+      ],
+      "spike": "vmv_v_x"
+    },
+    "vmv.x.s": {
+      "sail": [
+        36,
+        1932
+      ],
+      "spike": "vmv_x_s"
+    },
+    "vmv1r.v": {
+      "sail": [
+        36,
+        1371
+      ],
+      "spike": "vmv1r_v"
+    },
+    "vmv2r.v": {
+      "sail": [
+        36,
+        1371
+      ],
+      "spike": "vmv2r_v"
+    },
+    "vmv4r.v": {
+      "sail": [
+        36,
+        1371
+      ],
+      "spike": "vmv4r_v"
+    },
+    "vmv8r.v": {
+      "sail": [
+        36,
+        1371
+      ],
+      "spike": "vmv8r_v"
+    },
+    "vmxnor.mm": {
+      "sail": [
+        42,
+        59
+      ],
+      "spike": "vmxnor_mm"
+    },
+    "vmxor.mm": {
+      "sail": [
+        42,
+        55
+      ],
+      "spike": "vmxor_mm"
+    },
+    "vnclip.wi": {
+      "sail": [
+        36,
+        1152
+      ],
+      "spike": "vnclip_wi"
+    },
+    "vnclip.wv": {
+      "sail": [
+        36,
+        335
+      ],
+      "spike": "vnclip_wv"
+    },
+    "vnclip.wx": {
+      "sail": [
+        36,
+        721
+      ],
+      "spike": "vnclip_wx"
+    },
+    "vnclipu.wi": {
+      "sail": [
+        36,
+        1148
+      ],
+      "spike": "vnclipu_wi"
+    },
+    "vnclipu.wv": {
+      "sail": [
+        36,
+        331
+      ],
+      "spike": "vnclipu_wv"
+    },
+    "vnclipu.wx": {
+      "sail": [
+        36,
+        717
+      ],
+      "spike": "vnclipu_wx"
+    },
+    "vnmsac.vv": {
+      "sail": [
+        36,
+        1594
+      ],
+      "spike": "vnmsac_vv"
+    },
+    "vnmsac.vx": {
+      "sail": [
+        36,
+        2212
+      ],
+      "spike": "vnmsac_vx"
+    },
+    "vnmsub.vv": {
+      "sail": [
+        36,
+        1596
+      ],
+      "spike": "vnmsub_vv"
+    },
+    "vnmsub.vx": {
+      "sail": [
+        36,
+        2214
+      ],
+      "spike": "vnmsub_vx"
+    },
+    "vnsra.wi": {
+      "sail": [
+        36,
+        1077
+      ],
+      "spike": "vnsra_wi"
+    },
+    "vnsra.wv": {
+      "sail": [
+        36,
+        258
+      ],
+      "spike": "vnsra_wv"
+    },
+    "vnsra.wx": {
+      "sail": [
+        36,
+        646
+      ],
+      "spike": "vnsra_wx"
+    },
+    "vnsrl.wi": {
+      "sail": [
+        36,
+        1073
+      ],
+      "spike": "vnsrl_wi"
+    },
+    "vnsrl.wv": {
+      "sail": [
+        36,
+        254
+      ],
+      "spike": "vnsrl_wv"
+    },
+    "vnsrl.wx": {
+      "sail": [
+        36,
+        642
+      ],
+      "spike": "vnsrl_wx"
+    },
+    "vor.vi": {
+      "sail": [
+        36,
+        972
+      ],
+      "spike": "vor_vi"
+    },
+    "vor.vv": {
+      "sail": [
+        36,
+        110
+      ],
+      "spike": "vor_vv"
+    },
+    "vor.vx": {
+      "sail": [
+        36,
+        515
+      ],
+      "spike": "vor_vx"
+    },
+    "vredand.vs": {
+      "sail": [
+        50,
+        132
+      ],
+      "spike": "vredand_vs"
+    },
+    "vredmax.vs": {
+      "sail": [
+        50,
+        137
+      ],
+      "spike": "vredmax_vs"
+    },
+    "vredmaxu.vs": {
+      "sail": [
+        50,
+        138
+      ],
+      "spike": "vredmaxu_vs"
+    },
+    "vredmin.vs": {
+      "sail": [
+        50,
+        135
+      ],
+      "spike": "vredmin_vs"
+    },
+    "vredminu.vs": {
+      "sail": [
+        50,
+        136
+      ],
+      "spike": "vredminu_vs"
+    },
+    "vredor.vs": {
+      "sail": [
+        50,
+        133
+      ],
+      "spike": "vredor_vs"
+    },
+    "vredsum.vs": {
+      "sail": [
+        50,
+        131
+      ],
+      "spike": "vredsum_vs"
+    },
+    "vredxor.vs": {
+      "sail": [
+        50,
+        134
+      ],
+      "spike": "vredxor_vs"
+    },
+    "vrem.vv": {
+      "sail": [
+        36,
+        1515
+      ],
+      "spike": "vrem_vv"
+    },
+    "vrem.vx": {
+      "sail": [
+        36,
+        2133
+      ],
+      "spike": "vrem_vx"
+    },
+    "vremu.vv": {
+      "sail": [
+        36,
+        1508
+      ],
+      "spike": "vremu_vv"
+    },
+    "vremu.vx": {
+      "sail": [
+        36,
+        2126
+      ],
+      "spike": "vremu_vx"
+    },
+    "vrev8.v": {
+      "sail": [
+        40,
+        195
+      ],
+      "spike": "vrev8_v"
+    },
+    "vrgather.vi": {
+      "sail": [
+        36,
+        1201
+      ],
+      "spike": "vrgather_vi"
+    },
+    "vrgather.vv": {
+      "sail": [
+        36,
+        156
+      ],
+      "spike": "vrgather_vv"
+    },
+    "vrgather.vx": {
+      "sail": [
+        36,
+        770
+      ],
+      "spike": "vrgather_vx"
+    },
+    "vrgatherei16.vv": {
+      "sail": [
+        36,
+        163
+      ],
+      "spike": "vrgatherei16_vv"
+    },
+    "vrol.vv": {
+      "sail": [
+        40,
+        369
+      ],
+      "spike": "vrol_vv"
+    },
+    "vrol.vx": {
+      "sail": [
+        40,
+        414
+      ],
+      "spike": "vrol_vx"
+    },
+    "vror.vi": {
+      "sail": [
+        40,
+        545
+      ],
+      "spike": "vror_vi"
+    },
+    "vror.vv": {
+      "sail": [
+        40,
+        457
+      ],
+      "spike": "vror_vv"
+    },
+    "vror.vx": {
+      "sail": [
+        40,
+        502
+      ],
+      "spike": "vror_vx"
+    },
+    "vrsub.vi": {
+      "sail": [
+        36,
+        970
+      ],
+      "spike": "vrsub_vi"
+    },
+    "vrsub.vx": {
+      "sail": [
+        36,
+        513
+      ],
+      "spike": "vrsub_vx"
+    },
+    "vs1r.v": {
+      "sail": [
+        48,
+        544
+      ],
+      "spike": "vs1r_v"
+    },
+    "vs2r.v": {
+      "sail": [
+        48,
+        544
+      ],
+      "spike": "vs2r_v"
+    },
+    "vs4r.v": {
+      "sail": [
+        48,
+        544
+      ],
+      "spike": "vs4r_v"
+    },
+    "vs8r.v": {
+      "sail": [
+        48,
+        544
+      ],
+      "spike": "vs8r_v"
+    },
+    "vsadd.vi": {
+      "sail": [
+        36,
+        975
+      ],
+      "spike": "vsadd_vi"
+    },
+    "vsadd.vv": {
+      "sail": [
+        36,
+        113
+      ],
+      "spike": "vsadd_vv"
+    },
+    "vsadd.vx": {
+      "sail": [
+        36,
+        518
+      ],
+      "spike": "vsadd_vx"
+    },
+    "vsaddu.vi": {
+      "sail": [
+        36,
+        974
+      ],
+      "spike": "vsaddu_vi"
+    },
+    "vsaddu.vv": {
+      "sail": [
+        36,
+        112
+      ],
+      "spike": "vsaddu_vv"
+    },
+    "vsaddu.vx": {
+      "sail": [
+        36,
+        517
+      ],
+      "spike": "vsaddu_vx"
+    },
+    "vsbc.vvm": {
+      "sail": [
+        38,
+        185
+      ],
+      "spike": "vsbc_vvm"
+    },
+    "vsbc.vxm": {
+      "sail": [
+        38,
+        440
+      ],
+      "spike": "vsbc_vxm"
+    },
+    "vse16.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse16_v"
+    },
+    "vse32.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse32_v"
+    },
+    "vse64.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse64_v"
+    },
+    "vse8.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse8_v"
+    },
+    "vsetivli": {
+      "sail": [
+        51,
+        207
+      ],
+      "spike": "vsetivli"
+    },
+    "vsetvl": {
+      "sail": [
+        51,
+        181
+      ],
+      "spike": "vsetvl"
+    },
+    "vsetvli": {
+      "sail": [
+        51,
+        156
+      ],
+      "spike": "vsetvli"
+    },
+    "vsext.vf2": {
+      "sail": [
+        36,
+        1866
+      ],
+      "spike": "vsext_vf2"
+    },
+    "vsext.vf4": {
+      "sail": [
+        36,
+        1868
+      ],
+      "spike": "vsext_vf4"
+    },
+    "vsext.vf8": {
+      "sail": [
+        36,
+        1870
+      ],
+      "spike": "vsext_vf8"
+    },
+    "vsha2ch.vv": {
+      "sail": [
+        52,
+        95
+      ],
+      "spike": "vsha2ch_vv"
+    },
+    "vsha2cl.vv": {
+      "sail": [
+        52,
+        95
+      ],
+      "spike": "vsha2cl_vv"
+    },
+    "vsha2ms.vv": {
+      "sail": [
+        52,
+        22
+      ],
+      "spike": "vsha2ms_vv"
+    },
+    "vslide1down.vx": {
+      "sail": [
+        36,
+        2101
+      ],
+      "spike": "vslide1down_vx"
+    },
+    "vslide1up.vx": {
+      "sail": [
+        36,
+        2100
+      ],
+      "spike": "vslide1up_vx"
+    },
+    "vslidedown.vi": {
+      "sail": [
+        36,
+        1200
+      ],
+      "spike": "vslidedown_vi"
+    },
+    "vslidedown.vx": {
+      "sail": [
+        36,
+        769
+      ],
+      "spike": "vslidedown_vx"
+    },
+    "vslideup.vi": {
+      "sail": [
+        36,
+        1199
+      ],
+      "spike": "vslideup_vi"
+    },
+    "vslideup.vx": {
+      "sail": [
+        36,
+        768
+      ],
+      "spike": "vslideup_vx"
+    },
+    "vsll.vi": {
+      "sail": [
+        36,
+        976
+      ],
+      "spike": "vsll_vi"
+    },
+    "vsll.vv": {
+      "sail": [
+        36,
+        128
+      ],
+      "spike": "vsll_vv"
+    },
+    "vsll.vx": {
+      "sail": [
+        36,
+        533
+      ],
+      "spike": "vsll_vx"
+    },
+    "vsm.v": {
+      "sail": [
+        48,
+        610
+      ],
+      "spike": "vsm_v"
+    },
+    "vsm3c.vi": {
+      "sail": [
+        53,
+        67
+      ],
+      "spike": "vsm3c_vi"
+    },
+    "vsm3me.vv": {
+      "sail": [
+        53,
+        18
+      ],
+      "spike": "vsm3me_vv"
+    },
+    "vsm4k.vi": {
+      "sail": [
+        54,
+        18
+      ],
+      "spike": "vsm4k_vi"
+    },
+    "vsm4r.vs": {
+      "sail": [
+        54,
+        81
+      ],
+      "spike": "vsm4r_vs"
+    },
+    "vsm4r.vv": {
+      "sail": [
+        54,
+        81
+      ],
+      "spike": "vsm4r_vv"
+    },
+    "vsmul.vv": {
+      "sail": [
+        36,
+        122
+      ],
+      "spike": "vsmul_vv"
+    },
+    "vsmul.vx": {
+      "sail": [
+        36,
+        527
+      ],
+      "spike": "vsmul_vx"
+    },
+    "vsoxei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei16_v"
+    },
+    "vsoxei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei32_v"
+    },
+    "vsoxei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei64_v"
+    },
+    "vsoxei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei8_v"
+    },
+    "vsoxseg2ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei16_v"
+    },
+    "vsoxseg2ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei32_v"
+    },
+    "vsoxseg2ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei64_v"
+    },
+    "vsoxseg2ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei8_v"
+    },
+    "vsoxseg3ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei16_v"
+    },
+    "vsoxseg3ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei32_v"
+    },
+    "vsoxseg3ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei64_v"
+    },
+    "vsoxseg3ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei8_v"
+    },
+    "vsoxseg4ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei16_v"
+    },
+    "vsoxseg4ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei32_v"
+    },
+    "vsoxseg4ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei64_v"
+    },
+    "vsoxseg4ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei8_v"
+    },
+    "vsoxseg5ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei16_v"
+    },
+    "vsoxseg5ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei32_v"
+    },
+    "vsoxseg5ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei64_v"
+    },
+    "vsoxseg5ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei8_v"
+    },
+    "vsoxseg6ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei16_v"
+    },
+    "vsoxseg6ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei32_v"
+    },
+    "vsoxseg6ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei64_v"
+    },
+    "vsoxseg6ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei8_v"
+    },
+    "vsoxseg7ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei16_v"
+    },
+    "vsoxseg7ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei32_v"
+    },
+    "vsoxseg7ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei64_v"
+    },
+    "vsoxseg7ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei8_v"
+    },
+    "vsoxseg8ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei16_v"
+    },
+    "vsoxseg8ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei32_v"
+    },
+    "vsoxseg8ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei64_v"
+    },
+    "vsoxseg8ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsoxei8_v"
+    },
+    "vsra.vi": {
+      "sail": [
+        36,
+        984
+      ],
+      "spike": "vsra_vi"
+    },
+    "vsra.vv": {
+      "sail": [
+        36,
+        136
+      ],
+      "spike": "vsra_vv"
+    },
+    "vsra.vx": {
+      "sail": [
+        36,
+        541
+      ],
+      "spike": "vsra_vx"
+    },
+    "vsrl.vi": {
+      "sail": [
+        36,
+        980
+      ],
+      "spike": "vsrl_vi"
+    },
+    "vsrl.vv": {
+      "sail": [
+        36,
+        132
+      ],
+      "spike": "vsrl_vv"
+    },
+    "vsrl.vx": {
+      "sail": [
+        36,
+        537
+      ],
+      "spike": "vsrl_vx"
+    },
+    "vsse16.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse16_v"
+    },
+    "vsse32.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse32_v"
+    },
+    "vsse64.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse64_v"
+    },
+    "vsse8.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse8_v"
+    },
+    "vsseg2e16.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse16_v"
+    },
+    "vsseg2e32.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse32_v"
+    },
+    "vsseg2e64.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse64_v"
+    },
+    "vsseg2e8.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse8_v"
+    },
+    "vsseg3e16.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse16_v"
+    },
+    "vsseg3e32.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse32_v"
+    },
+    "vsseg3e64.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse64_v"
+    },
+    "vsseg3e8.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse8_v"
+    },
+    "vsseg4e16.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse16_v"
+    },
+    "vsseg4e32.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse32_v"
+    },
+    "vsseg4e64.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse64_v"
+    },
+    "vsseg4e8.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse8_v"
+    },
+    "vsseg5e16.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse16_v"
+    },
+    "vsseg5e32.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse32_v"
+    },
+    "vsseg5e64.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse64_v"
+    },
+    "vsseg5e8.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse8_v"
+    },
+    "vsseg6e16.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse16_v"
+    },
+    "vsseg6e32.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse32_v"
+    },
+    "vsseg6e64.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse64_v"
+    },
+    "vsseg6e8.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse8_v"
+    },
+    "vsseg7e16.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse16_v"
+    },
+    "vsseg7e32.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse32_v"
+    },
+    "vsseg7e64.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse64_v"
+    },
+    "vsseg7e8.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse8_v"
+    },
+    "vsseg8e16.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse16_v"
+    },
+    "vsseg8e32.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse32_v"
+    },
+    "vsseg8e64.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse64_v"
+    },
+    "vsseg8e8.v": {
+      "sail": [
+        48,
+        184
+      ],
+      "spike": "vse8_v"
+    },
+    "vssra.vi": {
+      "sail": [
+        36,
+        994
+      ],
+      "spike": "vssra_vi"
+    },
+    "vssra.vv": {
+      "sail": [
+        36,
+        146
+      ],
+      "spike": "vssra_vv"
+    },
+    "vssra.vx": {
+      "sail": [
+        36,
+        551
+      ],
+      "spike": "vssra_vx"
+    },
+    "vssrl.vi": {
+      "sail": [
+        36,
+        989
+      ],
+      "spike": "vssrl_vi"
+    },
+    "vssrl.vv": {
+      "sail": [
+        36,
+        141
+      ],
+      "spike": "vssrl_vv"
+    },
+    "vssrl.vx": {
+      "sail": [
+        36,
+        546
+      ],
+      "spike": "vssrl_vx"
+    },
+    "vssseg2e16.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse16_v"
+    },
+    "vssseg2e32.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse32_v"
+    },
+    "vssseg2e64.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse64_v"
+    },
+    "vssseg2e8.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse8_v"
+    },
+    "vssseg3e16.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse16_v"
+    },
+    "vssseg3e32.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse32_v"
+    },
+    "vssseg3e64.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse64_v"
+    },
+    "vssseg3e8.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse8_v"
+    },
+    "vssseg4e16.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse16_v"
+    },
+    "vssseg4e32.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse32_v"
+    },
+    "vssseg4e64.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse64_v"
+    },
+    "vssseg4e8.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse8_v"
+    },
+    "vssseg5e16.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse16_v"
+    },
+    "vssseg5e32.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse32_v"
+    },
+    "vssseg5e64.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse64_v"
+    },
+    "vssseg5e8.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse8_v"
+    },
+    "vssseg6e16.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse16_v"
+    },
+    "vssseg6e32.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse32_v"
+    },
+    "vssseg6e64.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse64_v"
+    },
+    "vssseg6e8.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse8_v"
+    },
+    "vssseg7e16.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse16_v"
+    },
+    "vssseg7e32.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse32_v"
+    },
+    "vssseg7e64.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse64_v"
+    },
+    "vssseg7e8.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse8_v"
+    },
+    "vssseg8e16.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse16_v"
+    },
+    "vssseg8e32.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse32_v"
+    },
+    "vssseg8e64.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse64_v"
+    },
+    "vssseg8e8.v": {
+      "sail": [
+        48,
+        299
+      ],
+      "spike": "vsse8_v"
+    },
+    "vssub.vv": {
+      "sail": [
+        36,
+        121
+      ],
+      "spike": "vssub_vv"
+    },
+    "vssub.vx": {
+      "sail": [
+        36,
+        526
+      ],
+      "spike": "vssub_vx"
+    },
+    "vssubu.vv": {
+      "sail": [
+        36,
+        114
+      ],
+      "spike": "vssubu_vv"
+    },
+    "vssubu.vx": {
+      "sail": [
+        36,
+        519
+      ],
+      "spike": "vssubu_vx"
+    },
+    "vsub.vv": {
+      "sail": [
+        36,
+        108
+      ],
+      "spike": "vsub_vv"
+    },
+    "vsub.vx": {
+      "sail": [
+        36,
+        512
+      ],
+      "spike": "vsub_vx"
+    },
+    "vsuxei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei16_v"
+    },
+    "vsuxei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei32_v"
+    },
+    "vsuxei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei64_v"
+    },
+    "vsuxei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei8_v"
+    },
+    "vsuxseg2ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei16_v"
+    },
+    "vsuxseg2ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei32_v"
+    },
+    "vsuxseg2ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei64_v"
+    },
+    "vsuxseg2ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei8_v"
+    },
+    "vsuxseg3ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei16_v"
+    },
+    "vsuxseg3ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei32_v"
+    },
+    "vsuxseg3ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei64_v"
+    },
+    "vsuxseg3ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei8_v"
+    },
+    "vsuxseg4ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei16_v"
+    },
+    "vsuxseg4ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei32_v"
+    },
+    "vsuxseg4ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei64_v"
+    },
+    "vsuxseg4ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei8_v"
+    },
+    "vsuxseg5ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei16_v"
+    },
+    "vsuxseg5ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei32_v"
+    },
+    "vsuxseg5ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei64_v"
+    },
+    "vsuxseg5ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei8_v"
+    },
+    "vsuxseg6ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei16_v"
+    },
+    "vsuxseg6ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei32_v"
+    },
+    "vsuxseg6ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei64_v"
+    },
+    "vsuxseg6ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei8_v"
+    },
+    "vsuxseg7ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei16_v"
+    },
+    "vsuxseg7ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei32_v"
+    },
+    "vsuxseg7ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei64_v"
+    },
+    "vsuxseg7ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei8_v"
+    },
+    "vsuxseg8ei16.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei16_v"
+    },
+    "vsuxseg8ei32.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei32_v"
+    },
+    "vsuxseg8ei64.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei64_v"
+    },
+    "vsuxseg8ei8.v": {
+      "sail": [
+        48,
+        427
+      ],
+      "spike": "vsuxei8_v"
+    },
+    "vwabda.vv": {
+      "sail": [
+        37,
+        179
+      ],
+      "spike": "vwabda_vv"
+    },
+    "vwabdau.vv": {
+      "sail": [
+        37,
+        183
+      ],
+      "spike": "vwabdau_vv"
+    },
+    "vwadd.vv": {
+      "sail": [
+        36,
+        1667
+      ],
+      "spike": "vwadd_vv"
+    },
+    "vwadd.vx": {
+      "sail": [
+        36,
+        2284
+      ],
+      "spike": "vwadd_vx"
+    },
+    "vwadd.wv": {
+      "sail": [
+        36,
+        1745
+      ],
+      "spike": "vwadd_wv"
+    },
+    "vwadd.wx": {
+      "sail": [
+        36,
+        2361
+      ],
+      "spike": "vwadd_wx"
+    },
+    "vwaddu.vv": {
+      "sail": [
+        36,
+        1669
+      ],
+      "spike": "vwaddu_vv"
+    },
+    "vwaddu.vx": {
+      "sail": [
+        36,
+        2286
+      ],
+      "spike": "vwaddu_vx"
+    },
+    "vwaddu.wv": {
+      "sail": [
+        36,
+        1747
+      ],
+      "spike": "vwaddu_wv"
+    },
+    "vwaddu.wx": {
+      "sail": [
+        36,
+        2363
+      ],
+      "spike": "vwaddu_wx"
+    },
+    "vwmacc.vv": {
+      "sail": [
+        36,
+        1820
+      ],
+      "spike": "vwmacc_vv"
+    },
+    "vwmacc.vx": {
+      "sail": [
+        36,
+        2435
+      ],
+      "spike": "vwmacc_vx"
+    },
+    "vwmaccsu.vv": {
+      "sail": [
+        36,
+        1822
+      ],
+      "spike": "vwmaccsu_vv"
+    },
+    "vwmaccsu.vx": {
+      "sail": [
+        36,
+        2437
+      ],
+      "spike": "vwmaccsu_vx"
+    },
+    "vwmaccu.vv": {
+      "sail": [
+        36,
+        1821
+      ],
+      "spike": "vwmaccu_vv"
+    },
+    "vwmaccu.vx": {
+      "sail": [
+        36,
+        2434
+      ],
+      "spike": "vwmaccu_vx"
+    },
+    "vwmaccus.vx": {
+      "sail": [
+        36,
+        2436
+      ],
+      "spike": "vwmaccus_vx"
+    },
+    "vwmul.vv": {
+      "sail": [
+        36,
+        1671
+      ],
+      "spike": "vwmul_vv"
+    },
+    "vwmul.vx": {
+      "sail": [
+        36,
+        2288
+      ],
+      "spike": "vwmul_vx"
+    },
+    "vwmulsu.vv": {
+      "sail": [
+        36,
+        1673
+      ],
+      "spike": "vwmulsu_vv"
+    },
+    "vwmulsu.vx": {
+      "sail": [
+        36,
+        2290
+      ],
+      "spike": "vwmulsu_vx"
+    },
+    "vwmulu.vv": {
+      "sail": [
+        36,
+        1672
+      ],
+      "spike": "vwmulu_vv"
+    },
+    "vwmulu.vx": {
+      "sail": [
+        36,
+        2289
+      ],
+      "spike": "vwmulu_vx"
+    },
+    "vwredsum.vs": {
+      "sail": [
+        50,
+        62
+      ],
+      "spike": "vwredsum_vs"
+    },
+    "vwredsumu.vs": {
+      "sail": [
+        50,
+        61
+      ],
+      "spike": "vwredsumu_vs"
+    },
+    "vwsll.vi": {
+      "sail": [
+        40,
+        691
+      ],
+      "spike": "vwsll_vi"
+    },
+    "vwsll.vv": {
+      "sail": [
+        40,
+        588
+      ],
+      "spike": "vwsll_vv"
+    },
+    "vwsll.vx": {
+      "sail": [
+        40,
+        641
+      ],
+      "spike": "vwsll_vx"
+    },
+    "vwsub.vv": {
+      "sail": [
+        36,
+        1668
+      ],
+      "spike": "vwsub_vv"
+    },
+    "vwsub.vx": {
+      "sail": [
+        36,
+        2285
+      ],
+      "spike": "vwsub_vx"
+    },
+    "vwsub.wv": {
+      "sail": [
+        36,
+        1746
+      ],
+      "spike": "vwsub_wv"
+    },
+    "vwsub.wx": {
+      "sail": [
+        36,
+        2362
+      ],
+      "spike": "vwsub_wx"
+    },
+    "vwsubu.vv": {
+      "sail": [
+        36,
+        1670
+      ],
+      "spike": "vwsubu_vv"
+    },
+    "vwsubu.vx": {
+      "sail": [
+        36,
+        2287
+      ],
+      "spike": "vwsubu_vx"
+    },
+    "vwsubu.wv": {
+      "sail": [
+        36,
+        1748
+      ],
+      "spike": "vwsubu_wv"
+    },
+    "vwsubu.wx": {
+      "sail": [
+        36,
+        2364
+      ],
+      "spike": "vwsubu_wx"
+    },
+    "vxor.vi": {
+      "sail": [
+        36,
+        973
+      ],
+      "spike": "vxor_vi"
+    },
+    "vxor.vv": {
+      "sail": [
+        36,
+        111
+      ],
+      "spike": "vxor_vv"
+    },
+    "vxor.vx": {
+      "sail": [
+        36,
+        516
+      ],
+      "spike": "vxor_vx"
+    },
+    "vzext.vf2": {
+      "sail": [
+        36,
+        1865
+      ],
+      "spike": "vzext_vf2"
+    },
+    "vzext.vf4": {
+      "sail": [
+        36,
+        1867
+      ],
+      "spike": "vzext_vf4"
+    },
+    "vzext.vf8": {
+      "sail": [
+        36,
+        1869
+      ],
+      "spike": "vzext_vf8"
+    },
+    "wfi": {
+      "sail": [
+        0,
+        736
+      ],
+      "spike": "wfi"
+    },
+    "wrs.nto": {
+      "sail": [
+        55,
+        28
+      ],
+      "spike": "wrs_nto"
+    },
+    "wrs.sto": {
+      "sail": [
+        55,
+        25
+      ],
+      "spike": "wrs_sto"
+    },
+    "xnor": {
+      "sail": [
+        4,
+        148
+      ],
+      "spike": "xnor"
+    },
+    "xor": {
+      "sail": [
+        0,
+        244
+      ],
+      "spike": "xor"
+    },
+    "xori": {
+      "sail": [
+        0,
+        166
+      ],
+      "spike": "xori"
+    },
+    "xperm4": {
+      "sail": [
+        56,
+        47
+      ],
+      "spike": "xperm4"
+    },
+    "xperm8": {
+      "sail": [
+        56,
+        22
+      ],
+      "spike": "xperm8"
+    },
+    "zext.h": {
+      "sail": [
+        4,
+        198
+      ],
+      "spike": "packw"
+    },
+    "zext.h.rv32": {
+      "sail": [
+        4,
+        198
+      ],
+      "spike": "pack"
+    },
+    "zip": {
+      "sail": [
+        7,
+        73
+      ],
+      "spike": "zip"
+    }
+  }
+}

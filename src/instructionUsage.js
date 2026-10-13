@@ -445,3 +445,25 @@ export function compilerExplorerUrl({ source, march }) {
   };
   return `https://godbolt.org/clientstate/${encodeURIComponent(base64(JSON.stringify(state)))}`;
 }
+
+/*
+ * Links into the two reference models, from src/instruction-references.json
+ * (sync:references). Each is null when that model does not implement the
+ * instruction yet; the commit is returned either way so the panel can say
+ * which version it checked.
+ */
+export function referenceLinks(references, mnemonic) {
+  const entry = references?.instructions?.[String(mnemonic || '').toLowerCase()] || {};
+  const { sail, spike } = references || {};
+  const blob = (model, file) => `https://github.com/${model.repo}/blob/${model.commit}/${file}`;
+  return {
+    sail: {
+      url: sail && entry.sail ? `${blob(sail, sail.files[entry.sail[0]])}#L${entry.sail[1]}` : null,
+      commit: sail?.commit?.slice(0, 7) ?? null,
+    },
+    spike: {
+      url: spike && entry.spike ? blob(spike, `riscv/insns/${entry.spike}.h`) : null,
+      commit: spike?.commit?.slice(0, 7) ?? null,
+    },
+  };
+}

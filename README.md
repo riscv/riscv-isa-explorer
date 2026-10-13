@@ -60,7 +60,9 @@ get a dependency-resolved configuration with a valid `-march` string.
   concrete example, whether it is RV32- or RV64-only or has data-independent
   timing, the C intrinsic that emits it (from the RVV intrinsics and RISC-V C
   API specifications), and a link that opens the example compiled in Compiler
-  Explorer with the right `-march`.
+  Explorer with the right `-march`. Links to its code in the two reference
+  models, the Sail formal model and the Spike simulator, sit beside these; a
+  model that does not implement the instruction yet is shown greyed out.
 - **Watch the ISA grow.** **Evolution** plots every dated extension on the month
   it was ratified, over a cumulative curve banded by family.
 - **Link out to the specification.** Each extension links to the page that
@@ -98,6 +100,7 @@ knowing before changing anything:
 | `src/isa-dependency-graph.json` | dependencies, conflicts and parameter constraints, with a citation on every edge | [riscv-unified-db](https://github.com/riscv/riscv-unified-db) |
 | `src/isa-params.json` | parameter definitions: type, admissible values, when each exists | riscv-unified-db, generated; never edited by hand |
 | `src/instruction-metadata.json` | instruction descriptions, ownership and assembly syntax | riscv-unified-db, generated |
+| `src/instruction-references.json` | where each instruction is implemented in Sail and Spike | [sail-riscv](https://github.com/riscv/sail-riscv) and [riscv-isa-sim](https://github.com/riscv-software-src/riscv-isa-sim), generated, pinned to a commit of each |
 | `src/instruction-intrinsics.json` | the C intrinsics that emit each instruction | [rvv-intrinsic-doc](https://github.com/riscv-non-isa/rvv-intrinsic-doc) and [riscv-c-api-doc](https://github.com/riscv-non-isa/riscv-c-api-doc), generated |
 | `src/profiles.js` | supported profiles, mandatory extensions, spec links | the profile specifications (Volume III), by hand |
 | `src/profile-optional.json` | each profile's optional extensions | riscv-unified-db, resolved through its profile inheritance |
