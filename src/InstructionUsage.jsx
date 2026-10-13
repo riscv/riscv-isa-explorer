@@ -73,16 +73,32 @@ function Fact({ children, title }) {
 }
 
 const REFERENCE_MODELS = [
-  { key: 'sail', name: 'Sail', model: 'the Sail formal model' },
-  { key: 'spike', name: 'Spike', model: 'the Spike simulator' },
+  {
+    key: 'sail',
+    name: 'Sail',
+    open: 'Open the implementation in the Sail formal model',
+    missing: 'Not implemented in the Sail formal model yet',
+  },
+  {
+    key: 'spike',
+    name: 'Spike',
+    open: 'Open the implementation in the Spike simulator',
+    missing: 'Not implemented in the Spike simulator yet',
+  },
+  {
+    key: 'act',
+    name: 'ACT',
+    open: 'Open the Architectural Certification Test',
+    missing: 'No per-instruction Architectural Certification Test yet',
+  },
 ];
 
-function ReferenceLink({ name, model, url, commit }) {
+function ReferenceLink({ name, open, missing, url, commit, parts }) {
   if (!url) {
     return (
       <span
         className="inline-flex items-center px-2 py-1 rounded-sm text-[11px] cursor-not-allowed"
-        title={`Not implemented in ${model} yet (checked at ${commit})`}
+        title={`${missing} (checked at ${commit})`}
         style={{
           color: 'var(--riscv-text-3)',
           border: '1px dashed var(--riscv-border-2)',
@@ -94,13 +110,14 @@ function ReferenceLink({ name, model, url, commit }) {
       </span>
     );
   }
+  const part = parts > 1 ? `, part 1 of ${parts}` : '';
   return (
     <a
       className="inline-flex items-center gap-0.5 px-2 py-1 riscv-btn"
       href={url}
       target="_blank"
       rel="noreferrer"
-      data-tooltip={`Open the implementation in ${model} (commit ${commit})`}
+      data-tooltip={`${open} (commit ${commit}${part})`}
     >
       {name}
       <ArrowUpRight size={11} />
@@ -214,10 +231,10 @@ export default function InstructionUsage({ extension, instruction, catalogIds, e
       )}
 
       <div>
-        <Label expanded={expanded}>Reference implementations</Label>
+        <Label expanded={expanded}>Reference implementations and tests</Label>
         <div className="flex flex-wrap gap-1.5">
-          {REFERENCE_MODELS.map(({ key, name, model }) => (
-            <ReferenceLink key={key} name={name} model={model} {...usage.references[key]} />
+          {REFERENCE_MODELS.map(({ key, ...model }) => (
+            <ReferenceLink key={key} {...model} {...usage.references[key]} />
           ))}
         </div>
       </div>

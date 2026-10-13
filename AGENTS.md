@@ -43,7 +43,7 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run sync:check` | Check instruction drift, write nothing (`sync --strict`) |
 | `npm run sync:udb` | Sync extension metadata from riscv-unified-db |
 | `npm run sync:intrinsics -- <rvv-intrinsic-doc> <riscv-c-api-doc>` | Regenerate `src/instruction-intrinsics.json` |
-| `npm run sync:references -- <sail-riscv> <riscv-isa-sim>` | Regenerate `src/instruction-references.json` |
+| `npm run sync:references -- <sail-riscv> <riscv-isa-sim> <riscv-arch-test>` | Regenerate `src/instruction-references.json` |
 | `npm run sync:params -- <path-to-udb>` | Regenerate `src/isa-params.json` (UDB parameter definitions) |
 | `npm run graph:check -- <path-to-udb>` | Check dependency graph vs UDB |
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
@@ -73,8 +73,8 @@ src/
   ProfileDownloadMenu.jsx     # Download menu shown while a profile is highlighted
   focusTrap.js                # modal focus trapping
   configPermalink.js          # ?profile= and ?cfg= share links; shared builder-state sanitiser
-  InstructionUsage.jsx        # syntax, intrinsic, Compiler Explorer, Sail/Spike links
-  instructionUsage.js         # syntax, examples, per-instruction -march, godbolt and Sail/Spike URLs
+  InstructionUsage.jsx        # syntax, intrinsic, Compiler Explorer, Sail/Spike/ACT links
+  instructionUsage.js         # syntax, examples, per-instruction -march, godbolt and Sail/Spike/ACT URLs
   profiles.js                 # ratified profile definitions
   --- data (the source of truth) ---
   riscv_extensions.json       # extension catalogue + per-extension instruction encodings
@@ -83,7 +83,7 @@ src/
   instr_dict.json             # instruction encodings, HAND-MAINTAINED (see gotchas)
   instruction-metadata.json   # UDB descriptions + assembly templates, generated
   instruction-intrinsics.json # C intrinsics per instruction, generated (sync:intrinsics)
-  instruction-references.json # Sail and Spike source locations, generated (sync:references)
+  instruction-references.json # Sail/Spike source and ACT test locations, generated (sync:references)
 scripts/                      # sync/seed/check tooling (.mjs / .cjs)
   static-pages.mjs            # crawler-readable page per extension + sitemap, run by the build
 tests/                        # node:test suites (*.test.mjs)
@@ -209,6 +209,12 @@ Then `npm run sync` and `npm test && npm run build`.
   `--report` says which); new upstream commits alone don't, since every link
   is pinned and stays correct. A coverage drop fails the tests' floors and
   opens nothing: look at the parser first.
+  ACT links need no parser: riscv-arch-test keeps one test per instruction
+  at `tests/<xlen>/<Ext>/<Ext>-<mnemonic>-NN.S`. When several extensions test
+  the same mnemonic (csrrs under Zicsr, Zicntr, Zihpm), the directory of an
+  extension that owns the instruction in the catalogue wins. Vector, Q, H and
+  the privileged instructions have no per-instruction test there yet, so they
+  show greyed out; that is ACT's coverage, not a sync bug.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;
   eslint ignores both). Don't hand-edit `dist/`.
 - **`gh-pages` branch is machine-published** by CI on every push to `main`.

@@ -454,7 +454,7 @@ export function compilerExplorerUrl({ source, march }) {
  */
 export function referenceLinks(references, mnemonic) {
   const entry = references?.instructions?.[String(mnemonic || '').toLowerCase()] || {};
-  const { sail, spike } = references || {};
+  const { sail, spike, act } = references || {};
   const blob = (model, file) => `https://github.com/${model.repo}/blob/${model.commit}/${file}`;
   return {
     sail: {
@@ -464,6 +464,12 @@ export function referenceLinks(references, mnemonic) {
     spike: {
       url: spike && entry.spike ? blob(spike, `riscv/insns/${entry.spike}.h`) : null,
       commit: spike?.commit?.slice(0, 7) ?? null,
+    },
+    // Some tests are split into numbered parts; the link opens the first.
+    act: {
+      url: act && entry.act ? blob(act, `tests/${entry.act[0]}`) : null,
+      commit: act?.commit?.slice(0, 7) ?? null,
+      parts: entry.act?.[1] ?? 0,
     },
   };
 }

@@ -1,4 +1,4 @@
-name: Sync Sail and Spike links
+name: Sync Sail, Spike and ACT links
 
 on:
   # Weekly, Monday 08:00 UTC, in the free slot between check-opcodes-drift
@@ -37,13 +37,15 @@ jobs:
       - name: Checkout the explorer repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
-      - name: Clone sail-riscv and riscv-isa-sim
+      - name: Clone sail-riscv, riscv-isa-sim and riscv-arch-test
         id: upstream
         run: |
           git clone --depth 1 https://github.com/riscv/sail-riscv.git ../sail-riscv
           git clone --depth 1 https://github.com/riscv-software-src/riscv-isa-sim.git ../riscv-isa-sim
+          git clone --depth 1 https://github.com/riscv/riscv-arch-test.git ../riscv-arch-test
           echo "sail=$(git -C ../sail-riscv rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           echo "spike=$(git -C ../riscv-isa-sim rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "act=$(git -C ../riscv-arch-test rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
@@ -54,7 +56,7 @@ jobs:
         run: npm ci
 
       - name: Sync the links
-        run: node scripts/sync_reference_impls.mjs ../sail-riscv ../riscv-isa-sim --report "$RUNNER_TEMP/report.md"
+        run: node scripts/sync_reference_impls.mjs ../sail-riscv ../riscv-isa-sim ../riscv-arch-test --report "$RUNNER_TEMP/report.md"
 
       # Before the coverage gate below, so a drop is reported even when the
       # tests then fail: the report names exactly which links were lost.
@@ -96,7 +98,7 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
-          commit-message: 'data: sync Sail and Spike links'
+          commit-message: 'data: sync Sail, Spike and ACT links'
           # Same identity for author and committer, so the Signed-off-by trailer
           # matches the author and DCO passes; sign-commits because main requires
           # signed commits. See sync-udb-extensions.yml for the full story.
@@ -104,12 +106,13 @@ jobs:
           committer: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
           sign-commits: true
           signoff: true
-          title: 'data: sync Sail and Spike links'
+          title: 'data: sync Sail, Spike and ACT links'
           body: |
             Automated sync of the per-instruction links to
             [sail-riscv](https://github.com/riscv/sail-riscv) and
             [riscv-isa-sim](https://github.com/riscv-software-src/riscv-isa-sim)
-            (Spike).
+            (Spike), and to the per-instruction tests in
+            [riscv-arch-test](https://github.com/riscv/riscv-arch-test) (ACT).
 
             ${{ steps.changes.outputs.report }}
 
@@ -120,7 +123,9 @@ jobs:
             git -C ../sail-riscv checkout ${{ steps.upstream.outputs.sail }}
             git clone https://github.com/riscv-software-src/riscv-isa-sim.git ../riscv-isa-sim
             git -C ../riscv-isa-sim checkout ${{ steps.upstream.outputs.spike }}
-            npm run sync:references -- ../sail-riscv ../riscv-isa-sim
+            git clone https://github.com/riscv/riscv-arch-test.git ../riscv-arch-test
+            git -C ../riscv-arch-test checkout ${{ steps.upstream.outputs.act }}
+            npm run sync:references -- ../sail-riscv ../riscv-isa-sim ../riscv-arch-test
             ```
 
             `npm test` passed before this pull request was opened, so coverage

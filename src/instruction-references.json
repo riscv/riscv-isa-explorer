@@ -66,454 +66,714 @@
     "repo": "riscv-software-src/riscv-isa-sim",
     "commit": "f8a060b7bea8da6f738f193ed1b66b665978d092"
   },
+  "act": {
+    "repo": "riscv/riscv-arch-test",
+    "commit": "0f2951e507a2d136db50b7ba60f8fdc32f60552a"
+  },
   "instructions": {
     "add": {
       "sail": [
         0,
         239
       ],
-      "spike": "add"
+      "spike": "add",
+      "act": [
+        "rv64i/I/I-add-00.S",
+        1
+      ]
     },
     "add.uw": {
       "sail": [
         1,
         53
       ],
-      "spike": "add_uw"
+      "spike": "add_uw",
+      "act": [
+        "rv64i/Zba/Zba-add.uw-00.S",
+        1
+      ]
     },
     "addi": {
       "sail": [
         0,
         161
       ],
-      "spike": "addi"
+      "spike": "addi",
+      "act": [
+        "rv64i/I/I-addi-00.S",
+        1
+      ]
     },
     "addiw": {
       "sail": [
         0,
         344
       ],
-      "spike": "addiw"
+      "spike": "addiw",
+      "act": [
+        "rv64i/I/I-addiw-00.S",
+        1
+      ]
     },
     "addw": {
       "sail": [
         0,
         378
       ],
-      "spike": "addw"
+      "spike": "addw",
+      "act": [
+        "rv64i/I/I-addw-00.S",
+        1
+      ]
     },
     "aes32dsi": {
       "sail": [
         2,
         159
       ],
-      "spike": "aes32dsi"
+      "spike": "aes32dsi",
+      "act": [
+        "rv32i/Zknd/Zknd-aes32dsi-00.S",
+        1
+      ]
     },
     "aes32dsmi": {
       "sail": [
         2,
         139
       ],
-      "spike": "aes32dsmi"
+      "spike": "aes32dsmi",
+      "act": [
+        "rv32i/Zknd/Zknd-aes32dsmi-00.S",
+        1
+      ]
     },
     "aes32esi": {
       "sail": [
         2,
         115
       ],
-      "spike": "aes32esi"
+      "spike": "aes32esi",
+      "act": [
+        "rv32i/Zkne/Zkne-aes32esi-00.S",
+        1
+      ]
     },
     "aes32esmi": {
       "sail": [
         2,
         95
       ],
-      "spike": "aes32esmi"
+      "spike": "aes32esmi",
+      "act": [
+        "rv32i/Zkne/Zkne-aes32esmi-00.S",
+        1
+      ]
     },
     "aes64ds": {
       "sail": [
         2,
         384
       ],
-      "spike": "aes64ds"
+      "spike": "aes64ds",
+      "act": [
+        "rv64i/Zknd/Zknd-aes64ds-00.S",
+        1
+      ]
     },
     "aes64dsm": {
       "sail": [
         2,
         375
       ],
-      "spike": "aes64dsm"
+      "spike": "aes64dsm",
+      "act": [
+        "rv64i/Zknd/Zknd-aes64dsm-00.S",
+        1
+      ]
     },
     "aes64es": {
       "sail": [
         2,
         367
       ],
-      "spike": "aes64es"
+      "spike": "aes64es",
+      "act": [
+        "rv64i/Zkne/Zkne-aes64es-00.S",
+        1
+      ]
     },
     "aes64esm": {
       "sail": [
         2,
         358
       ],
-      "spike": "aes64esm"
+      "spike": "aes64esm",
+      "act": [
+        "rv64i/Zkne/Zkne-aes64esm-00.S",
+        1
+      ]
     },
     "aes64im": {
       "sail": [
         2,
         350
       ],
-      "spike": "aes64im"
+      "spike": "aes64im",
+      "act": [
+        "rv64i/Zknd/Zknd-aes64im-00.S",
+        1
+      ]
     },
     "aes64ks1i": {
       "sail": [
         2,
         332
       ],
-      "spike": "aes64ks1i"
+      "spike": "aes64ks1i",
+      "act": [
+        "rv64i/Zknd/Zknd-aes64ks1i-00.S",
+        1
+      ]
     },
     "aes64ks2": {
       "sail": [
         2,
         342
       ],
-      "spike": "aes64ks2"
+      "spike": "aes64ks2",
+      "act": [
+        "rv64i/Zknd/Zknd-aes64ks2-00.S",
+        1
+      ]
     },
     "amoadd.b": {
       "sail": [
         3,
         129
       ],
-      "spike": "amoadd_b"
+      "spike": "amoadd_b",
+      "act": [
+        "rv64i/Zabha/Zabha-amoadd.b-00.S",
+        1
+      ]
     },
     "amoadd.d": {
       "sail": [
         3,
         129
       ],
-      "spike": "amoadd_d"
+      "spike": "amoadd_d",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amoadd.d-00.S",
+        1
+      ]
     },
     "amoadd.h": {
       "sail": [
         3,
         129
       ],
-      "spike": "amoadd_h"
+      "spike": "amoadd_h",
+      "act": [
+        "rv64i/Zabha/Zabha-amoadd.h-00.S",
+        1
+      ]
     },
     "amoadd.w": {
       "sail": [
         3,
         129
       ],
-      "spike": "amoadd_w"
+      "spike": "amoadd_w",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amoadd.w-00.S",
+        1
+      ]
     },
     "amoand.b": {
       "sail": [
         3,
         131
       ],
-      "spike": "amoand_b"
+      "spike": "amoand_b",
+      "act": [
+        "rv64i/Zabha/Zabha-amoand.b-00.S",
+        1
+      ]
     },
     "amoand.d": {
       "sail": [
         3,
         131
       ],
-      "spike": "amoand_d"
+      "spike": "amoand_d",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amoand.d-00.S",
+        1
+      ]
     },
     "amoand.h": {
       "sail": [
         3,
         131
       ],
-      "spike": "amoand_h"
+      "spike": "amoand_h",
+      "act": [
+        "rv64i/Zabha/Zabha-amoand.h-00.S",
+        1
+      ]
     },
     "amoand.w": {
       "sail": [
         3,
         131
       ],
-      "spike": "amoand_w"
+      "spike": "amoand_w",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amoand.w-00.S",
+        1
+      ]
     },
     "amocas.b": {
       "sail": [
         3,
         138
       ],
-      "spike": "amocas_b"
+      "spike": "amocas_b",
+      "act": [
+        "rv64i/Zacas/ZacasZabha-amocas.b-00.S",
+        1
+      ]
     },
     "amocas.d": {
       "sail": [
         3,
         138
       ],
-      "spike": "amocas_d"
+      "spike": "amocas_d",
+      "act": [
+        "rv64i/Zacas/Zacas-amocas.d-00.S",
+        1
+      ]
     },
     "amocas.h": {
       "sail": [
         3,
         138
       ],
-      "spike": "amocas_h"
+      "spike": "amocas_h",
+      "act": [
+        "rv64i/Zacas/ZacasZabha-amocas.h-00.S",
+        1
+      ]
     },
     "amocas.q": {
       "sail": [
         3,
         138
       ],
-      "spike": "amocas_q"
+      "spike": "amocas_q",
+      "act": [
+        "rv64i/Zacas/Zacas-amocas.q-00.S",
+        1
+      ]
     },
     "amocas.w": {
       "sail": [
         3,
         138
       ],
-      "spike": "amocas_w"
+      "spike": "amocas_w",
+      "act": [
+        "rv64i/Zacas/Zacas-amocas.w-00.S",
+        1
+      ]
     },
     "amomax.b": {
       "sail": [
         3,
         134
       ],
-      "spike": "amomax_b"
+      "spike": "amomax_b",
+      "act": [
+        "rv64i/Zabha/Zabha-amomax.b-00.S",
+        1
+      ]
     },
     "amomax.d": {
       "sail": [
         3,
         134
       ],
-      "spike": "amomax_d"
+      "spike": "amomax_d",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amomax.d-00.S",
+        1
+      ]
     },
     "amomax.h": {
       "sail": [
         3,
         134
       ],
-      "spike": "amomax_h"
+      "spike": "amomax_h",
+      "act": [
+        "rv64i/Zabha/Zabha-amomax.h-00.S",
+        1
+      ]
     },
     "amomax.w": {
       "sail": [
         3,
         134
       ],
-      "spike": "amomax_w"
+      "spike": "amomax_w",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amomax.w-00.S",
+        1
+      ]
     },
     "amomaxu.b": {
       "sail": [
         3,
         136
       ],
-      "spike": "amomaxu_b"
+      "spike": "amomaxu_b",
+      "act": [
+        "rv64i/Zabha/Zabha-amomaxu.b-00.S",
+        1
+      ]
     },
     "amomaxu.d": {
       "sail": [
         3,
         136
       ],
-      "spike": "amomaxu_d"
+      "spike": "amomaxu_d",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amomaxu.d-00.S",
+        1
+      ]
     },
     "amomaxu.h": {
       "sail": [
         3,
         136
       ],
-      "spike": "amomaxu_h"
+      "spike": "amomaxu_h",
+      "act": [
+        "rv64i/Zabha/Zabha-amomaxu.h-00.S",
+        1
+      ]
     },
     "amomaxu.w": {
       "sail": [
         3,
         136
       ],
-      "spike": "amomaxu_w"
+      "spike": "amomaxu_w",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amomaxu.w-00.S",
+        1
+      ]
     },
     "amomin.b": {
       "sail": [
         3,
         133
       ],
-      "spike": "amomin_b"
+      "spike": "amomin_b",
+      "act": [
+        "rv64i/Zabha/Zabha-amomin.b-00.S",
+        1
+      ]
     },
     "amomin.d": {
       "sail": [
         3,
         133
       ],
-      "spike": "amomin_d"
+      "spike": "amomin_d",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amomin.d-00.S",
+        1
+      ]
     },
     "amomin.h": {
       "sail": [
         3,
         133
       ],
-      "spike": "amomin_h"
+      "spike": "amomin_h",
+      "act": [
+        "rv64i/Zabha/Zabha-amomin.h-00.S",
+        1
+      ]
     },
     "amomin.w": {
       "sail": [
         3,
         133
       ],
-      "spike": "amomin_w"
+      "spike": "amomin_w",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amomin.w-00.S",
+        1
+      ]
     },
     "amominu.b": {
       "sail": [
         3,
         135
       ],
-      "spike": "amominu_b"
+      "spike": "amominu_b",
+      "act": [
+        "rv64i/Zabha/Zabha-amominu.b-00.S",
+        1
+      ]
     },
     "amominu.d": {
       "sail": [
         3,
         135
       ],
-      "spike": "amominu_d"
+      "spike": "amominu_d",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amominu.d-00.S",
+        1
+      ]
     },
     "amominu.h": {
       "sail": [
         3,
         135
       ],
-      "spike": "amominu_h"
+      "spike": "amominu_h",
+      "act": [
+        "rv64i/Zabha/Zabha-amominu.h-00.S",
+        1
+      ]
     },
     "amominu.w": {
       "sail": [
         3,
         135
       ],
-      "spike": "amominu_w"
+      "spike": "amominu_w",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amominu.w-00.S",
+        1
+      ]
     },
     "amoor.b": {
       "sail": [
         3,
         132
       ],
-      "spike": "amoor_b"
+      "spike": "amoor_b",
+      "act": [
+        "rv64i/Zabha/Zabha-amoor.b-00.S",
+        1
+      ]
     },
     "amoor.d": {
       "sail": [
         3,
         132
       ],
-      "spike": "amoor_d"
+      "spike": "amoor_d",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amoor.d-00.S",
+        1
+      ]
     },
     "amoor.h": {
       "sail": [
         3,
         132
       ],
-      "spike": "amoor_h"
+      "spike": "amoor_h",
+      "act": [
+        "rv64i/Zabha/Zabha-amoor.h-00.S",
+        1
+      ]
     },
     "amoor.w": {
       "sail": [
         3,
         132
       ],
-      "spike": "amoor_w"
+      "spike": "amoor_w",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amoor.w-00.S",
+        1
+      ]
     },
     "amoswap.b": {
       "sail": [
         3,
         128
       ],
-      "spike": "amoswap_b"
+      "spike": "amoswap_b",
+      "act": [
+        "rv64i/Zabha/Zabha-amoswap.b-00.S",
+        1
+      ]
     },
     "amoswap.d": {
       "sail": [
         3,
         128
       ],
-      "spike": "amoswap_d"
+      "spike": "amoswap_d",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amoswap.d-00.S",
+        1
+      ]
     },
     "amoswap.h": {
       "sail": [
         3,
         128
       ],
-      "spike": "amoswap_h"
+      "spike": "amoswap_h",
+      "act": [
+        "rv64i/Zabha/Zabha-amoswap.h-00.S",
+        1
+      ]
     },
     "amoswap.w": {
       "sail": [
         3,
         128
       ],
-      "spike": "amoswap_w"
+      "spike": "amoswap_w",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amoswap.w-00.S",
+        1
+      ]
     },
     "amoxor.b": {
       "sail": [
         3,
         130
       ],
-      "spike": "amoxor_b"
+      "spike": "amoxor_b",
+      "act": [
+        "rv64i/Zabha/Zabha-amoxor.b-00.S",
+        1
+      ]
     },
     "amoxor.d": {
       "sail": [
         3,
         130
       ],
-      "spike": "amoxor_d"
+      "spike": "amoxor_d",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amoxor.d-00.S",
+        1
+      ]
     },
     "amoxor.h": {
       "sail": [
         3,
         130
       ],
-      "spike": "amoxor_h"
+      "spike": "amoxor_h",
+      "act": [
+        "rv64i/Zabha/Zabha-amoxor.h-00.S",
+        1
+      ]
     },
     "amoxor.w": {
       "sail": [
         3,
         130
       ],
-      "spike": "amoxor_w"
+      "spike": "amoxor_w",
+      "act": [
+        "rv64i/Zaamo/Zaamo-amoxor.w-00.S",
+        1
+      ]
     },
     "and": {
       "sail": [
         0,
         242
       ],
-      "spike": "and"
+      "spike": "and",
+      "act": [
+        "rv64i/I/I-and-00.S",
+        1
+      ]
     },
     "andi": {
       "sail": [
         0,
         164
       ],
-      "spike": "andi"
+      "spike": "andi",
+      "act": [
+        "rv64i/I/I-andi-00.S",
+        1
+      ]
     },
     "andn": {
       "sail": [
         4,
         146
       ],
-      "spike": "andn"
+      "spike": "andn",
+      "act": [
+        "rv64i/Zbb/Zbb-andn-00.S",
+        1
+      ]
     },
     "auipc": {
       "sail": [
         0,
         31
       ],
-      "spike": "auipc"
+      "spike": "auipc",
+      "act": [
+        "rv64i/I/I-auipc-00.S",
+        1
+      ]
     },
     "bclr": {
       "sail": [
         5,
         101
       ],
-      "spike": "bclr"
+      "spike": "bclr",
+      "act": [
+        "rv64i/Zbs/Zbs-bclr-00.S",
+        1
+      ]
     },
     "bclri": {
       "sail": [
         5,
         51
       ],
-      "spike": "bclri"
+      "spike": "bclri",
+      "act": [
+        "rv64i/Zbs/Zbs-bclri-00.S",
+        1
+      ]
     },
     "beq": {
       "sail": [
         0,
         118
       ],
-      "spike": "beq"
+      "spike": "beq",
+      "act": [
+        "rv64i/I/I-beq-00.S",
+        1
+      ]
     },
     "beqi": {
       "sail": [
@@ -527,63 +787,99 @@
         5,
         102
       ],
-      "spike": "bext"
+      "spike": "bext",
+      "act": [
+        "rv64i/Zbs/Zbs-bext-00.S",
+        1
+      ]
     },
     "bexti": {
       "sail": [
         5,
         52
       ],
-      "spike": "bexti"
+      "spike": "bexti",
+      "act": [
+        "rv64i/Zbs/Zbs-bexti-00.S",
+        1
+      ]
     },
     "bge": {
       "sail": [
         0,
         121
       ],
-      "spike": "bge"
+      "spike": "bge",
+      "act": [
+        "rv64i/I/I-bge-00.S",
+        1
+      ]
     },
     "bgeu": {
       "sail": [
         0,
         123
       ],
-      "spike": "bgeu"
+      "spike": "bgeu",
+      "act": [
+        "rv64i/I/I-bgeu-00.S",
+        1
+      ]
     },
     "binv": {
       "sail": [
         5,
         103
       ],
-      "spike": "binv"
+      "spike": "binv",
+      "act": [
+        "rv64i/Zbs/Zbs-binv-00.S",
+        1
+      ]
     },
     "binvi": {
       "sail": [
         5,
         53
       ],
-      "spike": "binvi"
+      "spike": "binvi",
+      "act": [
+        "rv64i/Zbs/Zbs-binvi-00.S",
+        1
+      ]
     },
     "blt": {
       "sail": [
         0,
         120
       ],
-      "spike": "blt"
+      "spike": "blt",
+      "act": [
+        "rv64i/I/I-blt-00.S",
+        1
+      ]
     },
     "bltu": {
       "sail": [
         0,
         122
       ],
-      "spike": "bltu"
+      "spike": "bltu",
+      "act": [
+        "rv64i/I/I-bltu-00.S",
+        1
+      ]
     },
     "bne": {
       "sail": [
         0,
         119
       ],
-      "spike": "bne"
+      "spike": "bne",
+      "act": [
+        "rv64i/I/I-bne-00.S",
+        1
+      ]
     },
     "bnei": {
       "sail": [
@@ -597,91 +893,143 @@
         7,
         119
       ],
-      "spike": "brev8"
+      "spike": "brev8",
+      "act": [
+        "rv64i/Zbkb/Zbkb-brev8-00.S",
+        1
+      ]
     },
     "bset": {
       "sail": [
         5,
         104
       ],
-      "spike": "bset"
+      "spike": "bset",
+      "act": [
+        "rv64i/Zbs/Zbs-bset-00.S",
+        1
+      ]
     },
     "bseti": {
       "sail": [
         5,
         54
       ],
-      "spike": "bseti"
+      "spike": "bseti",
+      "act": [
+        "rv64i/Zbs/Zbs-bseti-00.S",
+        1
+      ]
     },
     "c.add": {
       "sail": [
         8,
         546
       ],
-      "spike": "c_add"
+      "spike": "c_add",
+      "act": [
+        "rv64i/Zca/Zca-c.add-00.S",
+        1
+      ]
     },
     "c.addi": {
       "sail": [
         8,
         129
       ],
-      "spike": "c_addi"
+      "spike": "c_addi",
+      "act": [
+        "rv64i/Zca/Zca-c.addi-00.S",
+        1
+      ]
     },
     "c.addi16sp": {
       "sail": [
         8,
         189
       ],
-      "spike": "c_lui"
+      "spike": "c_lui",
+      "act": [
+        "rv64i/Zca/Zca-c.addi16sp-00.S",
+        1
+      ]
     },
     "c.addi4spn": {
       "sail": [
         8,
         40
       ],
-      "spike": "c_addi4spn"
+      "spike": "c_addi4spn",
+      "act": [
+        "rv64i/Zca/Zca-c.addi4spn-00.S",
+        1
+      ]
     },
     "c.addiw": {
       "sail": [
         8,
         159
       ],
-      "spike": "c_jal"
+      "spike": "c_jal",
+      "act": [
+        "rv64i/Zca/Zca-c.addiw-00.S",
+        1
+      ]
     },
     "c.addw": {
       "sail": [
         8,
         353
       ],
-      "spike": "c_addw"
+      "spike": "c_addw",
+      "act": [
+        "rv64i/Zca/Zca-c.addw-00.S",
+        1
+      ]
     },
     "c.and": {
       "sail": [
         8,
         320
       ],
-      "spike": "c_and"
+      "spike": "c_and",
+      "act": [
+        "rv64i/Zca/Zca-c.and-00.S",
+        1
+      ]
     },
     "c.andi": {
       "sail": [
         8,
         257
       ],
-      "spike": "c_andi"
+      "spike": "c_andi",
+      "act": [
+        "rv64i/Zca/Zca-c.andi-00.S",
+        1
+      ]
     },
     "c.beqz": {
       "sail": [
         8,
         383
       ],
-      "spike": "c_beqz"
+      "spike": "c_beqz",
+      "act": [
+        "rv64i/Zca/Zca-c.beqz-00.S",
+        1
+      ]
     },
     "c.bnez": {
       "sail": [
         8,
         396
       ],
-      "spike": "c_bnez"
+      "spike": "c_bnez",
+      "act": [
+        "rv64i/Zca/Zca-c.bnez-00.S",
+        1
+      ]
     },
     "c.ebreak": {
       "sail": [
@@ -695,98 +1043,154 @@
         9,
         47
       ],
-      "spike": "c_fld"
+      "spike": "c_fld",
+      "act": [
+        "rv64i/Zcd/Zcd-c.fld-00.S",
+        1
+      ]
     },
     "c.fldsp": {
       "sail": [
         9,
         17
       ],
-      "spike": "c_fldsp"
+      "spike": "c_fldsp",
+      "act": [
+        "rv64i/Zcd/Zcd-c.fldsp-00.S",
+        1
+      ]
     },
     "c.flw": {
       "sail": [
         10,
         49
       ],
-      "spike": "c_flw"
+      "spike": "c_flw",
+      "act": [
+        "rv32i/Zcf/Zcf-c.flw-00.S",
+        1
+      ]
     },
     "c.flwsp": {
       "sail": [
         10,
         17
       ],
-      "spike": "c_flwsp"
+      "spike": "c_flwsp",
+      "act": [
+        "rv32i/Zcf/Zcf-c.flwsp-00.S",
+        1
+      ]
     },
     "c.fsd": {
       "sail": [
         9,
         64
       ],
-      "spike": "c_fsd"
+      "spike": "c_fsd",
+      "act": [
+        "rv64i/Zcd/Zcd-c.fsd-00.S",
+        1
+      ]
     },
     "c.fsdsp": {
       "sail": [
         9,
         32
       ],
-      "spike": "c_fsdsp"
+      "spike": "c_fsdsp",
+      "act": [
+        "rv64i/Zcd/Zcd-c.fsdsp-00.S",
+        1
+      ]
     },
     "c.fsw": {
       "sail": [
         10,
         67
       ],
-      "spike": "c_fsw"
+      "spike": "c_fsw",
+      "act": [
+        "rv32i/Zcf/Zcf-c.fsw-00.S",
+        1
+      ]
     },
     "c.fswsp": {
       "sail": [
         10,
         33
       ],
-      "spike": "c_fswsp"
+      "spike": "c_fswsp",
+      "act": [
+        "rv32i/Zcf/Zcf-c.fswsp-00.S",
+        1
+      ]
     },
     "c.j": {
       "sail": [
         8,
         370
       ],
-      "spike": "c_j"
+      "spike": "c_j",
+      "act": [
+        "rv64i/Zca/Zca-c.j-00.S",
+        1
+      ]
     },
     "c.jal": {
       "sail": [
         8,
         145
       ],
-      "spike": "c_jal"
+      "spike": "c_jal",
+      "act": [
+        "rv32i/Zca/Zca-c.jal-00.S",
+        1
+      ]
     },
     "c.jalr": {
       "sail": [
         8,
         501
       ],
-      "spike": "c_jalr"
+      "spike": "c_jalr",
+      "act": [
+        "rv64i/Zca/Zca-c.jalr-00.S",
+        1
+      ]
     },
     "c.jr": {
       "sail": [
         8,
         487
       ],
-      "spike": "c_jr"
+      "spike": "c_jr",
+      "act": [
+        "rv64i/Zca/Zca-c.jr-00.S",
+        1
+      ]
     },
     "c.lbu": {
       "sail": [
         11,
         21
       ],
-      "spike": "c_lbu"
+      "spike": "c_lbu",
+      "act": [
+        "rv64i/Zcb/Zcb-c.lbu-00.S",
+        1
+      ]
     },
     "c.ld": {
       "sail": [
         8,
         74
       ],
-      "spike": "c_ld"
+      "spike": "c_ld",
+      "act": [
+        "rv64i/Zca/Zca-c.ld-00.S",
+        1
+      ]
     },
     "c.ld.rv32": {
       "spike": "c_ld"
@@ -796,7 +1200,11 @@
         8,
         440
       ],
-      "spike": "c_ldsp"
+      "spike": "c_ldsp",
+      "act": [
+        "rv64i/Zca/Zca-c.ldsp-00.S",
+        1
+      ]
     },
     "c.ldsp.rv32": {
       "spike": "c_ldsp"
@@ -806,147 +1214,231 @@
         11,
         59
       ],
-      "spike": "c_lh"
+      "spike": "c_lh",
+      "act": [
+        "rv64i/Zcb/Zcb-c.lh-00.S",
+        1
+      ]
     },
     "c.lhu": {
       "sail": [
         11,
         40
       ],
-      "spike": "c_lhu"
+      "spike": "c_lhu",
+      "act": [
+        "rv64i/Zcb/Zcb-c.lhu-00.S",
+        1
+      ]
     },
     "c.li": {
       "sail": [
         8,
         174
       ],
-      "spike": "c_li"
+      "spike": "c_li",
+      "act": [
+        "rv64i/Zca/Zca-c.li-00.S",
+        1
+      ]
     },
     "c.lui": {
       "sail": [
         8,
         208
       ],
-      "spike": "c_lui"
+      "spike": "c_lui",
+      "act": [
+        "rv64i/Zca/Zca-c.lui-00.S",
+        1
+      ]
     },
     "c.lw": {
       "sail": [
         8,
         57
       ],
-      "spike": "c_lw"
+      "spike": "c_lw",
+      "act": [
+        "rv64i/Zca/Zca-c.lw-00.S",
+        1
+      ]
     },
     "c.lwsp": {
       "sail": [
         8,
         424
       ],
-      "spike": "c_lwsp"
+      "spike": "c_lwsp",
+      "act": [
+        "rv64i/Zca/Zca-c.lwsp-00.S",
+        1
+      ]
     },
     "c.mop.1": {
       "sail": [
         12,
         20
       ],
-      "spike": "c_mop_N"
+      "spike": "c_mop_N",
+      "act": [
+        "rv64i/Zcmop/Zcmop-c.mop.1-00.S",
+        1
+      ]
     },
     "c.mop.11": {
       "sail": [
         12,
         20
       ],
-      "spike": "c_mop_N"
+      "spike": "c_mop_N",
+      "act": [
+        "rv64i/Zcmop/Zcmop-c.mop.11-00.S",
+        1
+      ]
     },
     "c.mop.13": {
       "sail": [
         12,
         20
       ],
-      "spike": "c_mop_N"
+      "spike": "c_mop_N",
+      "act": [
+        "rv64i/Zcmop/Zcmop-c.mop.13-00.S",
+        1
+      ]
     },
     "c.mop.15": {
       "sail": [
         12,
         20
       ],
-      "spike": "c_mop_N"
+      "spike": "c_mop_N",
+      "act": [
+        "rv64i/Zcmop/Zcmop-c.mop.15-00.S",
+        1
+      ]
     },
     "c.mop.3": {
       "sail": [
         12,
         20
       ],
-      "spike": "c_mop_N"
+      "spike": "c_mop_N",
+      "act": [
+        "rv64i/Zcmop/Zcmop-c.mop.3-00.S",
+        1
+      ]
     },
     "c.mop.5": {
       "sail": [
         12,
         20
       ],
-      "spike": "c_mop_N"
+      "spike": "c_mop_N",
+      "act": [
+        "rv64i/Zcmop/Zcmop-c.mop.5-00.S",
+        1
+      ]
     },
     "c.mop.7": {
       "sail": [
         12,
         20
       ],
-      "spike": "c_mop_N"
+      "spike": "c_mop_N",
+      "act": [
+        "rv64i/Zcmop/Zcmop-c.mop.7-00.S",
+        1
+      ]
     },
     "c.mop.9": {
       "sail": [
         12,
         20
       ],
-      "spike": "c_mop_N"
+      "spike": "c_mop_N",
+      "act": [
+        "rv64i/Zcmop/Zcmop-c.mop.9-00.S",
+        1
+      ]
     },
     "c.mul": {
       "sail": [
         11,
         220
       ],
-      "spike": "c_mul"
+      "spike": "c_mul",
+      "act": [
+        "rv64i/Zcb/ZcbZmmul-c.mul-00.S",
+        1
+      ]
     },
     "c.mv": {
       "sail": [
         8,
         517
       ],
-      "spike": "c_mv"
+      "spike": "c_mv",
+      "act": [
+        "rv64i/Zca/Zca-c.mv-00.S",
+        1
+      ]
     },
     "c.nop": {
       "sail": [
         8,
         22
       ],
-      "spike": "c_addi"
+      "spike": "c_addi",
+      "act": [
+        "rv64i/Zca/Zca-c.nop-00.S",
+        1
+      ]
     },
     "c.not": {
       "sail": [
         11,
         202
       ],
-      "spike": "c_not"
+      "spike": "c_not",
+      "act": [
+        "rv64i/Zcb/Zcb-c.not-00.S",
+        1
+      ]
     },
     "c.or": {
       "sail": [
         8,
         304
       ],
-      "spike": "c_or"
+      "spike": "c_or",
+      "act": [
+        "rv64i/Zca/Zca-c.or-00.S",
+        1
+      ]
     },
     "c.sb": {
       "sail": [
         11,
         78
       ],
-      "spike": "c_sb"
+      "spike": "c_sb",
+      "act": [
+        "rv64i/Zcb/Zcb-c.sb-00.S",
+        1
+      ]
     },
     "c.sd": {
       "sail": [
         8,
         109
       ],
-      "spike": "c_sd"
+      "spike": "c_sd",
+      "act": [
+        "rv64i/Zca/Zca-c.sd-00.S",
+        1
+      ]
     },
     "c.sd.rv32": {
       "spike": "c_sd"
@@ -956,7 +1448,11 @@
         8,
         471
       ],
-      "spike": "c_sdsp"
+      "spike": "c_sdsp",
+      "act": [
+        "rv64i/Zca/Zca-c.sdsp-00.S",
+        1
+      ]
     },
     "c.sdsp.rv32": {
       "spike": "c_sdsp"
@@ -966,161 +1462,253 @@
         11,
         134
       ],
-      "spike": "c_sext_b"
+      "spike": "c_sext_b",
+      "act": [
+        "rv64i/Zcb/ZcbZbb-c.sext.b-00.S",
+        1
+      ]
     },
     "c.sext.h": {
       "sail": [
         11,
         168
       ],
-      "spike": "c_sext_h"
+      "spike": "c_sext_h",
+      "act": [
+        "rv64i/Zcb/ZcbZbb-c.sext.h-00.S",
+        1
+      ]
     },
     "c.sh": {
       "sail": [
         11,
         97
       ],
-      "spike": "c_sh"
+      "spike": "c_sh",
+      "act": [
+        "rv64i/Zcb/Zcb-c.sh-00.S",
+        1
+      ]
     },
     "c.slli": {
       "sail": [
         8,
         411
       ],
-      "spike": "c_slli"
+      "spike": "c_slli",
+      "act": [
+        "rv64i/Zca/Zca-c.slli-00.S",
+        1
+      ]
     },
     "c.srai": {
       "sail": [
         8,
         241
       ],
-      "spike": "c_srai"
+      "spike": "c_srai",
+      "act": [
+        "rv64i/Zca/Zca-c.srai-00.S",
+        1
+      ]
     },
     "c.srli": {
       "sail": [
         8,
         225
       ],
-      "spike": "c_srli"
+      "spike": "c_srli",
+      "act": [
+        "rv64i/Zca/Zca-c.srli-00.S",
+        1
+      ]
     },
     "c.sub": {
       "sail": [
         8,
         272
       ],
-      "spike": "c_sub"
+      "spike": "c_sub",
+      "act": [
+        "rv64i/Zca/Zca-c.sub-00.S",
+        1
+      ]
     },
     "c.subw": {
       "sail": [
         8,
         336
       ],
-      "spike": "c_subw"
+      "spike": "c_subw",
+      "act": [
+        "rv64i/Zca/Zca-c.subw-00.S",
+        1
+      ]
     },
     "c.sw": {
       "sail": [
         8,
         92
       ],
-      "spike": "c_sw"
+      "spike": "c_sw",
+      "act": [
+        "rv64i/Zca/Zca-c.sw-00.S",
+        1
+      ]
     },
     "c.swsp": {
       "sail": [
         8,
         456
       ],
-      "spike": "c_swsp"
+      "spike": "c_swsp",
+      "act": [
+        "rv64i/Zca/Zca-c.swsp-00.S",
+        1
+      ]
     },
     "c.xor": {
       "sail": [
         8,
         288
       ],
-      "spike": "c_xor"
+      "spike": "c_xor",
+      "act": [
+        "rv64i/Zca/Zca-c.xor-00.S",
+        1
+      ]
     },
     "c.zext.b": {
       "sail": [
         11,
         116
       ],
-      "spike": "c_zext_b"
+      "spike": "c_zext_b",
+      "act": [
+        "rv64i/Zcb/Zcb-c.zext.b-00.S",
+        1
+      ]
     },
     "c.zext.h": {
       "sail": [
         11,
         151
       ],
-      "spike": "c_zext_h"
+      "spike": "c_zext_h",
+      "act": [
+        "rv64i/Zcb/ZcbZbb-c.zext.h-00.S",
+        1
+      ]
     },
     "c.zext.w": {
       "sail": [
         11,
         185
       ],
-      "spike": "c_zext_w"
+      "spike": "c_zext_w",
+      "act": [
+        "rv64i/Zcb/ZcbZba-c.zext.w-00.S",
+        1
+      ]
     },
     "cbo.clean": {
       "sail": [
         13,
         112
       ],
-      "spike": "cbo_clean"
+      "spike": "cbo_clean",
+      "act": [
+        "rv64i/Zicbom/Zicbom-cbo.clean-00.S",
+        1
+      ]
     },
     "cbo.flush": {
       "sail": [
         13,
         119
       ],
-      "spike": "cbo_flush"
+      "spike": "cbo_flush",
+      "act": [
+        "rv64i/Zicbom/Zicbom-cbo.flush-00.S",
+        1
+      ]
     },
     "cbo.inval": {
       "sail": [
         13,
         126
       ],
-      "spike": "cbo_inval"
+      "spike": "cbo_inval",
+      "act": [
+        "rv64i/Zicbom/Zicbom-cbo.inval-00.S",
+        1
+      ]
     },
     "cbo.zero": {
       "sail": [
         14,
         24
       ],
-      "spike": "cbo_zero"
+      "spike": "cbo_zero",
+      "act": [
+        "rv64i/Zicboz/Zicboz-cbo.zero-00.S",
+        1
+      ]
     },
     "clmul": {
       "sail": [
         15,
         23
       ],
-      "spike": "clmul"
+      "spike": "clmul",
+      "act": [
+        "rv64i/Zbc/Zbc-clmul-00.S",
+        1
+      ]
     },
     "clmulh": {
       "sail": [
         15,
         40
       ],
-      "spike": "clmulh"
+      "spike": "clmulh",
+      "act": [
+        "rv64i/Zbc/Zbc-clmulh-00.S",
+        1
+      ]
     },
     "clmulr": {
       "sail": [
         15,
         57
       ],
-      "spike": "clmulr"
+      "spike": "clmulr",
+      "act": [
+        "rv64i/Zbc/Zbc-clmulr-00.S",
+        1
+      ]
     },
     "clz": {
       "sail": [
         4,
         289
       ],
-      "spike": "clz"
+      "spike": "clz",
+      "act": [
+        "rv64i/Zbb/Zbb-clz-00.S",
+        1
+      ]
     },
     "clzw": {
       "sail": [
         4,
         305
       ],
-      "spike": "clzw"
+      "spike": "clzw",
+      "act": [
+        "rv64i/Zbb/Zbb-clzw-00.S",
+        1
+      ]
     },
     "cm.jalt": {
       "spike": "cm_jalt"
@@ -1151,112 +1739,176 @@
         4,
         257
       ],
-      "spike": "cpop"
+      "spike": "cpop",
+      "act": [
+        "rv64i/Zbb/Zbb-cpop-00.S",
+        1
+      ]
     },
     "cpopw": {
       "sail": [
         4,
         273
       ],
-      "spike": "cpopw"
+      "spike": "cpopw",
+      "act": [
+        "rv64i/Zbb/Zbb-cpopw-00.S",
+        1
+      ]
     },
     "csrrc": {
       "sail": [
         16,
         99
       ],
-      "spike": "csrrc"
+      "spike": "csrrc",
+      "act": [
+        "rv64i/Zicsr/Zicsr-csrrc-00.S",
+        1
+      ]
     },
     "csrrci": {
       "sail": [
         16,
         104
       ],
-      "spike": "csrrci"
+      "spike": "csrrci",
+      "act": [
+        "rv64i/Zicsr/Zicsr-csrrci-00.S",
+        1
+      ]
     },
     "csrrs": {
       "sail": [
         16,
         99
       ],
-      "spike": "csrrs"
+      "spike": "csrrs",
+      "act": [
+        "rv64i/Zicsr/Zicsr-csrrs-00.S",
+        1
+      ]
     },
     "csrrsi": {
       "sail": [
         16,
         104
       ],
-      "spike": "csrrsi"
+      "spike": "csrrsi",
+      "act": [
+        "rv64i/Zicsr/Zicsr-csrrsi-00.S",
+        1
+      ]
     },
     "csrrw": {
       "sail": [
         16,
         99
       ],
-      "spike": "csrrw"
+      "spike": "csrrw",
+      "act": [
+        "rv64i/Zicsr/Zicsr-csrrw-00.S",
+        1
+      ]
     },
     "csrrwi": {
       "sail": [
         16,
         104
       ],
-      "spike": "csrrwi"
+      "spike": "csrrwi",
+      "act": [
+        "rv64i/Zicsr/Zicsr-csrrwi-00.S",
+        1
+      ]
     },
     "ctz": {
       "sail": [
         4,
         321
       ],
-      "spike": "ctz"
+      "spike": "ctz",
+      "act": [
+        "rv64i/Zbb/Zbb-ctz-00.S",
+        1
+      ]
     },
     "ctzw": {
       "sail": [
         4,
         337
       ],
-      "spike": "ctzw"
+      "spike": "ctzw",
+      "act": [
+        "rv64i/Zbb/Zbb-ctzw-00.S",
+        1
+      ]
     },
     "czero.eqz": {
       "sail": [
         17,
         34
       ],
-      "spike": "czero_eqz"
+      "spike": "czero_eqz",
+      "act": [
+        "rv64i/Zicond/Zicond-czero.eqz-00.S",
+        1
+      ]
     },
     "czero.nez": {
       "sail": [
         17,
         35
       ],
-      "spike": "czero_nez"
+      "spike": "czero_nez",
+      "act": [
+        "rv64i/Zicond/Zicond-czero.nez-00.S",
+        1
+      ]
     },
     "div": {
       "sail": [
         18,
         53
       ],
-      "spike": "div"
+      "spike": "div",
+      "act": [
+        "rv64i/M/M-div-00.S",
+        1
+      ]
     },
     "divu": {
       "sail": [
         18,
         53
       ],
-      "spike": "divu"
+      "spike": "divu",
+      "act": [
+        "rv64i/M/M-divu-00.S",
+        1
+      ]
     },
     "divuw": {
       "sail": [
         18,
         120
       ],
-      "spike": "divuw"
+      "spike": "divuw",
+      "act": [
+        "rv64i/M/M-divuw-00.S",
+        1
+      ]
     },
     "divw": {
       "sail": [
         18,
         120
       ],
-      "spike": "divw"
+      "spike": "divw",
+      "act": [
+        "rv64i/M/M-divw-00.S",
+        1
+      ]
     },
     "dret": {
       "spike": "dret"
@@ -1280,14 +1932,22 @@
         19,
         344
       ],
-      "spike": "fadd_d"
+      "spike": "fadd_d",
+      "act": [
+        "rv64i/D/D-fadd.d-00.S",
+        5
+      ]
     },
     "fadd.h": {
       "sail": [
         20,
         203
       ],
-      "spike": "fadd_h"
+      "spike": "fadd_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fadd.h-00.S",
+        6
+      ]
     },
     "fadd.q": {
       "spike": "fadd_q"
@@ -1297,21 +1957,33 @@
         21,
         440
       ],
-      "spike": "fadd_s"
+      "spike": "fadd_s",
+      "act": [
+        "rv64i/F/F-fadd.s-00.S",
+        5
+      ]
     },
     "fclass.d": {
       "sail": [
         19,
         846
       ],
-      "spike": "fclass_d"
+      "spike": "fclass_d",
+      "act": [
+        "rv64i/D/D-fclass.d-00.S",
+        1
+      ]
     },
     "fclass.h": {
       "sail": [
         20,
         812
       ],
-      "spike": "fclass_h"
+      "spike": "fclass_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fclass.h-00.S",
+        2
+      ]
     },
     "fclass.q": {
       "spike": "fclass_q"
@@ -1321,35 +1993,55 @@
         21,
         896
       ],
-      "spike": "fclass_s"
+      "spike": "fclass_s",
+      "act": [
+        "rv64i/F/F-fclass.s-00.S",
+        1
+      ]
     },
     "fcvt.bf16.s": {
       "sail": [
         22,
         20
       ],
-      "spike": "fcvt_bf16_s"
+      "spike": "fcvt_bf16_s",
+      "act": [
+        "rv64i/Zfbfmin/Zfbfmin-fcvt.bf16.s-00.S",
+        1
+      ]
     },
     "fcvt.d.h": {
       "sail": [
         20,
         669
       ],
-      "spike": "fcvt_d_h"
+      "spike": "fcvt_d_h",
+      "act": [
+        "rv64i/Zfhmin/ZfhminD-fcvt.d.h-00.S",
+        1
+      ]
     },
     "fcvt.d.l": {
       "sail": [
         19,
         568
       ],
-      "spike": "fcvt_d_l"
+      "spike": "fcvt_d_l",
+      "act": [
+        "rv64i/D/D-fcvt.d.l-00.S",
+        1
+      ]
     },
     "fcvt.d.lu": {
       "sail": [
         19,
         584
       ],
-      "spike": "fcvt_d_lu"
+      "spike": "fcvt_d_lu",
+      "act": [
+        "rv64i/D/D-fcvt.d.lu-00.S",
+        1
+      ]
     },
     "fcvt.d.q": {
       "spike": "fcvt_d_q"
@@ -1359,42 +2051,66 @@
         19,
         521
       ],
-      "spike": "fcvt_d_s"
+      "spike": "fcvt_d_s",
+      "act": [
+        "rv64i/D/D-fcvt.d.s-00.S",
+        1
+      ]
     },
     "fcvt.d.w": {
       "sail": [
         19,
         476
       ],
-      "spike": "fcvt_d_w"
+      "spike": "fcvt_d_w",
+      "act": [
+        "rv64i/D/D-fcvt.d.w-00.S",
+        1
+      ]
     },
     "fcvt.d.wu": {
       "sail": [
         19,
         491
       ],
-      "spike": "fcvt_d_wu"
+      "spike": "fcvt_d_wu",
+      "act": [
+        "rv64i/D/D-fcvt.d.wu-00.S",
+        1
+      ]
     },
     "fcvt.h.d": {
       "sail": [
         20,
         639
       ],
-      "spike": "fcvt_h_d"
+      "spike": "fcvt_h_d",
+      "act": [
+        "rv64i/Zfhmin/ZfhminD-fcvt.h.d-00.S",
+        1
+      ]
     },
     "fcvt.h.l": {
       "sail": [
         20,
         716
       ],
-      "spike": "fcvt_h_l"
+      "spike": "fcvt_h_l",
+      "act": [
+        "rv64i/Zfh/Zfh-fcvt.h.l-00.S",
+        2
+      ]
     },
     "fcvt.h.lu": {
       "sail": [
         20,
         732
       ],
-      "spike": "fcvt_h_lu"
+      "spike": "fcvt_h_lu",
+      "act": [
+        "rv64i/Zfh/Zfh-fcvt.h.lu-00.S",
+        2
+      ]
     },
     "fcvt.h.q": {
       "spike": "fcvt_h_q"
@@ -1404,35 +2120,55 @@
         20,
         624
       ],
-      "spike": "fcvt_h_s"
+      "spike": "fcvt_h_s",
+      "act": [
+        "rv64i/Zfhmin/Zfhmin-fcvt.h.s-00.S",
+        2
+      ]
     },
     "fcvt.h.w": {
       "sail": [
         20,
         594
       ],
-      "spike": "fcvt_h_w"
+      "spike": "fcvt_h_w",
+      "act": [
+        "rv64i/Zfh/Zfh-fcvt.h.w-00.S",
+        2
+      ]
     },
     "fcvt.h.wu": {
       "sail": [
         20,
         609
       ],
-      "spike": "fcvt_h_wu"
+      "spike": "fcvt_h_wu",
+      "act": [
+        "rv64i/Zfh/Zfh-fcvt.h.wu-00.S",
+        2
+      ]
     },
     "fcvt.l.d": {
       "sail": [
         19,
         536
       ],
-      "spike": "fcvt_l_d"
+      "spike": "fcvt_l_d",
+      "act": [
+        "rv64i/D/D-fcvt.l.d-00.S",
+        1
+      ]
     },
     "fcvt.l.h": {
       "sail": [
         20,
         684
       ],
-      "spike": "fcvt_l_h"
+      "spike": "fcvt_l_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fcvt.l.h-00.S",
+        2
+      ]
     },
     "fcvt.l.q": {
       "spike": "fcvt_l_q"
@@ -1442,21 +2178,33 @@
         21,
         594
       ],
-      "spike": "fcvt_l_s"
+      "spike": "fcvt_l_s",
+      "act": [
+        "rv64i/F/F-fcvt.l.s-00.S",
+        1
+      ]
     },
     "fcvt.lu.d": {
       "sail": [
         19,
         552
       ],
-      "spike": "fcvt_lu_d"
+      "spike": "fcvt_lu_d",
+      "act": [
+        "rv64i/D/D-fcvt.lu.d-00.S",
+        1
+      ]
     },
     "fcvt.lu.h": {
       "sail": [
         20,
         700
       ],
-      "spike": "fcvt_lu_h"
+      "spike": "fcvt_lu_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fcvt.lu.h-00.S",
+        2
+      ]
     },
     "fcvt.lu.q": {
       "spike": "fcvt_lu_q"
@@ -1466,7 +2214,11 @@
         21,
         610
       ],
-      "spike": "fcvt_lu_s"
+      "spike": "fcvt_lu_s",
+      "act": [
+        "rv64i/F/F-fcvt.lu.s-00.S",
+        1
+      ]
     },
     "fcvt.q.d": {
       "spike": "fcvt_q_d"
@@ -1494,35 +2246,55 @@
         22,
         45
       ],
-      "spike": "fcvt_s_bf16"
+      "spike": "fcvt_s_bf16",
+      "act": [
+        "rv64i/Zfbfmin/Zfbfmin-fcvt.s.bf16-00.S",
+        1
+      ]
     },
     "fcvt.s.d": {
       "sail": [
         19,
         506
       ],
-      "spike": "fcvt_s_d"
+      "spike": "fcvt_s_d",
+      "act": [
+        "rv64i/D/D-fcvt.s.d-00.S",
+        1
+      ]
     },
     "fcvt.s.h": {
       "sail": [
         20,
         654
       ],
-      "spike": "fcvt_s_h"
+      "spike": "fcvt_s_h",
+      "act": [
+        "rv64i/Zfhmin/Zfhmin-fcvt.s.h-00.S",
+        2
+      ]
     },
     "fcvt.s.l": {
       "sail": [
         21,
         626
       ],
-      "spike": "fcvt_s_l"
+      "spike": "fcvt_s_l",
+      "act": [
+        "rv64i/F/F-fcvt.s.l-00.S",
+        1
+      ]
     },
     "fcvt.s.lu": {
       "sail": [
         21,
         642
       ],
-      "spike": "fcvt_s_lu"
+      "spike": "fcvt_s_lu",
+      "act": [
+        "rv64i/F/F-fcvt.s.lu-00.S",
+        1
+      ]
     },
     "fcvt.s.q": {
       "spike": "fcvt_s_q"
@@ -1532,28 +2304,44 @@
         21,
         564
       ],
-      "spike": "fcvt_s_w"
+      "spike": "fcvt_s_w",
+      "act": [
+        "rv64i/F/F-fcvt.s.w-00.S",
+        1
+      ]
     },
     "fcvt.s.wu": {
       "sail": [
         21,
         579
       ],
-      "spike": "fcvt_s_wu"
+      "spike": "fcvt_s_wu",
+      "act": [
+        "rv64i/F/F-fcvt.s.wu-00.S",
+        1
+      ]
     },
     "fcvt.w.d": {
       "sail": [
         19,
         446
       ],
-      "spike": "fcvt_w_d"
+      "spike": "fcvt_w_d",
+      "act": [
+        "rv64i/D/D-fcvt.w.d-00.S",
+        1
+      ]
     },
     "fcvt.w.h": {
       "sail": [
         20,
         564
       ],
-      "spike": "fcvt_w_h"
+      "spike": "fcvt_w_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fcvt.w.h-00.S",
+        2
+      ]
     },
     "fcvt.w.q": {
       "spike": "fcvt_w_q"
@@ -1563,21 +2351,33 @@
         21,
         534
       ],
-      "spike": "fcvt_w_s"
+      "spike": "fcvt_w_s",
+      "act": [
+        "rv64i/F/F-fcvt.w.s-00.S",
+        1
+      ]
     },
     "fcvt.wu.d": {
       "sail": [
         19,
         461
       ],
-      "spike": "fcvt_wu_d"
+      "spike": "fcvt_wu_d",
+      "act": [
+        "rv64i/D/D-fcvt.wu.d-00.S",
+        1
+      ]
     },
     "fcvt.wu.h": {
       "sail": [
         20,
         579
       ],
-      "spike": "fcvt_wu_h"
+      "spike": "fcvt_wu_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fcvt.wu.h-00.S",
+        2
+      ]
     },
     "fcvt.wu.q": {
       "spike": "fcvt_wu_q"
@@ -1587,28 +2387,44 @@
         21,
         549
       ],
-      "spike": "fcvt_wu_s"
+      "spike": "fcvt_wu_s",
+      "act": [
+        "rv64i/F/F-fcvt.wu.s-00.S",
+        1
+      ]
     },
     "fcvtmod.w.d": {
       "sail": [
         23,
         788
       ],
-      "spike": "fcvtmod_w_d"
+      "spike": "fcvtmod_w_d",
+      "act": [
+        "rv64i/Zfa/ZfaD-fcvtmod.w.d-00.S",
+        1
+      ]
     },
     "fdiv.d": {
       "sail": [
         19,
         347
       ],
-      "spike": "fdiv_d"
+      "spike": "fdiv_d",
+      "act": [
+        "rv64i/D/D-fdiv.d-00.S",
+        5
+      ]
     },
     "fdiv.h": {
       "sail": [
         20,
         206
       ],
-      "spike": "fdiv_h"
+      "spike": "fdiv_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fdiv.h-00.S",
+        6
+      ]
     },
     "fdiv.q": {
       "spike": "fdiv_q"
@@ -1618,42 +2434,66 @@
         21,
         443
       ],
-      "spike": "fdiv_s"
+      "spike": "fdiv_s",
+      "act": [
+        "rv64i/F/F-fdiv.s-00.S",
+        5
+      ]
     },
     "fence": {
       "sail": [
         0,
         463
       ],
-      "spike": "fence"
+      "spike": "fence",
+      "act": [
+        "rv64i/I/I-fence-00.S",
+        1
+      ]
     },
     "fence.i": {
       "sail": [
         24,
         24
       ],
-      "spike": "fence_i"
+      "spike": "fence_i",
+      "act": [
+        "rv64i/Zifencei/Zifencei-fence.i-00.S",
+        1
+      ]
     },
     "fence.tso": {
       "sail": [
         0,
         441
       ],
-      "spike": "fence"
+      "spike": "fence",
+      "act": [
+        "rv64i/I/I-fence-00.S",
+        1
+      ]
     },
     "feq.d": {
       "sail": [
         19,
         758
       ],
-      "spike": "feq_d"
+      "spike": "feq_d",
+      "act": [
+        "rv64i/D/D-feq.d-00.S",
+        1
+      ]
     },
     "feq.h": {
       "sail": [
         20,
         415
       ],
-      "spike": "feq_h"
+      "spike": "feq_h",
+      "act": [
+        "rv64i/Zfh/Zfh-feq.h-00.S",
+        2
+      ]
     },
     "feq.q": {
       "spike": "feq_q"
@@ -1663,28 +2503,44 @@
         21,
         810
       ],
-      "spike": "feq_s"
+      "spike": "feq_s",
+      "act": [
+        "rv64i/F/F-feq.s-00.S",
+        1
+      ]
     },
     "fld": {
       "sail": [
         21,
         280
       ],
-      "spike": "fld"
+      "spike": "fld",
+      "act": [
+        "rv64i/D/D-fld-00.S",
+        1
+      ]
     },
     "fle.d": {
       "sail": [
         19,
         782
       ],
-      "spike": "fle_d"
+      "spike": "fle_d",
+      "act": [
+        "rv64i/D/D-fle.d-00.S",
+        1
+      ]
     },
     "fle.h": {
       "sail": [
         20,
         439
       ],
-      "spike": "fle_h"
+      "spike": "fle_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fle.h-00.S",
+        2
+      ]
     },
     "fle.q": {
       "spike": "fle_q"
@@ -1694,21 +2550,33 @@
         21,
         834
       ],
-      "spike": "fle_s"
+      "spike": "fle_s",
+      "act": [
+        "rv64i/F/F-fle.s-00.S",
+        1
+      ]
     },
     "fleq.d": {
       "sail": [
         23,
         682
       ],
-      "spike": "fleq_d"
+      "spike": "fleq_d",
+      "act": [
+        "rv64i/Zfa/ZfaD-fleq.d-00.S",
+        1
+      ]
     },
     "fleq.h": {
       "sail": [
         23,
         581
       ],
-      "spike": "fleq_h"
+      "spike": "fleq_h",
+      "act": [
+        "rv64i/Zfa/ZfaZfh-fleq.h-00.S",
+        2
+      ]
     },
     "fleq.q": {
       "spike": "fleq_q"
@@ -1718,28 +2586,44 @@
         23,
         631
       ],
-      "spike": "fleq_s"
+      "spike": "fleq_s",
+      "act": [
+        "rv64i/Zfa/Zfa-fleq.s-00.S",
+        2
+      ]
     },
     "flh": {
       "sail": [
         21,
         280
       ],
-      "spike": "flh"
+      "spike": "flh",
+      "act": [
+        "rv64i/Zfhmin/Zfhmin-flh-00.S",
+        2
+      ]
     },
     "fli.d": {
       "sail": [
         23,
         122
       ],
-      "spike": "fli_d"
+      "spike": "fli_d",
+      "act": [
+        "rv64i/Zfa/ZfaD-fli.d-00.S",
+        1
+      ]
     },
     "fli.h": {
       "sail": [
         23,
         22
       ],
-      "spike": "fli_h"
+      "spike": "fli_h",
+      "act": [
+        "rv64i/Zfa/ZfaZfh-fli.h-00.S",
+        3
+      ]
     },
     "fli.q": {
       "spike": "fli_q"
@@ -1749,7 +2633,11 @@
         23,
         72
       ],
-      "spike": "fli_s"
+      "spike": "fli_s",
+      "act": [
+        "rv64i/Zfa/Zfa-fli.s-00.S",
+        2
+      ]
     },
     "flq": {
       "spike": "flq"
@@ -1759,14 +2647,22 @@
         19,
         770
       ],
-      "spike": "flt_d"
+      "spike": "flt_d",
+      "act": [
+        "rv64i/D/D-flt.d-00.S",
+        1
+      ]
     },
     "flt.h": {
       "sail": [
         20,
         427
       ],
-      "spike": "flt_h"
+      "spike": "flt_h",
+      "act": [
+        "rv64i/Zfh/Zfh-flt.h-00.S",
+        2
+      ]
     },
     "flt.q": {
       "spike": "flt_q"
@@ -1776,21 +2672,33 @@
         21,
         822
       ],
-      "spike": "flt_s"
+      "spike": "flt_s",
+      "act": [
+        "rv64i/F/F-flt.s-00.S",
+        1
+      ]
     },
     "fltq.d": {
       "sail": [
         23,
         707
       ],
-      "spike": "fltq_d"
+      "spike": "fltq_d",
+      "act": [
+        "rv64i/Zfa/ZfaD-fltq.d-00.S",
+        1
+      ]
     },
     "fltq.h": {
       "sail": [
         23,
         606
       ],
-      "spike": "fltq_h"
+      "spike": "fltq_h",
+      "act": [
+        "rv64i/Zfa/ZfaZfh-fltq.h-00.S",
+        2
+      ]
     },
     "fltq.q": {
       "spike": "fltq_q"
@@ -1800,28 +2708,44 @@
         23,
         656
       ],
-      "spike": "fltq_s"
+      "spike": "fltq_s",
+      "act": [
+        "rv64i/Zfa/Zfa-fltq.s-00.S",
+        2
+      ]
     },
     "flw": {
       "sail": [
         21,
         280
       ],
-      "spike": "flw"
+      "spike": "flw",
+      "act": [
+        "rv64i/F/F-flw-00.S",
+        1
+      ]
     },
     "fmadd.d": {
       "sail": [
         19,
         279
       ],
-      "spike": "fmadd_d"
+      "spike": "fmadd_d",
+      "act": [
+        "rv64i/D/D-fmadd.d-00.S",
+        10
+      ]
     },
     "fmadd.h": {
       "sail": [
         20,
         269
       ],
-      "spike": "fmadd_h"
+      "spike": "fmadd_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fmadd.h-00.S",
+        11
+      ]
     },
     "fmadd.q": {
       "spike": "fmadd_q"
@@ -1831,21 +2755,33 @@
         21,
         375
       ],
-      "spike": "fmadd_s"
+      "spike": "fmadd_s",
+      "act": [
+        "rv64i/F/F-fmadd.s-00.S",
+        10
+      ]
     },
     "fmax.d": {
       "sail": [
         19,
         738
       ],
-      "spike": "fmax_d"
+      "spike": "fmax_d",
+      "act": [
+        "rv64i/D/D-fmax.d-00.S",
+        2
+      ]
     },
     "fmax.h": {
       "sail": [
         20,
         395
       ],
-      "spike": "fmax_h"
+      "spike": "fmax_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fmax.h-00.S",
+        3
+      ]
     },
     "fmax.q": {
       "spike": "fmax_q"
@@ -1855,21 +2791,33 @@
         21,
         790
       ],
-      "spike": "fmax_s"
+      "spike": "fmax_s",
+      "act": [
+        "rv64i/F/F-fmax.s-00.S",
+        2
+      ]
     },
     "fmaxm.d": {
       "sail": [
         23,
         329
       ],
-      "spike": "fmaxm_d"
+      "spike": "fmaxm_d",
+      "act": [
+        "rv64i/Zfa/ZfaD-fmaxm.d-00.S",
+        2
+      ]
     },
     "fmaxm.h": {
       "sail": [
         23,
         205
       ],
-      "spike": "fmaxm_h"
+      "spike": "fmaxm_h",
+      "act": [
+        "rv64i/Zfa/ZfaZfh-fmaxm.h-00.S",
+        3
+      ]
     },
     "fmaxm.q": {
       "spike": "fmaxm_q"
@@ -1879,21 +2827,33 @@
         23,
         267
       ],
-      "spike": "fmaxm_s"
+      "spike": "fmaxm_s",
+      "act": [
+        "rv64i/Zfa/Zfa-fmaxm.s-00.S",
+        3
+      ]
     },
     "fmin.d": {
       "sail": [
         19,
         718
       ],
-      "spike": "fmin_d"
+      "spike": "fmin_d",
+      "act": [
+        "rv64i/D/D-fmin.d-00.S",
+        2
+      ]
     },
     "fmin.h": {
       "sail": [
         20,
         375
       ],
-      "spike": "fmin_h"
+      "spike": "fmin_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fmin.h-00.S",
+        3
+      ]
     },
     "fmin.q": {
       "spike": "fmin_q"
@@ -1903,21 +2863,33 @@
         21,
         770
       ],
-      "spike": "fmin_s"
+      "spike": "fmin_s",
+      "act": [
+        "rv64i/F/F-fmin.s-00.S",
+        2
+      ]
     },
     "fminm.d": {
       "sail": [
         23,
         298
       ],
-      "spike": "fminm_d"
+      "spike": "fminm_d",
+      "act": [
+        "rv64i/Zfa/ZfaD-fminm.d-00.S",
+        2
+      ]
     },
     "fminm.h": {
       "sail": [
         23,
         174
       ],
-      "spike": "fminm_h"
+      "spike": "fminm_h",
+      "act": [
+        "rv64i/Zfa/ZfaZfh-fminm.h-00.S",
+        3
+      ]
     },
     "fminm.q": {
       "spike": "fminm_q"
@@ -1927,21 +2899,33 @@
         23,
         236
       ],
-      "spike": "fminm_s"
+      "spike": "fminm_s",
+      "act": [
+        "rv64i/Zfa/Zfa-fminm.s-00.S",
+        3
+      ]
     },
     "fmsub.d": {
       "sail": [
         19,
         280
       ],
-      "spike": "fmsub_d"
+      "spike": "fmsub_d",
+      "act": [
+        "rv64i/D/D-fmsub.d-00.S",
+        10
+      ]
     },
     "fmsub.h": {
       "sail": [
         20,
         270
       ],
-      "spike": "fmsub_h"
+      "spike": "fmsub_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fmsub.h-00.S",
+        11
+      ]
     },
     "fmsub.q": {
       "spike": "fmsub_q"
@@ -1951,21 +2935,33 @@
         21,
         376
       ],
-      "spike": "fmsub_s"
+      "spike": "fmsub_s",
+      "act": [
+        "rv64i/F/F-fmsub.s-00.S",
+        10
+      ]
     },
     "fmul.d": {
       "sail": [
         19,
         346
       ],
-      "spike": "fmul_d"
+      "spike": "fmul_d",
+      "act": [
+        "rv64i/D/D-fmul.d-00.S",
+        5
+      ]
     },
     "fmul.h": {
       "sail": [
         20,
         205
       ],
-      "spike": "fmul_h"
+      "spike": "fmul_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fmul.h-00.S",
+        6
+      ]
     },
     "fmul.q": {
       "spike": "fmul_q"
@@ -1975,56 +2971,88 @@
         21,
         442
       ],
-      "spike": "fmul_s"
+      "spike": "fmul_s",
+      "act": [
+        "rv64i/F/F-fmul.s-00.S",
+        5
+      ]
     },
     "fmv.d.x": {
       "sail": [
         19,
         858
       ],
-      "spike": "fmv_d_x"
+      "spike": "fmv_d_x",
+      "act": [
+        "rv64i/D/D-fmv.d.x-00.S",
+        1
+      ]
     },
     "fmv.h.x": {
       "sail": [
         20,
         825
       ],
-      "spike": "fmv_h_x"
+      "spike": "fmv_h_x",
+      "act": [
+        "rv64i/Zfhmin/Zfhmin-fmv.h.x-00.S",
+        2
+      ]
     },
     "fmv.w.x": {
       "sail": [
         21,
         907
       ],
-      "spike": "fmv_w_x"
+      "spike": "fmv_w_x",
+      "act": [
+        "rv64i/F/F-fmv.w.x-00.S",
+        1
+      ]
     },
     "fmv.x.d": {
       "sail": [
         19,
         852
       ],
-      "spike": "fmv_x_d"
+      "spike": "fmv_x_d",
+      "act": [
+        "rv64i/D/D-fmv.x.d-00.S",
+        1
+      ]
     },
     "fmv.x.h": {
       "sail": [
         20,
         818
       ],
-      "spike": "fmv_x_h"
+      "spike": "fmv_x_h",
+      "act": [
+        "rv64i/Zfhmin/Zfhmin-fmv.x.h-00.S",
+        2
+      ]
     },
     "fmv.x.w": {
       "sail": [
         21,
         902
       ],
-      "spike": "fmv_x_w"
+      "spike": "fmv_x_w",
+      "act": [
+        "rv64i/F/F-fmv.x.w-00.S",
+        1
+      ]
     },
     "fmvh.x.d": {
       "sail": [
         23,
         533
       ],
-      "spike": "fmvh_x_d"
+      "spike": "fmvh_x_d",
+      "act": [
+        "rv32i/Zfa/ZfaD-fmvh.x.d-00.S",
+        1
+      ]
     },
     "fmvh.x.q": {
       "spike": "fmvh_x_q"
@@ -2034,7 +3062,11 @@
         23,
         553
       ],
-      "spike": "fmvp_d_x"
+      "spike": "fmvp_d_x",
+      "act": [
+        "rv32i/Zfa/ZfaD-fmvp.d.x-00.S",
+        1
+      ]
     },
     "fmvp.q.x": {
       "spike": "fmvp_q_x"
@@ -2044,14 +3076,22 @@
         19,
         282
       ],
-      "spike": "fnmadd_d"
+      "spike": "fnmadd_d",
+      "act": [
+        "rv64i/D/D-fnmadd.d-00.S",
+        10
+      ]
     },
     "fnmadd.h": {
       "sail": [
         20,
         272
       ],
-      "spike": "fnmadd_h"
+      "spike": "fnmadd_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fnmadd.h-00.S",
+        11
+      ]
     },
     "fnmadd.q": {
       "spike": "fnmadd_q"
@@ -2061,21 +3101,33 @@
         21,
         378
       ],
-      "spike": "fnmadd_s"
+      "spike": "fnmadd_s",
+      "act": [
+        "rv64i/F/F-fnmadd.s-00.S",
+        10
+      ]
     },
     "fnmsub.d": {
       "sail": [
         19,
         281
       ],
-      "spike": "fnmsub_d"
+      "spike": "fnmsub_d",
+      "act": [
+        "rv64i/D/D-fnmsub.d-00.S",
+        10
+      ]
     },
     "fnmsub.h": {
       "sail": [
         20,
         271
       ],
-      "spike": "fnmsub_h"
+      "spike": "fnmsub_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fnmsub.h-00.S",
+        11
+      ]
     },
     "fnmsub.q": {
       "spike": "fnmsub_q"
@@ -2085,21 +3137,33 @@
         21,
         377
       ],
-      "spike": "fnmsub_s"
+      "spike": "fnmsub_s",
+      "act": [
+        "rv64i/F/F-fnmsub.s-00.S",
+        10
+      ]
     },
     "fround.d": {
       "sail": [
         23,
         476
       ],
-      "spike": "fround_d"
+      "spike": "fround_d",
+      "act": [
+        "rv64i/Zfa/ZfaD-fround.d-00.S",
+        1
+      ]
     },
     "fround.h": {
       "sail": [
         23,
         360
       ],
-      "spike": "fround_h"
+      "spike": "fround_h",
+      "act": [
+        "rv64i/Zfa/ZfaZfh-fround.h-00.S",
+        2
+      ]
     },
     "fround.q": {
       "spike": "fround_q"
@@ -2109,21 +3173,33 @@
         23,
         418
       ],
-      "spike": "fround_s"
+      "spike": "fround_s",
+      "act": [
+        "rv64i/Zfa/Zfa-fround.s-00.S",
+        2
+      ]
     },
     "froundnx.d": {
       "sail": [
         23,
         505
       ],
-      "spike": "froundnx_d"
+      "spike": "froundnx_d",
+      "act": [
+        "rv64i/Zfa/ZfaD-froundnx.d-00.S",
+        1
+      ]
     },
     "froundnx.h": {
       "sail": [
         23,
         389
       ],
-      "spike": "froundnx_h"
+      "spike": "froundnx_h",
+      "act": [
+        "rv64i/Zfa/ZfaZfh-froundnx.h-00.S",
+        2
+      ]
     },
     "froundnx.q": {
       "spike": "froundnx_q"
@@ -2133,28 +3209,44 @@
         23,
         447
       ],
-      "spike": "froundnx_s"
+      "spike": "froundnx_s",
+      "act": [
+        "rv64i/Zfa/Zfa-froundnx.s-00.S",
+        2
+      ]
     },
     "fsd": {
       "sail": [
         21,
         316
       ],
-      "spike": "fsd"
+      "spike": "fsd",
+      "act": [
+        "rv64i/D/D-fsd-00.S",
+        1
+      ]
     },
     "fsgnj.d": {
       "sail": [
         19,
         684
       ],
-      "spike": "fsgnj_d"
+      "spike": "fsgnj_d",
+      "act": [
+        "rv64i/D/D-fsgnj.d-00.S",
+        1
+      ]
     },
     "fsgnj.h": {
       "sail": [
         20,
         342
       ],
-      "spike": "fsgnj_h"
+      "spike": "fsgnj_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fsgnj.h-00.S",
+        3
+      ]
     },
     "fsgnj.q": {
       "spike": "fsgnj_q"
@@ -2164,21 +3256,33 @@
         21,
         737
       ],
-      "spike": "fsgnj_s"
+      "spike": "fsgnj_s",
+      "act": [
+        "rv64i/F/F-fsgnj.s-00.S",
+        1
+      ]
     },
     "fsgnjn.d": {
       "sail": [
         19,
         696
       ],
-      "spike": "fsgnjn_d"
+      "spike": "fsgnjn_d",
+      "act": [
+        "rv64i/D/D-fsgnjn.d-00.S",
+        1
+      ]
     },
     "fsgnjn.h": {
       "sail": [
         20,
         353
       ],
-      "spike": "fsgnjn_h"
+      "spike": "fsgnjn_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fsgnjn.h-00.S",
+        3
+      ]
     },
     "fsgnjn.q": {
       "spike": "fsgnjn_q"
@@ -2188,21 +3292,33 @@
         21,
         748
       ],
-      "spike": "fsgnjn_s"
+      "spike": "fsgnjn_s",
+      "act": [
+        "rv64i/F/F-fsgnjn.s-00.S",
+        1
+      ]
     },
     "fsgnjx.d": {
       "sail": [
         19,
         707
       ],
-      "spike": "fsgnjx_d"
+      "spike": "fsgnjx_d",
+      "act": [
+        "rv64i/D/D-fsgnjx.d-00.S",
+        1
+      ]
     },
     "fsgnjx.h": {
       "sail": [
         20,
         364
       ],
-      "spike": "fsgnjx_h"
+      "spike": "fsgnjx_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fsgnjx.h-00.S",
+        3
+      ]
     },
     "fsgnjx.q": {
       "spike": "fsgnjx_q"
@@ -2212,14 +3328,22 @@
         21,
         759
       ],
-      "spike": "fsgnjx_s"
+      "spike": "fsgnjx_s",
+      "act": [
+        "rv64i/F/F-fsgnjx.s-00.S",
+        1
+      ]
     },
     "fsh": {
       "sail": [
         21,
         316
       ],
-      "spike": "fsh"
+      "spike": "fsh",
+      "act": [
+        "rv64i/Zfhmin/Zfhmin-fsh-00.S",
+        2
+      ]
     },
     "fsq": {
       "spike": "fsq"
@@ -2229,14 +3353,22 @@
         19,
         431
       ],
-      "spike": "fsqrt_d"
+      "spike": "fsqrt_d",
+      "act": [
+        "rv64i/D/D-fsqrt.d-00.S",
+        1
+      ]
     },
     "fsqrt.h": {
       "sail": [
         20,
         549
       ],
-      "spike": "fsqrt_h"
+      "spike": "fsqrt_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fsqrt.h-00.S",
+        2
+      ]
     },
     "fsqrt.q": {
       "spike": "fsqrt_q"
@@ -2246,21 +3378,33 @@
         21,
         519
       ],
-      "spike": "fsqrt_s"
+      "spike": "fsqrt_s",
+      "act": [
+        "rv64i/F/F-fsqrt.s-00.S",
+        1
+      ]
     },
     "fsub.d": {
       "sail": [
         19,
         345
       ],
-      "spike": "fsub_d"
+      "spike": "fsub_d",
+      "act": [
+        "rv64i/D/D-fsub.d-00.S",
+        5
+      ]
     },
     "fsub.h": {
       "sail": [
         20,
         204
       ],
-      "spike": "fsub_h"
+      "spike": "fsub_h",
+      "act": [
+        "rv64i/Zfh/Zfh-fsub.h-00.S",
+        6
+      ]
     },
     "fsub.q": {
       "spike": "fsub_q"
@@ -2270,14 +3414,22 @@
         21,
         441
       ],
-      "spike": "fsub_s"
+      "spike": "fsub_s",
+      "act": [
+        "rv64i/F/F-fsub.s-00.S",
+        5
+      ]
     },
     "fsw": {
       "sail": [
         21,
         316
       ],
-      "spike": "fsw"
+      "spike": "fsw",
+      "act": [
+        "rv64i/F/F-fsw-00.S",
+        1
+      ]
     },
     "hfence.gvma": {
       "sail": [
@@ -2403,21 +3555,33 @@
         0,
         75
       ],
-      "spike": "jal"
+      "spike": "jal",
+      "act": [
+        "rv64i/I/I-jal-00.S",
+        1
+      ]
     },
     "jalr": {
       "sail": [
         27,
         11
       ],
-      "spike": "jalr"
+      "spike": "jalr",
+      "act": [
+        "rv64i/I/I-jalr-00.S",
+        1
+      ]
     },
     "lb": {
       "sail": [
         0,
         285
       ],
-      "spike": "lb"
+      "spike": "lb",
+      "act": [
+        "rv64i/I/I-lb-00.S",
+        1
+      ]
     },
     "lb.aq": {
       "spike": "lb_aq"
@@ -2427,14 +3591,22 @@
         0,
         285
       ],
-      "spike": "lbu"
+      "spike": "lbu",
+      "act": [
+        "rv64i/I/I-lbu-00.S",
+        1
+      ]
     },
     "ld": {
       "sail": [
         0,
         285
       ],
-      "spike": "ld"
+      "spike": "ld",
+      "act": [
+        "rv64i/I/I-ld-00.S",
+        1
+      ]
     },
     "ld.aq": {
       "spike": "ld_aq"
@@ -2447,7 +3619,11 @@
         0,
         285
       ],
-      "spike": "lh"
+      "spike": "lh",
+      "act": [
+        "rv64i/I/I-lh-00.S",
+        1
+      ]
     },
     "lh.aq": {
       "spike": "lh_aq"
@@ -2457,7 +3633,11 @@
         0,
         285
       ],
-      "spike": "lhu"
+      "spike": "lhu",
+      "act": [
+        "rv64i/I/I-lhu-00.S",
+        1
+      ]
     },
     "lpad": {
       "sail": [
@@ -2471,28 +3651,44 @@
         29,
         41
       ],
-      "spike": "lr_d"
+      "spike": "lr_d",
+      "act": [
+        "rv64i/Zalrsc/Zalrsc-lr.d-00.S",
+        1
+      ]
     },
     "lr.w": {
       "sail": [
         29,
         41
       ],
-      "spike": "lr_w"
+      "spike": "lr_w",
+      "act": [
+        "rv64i/Zalrsc/Zalrsc-lr.w-00.S",
+        1
+      ]
     },
     "lui": {
       "sail": [
         0,
         30
       ],
-      "spike": "lui"
+      "spike": "lui",
+      "act": [
+        "rv64i/I/I-lui-00.S",
+        1
+      ]
     },
     "lw": {
       "sail": [
         0,
         285
       ],
-      "spike": "lw"
+      "spike": "lw",
+      "act": [
+        "rv64i/I/I-lw-00.S",
+        1
+      ]
     },
     "lw.aq": {
       "spike": "lw_aq"
@@ -2502,35 +3698,55 @@
         0,
         285
       ],
-      "spike": "lwu"
+      "spike": "lwu",
+      "act": [
+        "rv64i/I/I-lwu-00.S",
+        1
+      ]
     },
     "max": {
       "sail": [
         4,
         149
       ],
-      "spike": "max"
+      "spike": "max",
+      "act": [
+        "rv64i/Zbb/Zbb-max-00.S",
+        1
+      ]
     },
     "maxu": {
       "sail": [
         4,
         150
       ],
-      "spike": "maxu"
+      "spike": "maxu",
+      "act": [
+        "rv64i/Zbb/Zbb-maxu-00.S",
+        1
+      ]
     },
     "min": {
       "sail": [
         4,
         151
       ],
-      "spike": "min"
+      "spike": "min",
+      "act": [
+        "rv64i/Zbb/Zbb-min-00.S",
+        1
+      ]
     },
     "minu": {
       "sail": [
         4,
         152
       ],
-      "spike": "minu"
+      "spike": "minu",
+      "act": [
+        "rv64i/Zbb/Zbb-minu-00.S",
+        1
+      ]
     },
     "mnret": {
       "spike": "mnret"
@@ -2540,280 +3756,440 @@
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.0-00.S",
+        1
+      ]
     },
     "mop.r.1": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.1-00.S",
+        1
+      ]
     },
     "mop.r.10": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.10-00.S",
+        1
+      ]
     },
     "mop.r.11": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.11-00.S",
+        1
+      ]
     },
     "mop.r.12": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.12-00.S",
+        1
+      ]
     },
     "mop.r.13": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.13-00.S",
+        1
+      ]
     },
     "mop.r.14": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.14-00.S",
+        1
+      ]
     },
     "mop.r.15": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.15-00.S",
+        1
+      ]
     },
     "mop.r.16": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.16-00.S",
+        1
+      ]
     },
     "mop.r.17": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.17-00.S",
+        1
+      ]
     },
     "mop.r.18": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.18-00.S",
+        1
+      ]
     },
     "mop.r.19": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.19-00.S",
+        1
+      ]
     },
     "mop.r.2": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.2-00.S",
+        1
+      ]
     },
     "mop.r.20": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.20-00.S",
+        1
+      ]
     },
     "mop.r.21": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.21-00.S",
+        1
+      ]
     },
     "mop.r.22": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.22-00.S",
+        1
+      ]
     },
     "mop.r.23": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.23-00.S",
+        1
+      ]
     },
     "mop.r.24": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.24-00.S",
+        1
+      ]
     },
     "mop.r.25": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.25-00.S",
+        1
+      ]
     },
     "mop.r.26": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.26-00.S",
+        1
+      ]
     },
     "mop.r.27": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.27-00.S",
+        1
+      ]
     },
     "mop.r.28": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.28-00.S",
+        1
+      ]
     },
     "mop.r.29": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.29-00.S",
+        1
+      ]
     },
     "mop.r.3": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.3-00.S",
+        1
+      ]
     },
     "mop.r.30": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.30-00.S",
+        1
+      ]
     },
     "mop.r.31": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.31-00.S",
+        1
+      ]
     },
     "mop.r.4": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.4-00.S",
+        1
+      ]
     },
     "mop.r.5": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.5-00.S",
+        1
+      ]
     },
     "mop.r.6": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.6-00.S",
+        1
+      ]
     },
     "mop.r.7": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.7-00.S",
+        1
+      ]
     },
     "mop.r.8": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.8-00.S",
+        1
+      ]
     },
     "mop.r.9": {
       "sail": [
         30,
         30
       ],
-      "spike": "mop_r_N"
+      "spike": "mop_r_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.r.9-00.S",
+        1
+      ]
     },
     "mop.rr.0": {
       "sail": [
         30,
         35
       ],
-      "spike": "mop_rr_N"
+      "spike": "mop_rr_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.rr.0-00.S",
+        1
+      ]
     },
     "mop.rr.1": {
       "sail": [
         30,
         35
       ],
-      "spike": "mop_rr_N"
+      "spike": "mop_rr_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.rr.1-00.S",
+        1
+      ]
     },
     "mop.rr.2": {
       "sail": [
         30,
         35
       ],
-      "spike": "mop_rr_N"
+      "spike": "mop_rr_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.rr.2-00.S",
+        1
+      ]
     },
     "mop.rr.3": {
       "sail": [
         30,
         35
       ],
-      "spike": "mop_rr_N"
+      "spike": "mop_rr_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.rr.3-00.S",
+        1
+      ]
     },
     "mop.rr.4": {
       "sail": [
         30,
         35
       ],
-      "spike": "mop_rr_N"
+      "spike": "mop_rr_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.rr.4-00.S",
+        1
+      ]
     },
     "mop.rr.5": {
       "sail": [
         30,
         35
       ],
-      "spike": "mop_rr_N"
+      "spike": "mop_rr_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.rr.5-00.S",
+        1
+      ]
     },
     "mop.rr.6": {
       "sail": [
         30,
         35
       ],
-      "spike": "mop_rr_N"
+      "spike": "mop_rr_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.rr.6-00.S",
+        1
+      ]
     },
     "mop.rr.7": {
       "sail": [
         30,
         35
       ],
-      "spike": "mop_rr_N"
+      "spike": "mop_rr_N",
+      "act": [
+        "rv64i/Zimop/Zimop-mop.rr.7-00.S",
+        1
+      ]
     },
     "mret": {
       "sail": [
@@ -2827,273 +4203,429 @@
         18,
         29
       ],
-      "spike": "mul"
+      "spike": "mul",
+      "act": [
+        "rv64i/M/M-mul-00.S",
+        1
+      ]
     },
     "mulh": {
       "sail": [
         18,
         29
       ],
-      "spike": "mulh"
+      "spike": "mulh",
+      "act": [
+        "rv64i/M/M-mulh-00.S",
+        1
+      ]
     },
     "mulhsu": {
       "sail": [
         18,
         29
       ],
-      "spike": "mulhsu"
+      "spike": "mulhsu",
+      "act": [
+        "rv64i/M/M-mulhsu-00.S",
+        1
+      ]
     },
     "mulhu": {
       "sail": [
         18,
         29
       ],
-      "spike": "mulhu"
+      "spike": "mulhu",
+      "act": [
+        "rv64i/M/M-mulhu-00.S",
+        1
+      ]
     },
     "mulw": {
       "sail": [
         18,
         98
       ],
-      "spike": "mulw"
+      "spike": "mulw",
+      "act": [
+        "rv64i/M/M-mulw-00.S",
+        1
+      ]
     },
     "ntl.all": {
       "sail": [
         31,
         21
       ],
-      "spike": "add"
+      "spike": "add",
+      "act": [
+        "rv64i/Zihintntl/Zihintntl-ntl.all-00.S",
+        1
+      ]
     },
     "ntl.p1": {
       "sail": [
         31,
         21
       ],
-      "spike": "add"
+      "spike": "add",
+      "act": [
+        "rv64i/Zihintntl/Zihintntl-ntl.p1-00.S",
+        1
+      ]
     },
     "ntl.pall": {
       "sail": [
         31,
         21
       ],
-      "spike": "add"
+      "spike": "add",
+      "act": [
+        "rv64i/Zihintntl/Zihintntl-ntl.pall-00.S",
+        1
+      ]
     },
     "ntl.s1": {
       "sail": [
         31,
         21
       ],
-      "spike": "add"
+      "spike": "add",
+      "act": [
+        "rv64i/Zihintntl/Zihintntl-ntl.s1-00.S",
+        1
+      ]
     },
     "or": {
       "sail": [
         0,
         243
       ],
-      "spike": "or"
+      "spike": "or",
+      "act": [
+        "rv64i/I/I-or-00.S",
+        1
+      ]
     },
     "orc.b": {
       "sail": [
         4,
         235
       ],
-      "spike": "orc_b"
+      "spike": "orc_b",
+      "act": [
+        "rv64i/Zbb/Zbb-orc.b-00.S",
+        1
+      ]
     },
     "ori": {
       "sail": [
         0,
         165
       ],
-      "spike": "ori"
+      "spike": "ori",
+      "act": [
+        "rv64i/I/I-ori-00.S",
+        1
+      ]
     },
     "orn": {
       "sail": [
         4,
         147
       ],
-      "spike": "orn"
+      "spike": "orn",
+      "act": [
+        "rv64i/Zbb/Zbb-orn-00.S",
+        1
+      ]
     },
     "pack": {
       "sail": [
         7,
         35
       ],
-      "spike": "pack"
+      "spike": "pack",
+      "act": [
+        "rv64i/Zbkb/Zbkb-pack-00.S",
+        1
+      ]
     },
     "packh": {
       "sail": [
         7,
         36
       ],
-      "spike": "packh"
+      "spike": "packh",
+      "act": [
+        "rv64i/Zbkb/Zbkb-packh-00.S",
+        1
+      ]
     },
     "packw": {
       "sail": [
         7,
         53
       ],
-      "spike": "packw"
+      "spike": "packw",
+      "act": [
+        "rv64i/Zbkb/Zbkb-packw-00.S",
+        1
+      ]
     },
     "pause": {
       "sail": [
         32,
         19
       ],
-      "spike": "fence"
+      "spike": "fence",
+      "act": [
+        "rv64i/Zihintpause/Zihintpause-pause-00.S",
+        1
+      ]
     },
     "prefetch.i": {
       "sail": [
         33,
         36
       ],
-      "spike": "ori"
+      "spike": "ori",
+      "act": [
+        "rv64i/Zicbop/Zicbop-prefetch.i-00.S",
+        1
+      ]
     },
     "prefetch.r": {
       "sail": [
         33,
         36
       ],
-      "spike": "ori"
+      "spike": "ori",
+      "act": [
+        "rv64i/Zicbop/Zicbop-prefetch.r-00.S",
+        1
+      ]
     },
     "prefetch.w": {
       "sail": [
         33,
         36
       ],
-      "spike": "ori"
+      "spike": "ori",
+      "act": [
+        "rv64i/Zicbop/Zicbop-prefetch.w-00.S",
+        1
+      ]
     },
     "rdcycle": {
       "sail": [
         16,
         99
       ],
-      "spike": "csrrs"
+      "spike": "csrrs",
+      "act": [
+        "rv64i/Zicntr/Zicntr-csrrs-00.S",
+        1
+      ]
     },
     "rdcycleh": {
       "sail": [
         16,
         99
       ],
-      "spike": "csrrs"
+      "spike": "csrrs",
+      "act": [
+        "rv32i/Zicntr/Zicntr-csrrs-00.S",
+        1
+      ]
     },
     "rdinstret": {
       "sail": [
         16,
         99
       ],
-      "spike": "csrrs"
+      "spike": "csrrs",
+      "act": [
+        "rv64i/Zicntr/Zicntr-csrrs-00.S",
+        1
+      ]
     },
     "rdinstreth": {
       "sail": [
         16,
         99
       ],
-      "spike": "csrrs"
+      "spike": "csrrs",
+      "act": [
+        "rv32i/Zicntr/Zicntr-csrrs-00.S",
+        1
+      ]
     },
     "rdtime": {
       "sail": [
         16,
         99
       ],
-      "spike": "csrrs"
+      "spike": "csrrs",
+      "act": [
+        "rv64i/Zicntr/Zicntr-csrrs-00.S",
+        1
+      ]
     },
     "rdtimeh": {
       "sail": [
         16,
         99
       ],
-      "spike": "csrrs"
+      "spike": "csrrs",
+      "act": [
+        "rv32i/Zicntr/Zicntr-csrrs-00.S",
+        1
+      ]
     },
     "rem": {
       "sail": [
         18,
         76
       ],
-      "spike": "rem"
+      "spike": "rem",
+      "act": [
+        "rv64i/M/M-rem-00.S",
+        1
+      ]
     },
     "remu": {
       "sail": [
         18,
         76
       ],
-      "spike": "remu"
+      "spike": "remu",
+      "act": [
+        "rv64i/M/M-remu-00.S",
+        1
+      ]
     },
     "remuw": {
       "sail": [
         18,
         144
       ],
-      "spike": "remuw"
+      "spike": "remuw",
+      "act": [
+        "rv64i/M/M-remuw-00.S",
+        1
+      ]
     },
     "remw": {
       "sail": [
         18,
         144
       ],
-      "spike": "remw"
+      "spike": "remw",
+      "act": [
+        "rv64i/M/M-remw-00.S",
+        1
+      ]
     },
     "rev8": {
       "sail": [
         4,
         219
       ],
-      "spike": "rev8"
+      "spike": "rev8",
+      "act": [
+        "rv64i/Zbb/Zbb-rev8-00.S",
+        1
+      ]
     },
     "rev8.rv32": {
       "sail": [
         4,
         219
       ],
-      "spike": "rev8_rv32"
+      "spike": "rev8_rv32",
+      "act": [
+        "rv32i/Zbkb/Zbkb-rev8-00.S",
+        1
+      ]
     },
     "rol": {
       "sail": [
         4,
         153
       ],
-      "spike": "rol"
+      "spike": "rol",
+      "act": [
+        "rv64i/Zbb/Zbb-rol-00.S",
+        1
+      ]
     },
     "rolw": {
       "sail": [
         4,
         71
       ],
-      "spike": "rolw"
+      "spike": "rolw",
+      "act": [
+        "rv64i/Zbb/Zbb-rolw-00.S",
+        1
+      ]
     },
     "ror": {
       "sail": [
         4,
         154
       ],
-      "spike": "ror"
+      "spike": "ror",
+      "act": [
+        "rv64i/Zbb/Zbb-ror-00.S",
+        1
+      ]
     },
     "rori": {
       "sail": [
         4,
         39
       ],
-      "spike": "rori"
+      "spike": "rori",
+      "act": [
+        "rv64i/Zbb/Zbb-rori-00.S",
+        1
+      ]
     },
     "roriw": {
       "sail": [
         4,
         23
       ],
-      "spike": "roriw"
+      "spike": "roriw",
+      "act": [
+        "rv64i/Zbb/Zbb-roriw-00.S",
+        1
+      ]
     },
     "rorw": {
       "sail": [
         4,
         72
       ],
-      "spike": "rorw"
+      "spike": "rorw",
+      "act": [
+        "rv64i/Zbb/Zbb-rorw-00.S",
+        1
+      ]
     },
     "sb": {
       "sail": [
         0,
         316
       ],
-      "spike": "sb"
+      "spike": "sb",
+      "act": [
+        "rv64i/I/I-sb-00.S",
+        1
+      ]
     },
     "sb.rl": {
       "spike": "sb_rl"
@@ -3103,21 +4635,33 @@
         29,
         66
       ],
-      "spike": "sc_d"
+      "spike": "sc_d",
+      "act": [
+        "rv64i/Zalrsc/Zalrsc-sc.d-00.S",
+        1
+      ]
     },
     "sc.w": {
       "sail": [
         29,
         66
       ],
-      "spike": "sc_w"
+      "spike": "sc_w",
+      "act": [
+        "rv64i/Zalrsc/Zalrsc-sc.w-00.S",
+        1
+      ]
     },
     "sd": {
       "sail": [
         0,
         316
       ],
-      "spike": "sd"
+      "spike": "sd",
+      "act": [
+        "rv64i/I/I-sd-00.S",
+        1
+      ]
     },
     "sd.rl": {
       "spike": "sd_rl"
@@ -3130,14 +4674,22 @@
         4,
         196
       ],
-      "spike": "sext_b"
+      "spike": "sext_b",
+      "act": [
+        "rv64i/Zbb/Zbb-sext.b-00.S",
+        1
+      ]
     },
     "sext.h": {
       "sail": [
         4,
         197
       ],
-      "spike": "sext_h"
+      "spike": "sext_h",
+      "act": [
+        "rv64i/Zbb/Zbb-sext.h-00.S",
+        1
+      ]
     },
     "sfence.inval.ir": {
       "sail": [
@@ -3165,7 +4717,11 @@
         0,
         316
       ],
-      "spike": "sh"
+      "spike": "sh",
+      "act": [
+        "rv64i/I/I-sh-00.S",
+        1
+      ]
     },
     "sh.rl": {
       "spike": "sh_rl"
@@ -3175,140 +4731,220 @@
         1,
         74
       ],
-      "spike": "sh1add"
+      "spike": "sh1add",
+      "act": [
+        "rv64i/Zba/Zba-sh1add-00.S",
+        1
+      ]
     },
     "sh1add.uw": {
       "sail": [
         1,
         53
       ],
-      "spike": "sh1add_uw"
+      "spike": "sh1add_uw",
+      "act": [
+        "rv64i/Zba/Zba-sh1add.uw-00.S",
+        1
+      ]
     },
     "sh2add": {
       "sail": [
         1,
         74
       ],
-      "spike": "sh2add"
+      "spike": "sh2add",
+      "act": [
+        "rv64i/Zba/Zba-sh2add-00.S",
+        1
+      ]
     },
     "sh2add.uw": {
       "sail": [
         1,
         53
       ],
-      "spike": "sh2add_uw"
+      "spike": "sh2add_uw",
+      "act": [
+        "rv64i/Zba/Zba-sh2add.uw-00.S",
+        1
+      ]
     },
     "sh3add": {
       "sail": [
         1,
         74
       ],
-      "spike": "sh3add"
+      "spike": "sh3add",
+      "act": [
+        "rv64i/Zba/Zba-sh3add-00.S",
+        1
+      ]
     },
     "sh3add.uw": {
       "sail": [
         1,
         53
       ],
-      "spike": "sh3add_uw"
+      "spike": "sh3add_uw",
+      "act": [
+        "rv64i/Zba/Zba-sh3add.uw-00.S",
+        1
+      ]
     },
     "sha256sig0": {
       "sail": [
         2,
         52
       ],
-      "spike": "sha256sig0"
+      "spike": "sha256sig0",
+      "act": [
+        "rv64i/Zknh/Zknh-sha256sig0-00.S",
+        1
+      ]
     },
     "sha256sig1": {
       "sail": [
         2,
         59
       ],
-      "spike": "sha256sig1"
+      "spike": "sha256sig1",
+      "act": [
+        "rv64i/Zknh/Zknh-sha256sig1-00.S",
+        1
+      ]
     },
     "sha256sum0": {
       "sail": [
         2,
         66
       ],
-      "spike": "sha256sum0"
+      "spike": "sha256sum0",
+      "act": [
+        "rv64i/Zknh/Zknh-sha256sum0-00.S",
+        1
+      ]
     },
     "sha256sum1": {
       "sail": [
         2,
         73
       ],
-      "spike": "sha256sum1"
+      "spike": "sha256sum1",
+      "act": [
+        "rv64i/Zknh/Zknh-sha256sum1-00.S",
+        1
+      ]
     },
     "sha512sig0": {
       "sail": [
         2,
         434
       ],
-      "spike": "sha512sig0"
+      "spike": "sha512sig0",
+      "act": [
+        "rv64i/Zknh/Zknh-sha512sig0-00.S",
+        1
+      ]
     },
     "sha512sig0h": {
       "sail": [
         2,
         226
       ],
-      "spike": "sha512sig0h"
+      "spike": "sha512sig0h",
+      "act": [
+        "rv32i/Zknh/Zknh-sha512sig0h-00.S",
+        1
+      ]
     },
     "sha512sig0l": {
       "sail": [
         2,
         232
       ],
-      "spike": "sha512sig0l"
+      "spike": "sha512sig0l",
+      "act": [
+        "rv32i/Zknh/Zknh-sha512sig0l-00.S",
+        1
+      ]
     },
     "sha512sig1": {
       "sail": [
         2,
         442
       ],
-      "spike": "sha512sig1"
+      "spike": "sha512sig1",
+      "act": [
+        "rv64i/Zknh/Zknh-sha512sig1-00.S",
+        1
+      ]
     },
     "sha512sig1h": {
       "sail": [
         2,
         238
       ],
-      "spike": "sha512sig1h"
+      "spike": "sha512sig1h",
+      "act": [
+        "rv32i/Zknh/Zknh-sha512sig1h-00.S",
+        1
+      ]
     },
     "sha512sig1l": {
       "sail": [
         2,
         244
       ],
-      "spike": "sha512sig1l"
+      "spike": "sha512sig1l",
+      "act": [
+        "rv32i/Zknh/Zknh-sha512sig1l-00.S",
+        1
+      ]
     },
     "sha512sum0": {
       "sail": [
         2,
         450
       ],
-      "spike": "sha512sum0"
+      "spike": "sha512sum0",
+      "act": [
+        "rv64i/Zknh/Zknh-sha512sum0-00.S",
+        1
+      ]
     },
     "sha512sum0r": {
       "sail": [
         2,
         250
       ],
-      "spike": "sha512sum0r"
+      "spike": "sha512sum0r",
+      "act": [
+        "rv32i/Zknh/Zknh-sha512sum0r-00.S",
+        1
+      ]
     },
     "sha512sum1": {
       "sail": [
         2,
         458
       ],
-      "spike": "sha512sum1"
+      "spike": "sha512sum1",
+      "act": [
+        "rv64i/Zknh/Zknh-sha512sum1-00.S",
+        1
+      ]
     },
     "sha512sum1r": {
       "sail": [
         2,
         256
       ],
-      "spike": "sha512sum1r"
+      "spike": "sha512sum1r",
+      "act": [
+        "rv32i/Zknh/Zknh-sha512sum1r-00.S",
+        1
+      ]
     },
     "sinval.vma": {
       "sail": [
@@ -3322,119 +4958,187 @@
         0,
         245
       ],
-      "spike": "sll"
+      "spike": "sll",
+      "act": [
+        "rv64i/I/I-sll-00.S",
+        1
+      ]
     },
     "slli": {
       "sail": [
         0,
         206
       ],
-      "spike": "slli"
+      "spike": "slli",
+      "act": [
+        "rv64i/I/I-slli-00.S",
+        1
+      ]
     },
     "slli.uw": {
       "sail": [
         1,
         23
       ],
-      "spike": "slli_uw"
+      "spike": "slli_uw",
+      "act": [
+        "rv64i/Zba/Zba-slli.uw-00.S",
+        1
+      ]
     },
     "slliw": {
       "sail": [
         0,
         417
       ],
-      "spike": "slliw"
+      "spike": "slliw",
+      "act": [
+        "rv64i/I/I-slliw-00.S",
+        1
+      ]
     },
     "sllw": {
       "sail": [
         0,
         380
       ],
-      "spike": "sllw"
+      "spike": "sllw",
+      "act": [
+        "rv64i/I/I-sllw-00.S",
+        1
+      ]
     },
     "slt": {
       "sail": [
         0,
         240
       ],
-      "spike": "slt"
+      "spike": "slt",
+      "act": [
+        "rv64i/I/I-slt-00.S",
+        1
+      ]
     },
     "slti": {
       "sail": [
         0,
         162
       ],
-      "spike": "slti"
+      "spike": "slti",
+      "act": [
+        "rv64i/I/I-slti-00.S",
+        1
+      ]
     },
     "sltiu": {
       "sail": [
         0,
         163
       ],
-      "spike": "sltiu"
+      "spike": "sltiu",
+      "act": [
+        "rv64i/I/I-sltiu-00.S",
+        1
+      ]
     },
     "sltu": {
       "sail": [
         0,
         241
       ],
-      "spike": "sltu"
+      "spike": "sltu",
+      "act": [
+        "rv64i/I/I-sltu-00.S",
+        1
+      ]
     },
     "sm3p0": {
       "sail": [
         34,
         33
       ],
-      "spike": "sm3p0"
+      "spike": "sm3p0",
+      "act": [
+        "rv64i/Zksh/Zksh-sm3p0-00.S",
+        1
+      ]
     },
     "sm3p1": {
       "sail": [
         34,
         40
       ],
-      "spike": "sm3p1"
+      "spike": "sm3p1",
+      "act": [
+        "rv64i/Zksh/Zksh-sm3p1-00.S",
+        1
+      ]
     },
     "sm4ed": {
       "sail": [
         34,
         71
       ],
-      "spike": "sm4ed"
+      "spike": "sm4ed",
+      "act": [
+        "rv64i/Zksed/Zksed-sm4ed-00.S",
+        1
+      ]
     },
     "sm4ks": {
       "sail": [
         34,
         84
       ],
-      "spike": "sm4ks"
+      "spike": "sm4ks",
+      "act": [
+        "rv64i/Zksed/Zksed-sm4ks-00.S",
+        1
+      ]
     },
     "sra": {
       "sail": [
         0,
         248
       ],
-      "spike": "sra"
+      "spike": "sra",
+      "act": [
+        "rv64i/I/I-sra-00.S",
+        1
+      ]
     },
     "srai": {
       "sail": [
         0,
         208
       ],
-      "spike": "srai"
+      "spike": "srai",
+      "act": [
+        "rv64i/I/I-srai-00.S",
+        1
+      ]
     },
     "sraiw": {
       "sail": [
         0,
         419
       ],
-      "spike": "sraiw"
+      "spike": "sraiw",
+      "act": [
+        "rv64i/I/I-sraiw-00.S",
+        1
+      ]
     },
     "sraw": {
       "sail": [
         0,
         382
       ],
-      "spike": "sraw"
+      "spike": "sraw",
+      "act": [
+        "rv64i/I/I-sraw-00.S",
+        1
+      ]
     },
     "sret": {
       "sail": [
@@ -3448,28 +5152,44 @@
         0,
         246
       ],
-      "spike": "srl"
+      "spike": "srl",
+      "act": [
+        "rv64i/I/I-srl-00.S",
+        1
+      ]
     },
     "srli": {
       "sail": [
         0,
         207
       ],
-      "spike": "srli"
+      "spike": "srli",
+      "act": [
+        "rv64i/I/I-srli-00.S",
+        1
+      ]
     },
     "srliw": {
       "sail": [
         0,
         418
       ],
-      "spike": "srliw"
+      "spike": "srliw",
+      "act": [
+        "rv64i/I/I-srliw-00.S",
+        1
+      ]
     },
     "srlw": {
       "sail": [
         0,
         381
       ],
-      "spike": "srlw"
+      "spike": "srlw",
+      "act": [
+        "rv64i/I/I-srlw-00.S",
+        1
+      ]
     },
     "ssamoswap.d": {
       "sail": [
@@ -3497,21 +5217,33 @@
         0,
         247
       ],
-      "spike": "sub"
+      "spike": "sub",
+      "act": [
+        "rv64i/I/I-sub-00.S",
+        1
+      ]
     },
     "subw": {
       "sail": [
         0,
         379
       ],
-      "spike": "subw"
+      "spike": "subw",
+      "act": [
+        "rv64i/I/I-subw-00.S",
+        1
+      ]
     },
     "sw": {
       "sail": [
         0,
         316
       ],
-      "spike": "sw"
+      "spike": "sw",
+      "act": [
+        "rv64i/I/I-sw-00.S",
+        1
+      ]
     },
     "sw.rl": {
       "spike": "sw_rl"
@@ -3521,7 +5253,11 @@
         7,
         96
       ],
-      "spike": "unzip"
+      "spike": "unzip",
+      "act": [
+        "rv32i/Zbkb/Zbkb-unzip-00.S",
+        1
+      ]
     },
     "vaadd.vv": {
       "sail": [
@@ -8296,56 +10032,88 @@
         4,
         148
       ],
-      "spike": "xnor"
+      "spike": "xnor",
+      "act": [
+        "rv64i/Zbb/Zbb-xnor-00.S",
+        1
+      ]
     },
     "xor": {
       "sail": [
         0,
         244
       ],
-      "spike": "xor"
+      "spike": "xor",
+      "act": [
+        "rv64i/I/I-xor-00.S",
+        1
+      ]
     },
     "xori": {
       "sail": [
         0,
         166
       ],
-      "spike": "xori"
+      "spike": "xori",
+      "act": [
+        "rv64i/I/I-xori-00.S",
+        1
+      ]
     },
     "xperm4": {
       "sail": [
         56,
         47
       ],
-      "spike": "xperm4"
+      "spike": "xperm4",
+      "act": [
+        "rv64i/Zbkx/Zbkx-xperm4-00.S",
+        1
+      ]
     },
     "xperm8": {
       "sail": [
         56,
         22
       ],
-      "spike": "xperm8"
+      "spike": "xperm8",
+      "act": [
+        "rv64i/Zbkx/Zbkx-xperm8-00.S",
+        1
+      ]
     },
     "zext.h": {
       "sail": [
         4,
         198
       ],
-      "spike": "packw"
+      "spike": "packw",
+      "act": [
+        "rv64i/Zbb/Zbb-zext.h-00.S",
+        1
+      ]
     },
     "zext.h.rv32": {
       "sail": [
         4,
         198
       ],
-      "spike": "pack"
+      "spike": "pack",
+      "act": [
+        "rv32i/Zbb/Zbb-zext.h-00.S",
+        1
+      ]
     },
     "zip": {
       "sail": [
         7,
         73
       ],
-      "spike": "zip"
+      "spike": "zip",
+      "act": [
+        "rv32i/Zbkb/Zbkb-zip-00.S",
+        1
+      ]
     }
   }
 }

@@ -28,7 +28,14 @@ someone silently. Each release below records its catalogue size.
   such as Sail for the Q extension or Zilsd, is shown greyed out. 1,153 of the
   1,230 instructions link to Sail and 1,222 to Spike. A weekly workflow
   re-syncs both and opens a pull request when an instruction gains or loses a
-  link; by hand, `npm run sync:references -- <sail-riscv> <riscv-isa-sim>`.
+  link; by hand, `npm run sync:references -- <sail-riscv> <riscv-isa-sim>
+  <riscv-arch-test>`.
+- **Links to each instruction's Architectural Certification Test.** Beside Sail
+  and Spike, an ACT link opens the instruction's test in riscv-arch-test,
+  pinned to a commit (the first part, for tests split into several). 441
+  instructions have one; vector, Q, hypervisor and privileged instructions
+  have no per-instruction test there yet and show greyed out. The weekly
+  workflow keeps these in sync too.
 - **The release version is shown.** The header's counts row and the footer
   name the running release (v1.9.0), linked to its release notes, so a report
   or screenshot says which build it came from. The number comes from

@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /**
  * Regenerates src/instruction-references.json: where each catalogue
- * instruction is implemented in the two reference models.
+ * instruction is implemented in the two reference models, and where its
+ * architectural certification test lives.
  *
- *   node scripts/sync_reference_impls.mjs <sail-riscv> <riscv-isa-sim> [--check]
+ *   node scripts/sync_reference_impls.mjs <sail-riscv> <riscv-isa-sim>
+ *                                         <riscv-arch-test> [--check]
  *                                         [--report <file>]
  *
  *   sail-riscv     the formal model. Instructions share execute clauses, so
@@ -11,8 +13,11 @@
  *                  find the clause, and the match arm inside it, for each one.
  *   riscv-isa-sim  Spike. One file per instruction, riscv/insns/<name>.h, with
  *                  the mnemonic's dots written as underscores.
+ *   riscv-arch-test  the Architectural Certification Tests (ACT). One test per
+ *                  instruction, tests/<xlen>/<Ext>/<Ext>-<mnemonic>-NN.S, some
+ *                  split into several numbered parts.
  *
- * Both are pinned to the checked-out commit. An instruction neither model has
+ * All three are pinned to the checked-out commit. An instruction neither model has
  * yet is simply absent from that model's side; the panel shows it greyed out.
  *
  * --report writes a Markdown summary of what changed since the committed file:
@@ -33,12 +38,12 @@ const args = process.argv.slice(2);
 const checkOnly = args.includes('--check');
 const reportIndex = args.indexOf('--report');
 const reportPath = reportIndex >= 0 ? path.resolve(args[reportIndex + 1] ?? '') : null;
-const [sailRoot, spikeRoot] = args
+const [sailRoot, spikeRoot, actRoot] = args
   .filter((arg, i) => !arg.startsWith('--') && (reportIndex < 0 || i !== reportIndex + 1))
   .map((p) => path.resolve(p));
-if (!sailRoot || !spikeRoot) {
+if (!sailRoot || !spikeRoot || !actRoot) {
   console.error(
-    'usage: sync_reference_impls.mjs <sail-riscv> <riscv-isa-sim> [--check] [--report <file>]',
+    'usage: sync_reference_impls.mjs <sail-riscv> <riscv-isa-sim> <riscv-arch-test> [--check] [--report <file>]',
   );
   process.exit(2);
 }
@@ -50,14 +55,19 @@ const revision = (repo) =>
 const catalog = JSON.parse(
   fs.readFileSync(path.join(root, 'src', 'riscv_extensions.json'), 'utf8'),
 );
-const mnemonics = [
-  ...new Set(
-    Object.values(catalog)
-      .flat()
-      .flatMap((ext) => Object.keys(ext?.instructions || {}))
-      .map((m) => m.toLowerCase()),
-  ),
-].sort();
+// Per mnemonic: the catalogue extensions listing it, and its riscv-opcodes
+// tags (rv32_zicntr), which say when it exists at one width only.
+const owners = new Map();
+const widthTags = new Map();
+for (const ext of Object.values(catalog).flat()) {
+  for (const [name, record] of Object.entries(ext?.instructions || {})) {
+    const mnemonic = name.toLowerCase();
+    if (!owners.has(mnemonic)) owners.set(mnemonic, new Set());
+    owners.get(mnemonic).add(ext.id);
+    widthTags.set(mnemonic, record.extension || []);
+  }
+}
+const mnemonics = [...owners.keys()].sort();
 
 /*
  * Instructions a model implements under another instruction's name, because
@@ -145,6 +155,72 @@ const spikeName = (mnemonic) => {
   ].find((n) => spikeInsns.has(n));
 };
 
+/* ── ACT ────────────────────────────────────────────────────────────────── */
+
+/*
+ * tests/<xlen>/<Dir>/<Prefix>-<mnemonic>-NN.S. The directory is the extension
+ * (the prefix can be longer: ZihintntlZca-c.ntl.all sits in Zihintntl).
+ * Misalign holds misaligned-access tests of ordinary loads and stores, not
+ * tests of the instruction itself, and priv/ is organised by feature, so
+ * neither is read.
+ */
+const ACT_XLENS = ['rv64i', 'rv32i', 'rv64e', 'rv32e'];
+const actTests = new Map(); // mnemonic -> [{ xlen, dir, first, parts }]
+for (const xlen of ACT_XLENS) {
+  const xlenDir = path.join(actRoot, 'tests', xlen);
+  if (!fs.existsSync(xlenDir)) continue;
+  for (const dir of fs.readdirSync(xlenDir).sort()) {
+    if (dir === 'Misalign') continue;
+    const parts = new Map();
+    for (const file of fs.readdirSync(path.join(xlenDir, dir)).sort()) {
+      const test = file.match(/^[^-]+-(.+)-(\d+)\.S$/);
+      if (!test) continue;
+      const entry = parts.get(test[1]) ?? { first: file, parts: 0 };
+      entry.parts++;
+      parts.set(test[1], entry);
+    }
+    for (const [mnemonic, entry] of parts) {
+      if (!actTests.has(mnemonic)) actTests.set(mnemonic, []);
+      actTests.get(mnemonic).push({ xlen, dir, ...entry });
+    }
+  }
+}
+
+/* The ACT directory a catalogue extension's tests live in. */
+const actDir = (id) => id.replace(/^RV(32|64)([IE])$/, '$2');
+
+/*
+ * The test for one catalogue instruction. An instruction that exists at one
+ * width only takes a test at that width: rdcycleh is RV32-only, and ld.rv32
+ * is Zilsd, which ACT does not test yet and must not land on the RV64 ld. Among several candidates, the directory of an extension that
+ * owns the instruction wins: csrrs is tested under Zicsr, Zicntr and Zihpm,
+ * and only Zicsr owns it. A shared-encoding alias counts only from such a
+ * directory, so rdcycle takes Zicntr's csrrs test but ntl.all never takes
+ * I's add test.
+ */
+function actTest(mnemonic) {
+  const tags = widthTags.get(mnemonic);
+  const only = (width) => tags.length > 0 && tags.every((tag) => tag.startsWith(`rv${width}_`));
+  const xlens = ACT_XLENS.filter((xlen) =>
+    mnemonic.endsWith('.rv32') || only(32)
+      ? xlen.startsWith('rv32')
+      : only(64)
+        ? xlen.startsWith('rv64')
+        : true,
+  );
+  const own = new Set([...owners.get(mnemonic)].map(actDir));
+  const pick = (name, ownOnly) => {
+    const found = (actTests.get(name) ?? [])
+      .filter((t) => xlens.includes(t.xlen))
+      .sort((a, b) => xlens.indexOf(a.xlen) - xlens.indexOf(b.xlen));
+    return found.find((t) => own.has(t.dir)) ?? (ownOnly ? undefined : found[0]);
+  };
+  return (
+    pick(base(mnemonic), false) ??
+    (SHARED_ENCODING[mnemonic] && pick(SHARED_ENCODING[mnemonic], true))
+  );
+}
+
 /* ── Output ─────────────────────────────────────────────────────────────── */
 
 const sailPaths = [];
@@ -167,13 +243,16 @@ for (const mnemonic of mnemonics) {
       break;
     }
   }
-  if (entry.sail || entry.spike) instructions[mnemonic] = entry;
+  const test = actTest(mnemonic);
+  if (test) entry.act = [`${test.xlen}/${test.dir}/${test.first}`, test.parts];
+  if (entry.sail || entry.spike || entry.act) instructions[mnemonic] = entry;
 }
 
 const output = `${JSON.stringify(
   {
     sail: { repo: 'riscv/sail-riscv', commit: revision(sailRoot), files: sailPaths },
     spike: { repo: 'riscv-software-src/riscv-isa-sim', commit: revision(spikeRoot) },
+    act: { repo: 'riscv/riscv-arch-test', commit: revision(actRoot) },
     instructions,
   },
   null,
@@ -182,7 +261,7 @@ const output = `${JSON.stringify(
 
 const previous = fs.existsSync(outputPath)
   ? JSON.parse(fs.readFileSync(outputPath, 'utf8'))
-  : { sail: {}, spike: {}, instructions: {} };
+  : { sail: {}, spike: {}, act: {}, instructions: {} };
 
 function changeReport() {
   const linked = (data, key) =>
@@ -193,6 +272,7 @@ function changeReport() {
   for (const [key, name, repo] of [
     ['sail', 'Sail', sailRoot],
     ['spike', 'Spike', spikeRoot],
+    ['act', 'ACT', actRoot],
   ]) {
     const before = linked(previous, key);
     const after = new Set(mnemonics.filter((m) => instructions[m]?.[key]));
@@ -218,7 +298,7 @@ function changeReport() {
 }
 
 const count = (key) => Object.values(instructions).filter((e) => e[key]).length;
-const summary = `${mnemonics.length} instructions: ${count('sail')} in Sail, ${count('spike')} in Spike`;
+const summary = `${mnemonics.length} instructions: ${count('sail')} in Sail, ${count('spike')} in Spike, ${count('act')} with an ACT test`;
 
 if (checkOnly) {
   const current = fs.existsSync(outputPath) ? fs.readFileSync(outputPath, 'utf8') : '';
@@ -233,4 +313,5 @@ if (checkOnly) {
   const missing = (key) => mnemonics.filter((m) => !instructions[m]?.[key]);
   console.log(`Not in Sail (${missing('sail').length}): ${missing('sail').join(' ')}`);
   console.log(`Not in Spike (${missing('spike').length}): ${missing('spike').join(' ')}`);
+  console.log(`No ACT test (${missing('act').length}): ${missing('act').join(' ')}`);
 }

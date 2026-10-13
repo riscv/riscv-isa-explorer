@@ -1,5 +1,5 @@
 /**
- * The Sail and Spike links (src/instruction-references.json). Spike's side is
+ * The Sail, Spike and ACT links (src/instruction-references.json). Spike's side is
  * a filename lookup; Sail's is a parser over the model's assembly mappings
  * (scripts/sail-assembly.mjs), so most of these tests feed that parser small
  * pieces of Sail written the ways the real model writes them, and check that
@@ -15,6 +15,18 @@ import { referenceLinks } from '../src/instructionUsage.js';
 const require = createRequire(import.meta.url);
 const references = require('../src/instruction-references.json');
 const catalog = require('../src/riscv_extensions.json');
+
+// ACT links that open another instruction's test because the two share an
+// encoding: the counter reads are csrrs, fence.tso is a fence.
+const ACT_ALIASES = {
+  'fence.tso': 'fence',
+  rdcycle: 'csrrs',
+  rdcycleh: 'csrrs',
+  rdinstret: 'csrrs',
+  rdinstreth: 'csrrs',
+  rdtime: 'csrrs',
+  rdtimeh: 'csrrs',
+};
 
 const lineOf = (text, needle) => text.split('\n').findIndex((l) => l.includes(needle)) + 1;
 
@@ -118,6 +130,7 @@ test('every linked mnemonic is in the catalogue, and every link resolves', () =>
   );
   assert.match(references.sail.commit, /^[0-9a-f]{40}$/);
   assert.match(references.spike.commit, /^[0-9a-f]{40}$/);
+  assert.match(references.act.commit, /^[0-9a-f]{40}$/);
   for (const [mnemonic, entry] of Object.entries(references.instructions)) {
     assert.ok(mnemonics.has(mnemonic), `${mnemonic} is not a catalogue instruction`);
     if (entry.sail) {
@@ -126,6 +139,13 @@ test('every linked mnemonic is in the catalogue, and every link resolves', () =>
       assert.ok(Number.isInteger(line) && line > 0, mnemonic);
     }
     if (entry.spike) assert.match(entry.spike, /^[a-z0-9_]+(_N)?$/, mnemonic);
+    if (entry.act) {
+      const [file, parts] = entry.act;
+      assert.match(file, /^rv(32|64)[ie]\/\w+\/[A-Za-z0-9]+-[a-z0-9.]+-00\.S$/, mnemonic);
+      assert.ok(Number.isInteger(parts) && parts > 0, mnemonic);
+      const tested = ACT_ALIASES[mnemonic] ?? mnemonic.replace(/\.rv32$/, '');
+      assert.ok(file.includes(`-${tested}-`), `${mnemonic} links to ${file}`);
+    }
   }
 });
 
@@ -135,6 +155,7 @@ test('coverage does not quietly drop', () => {
   const count = (key) => Object.values(references.instructions).filter((e) => e[key]).length;
   assert.ok(count('sail') >= 1150, `Sail links: ${count('sail')}`);
   assert.ok(count('spike') >= 1220, `Spike links: ${count('spike')}`);
+  assert.ok(count('act') >= 440, `ACT links: ${count('act')}`);
 });
 
 test('RV32 register-pair loads and stores never link to the RV64 Sail code', () => {
@@ -144,6 +165,22 @@ test('RV32 register-pair loads and stores never link to the RV64 Sail code', () 
     assert.equal(references.instructions[mnemonic]?.sail, undefined, mnemonic);
     assert.ok(references.instructions[mnemonic]?.spike, mnemonic);
   }
+});
+
+test('ACT: the owning extension’s directory and the instruction’s own width win', () => {
+  const act = (mnemonic) => references.instructions[mnemonic]?.act?.[0];
+  // Tested under Zicsr, Zicntr and Zihpm; only Zicsr owns csrrs.
+  assert.equal(act('csrrs'), 'rv64i/Zicsr/Zicsr-csrrs-00.S');
+  assert.equal(act('rdcycle'), 'rv64i/Zicntr/Zicntr-csrrs-00.S');
+  // RV32-only, so never the RV64 test.
+  assert.equal(act('rdcycleh'), 'rv32i/Zicntr/Zicntr-csrrs-00.S');
+  assert.equal(act('c.jal'), 'rv32i/Zca/Zca-c.jal-00.S');
+  assert.equal(act('zext.h.rv32'), 'rv32i/Zbb/Zbb-zext.h-00.S');
+  // Zilsd has no ACT test; the RV64 ld must not stand in for it.
+  for (const mnemonic of ['ld.rv32', 'sd.rv32', 'c.ld.rv32'])
+    assert.equal(act(mnemonic), undefined);
+  // A hint is not its base instruction's test.
+  assert.ok(!act('ntl.all') || act('ntl.all').includes('-ntl.all-'));
 });
 
 test('referenceLinks builds commit-pinned URLs, and null for a missing model', () => {
@@ -158,7 +195,15 @@ test('referenceLinks builds commit-pinned URLs, and null for a missing model', (
     `https://github.com/riscv-software-src/riscv-isa-sim/blob/${spike.commit}/riscv/insns/vaadd_vv.h`,
   );
 
+  const add = referenceLinks(references, 'add');
+  assert.equal(
+    add.act.url,
+    `https://github.com/riscv/riscv-arch-test/blob/${references.act.commit}/tests/rv64i/I/I-add-00.S`,
+  );
+  assert.equal(add.act.parts, references.instructions.add.act[1]);
+
   const quad = referenceLinks(references, 'fadd.q');
+  assert.equal(quad.act.url, null);
   assert.equal(quad.sail.url, null);
   assert.equal(quad.sail.commit, sail.commit.slice(0, 7));
   assert.ok(quad.spike.url);
