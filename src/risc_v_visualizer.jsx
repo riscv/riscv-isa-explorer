@@ -51,6 +51,7 @@ import { instructionSynopsis } from './instructionMetadata.js';
 import ExtensionTile from './ExtensionTile.jsx';
 import CompareView from './CompareView.jsx';
 import EncodingDiagram from './EncodingDiagram.jsx';
+import InstructionUsage from './InstructionUsage.jsx';
 import CsrDetails from './CsrDetails.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import { computeLockedExtensions, missingMandatory } from './workspaceLock.js';
@@ -4843,6 +4844,11 @@ const RISCVExplorer = () => {
                           </div>
 
                           <div className="space-y-3">
+                            <InstructionUsage
+                              extension={selectedExt}
+                              instruction={selectedInstruction}
+                              catalogIds={BUILDER_CHECKS.catalogIds}
+                            />
                             <div>
                               <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
                                 Encoding
@@ -5857,6 +5863,12 @@ const RISCVExplorer = () => {
                     </a>
                   </section>
                 )}
+                <InstructionUsage
+                  extension={selectedExt}
+                  instruction={selectedInstruction}
+                  catalogIds={BUILDER_CHECKS.catalogIds}
+                  expanded
+                />
                 {/* ── Encoding Diagram — full width, no scroll on wide screens ── */}
                 <div>
                   <div

@@ -62,6 +62,12 @@ for (const name of [...catalogNames].sort((a, b) => a.localeCompare(b))) {
     long_name: instruction.long_name || '',
     description: typeof instruction.description === 'string' ? instruction.description.trim() : '',
     defined_by: instruction.definedBy || null,
+    // Operand template exactly as UDB writes it (`xd, imm(xs1)`); the UI
+    // renames UDB's xd/xs1 to the spec's rd/rs1 at display time.
+    assembly: typeof instruction.assembly === 'string' ? instruction.assembly.trim() : '',
+    // Only `true` is a claim (the Zkt/Zvkt lists). `false` and absent both
+    // mean "not guaranteed", so absent is not written.
+    ...(instruction.data_independent_timing === true ? { data_independent_timing: true } : {}),
     source: `https://github.com/riscv/riscv-unified-db/blob/${revision}/${path
       .relative(udbRoot, source.file)
       .split(path.sep)

@@ -25,6 +25,15 @@ someone silently. Each release below records its catalogue size.
   field against the current catalogue, as a restore from the browser does. If
   the visitor has a different configuration saved, a banner asks before
   replacing it. Suggested by Nicolas Brunie (#407).
+- **How to write each instruction.** The instruction details now show the
+  assembly syntax as the specification writes it, a concrete line that
+  assembles, RV32-only, RV64-only and data-independent-timing facts, and the C
+  intrinsic that emits the instruction, with a count of its type variants and
+  a link to the intrinsics specification. A Compiler Explorer button opens the
+  intrinsic, or the assembly line where there is none, compiled by clang 23.1
+  for the instruction's `-march`. Intrinsics come from rvv-intrinsic-doc and
+  riscv-c-api-doc (`npm run sync:intrinsics`); the syntax comes from
+  riscv-unified-db.
 
 ## [1.8.0] - 2026-10-11
 

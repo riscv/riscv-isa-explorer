@@ -56,6 +56,11 @@ get a dependency-resolved configuration with a valid `-march` string.
 - **Read the registers and instructions.** CSR chips open each register's
   fields, and instructions carry descriptions taken from riscv-unified-db, each
   with a link to its source.
+- **Write an instruction.** Each instruction shows its assembly syntax with a
+  concrete example, whether it is RV32- or RV64-only or has data-independent
+  timing, the C intrinsic that emits it (from the RVV intrinsics and RISC-V C
+  API specifications), and a link that opens the example compiled in Compiler
+  Explorer with the right `-march`.
 - **Watch the ISA grow.** **Evolution** plots every dated extension on the month
   it was ratified, over a cumulative curve banded by family.
 - **Link out to the specification.** Each extension links to the page that
@@ -92,7 +97,8 @@ knowing before changing anything:
 | `src/instr_dict.json` | the instruction encodings themselves | **hand-maintained.** Checked against [riscv-opcodes](https://github.com/riscv/riscv-opcodes), but it carries entries upstream lacks and is never regenerated |
 | `src/isa-dependency-graph.json` | dependencies, conflicts and parameter constraints, with a citation on every edge | [riscv-unified-db](https://github.com/riscv/riscv-unified-db) |
 | `src/isa-params.json` | parameter definitions: type, admissible values, when each exists | riscv-unified-db, generated; never edited by hand |
-| `src/instruction-metadata.json` | instruction descriptions and ownership | riscv-unified-db, generated |
+| `src/instruction-metadata.json` | instruction descriptions, ownership and assembly syntax | riscv-unified-db, generated |
+| `src/instruction-intrinsics.json` | the C intrinsics that emit each instruction | [rvv-intrinsic-doc](https://github.com/riscv-non-isa/rvv-intrinsic-doc) and [riscv-c-api-doc](https://github.com/riscv-non-isa/riscv-c-api-doc), generated |
 | `src/profiles.js` | supported profiles, mandatory extensions, spec links | the profile specifications (Volume III), by hand |
 | `src/profile-optional.json` | each profile's optional extensions | riscv-unified-db, resolved through its profile inheritance |
 

@@ -42,6 +42,7 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run sync` | Regenerate instruction data from `src/instr_dict.json` |
 | `npm run sync:check` | Check instruction drift, write nothing (`sync --strict`) |
 | `npm run sync:udb` | Sync extension metadata from riscv-unified-db |
+| `npm run sync:intrinsics -- <rvv-intrinsic-doc> <riscv-c-api-doc>` | Regenerate `src/instruction-intrinsics.json` |
 | `npm run sync:params -- <path-to-udb>` | Regenerate `src/isa-params.json` (UDB parameter definitions) |
 | `npm run graph:check -- <path-to-udb>` | Check dependency graph vs UDB |
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
@@ -71,12 +72,16 @@ src/
   ProfileDownloadMenu.jsx     # Download menu shown while a profile is highlighted
   focusTrap.js                # modal focus trapping
   configPermalink.js          # ?profile= and ?cfg= share links; shared builder-state sanitiser
+  InstructionUsage.jsx        # instruction syntax, intrinsic and Compiler Explorer link
+  instructionUsage.js         # syntax, concrete examples, per-instruction -march, godbolt URL
   profiles.js                 # ratified profile definitions
   --- data (the source of truth) ---
   riscv_extensions.json       # extension catalogue + per-extension instruction encodings
   isa-dependency-graph.json   # dependencies/conflicts/params, one citation per edge
   isa-params.json             # UDB parameter DEFINITIONS, generated (see gotchas)
   instr_dict.json             # instruction encodings, HAND-MAINTAINED (see gotchas)
+  instruction-metadata.json   # UDB descriptions + assembly templates, generated
+  instruction-intrinsics.json # C intrinsics per instruction, generated (sync:intrinsics)
 scripts/                      # sync/seed/check tooling (.mjs / .cjs)
   static-pages.mjs            # crawler-readable page per extension + sitemap, run by the build
 tests/                        # node:test suites (*.test.mjs)
@@ -177,6 +182,16 @@ Then `npm run sync` and `npm test && npm run build`.
   sync step is needed: a new catalogue entry gets its page on the next deploy.
   A new catalogue field shows up there only if the template renders it.
   `tests/static-pages.test.mjs` guards coverage, escaping and the sitemap.
+- **The instruction examples are generated and checked by assembling them.**
+  `src/instructionUsage.js` turns each UDB operand template into a concrete
+  line, and `tests/instruction-usage.test.mjs` assembles all of them, and
+  compiles every intrinsic, when `RISCV_CLANG` names a RISC-V clang (CI's
+  distro clang is too old, so it is opt-in: run it after a sync). A UDB
+  template that is simply wrong goes in `ASSEMBLY_FIXES`, which the tests
+  fail on once upstream is fixed. Compiler Explorer links are pinned to
+  clang 23.1; extensions it only takes as experimental are listed in
+  `COMPILER_EXPLORER_UNSUPPORTED` and get no link. Re-check that list when
+  bumping the compiler.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;
   eslint ignores both). Don't hand-edit `dist/`.
 - **`gh-pages` branch is machine-published** by CI on every push to `main`.
