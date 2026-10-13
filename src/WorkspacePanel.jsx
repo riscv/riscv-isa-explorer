@@ -43,6 +43,7 @@ import {
   BASE_ISA_IDS,
   DATA_PROVENANCE,
 } from './marchUtils.js';
+import { MarchToolchains } from './ToolchainSupport.jsx';
 import { buildIsaConfigYaml } from './exportUtils.js';
 import {
   DEPENDENCY_GRAPH,
@@ -1601,6 +1602,8 @@ export default function WorkspacePanel({
                             {copiedMarch ? <CheckCircle2 size={16} /> : <Copy size={16} />}
                           </button>
                         </div>
+
+                        <MarchToolchains march={encodeResult.march} />
 
                         {unverifiedGraphIds.length > 0 && (
                           <div

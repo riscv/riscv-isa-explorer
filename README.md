@@ -64,6 +64,11 @@ get a dependency-resolved configuration with a valid `-march` string.
   models, the Sail formal model and the Spike simulator, and to its
   Architectural Certification Test (ACT) sit beside these; one that does not
   cover the instruction yet is shown greyed out.
+- **Know which toolchain builds it.** Each extension shows the first Clang and
+  GCC release whose `-march` accepts it, marking the ones Clang still takes
+  only as experimental. Under the builder's `-march` string, **Needs** gives the
+  oldest Clang and GCC that accept all of it, or names the extensions no
+  release takes yet. The versions are read from each release's own source.
 - **Watch the ISA grow.** **Evolution** plots every dated extension on the month
   it was ratified, over a cumulative curve banded by family.
 - **Link out to the specification.** Each extension links to the page that
@@ -101,6 +106,7 @@ knowing before changing anything:
 | `src/isa-dependency-graph.json` | dependencies, conflicts and parameter constraints, with a citation on every edge | [riscv-unified-db](https://github.com/riscv/riscv-unified-db) |
 | `src/isa-params.json` | parameter definitions: type, admissible values, when each exists | riscv-unified-db, generated; never edited by hand |
 | `src/instruction-metadata.json` | instruction descriptions, ownership and assembly syntax | riscv-unified-db, generated |
+| `src/toolchain-support.json` | the first Clang and GCC release accepting each extension in `-march` | each release's extension table in [llvm-project](https://github.com/llvm/llvm-project) (from 14) and [gcc](https://github.com/gcc-mirror/gcc) (from 12), generated |
 | `src/instruction-references.json` | where each instruction is implemented in Sail and Spike, and its ACT test | [sail-riscv](https://github.com/riscv/sail-riscv), [riscv-isa-sim](https://github.com/riscv-software-src/riscv-isa-sim) and [riscv-arch-test](https://github.com/riscv/riscv-arch-test), generated, pinned to a commit of each |
 | `src/instruction-intrinsics.json` | the C intrinsics that emit each instruction | [rvv-intrinsic-doc](https://github.com/riscv-non-isa/rvv-intrinsic-doc) and [riscv-c-api-doc](https://github.com/riscv-non-isa/riscv-c-api-doc), generated |
 | `src/profiles.js` | supported profiles, mandatory extensions, spec links | the profile specifications (Volume III), by hand |
@@ -155,6 +161,7 @@ hand-written link to their specification's repository.
 | extension metadata, CSRs, ratification state | the `sync-udb-extensions` workflow, Mondays at 06:00 UTC, opens or updates a PR when a file changes |
 | the published site | any push to `main` rebuilds and publishes to `gh-pages` |
 | static extension pages and `sitemap.xml` | generated from the catalogue on every build, for search engines and AI crawlers; nothing to run by hand |
+| toolchain support | the `sync-toolchain-support` workflow, the 1st of each month at 10:00 UTC, opens or updates a PR when a new Clang or GCC release ships or an extension's standing changes |
 | Sail, Spike and ACT links | the `sync-reference-impls` workflow, Mondays at 08:00 UTC, opens or updates a PR when an instruction gains or loses a link; new upstream commits alone do not, since the links are pinned |
 | instruction encodings | **by hand.** The `check-opcodes-drift` workflow, Mondays at 07:00 UTC, files an issue when upstream is ahead |
 | new extensions | **by hand.** The weekly sync only enriches entries we already have; the `check-udb-completeness` workflow, Mondays at 09:00 UTC, keeps one issue updated with what riscv-unified-db has and we do not |

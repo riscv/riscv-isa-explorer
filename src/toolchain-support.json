@@ -1,0 +1,1403 @@
+{
+  "tools": {
+    "llvm": {
+      "name": "Clang",
+      "repo": "llvm/llvm-project",
+      "releases": [
+        {
+          "version": "14",
+          "tag": "llvmorg-14.0.0"
+        },
+        {
+          "version": "15",
+          "tag": "llvmorg-15.0.0"
+        },
+        {
+          "version": "16",
+          "tag": "llvmorg-16.0.0"
+        },
+        {
+          "version": "17",
+          "tag": "llvmorg-17.0.0"
+        },
+        {
+          "version": "18",
+          "tag": "llvmorg-18.1.0"
+        },
+        {
+          "version": "19",
+          "tag": "llvmorg-19.1.0"
+        },
+        {
+          "version": "20",
+          "tag": "llvmorg-20.1.0"
+        },
+        {
+          "version": "21",
+          "tag": "llvmorg-21.1.0"
+        },
+        {
+          "version": "22",
+          "tag": "llvmorg-22.1.0"
+        },
+        {
+          "version": "23",
+          "tag": "llvmorg-23.1.0"
+        }
+      ]
+    },
+    "gcc": {
+      "name": "GCC",
+      "repo": "gcc-mirror/gcc",
+      "releases": [
+        {
+          "version": "12",
+          "tag": "releases/gcc-12.1.0"
+        },
+        {
+          "version": "13",
+          "tag": "releases/gcc-13.1.0"
+        },
+        {
+          "version": "14",
+          "tag": "releases/gcc-14.1.0"
+        },
+        {
+          "version": "15",
+          "tag": "releases/gcc-15.1.0"
+        },
+        {
+          "version": "16",
+          "tag": "releases/gcc-16.1.0"
+        }
+      ]
+    }
+  },
+  "extensions": {
+    "a": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "b": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "c": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "d": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "e": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "f": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "h": {
+      "llvm": {
+        "supported": "16"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "hti": {},
+    "i": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "m": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "q": {
+      "llvm": {
+        "supported": "21"
+      }
+    },
+    "reri": {},
+    "sddbltrp": {},
+    "sdext": {
+      "llvm": {
+        "supported": "21",
+        "experimental": "20"
+      }
+    },
+    "sdtrig": {
+      "llvm": {
+        "supported": "21",
+        "experimental": "20"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "sdtrigepm": {},
+    "sdtrigpend": {},
+    "sha": {
+      "llvm": {
+        "supported": "20"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "shcounterenw": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "shgatpa": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "shlcofideleg": {
+      "llvm": {
+        "supported": "21"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "shtvala": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "shvsatpa": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "shvstvala": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "shvstvecd": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "sm1p11": {},
+    "sm1p12": {},
+    "sm1p13": {},
+    "smaia": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "smcdeleg": {
+      "llvm": {
+        "supported": "19"
+      }
+    },
+    "smcfiss": {},
+    "smclic": {},
+    "smclicconfig": {},
+    "smclicshv": {},
+    "smcntrpmf": {
+      "llvm": {
+        "supported": "21"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "smcsrind": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "smctr": {
+      "llvm": {
+        "supported": "22",
+        "experimental": "20"
+      }
+    },
+    "smdbltrp": {
+      "llvm": {
+        "supported": "20"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "smepmp": {
+      "llvm": {
+        "supported": "18"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "smmpm": {
+      "llvm": {
+        "supported": "20",
+        "experimental": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "smnpm": {
+      "llvm": {
+        "supported": "20",
+        "experimental": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "smpmpdeleg": {},
+    "smpmpmt": {
+      "llvm": {
+        "experimental": "22"
+      }
+    },
+    "smrnmi": {
+      "llvm": {
+        "supported": "20"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "smsdia": {},
+    "smstateen": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "smtdeleg": {},
+    "smvatag": {},
+    "ss1p11": {},
+    "ss1p12": {},
+    "ss1p13": {},
+    "ssaia": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "ssccfg": {
+      "llvm": {
+        "supported": "19"
+      }
+    },
+    "ssccptr": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "ssclic": {},
+    "sscofpmf": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "sscounterenw": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "sscsrind": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "ssctr": {
+      "llvm": {
+        "supported": "22",
+        "experimental": "20"
+      }
+    },
+    "ssdbltrp": {
+      "llvm": {
+        "supported": "20"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "ssdtso": {},
+    "ssnpm": {
+      "llvm": {
+        "supported": "20",
+        "experimental": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "sspm": {
+      "llvm": {
+        "supported": "20",
+        "experimental": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "sspmp": {},
+    "sspmpen": {},
+    "ssqosid": {
+      "llvm": {
+        "supported": "20"
+      }
+    },
+    "ssstateen": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "ssstrict": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "sstc": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "sstcfg": {},
+    "sstvala": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "sstvecd": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "sstvecv": {},
+    "ssu32xl": {},
+    "ssu64xl": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "ssube": {},
+    "suclic": {},
+    "supm": {
+      "llvm": {
+        "supported": "20",
+        "experimental": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "svade": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "svadu": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "svatag": {},
+    "svbare": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "svinval": {
+      "llvm": {
+        "supported": "16"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "svnapot": {
+      "llvm": {
+        "supported": "16"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "svpbmt": {
+      "llvm": {
+        "supported": "16"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "svrsw60t59b": {
+      "llvm": {
+        "supported": "23"
+      }
+    },
+    "svukte": {
+      "llvm": {
+        "experimental": "20"
+      }
+    },
+    "svvptc": {
+      "llvm": {
+        "supported": "20"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "v": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "za128rs": {
+      "llvm": {
+        "supported": "18"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "za64rs": {
+      "llvm": {
+        "supported": "18"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zaamo": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "zabha": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "zacas": {
+      "llvm": {
+        "supported": "20",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "zalasr": {
+      "llvm": {
+        "supported": "22",
+        "experimental": "19"
+      }
+    },
+    "zalrsc": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "zama16b": {
+      "llvm": {
+        "supported": "19"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "zawrs": {
+      "llvm": {
+        "supported": "17",
+        "experimental": "16"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "zba": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zbb": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zbc": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zbkb": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zbkc": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zbkx": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zbs": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zca": {
+      "llvm": {
+        "supported": "17",
+        "experimental": "16"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zcb": {
+      "llvm": {
+        "supported": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zcd": {
+      "llvm": {
+        "supported": "17",
+        "experimental": "16"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zce": {
+      "llvm": {
+        "supported": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zcf": {
+      "llvm": {
+        "supported": "17",
+        "experimental": "16"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zclsd": {
+      "llvm": {
+        "supported": "21"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "zcmop": {
+      "llvm": {
+        "supported": "19",
+        "experimental": "18"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "zcmp": {
+      "llvm": {
+        "supported": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zcmt": {
+      "llvm": {
+        "supported": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zdinx": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "zfa": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zfbfmin": {
+      "llvm": {
+        "supported": "19",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "zfh": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "zfhmin": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "zfinx": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "zhinx": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "zhinxmin": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "zibi": {
+      "llvm": {
+        "experimental": "22"
+      }
+    },
+    "zic64b": {
+      "llvm": {
+        "supported": "18"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zicbom": {
+      "llvm": {
+        "supported": "15"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "zicbop": {
+      "llvm": {
+        "supported": "15"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "zicboz": {
+      "llvm": {
+        "supported": "15"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "ziccamoa": {
+      "llvm": {
+        "supported": "18"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "ziccamoc": {
+      "llvm": {
+        "supported": "21"
+      }
+    },
+    "ziccid": {
+      "llvm": {
+        "supported": "23"
+      }
+    },
+    "ziccif": {
+      "llvm": {
+        "supported": "18"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zicclsm": {
+      "llvm": {
+        "supported": "18"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "ziccrse": {
+      "llvm": {
+        "supported": "18"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zicfilp": {
+      "llvm": {
+        "experimental": "18"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "zicfiss": {
+      "llvm": {
+        "experimental": "18"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "zicntr": {
+      "llvm": {
+        "supported": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zicond": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zicsr": {
+      "llvm": {
+        "supported": "17"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zifencei": {
+      "llvm": {
+        "supported": "17"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zihintntl": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "16"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zihintpause": {
+      "llvm": {
+        "supported": "15"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zihpm": {
+      "llvm": {
+        "supported": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zilsd": {
+      "llvm": {
+        "supported": "21"
+      },
+      "gcc": {
+        "supported": "16"
+      }
+    },
+    "zimop": {
+      "llvm": {
+        "supported": "19",
+        "experimental": "18"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "zimt": {},
+    "zjid": {},
+    "zjpm": {},
+    "zk": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zkn": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zknd": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zkne": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zknh": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zkr": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zks": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zksed": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zksh": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zkt": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zmmul": {
+      "llvm": {
+        "supported": "15"
+      },
+      "gcc": {
+        "supported": "13"
+      }
+    },
+    "ztso": {
+      "llvm": {
+        "supported": "19",
+        "experimental": "16"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvabd": {
+      "llvm": {
+        "experimental": "23"
+      }
+    },
+    "zvbb": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvbc": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvbc32e": {
+      "llvm": {
+        "experimental": "20"
+      }
+    },
+    "zvbdota": {},
+    "zvdot4a": {},
+    "zvdota": {},
+    "zve32f": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zve32x": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zve64d": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zve64f": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zve64x": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zvfbfa": {
+      "llvm": {
+        "experimental": "22"
+      }
+    },
+    "zvfbfmin": {
+      "llvm": {
+        "supported": "19",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvfbfwma": {
+      "llvm": {
+        "supported": "19",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "15"
+      }
+    },
+    "zvfh": {
+      "llvm": {
+        "supported": "17",
+        "experimental": "15"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvfhmin": {
+      "llvm": {
+        "supported": "18"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvfofp8min": {
+      "llvm": {
+        "experimental": "22"
+      }
+    },
+    "zvkb": {
+      "llvm": {
+        "supported": "18"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvkg": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvkgs": {
+      "llvm": {
+        "experimental": "20"
+      }
+    },
+    "zvkn": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvknc": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvkned": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvknf": {},
+    "zvkng": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvknha": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvknhb": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvks": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvksc": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvksed": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvksg": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvksh": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvkt": {
+      "llvm": {
+        "supported": "18",
+        "experimental": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      }
+    },
+    "zvl1024b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zvl128b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zvl256b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zvl32b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zvl512b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    },
+    "zvl64b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      }
+    }
+  }
+}

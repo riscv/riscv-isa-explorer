@@ -30,6 +30,12 @@ someone silently. Each release below records its catalogue size.
   re-syncs both and opens a pull request when an instruction gains or loses a
   link; by hand, `npm run sync:references -- <sail-riscv> <riscv-isa-sim>
   <riscv-arch-test>`.
+- **Which Clang and GCC accept each extension.** Each extension shows the first
+  Clang and GCC release whose `-march` accepts it, with Clang's experimental
+  tier marked, and the builder shows the oldest Clang and GCC that accept the
+  whole `-march` (for RVA23, Clang 20 and GCC 16), or names what no release
+  takes yet. The versions come from each release's own extension table (LLVM
+  14 to 23, GCC 12 to 16), and a monthly workflow adds new releases.
 - **Links to each instruction's Architectural Certification Test.** Beside Sail
   and Spike, an ACT link opens the instruction's test in riscv-arch-test,
   pinned to a commit (the first part, for tests split into several). 441

@@ -53,6 +53,7 @@ import CompareView from './CompareView.jsx';
 import EncodingDiagram from './EncodingDiagram.jsx';
 import InstructionUsage from './InstructionUsage.jsx';
 import { specificationLink } from './specLink.js';
+import { ExtensionToolchains } from './ToolchainSupport.jsx';
 import CsrDetails from './CsrDetails.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import { computeLockedExtensions, missingMandatory } from './workspaceLock.js';
@@ -4508,6 +4509,8 @@ const RISCVExplorer = () => {
                           {selectedExt.use}
                         </p>
                       </div>
+
+                      <ExtensionToolchains id={selectedExt.id} />
 
                       {/* Instruction list, when available */}
                       {searchMatches &&
