@@ -16,10 +16,10 @@ someone silently. Each release below records its catalogue size.
 ### Added
 
 - **A clear link to each extension's specification.** The details panel now
-  has a "Read the specification" button under the extension name, naming the
-  site it opens (docs.riscv.org). The linked name alone read as a heading, so
-  people missed it. Proposals that link the ISA manual's GitHub sources say so
-  ("ISA manual source · GitHub") instead.
+  has a "Read Online at docs.riscv.org" button under the extension name, tinted
+  in the name's gold. The linked name alone read as a heading, so people
+  missed it. Proposals that link the ISA manual's GitHub sources say so
+  ("ISA manual source on GitHub") instead.
 - **Links to Sail and Spike for each instruction.** The instruction panel links
   to the instruction's code in the Sail formal model (the match arm or execute
   clause that defines it) and in the Spike simulator (its `riscv/insns` file),

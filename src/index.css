@@ -1427,6 +1427,36 @@ pre,
   transform: translateX(0) translateY(0);
 }
 
+/* Below its trigger, starting at its left edge, for controls whose tooltip
+   would otherwise cover what sits above them (the extension name over the
+   specification link). Long text such as a URL wraps rather than running out
+   of the details panel. */
+.tooltip-bottom-left[data-tooltip]::after {
+  bottom: auto;
+  top: calc(100% + 6px);
+  left: 0;
+  transform: translateX(0) translateY(-4px);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  width: max-content;
+  max-width: 320px;
+}
+.tooltip-bottom-left[data-tooltip]:hover::after {
+  transform: translateX(0) translateY(0);
+}
+
+/* The details panel's specification link: a light tint of the gold used for
+   the extension name above it, so the two read as one unit. */
+.riscv-spec-link {
+  background: var(--riscv-gold-dim);
+  color: var(--riscv-gold);
+  border: 1px solid color-mix(in srgb, var(--riscv-gold) 35%, transparent);
+  transition: background 0.15s ease-out;
+}
+.riscv-spec-link:hover {
+  background: color-mix(in srgb, var(--riscv-gold) 20%, transparent);
+}
+
 :root[data-theme='light'] [data-tooltip]:hover::after {
   background: #1e293b;
   color: #f8fafc;

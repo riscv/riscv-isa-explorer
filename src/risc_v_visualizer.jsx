@@ -4354,18 +4354,12 @@ const RISCVExplorer = () => {
                               href={spec.url}
                               target="_blank"
                               rel="noreferrer"
-                              className="mt-2 flex w-fit items-center gap-1.5 px-2.5 py-1.5 riscv-btn text-[12px] font-semibold"
-                              data-tooltip={`Open ${spec.url}`}
+                              className="riscv-spec-link tooltip-bottom-left mt-2 flex w-fit items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold"
+                              data-tooltip={spec.url}
                             >
-                              <BookOpen size={13} />
+                              <BookOpen size={12} />
                               {spec.label}
-                              <span
-                                className="font-normal"
-                                style={{ color: 'var(--riscv-text-2)' }}
-                              >
-                                {spec.host}
-                              </span>
-                              <ArrowUpRight size={12} />
+                              <ArrowUpRight size={11} />
                             </a>
                           );
                         })()}

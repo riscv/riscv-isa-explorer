@@ -13,15 +13,14 @@ export function specificationLink(url) {
   try {
     parsed = new URL(target);
   } catch {
-    return { url: target, label: 'Specification', host: '' };
+    return { url: target, label: 'Specification' };
   }
   if (parsed.hostname === 'github.com') {
     const repoRoot = parsed.pathname.replace(/\/+$/, '').split('/').length <= 3;
     return {
       url: target,
-      label: repoRoot ? 'ISA manual source' : 'Specification source',
-      host: 'GitHub',
+      label: repoRoot ? 'ISA manual source on GitHub' : 'Specification source on GitHub',
     };
   }
-  return { url: target, label: 'Read the specification', host: parsed.hostname };
+  return { url: target, label: `Read Online at ${parsed.hostname}` };
 }

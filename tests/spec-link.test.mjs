@@ -14,21 +14,18 @@ const catalog = require('../src/riscv_extensions.json');
 
 test('a docs.riscv.org chapter reads as the specification and names the site', () => {
   const link = specificationLink('https://docs.riscv.org/reference/isa/unpriv/b-st-ext.html');
-  assert.equal(link.label, 'Read the specification');
-  assert.equal(link.host, 'docs.riscv.org');
+  assert.equal(link.label, 'Read Online at docs.riscv.org');
 });
 
 test('a GitHub link says it is the source, and whether it is only the repository', () => {
   assert.deepEqual(specificationLink('https://github.com/riscv/riscv-isa-manual'), {
     url: 'https://github.com/riscv/riscv-isa-manual',
-    label: 'ISA manual source',
-    host: 'GitHub',
+    label: 'ISA manual source on GitHub',
   });
   const file = specificationLink(
     'https://github.com/riscv/riscv-isa-manual/blob/main/src/unpriv/zp.adoc',
   );
-  assert.equal(file.label, 'Specification source');
-  assert.equal(file.host, 'GitHub');
+  assert.equal(file.label, 'Specification source on GitHub');
 });
 
 test('a missing URL falls back to the ISA manual, as the name link does', () => {
@@ -40,6 +37,6 @@ test('every catalogue entry gets a labelled, absolute link', () => {
     if (!ext) continue;
     const link = specificationLink(ext.url);
     assert.match(link.url, /^https:\/\//, ext.id);
-    assert.ok(link.label && link.host, ext.id);
+    assert.ok(link.label, ext.id);
   }
 });
