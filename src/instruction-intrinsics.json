@@ -47,6 +47,22 @@
     "count": 1,
     "source": "https://github.com/riscv-non-isa/riscv-c-api-doc/blob/b3df26527b2fa27d7219b6d6abe775f6bd13615b/src/c-api.adoc"
   },
+  "aes64es": {
+    "header": "riscv_crypto.h",
+    "prototypes": [
+      "uint64_t __riscv_aes64es(uint64_t rs1, uint64_t rs2); // RV64 only"
+    ],
+    "count": 1,
+    "source": "https://github.com/riscv-non-isa/riscv-c-api-doc/blob/b3df26527b2fa27d7219b6d6abe775f6bd13615b/src/c-api.adoc"
+  },
+  "aes64esm": {
+    "header": "riscv_crypto.h",
+    "prototypes": [
+      "uint64_t __riscv_aes64esm(uint64_t rs1, uint64_t rs2); // RV64 only"
+    ],
+    "count": 1,
+    "source": "https://github.com/riscv-non-isa/riscv-c-api-doc/blob/b3df26527b2fa27d7219b6d6abe775f6bd13615b/src/c-api.adoc"
+  },
   "aes64im": {
     "header": "riscv_crypto.h",
     "prototypes": [

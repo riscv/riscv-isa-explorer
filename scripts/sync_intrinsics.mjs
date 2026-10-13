@@ -193,7 +193,18 @@ for (let i = 0; i < capiLines.length; i += 1) {
     const pattern = cells[c + 1].match(/`([^`]+)`/)?.[1]?.trim();
     const extension = cells[c + 2].trim();
     if (!prototype || !pattern) continue;
-    for (const candidate of expand(pattern)) {
+    /*
+     * The Instruction column can be wrong where the name is not: upstream
+     * maps __riscv_aes64es to `aes32es`. When the intrinsic is named after a
+     * catalogue instruction the column does not list, the name wins.
+     */
+    let candidates = expand(pattern);
+    const named = prototype.match(/__riscv_(\w+?)(?:_(?:32|64))?\s*\(/)?.[1];
+    if (named && byKey.has(named) && !candidates.includes(byKey.get(named))) {
+      console.warn(`c-api-doc lists ${named} as \`${pattern}\`; using ${byKey.get(named)}.`);
+      candidates = [byKey.get(named)];
+    }
+    for (const candidate of candidates) {
       const mnemonic = byKey.get(candidate.replace(/\./g, '_'));
       if (!mnemonic) continue;
       const entry = scalar.get(mnemonic) ?? { header, prototypes: [] };
