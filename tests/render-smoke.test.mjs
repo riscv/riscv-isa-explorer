@@ -159,6 +159,19 @@ test('nothing threw during the first render', () => {
  * compiles JSX to React.createElement. Lint and build both stayed green; the
  * page only broke when a comparison opened.
  */
+/*
+ * Polls until `predicate` holds or `timeout` ms pass. For assertions about
+ * work the page does after mounting: a fixed sleep is long enough on a laptop
+ * and too short on a busy CI runner, which is how the cfg-link test failed on
+ * the first run of the weekly Sail/Spike sync.
+ */
+async function waitFor(predicate, timeout = 5000) {
+  const start = Date.now();
+  while (!predicate() && Date.now() - start < timeout) {
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+}
+
 async function mountAt(url, { storage = {} } = {}) {
   const win = new JSDOM(fs.readFileSync(path.join(dist, 'index.html'), 'utf8'), {
     runScripts: 'outside-only',
@@ -615,6 +628,7 @@ test('a configuration link opens the builder when nothing is saved', async () =>
   // WorkspacePanel is a lazy chunk, which jsdom cannot load (see the note on
   // React.lazy in risc_v_visualizer.jsx), so the open studio is checked in a
   // browser. What this can see is that the configuration was taken.
+  await waitFor(() => !d.window.location.search.includes('cfg='));
   assert.equal(sharedBanner(d), null);
   assert.ok(!d.window.location.search.includes('cfg='), 'the link must be consumed');
   const saved = JSON.parse(d.window.localStorage.getItem(BUILDER_KEY));
