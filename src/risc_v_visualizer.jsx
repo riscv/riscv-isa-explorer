@@ -4325,13 +4325,15 @@ const RISCVExplorer = () => {
               <div className="flex-1 overflow-y-auto overscroll-contain p-4 pt-3">
                 {selectedExt ? (
                   <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                    <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
-                      <div className="min-w-0">
+                    {/* Two rows: what the extension is (name and status) and
+                        what you can do with it (read, share, edit). */}
+                    <div className="mb-6 space-y-3">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                         <a
                           href={selectedExt.url || 'https://github.com/riscv/riscv-isa-manual'}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-start gap-1 font-black tracking-tight wrap-break-word hover:opacity-80"
+                          className="font-black tracking-tight wrap-break-word hover:opacity-80"
                           style={{
                             fontSize: '1.5rem',
                             lineHeight: 1.2,
@@ -4340,32 +4342,7 @@ const RISCVExplorer = () => {
                           data-tooltip="Open the specification"
                         >
                           <span>{selectedExt.name}</span>
-                          <ArrowUpRight size={15} className="mt-1 shrink-0 opacity-70" />
                         </a>
-                        {/* The linked name alone read as a heading: people did
-                            not realise it opened the specification. An explicit
-                            button says where it goes, and names the host so a
-                            link to the GitHub source is not mistaken for the
-                            published manual. */}
-                        {(() => {
-                          const spec = specificationLink(selectedExt.url);
-                          return (
-                            <a
-                              href={spec.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="riscv-spec-link tooltip-bottom-left mt-2 flex w-fit items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold"
-                              data-tooltip={spec.url}
-                            >
-                              <BookOpen size={12} />
-                              {spec.label}
-                              <ArrowUpRight size={11} />
-                            </a>
-                          );
-                        })()}
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-2">
                         {/* Ratification status. Without this, a proposal such as
                             Zvabd reads exactly as settled as Zbb, which is the
                             same hazard as publishing a withdrawn encoding: the
@@ -4450,6 +4427,29 @@ const RISCVExplorer = () => {
                             Custom (Sandbox)
                           </span>
                         )}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* The linked name alone read as a heading: people did
+                            not realise it opened the specification. An explicit
+                            button says where it goes, and names the host so a
+                            link to the GitHub source is not mistaken for the
+                            published manual. */}
+                        {(() => {
+                          const spec = specificationLink(selectedExt.url);
+                          return (
+                            <a
+                              href={spec.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="riscv-spec-link tooltip-bottom-left inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-semibold"
+                              data-tooltip={spec.url}
+                            >
+                              <BookOpen size={12} />
+                              {spec.label}
+                              <ArrowUpRight size={11} />
+                            </a>
+                          );
+                        })()}
                         {/* The address bar already carries ?ext=<id>, but a
                             button is the discoverable route and works on mobile,
                             where copying the URL is fiddly. */}

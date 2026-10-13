@@ -16,9 +16,10 @@ someone silently. Each release below records its catalogue size.
 ### Added
 
 - **A clear link to each extension's specification.** The details panel now
-  has a "Read Online at docs.riscv.org" button under the extension name, tinted
-  in the name's gold. The linked name alone read as a heading, so people
-  missed it. Proposals that link the ISA manual's GitHub sources say so
+  has a "Read Online at docs.riscv.org" button, tinted in the name's gold. The
+  linked name alone read as a heading, so people missed it. The panel header
+  now has two rows: the name with its status, then the actions (read, share,
+  edit in the sandbox). Proposals that link the ISA manual's GitHub sources say so
   ("ISA manual source on GitHub") instead.
 - **Links to Sail and Spike for each instruction.** The instruction panel links
   to the instruction's code in the Sail formal model (the match arm or execute
