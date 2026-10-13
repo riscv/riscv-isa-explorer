@@ -4,6 +4,7 @@
  * instruction is implemented in the two reference models.
  *
  *   node scripts/sync_reference_impls.mjs <sail-riscv> <riscv-isa-sim> [--check]
+ *                                         [--report <file>]
  *
  *   sail-riscv     the formal model. Instructions share execute clauses, so
  *                  scripts/sail-assembly.mjs reads the assembly mappings to
@@ -13,6 +14,12 @@
  *
  * Both are pinned to the checked-out commit. An instruction neither model has
  * yet is simply absent from that model's side; the panel shows it greyed out.
+ *
+ * --report writes a Markdown summary of what changed since the committed file:
+ * the commits, and which instructions gained or lost a link in each model.
+ * Its first line is `coverage-changed: true|false`, which the weekly workflow
+ * reads. A new commit alone is not worth a pull request: every link is pinned,
+ * so the old ones keep pointing at the right lines.
  */
 
 import fs from 'node:fs';
@@ -24,11 +31,15 @@ import { sailLocator } from './sail-assembly.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
 const checkOnly = args.includes('--check');
+const reportIndex = args.indexOf('--report');
+const reportPath = reportIndex >= 0 ? path.resolve(args[reportIndex + 1] ?? '') : null;
 const [sailRoot, spikeRoot] = args
-  .filter((arg) => !arg.startsWith('--'))
+  .filter((arg, i) => !arg.startsWith('--') && (reportIndex < 0 || i !== reportIndex + 1))
   .map((p) => path.resolve(p));
 if (!sailRoot || !spikeRoot) {
-  console.error('usage: sync_reference_impls.mjs <sail-riscv> <riscv-isa-sim> [--check]');
+  console.error(
+    'usage: sync_reference_impls.mjs <sail-riscv> <riscv-isa-sim> [--check] [--report <file>]',
+  );
   process.exit(2);
 }
 const outputPath = path.join(root, 'src', 'instruction-references.json');
@@ -169,6 +180,43 @@ const output = `${JSON.stringify(
   2,
 )}\n`;
 
+const previous = fs.existsSync(outputPath)
+  ? JSON.parse(fs.readFileSync(outputPath, 'utf8'))
+  : { sail: {}, spike: {}, instructions: {} };
+
+function changeReport() {
+  const linked = (data, key) =>
+    new Set(Object.keys(data.instructions || {}).filter((m) => data.instructions[m][key]));
+  const code = (items) => items.map((m) => `\`${m}\``).join(' ') || 'none';
+  const lines = [];
+  let changed = false;
+  for (const [key, name, repo] of [
+    ['sail', 'Sail', sailRoot],
+    ['spike', 'Spike', spikeRoot],
+  ]) {
+    const before = linked(previous, key);
+    const after = new Set(mnemonics.filter((m) => instructions[m]?.[key]));
+    const added = [...after].filter((m) => !before.has(m));
+    const removed = [...before].filter((m) => !after.has(m));
+    if (added.length || removed.length) changed = true;
+    const from = previous[key]?.commit?.slice(0, 7) ?? 'none';
+    lines.push(
+      `### ${name}: \`${from}\` → \`${revision(repo).slice(0, 7)}\`, ${after.size} of ${mnemonics.length} linked`,
+      '',
+      `- Newly linked (${added.length}): ${code(added)}`,
+      `- No longer linked (${removed.length}): ${code(removed)}`,
+      '',
+    );
+  }
+  if (locateSail.skipped.length) {
+    lines.push(
+      `Sail assembly clauses the parser could not read (their instructions get no Sail link): ${code(locateSail.skipped)}`,
+      '',
+    );
+  }
+  return `coverage-changed: ${changed}\n\n${lines.join('\n')}`;
+}
+
 const count = (key) => Object.values(instructions).filter((e) => e[key]).length;
 const summary = `${mnemonics.length} instructions: ${count('sail')} in Sail, ${count('spike')} in Spike`;
 
@@ -179,6 +227,7 @@ if (checkOnly) {
     process.exitCode = 1;
   }
 } else {
+  if (reportPath) fs.writeFileSync(reportPath, changeReport());
   fs.writeFileSync(outputPath, output);
   console.log(`Wrote ${path.relative(root, outputPath)}: ${summary}.`);
   const missing = (key) => mnemonics.filter((m) => !instructions[m]?.[key]);

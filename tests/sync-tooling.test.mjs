@@ -29,8 +29,7 @@ const root = path.join(here, '..');
 const CATALOG = path.join(root, 'src', 'riscv_extensions.json');
 const UDB = path.resolve(process.env.UDB_DIR ?? path.join(root, '..', 'riscv-unified-db'));
 
-const hashCatalog = () =>
-  createHash('sha256').update(fs.readFileSync(CATALOG)).digest('hex');
+const hashCatalog = () => createHash('sha256').update(fs.readFileSync(CATALOG)).digest('hex');
 
 /** Run a script, returning { status, stdout }. Never throws on a non-zero exit. */
 function run(script, args = []) {
@@ -81,7 +80,8 @@ test('every routed tag resolves to a catalogue entry', () => {
   const catalog = JSON.parse(fs.readFileSync(CATALOG, 'utf8'));
   const dict = JSON.parse(fs.readFileSync(path.join(root, 'src', 'instr_dict.json'), 'utf8'));
   const upstream = new Set();
-  for (const v of Object.values(dict)) for (const t of v.extension ?? []) upstream.add(t.toLowerCase());
+  for (const v of Object.values(dict))
+    for (const t of v.extension ?? []) upstream.add(t.toLowerCase());
 
   const dangling = [];
   for (const e of Object.values(catalog).flat().filter(Boolean)) {
@@ -126,7 +126,7 @@ test('the UDB sync captures the extension version, when a UDB checkout is availa
   assert.match(
     stdout,
     /Version pass: \d+ extension\(s\) gained a version/,
-    `the sync should report a version pass:\n${stdout}`
+    `the sync should report a version pass:\n${stdout}`,
   );
 });
 
@@ -169,7 +169,11 @@ test('extensions UDB does not carry stay on the watchlist', (t) => {
 });
 
 test('the graph seeder fails loudly when pointed somewhere wrong', () => {
-  const { status } = run('seed-dependency-graph.mjs', ['--check', '--udb', '/nonexistent-udb-path']);
+  const { status } = run('seed-dependency-graph.mjs', [
+    '--check',
+    '--udb',
+    '/nonexistent-udb-path',
+  ]);
   assert.equal(status, 1, 'a missing UDB checkout must be a failure');
 });
 
@@ -205,7 +209,7 @@ test('the UDB completeness JSON is complete and parseable', (t) => {
   assert.ok(report.coverage?.global, 'JSON report should contain global coverage');
 });
 
-test('the sync bot signs off as the same identity it authors as', () => {
+test('every sync bot signs off as the same identity it authors as, and signs', () => {
   // The DCO gate compares the Signed-off-by trailer against the commit author
   // (%an <%ae>), but create-pull-request writes that trailer from the
   // *committer*, and defaults `author` to whoever triggered the run. Left at
@@ -215,20 +219,29 @@ test('the sync bot signs off as the same identity it authors as', () => {
   // workflow only runs on a schedule, so a regression here surfaces as a
   // blocked PR on a Monday morning rather than a red check on the change
   // that caused it.
-  const wf = fs.readFileSync(
-    path.join(root, '.github', 'workflows', 'sync-udb-extensions.yml'),
-    'utf8',
-  );
+  //
+  // Every workflow that opens a pull request is checked, not only the UDB one,
+  // and each must also sign its commits: main requires signed commits, and an
+  // unsigned bot commit opens a pull request that can never merge.
+  const dir = path.join(root, '.github', 'workflows');
+  const bots = fs
+    .readdirSync(dir)
+    .map((file) => [file, fs.readFileSync(path.join(dir, file), 'utf8')])
+    .filter(([, wf]) => wf.includes('peter-evans/create-pull-request'));
+  assert.ok(bots.length >= 2, 'expected the UDB and the Sail/Spike sync workflows');
 
-  const author = wf.match(/^\s*author:\s*'(.+)'\s*$/m);
-  const committer = wf.match(/^\s*committer:\s*'(.+)'\s*$/m);
+  for (const [file, wf] of bots) {
+    const author = wf.match(/^\s*author:\s*'(.+)'\s*$/m);
+    const committer = wf.match(/^\s*committer:\s*'(.+)'\s*$/m);
 
-  assert.ok(author, 'the create-pull-request step must pin an explicit author');
-  assert.ok(committer, 'the create-pull-request step must pin an explicit committer');
-  assert.equal(
-    author[1],
-    committer[1],
-    'author and committer must be the same identity, or the sign-off cannot match',
-  );
-  assert.match(wf, /^\s*signoff:\s*true\s*$/m, 'the sync commit must be signed off');
+    assert.ok(author, `${file}: the create-pull-request step must pin an explicit author`);
+    assert.ok(committer, `${file}: the create-pull-request step must pin an explicit committer`);
+    assert.equal(
+      author[1],
+      committer[1],
+      `${file}: author and committer must be the same identity, or the sign-off cannot match`,
+    );
+    assert.match(wf, /^\s*signoff:\s*true\s*$/m, `${file}: the sync commit must be signed off`);
+    assert.match(wf, /^\s*sign-commits:\s*true\s*$/m, `${file}: the sync commit must be signed`);
+  }
 });

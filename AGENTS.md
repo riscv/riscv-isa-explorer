@@ -204,6 +204,11 @@ Then `npm run sync` and `npm test && npm run build`.
   (hints, `c.addiw` in `c_jal.h`) are listed in `SHARED_ENCODING` in
   `scripts/sync_reference_impls.mjs`. The RV32 register-pair forms (`ld.rv32`)
   deliberately get no Sail link until Sail has Zilsd.
+  `.github/workflows/sync-reference-impls.yml` re-syncs weekly but opens a
+  pull request only when an instruction gains or loses a link (the sync's
+  `--report` says which); new upstream commits alone don't, since every link
+  is pinned and stays correct. A coverage drop fails the tests' floors and
+  opens nothing: look at the parser first.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;
   eslint ignores both). Don't hand-edit `dist/`.
 - **`gh-pages` branch is machine-published** by CI on every push to `main`.

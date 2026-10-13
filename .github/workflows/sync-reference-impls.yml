@@ -1,0 +1,128 @@
+name: Sync Sail and Spike links
+
+on:
+  # Weekly, Monday 08:00 UTC, in the free slot between check-opcodes-drift
+  # (07:00) and check-udb-completeness (09:00).
+  #
+  # A pull request opens only when an instruction gains or loses a link: a new
+  # Sail or Spike commit on its own changes nothing a reader would notice,
+  # because every link is pinned to the commit it was generated from and keeps
+  # pointing at the right line. create-pull-request reuses one branch, so an
+  # unmerged update keeps refreshing the same pull request.
+  schedule:
+    - cron: '0 8 * * 1'
+
+  workflow_dispatch:
+    inputs:
+      refresh_pins:
+        description: 'Open a pull request even if no instruction gained or lost a link (moves the pinned commits forward)'
+        type: boolean
+        default: false
+
+# The "Create Pull Request" step needs the repo/org setting "Allow GitHub
+# Actions to create and approve pull requests".
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-reference-impls
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the explorer repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Clone sail-riscv and riscv-isa-sim
+        id: upstream
+        run: |
+          git clone --depth 1 https://github.com/riscv/sail-riscv.git ../sail-riscv
+          git clone --depth 1 https://github.com/riscv-software-src/riscv-isa-sim.git ../riscv-isa-sim
+          echo "sail=$(git -C ../sail-riscv rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "spike=$(git -C ../riscv-isa-sim rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync the links
+        run: node scripts/sync_reference_impls.mjs ../sail-riscv ../riscv-isa-sim --report "$RUNNER_TEMP/report.md"
+
+      # Before the coverage gate below, so a drop is reported even when the
+      # tests then fail: the report names exactly which links were lost.
+      - name: Summarise
+        run: cat "$RUNNER_TEMP/report.md" >> "$GITHUB_STEP_SUMMARY"
+
+      # tests/reference-implementations.test.mjs holds coverage floors. A sync
+      # that loses links fails here, and no pull request opens, because a drop
+      # usually means sail-riscv changed how it writes a mapping and the parser
+      # needs a look, not that the instructions left the model.
+      - name: Validate the result
+        run: npm test
+
+      - name: Decide whether to open a pull request
+        id: changes
+        env:
+          REFRESH: ${{ inputs.refresh_pins }}
+        run: |
+          if git diff --quiet src/instruction-references.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Nothing changed."
+          elif grep -q '^coverage-changed: true' "$RUNNER_TEMP/report.md" || [ "$REFRESH" = "true" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            {
+              echo 'report<<REPORT_EOF'
+              tail -n +3 "$RUNNER_TEMP/report.md"
+              echo 'REPORT_EOF'
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Only the pinned commits moved; the existing links stay valid. Not opening a pull request."
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          commit-message: 'data: sync Sail and Spike links'
+          # Same identity for author and committer, so the Signed-off-by trailer
+          # matches the author and DCO passes; sign-commits because main requires
+          # signed commits. See sync-udb-extensions.yml for the full story.
+          author: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
+          committer: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
+          sign-commits: true
+          signoff: true
+          title: 'data: sync Sail and Spike links'
+          body: |
+            Automated sync of the per-instruction links to
+            [sail-riscv](https://github.com/riscv/sail-riscv) and
+            [riscv-isa-sim](https://github.com/riscv-software-src/riscv-isa-sim)
+            (Spike).
+
+            ${{ steps.changes.outputs.report }}
+
+            Reproduce locally:
+
+            ```
+            git clone https://github.com/riscv/sail-riscv.git ../sail-riscv
+            git -C ../sail-riscv checkout ${{ steps.upstream.outputs.sail }}
+            git clone https://github.com/riscv-software-src/riscv-isa-sim.git ../riscv-isa-sim
+            git -C ../riscv-isa-sim checkout ${{ steps.upstream.outputs.spike }}
+            npm run sync:references -- ../sail-riscv ../riscv-isa-sim
+            ```
+
+            `npm test` passed before this pull request was opened, so coverage
+            did not fall below the floors. A newly linked instruction is worth a
+            click to confirm the Sail link lands on its own match arm.
+
+            Generated by the `sync-reference-impls` workflow.
+          branch: automated/sync-reference-impls
+          labels: automated,data-sync

@@ -20,8 +20,9 @@ someone silently. Each release below records its catalogue size.
   clause that defines it) and in the Spike simulator (its `riscv/insns` file),
   both pinned to a commit. A model that does not implement the instruction yet,
   such as Sail for the Q extension or Zilsd, is shown greyed out. 1,153 of the
-  1,230 instructions link to Sail and 1,222 to Spike. Regenerate with
-  `npm run sync:references -- <sail-riscv> <riscv-isa-sim>`.
+  1,230 instructions link to Sail and 1,222 to Spike. A weekly workflow
+  re-syncs both and opens a pull request when an instruction gains or loses a
+  link; by hand, `npm run sync:references -- <sail-riscv> <riscv-isa-sim>`.
 - **The release version is shown.** The header's counts row and the footer
   name the running release (v1.9.0), linked to its release notes, so a report
   or screenshot says which build it came from. The number comes from

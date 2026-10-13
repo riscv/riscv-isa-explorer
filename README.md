@@ -154,6 +154,7 @@ hand-written link to their specification's repository.
 | extension metadata, CSRs, ratification state | the `sync-udb-extensions` workflow, Mondays at 06:00 UTC, opens or updates a PR when a file changes |
 | the published site | any push to `main` rebuilds and publishes to `gh-pages` |
 | static extension pages and `sitemap.xml` | generated from the catalogue on every build, for search engines and AI crawlers; nothing to run by hand |
+| Sail and Spike links | the `sync-reference-impls` workflow, Mondays at 08:00 UTC, opens or updates a PR when an instruction gains or loses a link; new upstream commits alone do not, since the links are pinned |
 | instruction encodings | **by hand.** The `check-opcodes-drift` workflow, Mondays at 07:00 UTC, files an issue when upstream is ahead |
 | new extensions | **by hand.** The weekly sync only enriches entries we already have; the `check-udb-completeness` workflow, Mondays at 09:00 UTC, keeps one issue updated with what riscv-unified-db has and we do not |
 
