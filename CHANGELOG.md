@@ -13,6 +13,11 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-10-13
+
+Catalogue: 211 entries, unchanged from 1.9.0. No saved selection or `-march`
+string is invalidated by this release, and exported files are unchanged.
+
 ### Added
 
 - **Which Clang and GCC accept each extension.** Each extension shows the first
