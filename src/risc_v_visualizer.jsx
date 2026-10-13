@@ -52,6 +52,7 @@ import ExtensionTile from './ExtensionTile.jsx';
 import CompareView from './CompareView.jsx';
 import EncodingDiagram from './EncodingDiagram.jsx';
 import InstructionUsage from './InstructionUsage.jsx';
+import { specificationLink } from './specLink.js';
 import CsrDetails from './CsrDetails.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import { computeLockedExtensions, missingMandatory } from './workspaceLock.js';
@@ -4336,11 +4337,38 @@ const RISCVExplorer = () => {
                             lineHeight: 1.2,
                             color: 'var(--riscv-gold)',
                           }}
-                          data-tooltip="Open reference link"
+                          data-tooltip="Open the specification"
                         >
                           <span>{selectedExt.name}</span>
                           <ArrowUpRight size={15} className="mt-1 shrink-0 opacity-70" />
                         </a>
+                        {/* The linked name alone read as a heading: people did
+                            not realise it opened the specification. An explicit
+                            button says where it goes, and names the host so a
+                            link to the GitHub source is not mistaken for the
+                            published manual. */}
+                        {(() => {
+                          const spec = specificationLink(selectedExt.url);
+                          return (
+                            <a
+                              href={spec.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="mt-2 flex w-fit items-center gap-1.5 px-2.5 py-1.5 riscv-btn text-[12px] font-semibold"
+                              data-tooltip={`Open ${spec.url}`}
+                            >
+                              <BookOpen size={13} />
+                              {spec.label}
+                              <span
+                                className="font-normal"
+                                style={{ color: 'var(--riscv-text-2)' }}
+                              >
+                                {spec.host}
+                              </span>
+                              <ArrowUpRight size={12} />
+                            </a>
+                          );
+                        })()}
                       </div>
 
                       <div className="flex flex-wrap items-center gap-2">
