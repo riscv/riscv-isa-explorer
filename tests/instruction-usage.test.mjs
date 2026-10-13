@@ -171,6 +171,8 @@ test('every intrinsic record names a catalogue instruction and a parsable protot
     1,
     'mask suffix _m is not the policy suffix',
   );
+  // Upstream's Instruction column says aes32es; the intrinsic's name is right.
+  assert.match(intrinsics.aes64es.prototypes[0], /__riscv_aes64es\(/);
 });
 
 test('the intrinsic example is a complete file that calls it', () => {
