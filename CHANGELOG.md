@@ -15,37 +15,36 @@ someone silently. Each release below records its catalogue size.
 
 ### Added
 
-- **A clear link to each extension's specification.** The details panel now
-  has a "Read Online at docs.riscv.org" button, tinted in the name's gold. The
-  linked name alone read as a heading, so people missed it. The extension
-  name leads the panel header on its own; the status, Read Online and Share
-  sit small on the right of the same line. Proposals that link the ISA manual's GitHub sources say so
-  ("ISA manual source on GitHub") instead.
-- **Links to Sail and Spike for each instruction.** The instruction panel links
-  to the instruction's code in the Sail formal model (the match arm or execute
-  clause that defines it) and in the Spike simulator (its `riscv/insns` file),
-  both pinned to a commit. A model that does not implement the instruction yet,
-  such as Sail for the Q extension or Zilsd, is shown greyed out. 1,153 of the
-  1,230 instructions link to Sail and 1,222 to Spike. A weekly workflow
-  re-syncs both and opens a pull request when an instruction gains or loses a
-  link; by hand, `npm run sync:references -- <sail-riscv> <riscv-isa-sim>
-  <riscv-arch-test>`.
 - **Which Clang and GCC accept each extension.** Each extension shows the first
-  Clang and GCC release whose `-march` accepts it, with Clang's experimental
-  tier marked, and the builder shows the oldest Clang and GCC that accept the
-  whole `-march` (for RVA23, Clang 20 and GCC 16), or names what no release
-  takes yet. The versions come from each release's own extension table (LLVM
-  14 to 23, GCC 12 to 16), and a monthly workflow adds new releases.
-- **Links to each instruction's Architectural Certification Test.** Beside Sail
-  and Spike, an ACT link opens the instruction's test in riscv-arch-test,
-  pinned to a commit (the first part, for tests split into several). 441
-  instructions have one; vector, Q, hypervisor and privileged instructions
-  have no per-instruction test there yet and show greyed out. The weekly
-  workflow keeps these in sync too.
+  Clang and GCC release whose `-march` accepts it, with the extensions Clang
+  still takes only as experimental marked. Under the builder's `-march` string,
+  **Needs** gives the oldest Clang and GCC that accept all of it (RVA23 needs
+  Clang 20 and GCC 16), or names the extensions no release takes yet. The
+  versions come from each release's own extension table, LLVM 14 to 23 and GCC
+  12 to 16, and match what Clang 20 and GCC 14.2 accept. A monthly workflow
+  adds new releases; by hand, `npm run sync:toolchains` (#424).
+- **Links to Sail, Spike and the Architectural Certification Tests for each
+  instruction.** The instruction panel links to the instruction's code in the
+  Sail formal model (the match arm or execute clause that defines it), in the
+  Spike simulator (its `riscv/insns` file), and to its test in riscv-arch-test,
+  each pinned to a commit. One that does not cover the instruction yet is shown
+  greyed out: Sail lacks Q and Zilsd, and riscv-arch-test has no
+  per-instruction tests for vector, Q, hypervisor or privileged instructions.
+  Of 1,230 instructions, 1,153 link to Sail, 1,222 to Spike and 441 to a test.
+  A weekly workflow re-syncs all three and opens a pull request when an
+  instruction gains or loses a link; by hand, `npm run sync:references --
+  <sail-riscv> <riscv-isa-sim> <riscv-arch-test>` (#416, #417, #418, #423).
+- **A clear link to each extension's specification.** The linked name alone
+  read as a heading, so people missed it. A "Read Online at docs.riscv.org"
+  button, tinted in the name's gold, now says where it goes; extensions whose
+  specification lives only on GitHub say "ISA manual source on GitHub"
+  instead. The name leads the panel header on its own, with the status,
+  Read Online and Share small on the right of the same line (#419, #420, #421,
+  #422).
 - **The release version is shown.** The header's counts row and the footer
-  name the running release (v1.9.0), linked to its release notes, so a report
-  or screenshot says which build it came from. The number comes from
-  `package.json` at build time, so a release PR's version bump updates it.
+  name the running release, linked to its release notes, so a report or
+  screenshot says which build it came from. The number comes from
+  `package.json` at build time, so a release's version bump updates it (#415).
 
 ## [1.9.0] - 2026-10-13
 

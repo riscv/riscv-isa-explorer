@@ -65,7 +65,7 @@ export function ExtensionToolchains({ id }) {
         {support.map((s) => (
           <Chip key={s.key} state={s.state} title={standingTitle(s)}>
             {s.state === 'none' ? `${s.name}: not yet` : `${s.name} ${s.since}+`}
-            {s.state === 'experimental' && <span className="opacity-80">experimental</span>}
+            {s.state === 'experimental' && <span className="italic">experimental</span>}
           </Chip>
         ))}
       </div>
@@ -105,7 +105,7 @@ export function MarchToolchains({ march }) {
               state="experimental"
               title={`${r.experimental.join(', ')} ${r.experimental.length > 1 ? 'are' : 'is'} experimental in ${r.name}: ${EXPERIMENTAL_HOW}`}
             >
-              {r.name} {r.minimum}+ <span className="opacity-80">experimental</span>
+              {r.name} {r.minimum}+ <span className="italic">experimental</span>
             </Chip>
           );
         }

@@ -77,6 +77,7 @@ src/
   InstructionUsage.jsx        # syntax, intrinsic, Compiler Explorer, Sail/Spike/ACT links
   instructionUsage.js         # syntax, examples, per-instruction -march, godbolt and Sail/Spike/ACT URLs
   ToolchainSupport.jsx / toolchainSupport.js   # Clang/GCC release per extension and per -march
+  specLink.js                 # the details panel's Read Online button label
   profiles.js                 # ratified profile definitions
   --- data (the source of truth) ---
   riscv_extensions.json       # extension catalogue + per-extension instruction encodings
@@ -195,8 +196,10 @@ Then `npm run sync` and `npm test && npm run build`.
   template that is simply wrong goes in `ASSEMBLY_FIXES`, which the tests
   fail on once upstream is fixed. Compiler Explorer links are pinned to
   clang 23.1; extensions it only takes as experimental are listed in
-  `COMPILER_EXPLORER_UNSUPPORTED` and get no link. Re-check that list when
-  bumping the compiler.
+  `COMPILER_EXPLORER_UNSUPPORTED` and get no link.
+  `tests/toolchain-support.test.mjs` checks that list against
+  `src/toolchain-support.json` for the pinned version, so bumping the
+  compiler tells you what to change.
 - **Sail links come from a parser, not a table.** Sail shares one execute
   clause between many instructions and builds mnemonics from pieces
   (`"l" ^ width_mnemonic(width) ^ maybe_u(...)`), so `scripts/sail-assembly.mjs`
@@ -215,7 +218,9 @@ Then `npm run sync` and `npm test && npm run build`.
   ACT links need no parser: riscv-arch-test keeps one test per instruction
   at `tests/<xlen>/<Ext>/<Ext>-<mnemonic>-NN.S`. When several extensions test
   the same mnemonic (csrrs under Zicsr, Zicntr, Zihpm), the directory of an
-  extension that owns the instruction in the catalogue wins. Vector, Q, H and
+  extension that owns the instruction in the catalogue wins, and an
+  instruction that exists at one width only (`rdcycleh`, `c.jal`) takes that
+  width's test. Vector, Q, H and
   the privileged instructions have no per-instruction test there yet, so they
   show greyed out; that is ACT's coverage, not a sync bug.
 - **Toolchain versions are read from source, never typed in.**

@@ -71,9 +71,9 @@ get a dependency-resolved configuration with a valid `-march` string.
   release takes yet. The versions are read from each release's own source.
 - **Watch the ISA grow.** **Evolution** plots every dated extension on the month
   it was ratified, over a cumulative curve banded by family.
-- **Link out to the specification.** Each extension links to the page that
-  defines it: docs.riscv.org when it is published there, otherwise the
-  specification's source repository.
+- **Link out to the specification.** Each extension's **Read Online** button
+  opens the page that defines it: docs.riscv.org when it is published there,
+  otherwise the specification's source repository, and the button says which.
 
 ## Something look wrong?
 
@@ -134,6 +134,9 @@ npm run sync          # route src/instr_dict.json into the catalogue
 npm run sync:udb      # extension metadata from riscv-unified-db
 npm run sync:params -- <path-to-riscv-unified-db>
 npm run sync:instruction-metadata -- <path-to-riscv-unified-db>
+npm run sync:intrinsics -- <rvv-intrinsic-doc> <riscv-c-api-doc>
+npm run sync:references -- <sail-riscv> <riscv-isa-sim> <riscv-arch-test>
+npm run sync:toolchains                       # fetches LLVM and GCC sources from GitHub
 node scripts/sync-profile-optional.mjs <path-to-riscv-unified-db>
 node scripts/seed-dependency-graph.mjs --udb <path-to-riscv-unified-db>
 node scripts/map-doc-links.mjs                # documentation links
@@ -144,6 +147,7 @@ Or check for drift without writing anything:
 ```bash
 npm run sync:check
 npm run sync:instruction-metadata:check   # expects riscv-unified-db beside this repo
+npm run sync:references:check -- <sail-riscv> <riscv-isa-sim> <riscv-arch-test>
 npm run graph:check -- <path-to-riscv-unified-db>
 npm run links:check
 npm run opcodes:check -- <path-to-riscv-opcodes>
