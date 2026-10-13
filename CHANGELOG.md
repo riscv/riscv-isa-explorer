@@ -13,6 +13,11 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-10-13
+
+Catalogue: 211 entries, unchanged from 1.8.0. No saved selection or `-march`
+string is invalidated by this release.
+
 ### Added
 
 - **Share links for a profile and for a configuration.** Highlighting a profile
@@ -24,7 +29,7 @@ someone silently. Each release below records its catalogue size.
   readable `?cfg=` value rather than the full export. Opening one checks every
   field against the current catalogue, as a restore from the browser does. If
   the visitor has a different configuration saved, a banner asks before
-  replacing it. Suggested by Nicolas Brunie (#407).
+  replacing it. Suggested by Nicolas Brunie (#407, #409).
 - **How to write each instruction.** The instruction details now show the
   assembly syntax as the specification writes it, a concrete line that
   assembles, RV32-only, RV64-only and data-independent-timing facts, and the C
@@ -33,7 +38,23 @@ someone silently. Each release below records its catalogue size.
   intrinsic, or the assembly line where there is none, compiled by clang 23.1
   for the instruction's `-march`. Intrinsics come from rvv-intrinsic-doc and
   riscv-c-api-doc (`npm run sync:intrinsics`); the syntax comes from
-  riscv-unified-db.
+  riscv-unified-db (#413).
+
+### Changed
+
+- **Every share button says Share, with one share icon.** The extension link,
+  the profile and configuration links, the comparison link and the sandbox
+  link had used different labels ("Link", "Share", "Share Link") and
+  different icons (#410).
+- **Clear highlight is easier to find.** The highlight banner has a gold edge,
+  and Clear highlight is a solid gold button at its start instead of a plain
+  link at its end, above 4.5:1 contrast in both themes (#411).
+
+### Fixed
+
+- **An `?ext=` link scrolls to its extension and focuses it**, as a search
+  result does. Before, the details opened but the page did not scroll to the
+  extension's tile (#411).
 
 ## [1.8.0] - 2026-10-11
 
