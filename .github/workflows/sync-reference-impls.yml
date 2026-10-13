@@ -61,6 +61,10 @@ jobs:
       - name: Summarise
         run: cat "$RUNNER_TEMP/report.md" >> "$GITHUB_STEP_SUMMARY"
 
+      # The render smoke test mounts the built bundle, so npm test needs dist/.
+      - name: Build
+        run: npm run build
+
       # tests/reference-implementations.test.mjs holds coverage floors. A sync
       # that loses links fails here, and no pull request opens, because a drop
       # usually means sail-riscv changed how it writes a mapping and the parser

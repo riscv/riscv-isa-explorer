@@ -245,3 +245,17 @@ test('every sync bot signs off as the same identity it authors as, and signs', (
     assert.match(wf, /^\s*sign-commits:\s*true\s*$/m, `${file}: the sync commit must be signed`);
   }
 });
+
+test('every workflow that runs the tests builds first', () => {
+  // tests/render-smoke.test.mjs mounts dist/bundle.js, so `npm test` without a
+  // prior `npm run build` fails 27 tests on a fresh runner. The first run of
+  // the Sail/Spike sync did exactly that.
+  const dir = path.join(root, '.github', 'workflows');
+  for (const file of fs.readdirSync(dir)) {
+    const wf = fs.readFileSync(path.join(dir, file), 'utf8');
+    const testAt = wf.search(/^\s*run:\s*npm test\b/m);
+    if (testAt < 0) continue;
+    const buildAt = wf.search(/^\s*run:\s*npm run build\b/m);
+    assert.ok(buildAt >= 0 && buildAt < testAt, `${file}: runs npm test without building first`);
+  }
+});
