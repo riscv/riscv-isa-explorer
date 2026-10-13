@@ -285,6 +285,9 @@ function useMediaQuery(query) {
 }
 
 const allExtensionsFlat = Object.values(extensions).flat().filter(Boolean);
+// Set by webpack from package.json; absent only if the source runs unbundled.
+const APP_VERSION = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : null;
+
 const BUILDER_CHECKS = {
   catalogIds: new Set(allExtensionsFlat.map((ext) => ext.id)),
   profiles: PROFILES,
@@ -2666,9 +2669,26 @@ const RISCVExplorer = () => {
                     >
                       <span style={{ color: 'var(--riscv-text-2)', fontWeight: 600 }}>{value}</span>{' '}
                       {label}
-                      {label !== 'Volumes' && <span className="mx-1 opacity-50">&middot;</span>}
+                      {(label !== 'Volumes' || APP_VERSION) && (
+                        <span className="mx-1 opacity-50">&middot;</span>
+                      )}
                     </span>
                   ))}
+                  {/* The release, so a report or a screenshot says which build
+                      it came from; the footer repeats it for anyone who scrolls. */}
+                  {APP_VERSION && (
+                    <a
+                      href={`https://github.com/riscv/riscv-isa-explorer/releases/tag/v${APP_VERSION}`}
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      className="whitespace-nowrap font-mono hover:underline"
+                      style={{ color: 'var(--riscv-text-2)', fontWeight: 600 }}
+                      title={`Release notes for v${APP_VERSION}`}
+                      aria-label={`Version ${APP_VERSION}: release notes`}
+                    >
+                      v{APP_VERSION}
+                    </a>
+                  )}
 
                   {/* Before About, because it answers the same question one
                       step earlier: not "what is this tool" but "what is the
@@ -5094,6 +5114,19 @@ const RISCVExplorer = () => {
             <span className="font-semibold" style={{ color: 'var(--riscv-text-2)' }}>
               ISA Explorer
             </span>
+            {APP_VERSION && (
+              <a
+                href={`https://github.com/riscv/riscv-isa-explorer/releases/tag/v${APP_VERSION}`}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="font-mono hover:underline"
+                style={{ color: 'var(--riscv-violet)' }}
+                data-tooltip={`Release notes for v${APP_VERSION}`}
+                aria-label={`Version ${APP_VERSION}: release notes`}
+              >
+                v{APP_VERSION}
+              </a>
+            )}
             <span style={{ color: 'var(--riscv-border-2)' }}>·</span>
             <span>
               Data sourced from{' '}

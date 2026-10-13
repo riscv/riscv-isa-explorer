@@ -39,7 +39,7 @@ before(async () => {
 
   dom = new JSDOM(fs.readFileSync(path.join(dist, 'index.html'), 'utf8'), {
     runScripts: 'outside-only',
-    pretendToBeVisual: true,   // gives requestAnimationFrame, which React wants
+    pretendToBeVisual: true, // gives requestAnimationFrame, which React wants
     url: 'https://example.test/',
   });
 
@@ -51,8 +51,10 @@ before(async () => {
   dom.window.Element.prototype.scrollIntoView = () => {};
   dom.window.matchMedia ??= () => ({
     matches: false,
-    addListener() {}, removeListener() {},
-    addEventListener() {}, removeEventListener() {},
+    addListener() {},
+    removeListener() {},
+    addEventListener() {},
+    removeEventListener() {},
   });
 
   dom.window.eval(fs.readFileSync(bundlePath, 'utf8'));
@@ -124,6 +126,17 @@ test('the catalogue exposes landmarks and valid tile actions', () => {
   );
 });
 
+test('the footer names the release, linked to its notes', () => {
+  const { version } = JSON.parse(fs.readFileSync(path.join(here, '..', 'package.json'), 'utf8'));
+  const link = dom.window.document.querySelector('footer a[aria-label^="Version "]');
+  assert.ok(link, 'the footer should show the version');
+  assert.equal(link.textContent.trim(), `v${version}`);
+  assert.equal(
+    link.getAttribute('href'),
+    `https://github.com/riscv/riscv-isa-explorer/releases/tag/v${version}`,
+  );
+});
+
 test('nothing threw during the first render', () => {
   // React reports render errors through console.error rather than by throwing,
   // so a silent failure would otherwise look like a pass.
@@ -158,8 +171,10 @@ async function mountAt(url, { storage = {} } = {}) {
   win.window.Element.prototype.scrollIntoView = () => {};
   win.window.matchMedia ??= () => ({
     matches: false,
-    addListener() {}, removeListener() {},
-    addEventListener() {}, removeEventListener() {},
+    addListener() {},
+    removeListener() {},
+    addEventListener() {},
+    removeEventListener() {},
   });
   win.window.eval(fs.readFileSync(bundlePath, 'utf8'));
   await new Promise((resolve) => setTimeout(resolve, 400));
@@ -293,7 +308,10 @@ test('clicking pins, opening Compare, and unpinning drives the whole tray/dialog
 
   // 1. Pin two different extension tiles.
   const pins = doc.querySelectorAll('.ext-tile-compare');
-  assert.ok(pins.length >= 2, `need at least 2 compare pins to drive this test, found ${pins.length}`);
+  assert.ok(
+    pins.length >= 2,
+    `need at least 2 compare pins to drive this test, found ${pins.length}`,
+  );
   click(pins[0]);
   await tick();
   click(pins[1]);
@@ -327,7 +345,9 @@ test('clicking pins, opening Compare, and unpinning drives the whole tray/dialog
   await tick();
   assert.equal(compareDialog(d), null, 'the dialog should have closed');
 
-  const removeBtn = doc.querySelector('[aria-label="Comparison tray"] button[aria-label^="Remove "]');
+  const removeBtn = doc.querySelector(
+    '[aria-label="Comparison tray"] button[aria-label^="Remove "]',
+  );
   assert.ok(removeBtn, 'no remove button found on a tray chip');
   click(removeBtn);
   await tick();
@@ -340,7 +360,11 @@ test('clicking pins, opening Compare, and unpinning drives the whole tray/dialog
     'Compare button should be disabled again with fewer than two pins',
   );
 
-  assert.deepEqual(realErrors(errors), [], 'console errors while driving the pin/compare/remove flow');
+  assert.deepEqual(
+    realErrors(errors),
+    [],
+    'console errors while driving the pin/compare/remove flow',
+  );
 });
 
 test('compare mode is off by default, so no pins clutter the grid', () => {
@@ -429,7 +453,10 @@ test('switching compare mode off hides the pins and tray but keeps the compariso
   const compareBtn = [...tray.querySelectorAll('button')].find((b) =>
     b.textContent.trim().startsWith('Compare ('),
   );
-  assert.ok(compareBtn.textContent.includes('(2)'), `expected 2 pins retained: ${compareBtn.textContent}`);
+  assert.ok(
+    compareBtn.textContent.includes('(2)'),
+    `expected 2 pins retained: ${compareBtn.textContent}`,
+  );
 
   assert.deepEqual(realErrors(errors), [], 'console errors while toggling compare mode');
 });
@@ -471,7 +498,11 @@ test('the header is an identity row plus one full-width toolbar', () => {
   // scrolls. A single full-width toolbar wraps instead.
   const toolbar = dom.window.document.querySelector('.riscv-toolbar');
   assert.ok(toolbar, 'no header toolbar');
-  assert.equal(toolbar.children.length, 2, 'toolbar should hold a filters group and an actions group');
+  assert.equal(
+    toolbar.children.length,
+    2,
+    'toolbar should hold a filters group and an actions group',
+  );
 
   const [, actions] = [...toolbar.children].map((g) =>
     [...g.querySelectorAll('button')].map((b) => b.textContent.trim()),
@@ -484,7 +515,10 @@ test('the header is an identity row plus one full-width toolbar', () => {
     assert.ok(profileOptions.includes(profile), `${profile} missing from the profile dropdown`);
   }
   for (const action of ['Encoding Validator', 'Encoding Map']) {
-    assert.ok(actions.some((t) => t.startsWith(action)), `${action} missing from the actions group`);
+    assert.ok(
+      actions.some((t) => t.startsWith(action)),
+      `${action} missing from the actions group`,
+    );
   }
   const encodingMapButton = toolbar.querySelector('button[aria-label="Encoding Map"]');
   const compactEncodingMapWords = [
@@ -572,10 +606,7 @@ test('a profile link highlights that profile, whatever its case', async () => {
 
 test('an unknown profile in a link highlights nothing', async () => {
   const { dom: d, errors } = await mountAt('https://example.test/?profile=RVA99');
-  assert.equal(
-    d.window.document.querySelector('select[aria-label="Highlight Profile"]').value,
-    '',
-  );
+  assert.equal(d.window.document.querySelector('select[aria-label="Highlight Profile"]').value, '');
   assert.deepEqual(realErrors(errors), []);
 });
 

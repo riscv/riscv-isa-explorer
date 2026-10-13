@@ -28,7 +28,8 @@ module.exports = [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
-      globals: { ...globals.browser },
+      // __APP_VERSION__ is package.json's version, set by webpack's DefinePlugin.
+      globals: { ...globals.browser, __APP_VERSION__: 'readonly' },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
     settings: { react: { version: 'detect' } },

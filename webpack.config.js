@@ -3,7 +3,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 // Single source of truth for feature switches. The bundle imports the same
 // file, so a flag cannot be on in the app and off in the HTML.
+const { DefinePlugin } = require('webpack');
 const { AI_ASSISTANT_ENABLED } = require('./feature-flags.cjs');
+const { version } = require('./package.json');
 
 // Static pages for crawlers that do not run JavaScript (scripts/static-pages.mjs).
 // The module is ESM, so it is imported lazily; every caller below is async.
@@ -131,6 +133,8 @@ module.exports = (env, argv = {}) => {
         }),
       }),
       new StaticPagesPlugin(),
+      // The release the footer names; `npm version` in a release PR updates it.
+      new DefinePlugin({ __APP_VERSION__: JSON.stringify(version) }),
     ],
   };
 };

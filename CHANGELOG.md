@@ -13,6 +13,13 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Added
+
+- **The release version is shown.** The header's counts row and the footer
+  name the running release (v1.9.0), linked to its release notes, so a report
+  or screenshot says which build it came from. The number comes from
+  `package.json` at build time, so a release PR's version bump updates it.
+
 ## [1.9.0] - 2026-10-13
 
 Catalogue: 211 entries, unchanged from 1.8.0. No saved selection or `-march`
