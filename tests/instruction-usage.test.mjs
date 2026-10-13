@@ -293,7 +293,7 @@ test(
       );
       if (error) {
         if (!TOOLCHAIN_LAG.test(error)) failures.push(`${key} [${march}]: ${error}`);
-      } else if (!new RegExp(`\\b${key.replace(/\./g, '\\.')}\\b`).test(out)) {
+      } else if (!new RegExp(`\\b${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(out)) {
         failures.push(`${key} [${march}]: compiled, but not to ${key}`);
       }
     }
