@@ -135,6 +135,21 @@ test('definedBy adds what the listed extension alone does not provide', () => {
   assert.match(marchOf('aes32esi'), /^rv32/);
 });
 
+test('an instruction shown under a base ISA is built for that base', () => {
+  const add = (extensionId) =>
+    instructionMarch({
+      extensionId,
+      extensionTags: ['rv_i'],
+      definedBy: metadata.add.defined_by,
+      catalogIds,
+    });
+  assert.equal(add('RV32E'), 'rv32e');
+  assert.equal(add('RV32I'), 'rv32i');
+  assert.equal(add('RV64E'), 'rv64e');
+  assert.equal(add('RV128I'), 'rv64i', 'no compiler targets RV128I');
+  assert.equal(abiForMarch('rv64e'), 'lp64e');
+});
+
 test('vector crypto is raised to the VLEN its element groups need', () => {
   assert.match(marchOf('vaeskf1.vi'), /_zvl128b/);
   assert.match(marchOf('vsm3c.vi'), /_zvl256b/);

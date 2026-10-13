@@ -16,7 +16,7 @@
  */
 
 import { impliedVlen, resolveSelection, vlenExtension } from './isaGraph.js';
-import { buildMarchString } from './marchUtils.js';
+import { BASE_ISA_IDS, buildMarchString } from './marchUtils.js';
 
 /* ── Upstream template fixes ────────────────────────────────────────────── */
 
@@ -273,7 +273,8 @@ export const ELEMENT_GROUP_WIDTH = {
  * under plus whatever its definedBy adds, resolved like a builder selection.
  * `extra` adds what an example needs on top (Zvfh for a half-precision
  * intrinsic), and a vector-crypto selection is raised to the VLEN its element
- * groups need.
+ * groups need. Shown under a base ISA (add under RV32E), the example uses
+ * that base; RV128I has no compiler, so it falls back like everything else.
  *
  * @returns {string|null}
  */
@@ -284,7 +285,10 @@ export function instructionMarch({
   catalogIds,
   extra = [],
 }) {
-  const base = `RV${preferredXlen(extensionTags, definedBy)}I`;
+  const base =
+    BASE_ISA_IDS.has(extensionId) && extensionId !== 'RV128I'
+      ? extensionId
+      : `RV${preferredXlen(extensionTags, definedBy)}I`;
   const resolve = (ids) => resolveSelection({ selected: [base, ...ids], base }).resolved;
   let selected = [...new Set([extensionId, ...extra])].filter((id) => id && id !== base);
   let resolved = resolve(selected);
