@@ -62,9 +62,34 @@ const allowedDrops = new Set(
 const reportPath = option('--report');
 const outputPath = path.join(root, 'src', 'toolchain-support.json');
 
+/*
+ * A release's date: the annotated tag's own date where there is one (LLVM
+ * 18.1.0's tag is dated the release day, 2024-03-06, while the commit it points
+ * at is from a week earlier), otherwise the tagged commit's. GITHUB_TOKEN, when
+ * set, lifts the API's 60-requests-an-hour anonymous limit.
+ */
+async function githubJson(path) {
+  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+  const response = await fetchRetrying(`https://api.github.com/${path}`, {
+    headers: {
+      Accept: 'application/vnd.github+json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  if (!response.ok) throw new Error(`${path}: HTTP ${response.status}`);
+  return response.json();
+}
+
 const github = (repo) => ({
   remote: `https://github.com/${repo}.git`,
   url: (tag, file) => `https://raw.githubusercontent.com/${repo}/${tag}/${file}`,
+  date: async (tag) => {
+    const ref = await githubJson(`repos/${repo}/git/ref/tags/${tag}`);
+    if (ref.object.type === 'tag') {
+      return (await githubJson(`repos/${repo}/git/tags/${ref.object.sha}`)).tagger.date;
+    }
+    return (await githubJson(`repos/${repo}/commits/${ref.object.sha}`)).commit.committer.date;
+  },
 });
 
 /*
@@ -107,6 +132,14 @@ const TOOLS = {
     remote: 'https://sourceware.org/git/binutils-gdb.git',
     url: (tag, file) =>
       `https://sourceware.org/git/?p=binutils-gdb.git;a=blob_plain;f=${file};hb=${tag}`,
+    // gitweb's tag page carries the tagger's date.
+    date: async (tag) => {
+      const page = `https://sourceware.org/git/?p=binutils-gdb.git;a=tag;h=refs/tags/${tag}`;
+      const response = await fetchRetrying(page);
+      const stamp = response.ok && (await response.text()).match(/datetime">([^<]+)</)?.[1];
+      if (!stamp) throw new Error(`${page}: no tag date found`);
+      return new Date(stamp).toISOString();
+    },
     tag: (t) => {
       const m = t.match(/^binutils-(\d+)_(\d+)$/);
       return m && [m[1], m[2]];
@@ -166,10 +199,25 @@ function releaseTags(tool) {
     .map(({ version, tag }) => ({ version, tag }));
 }
 
+/*
+ * fetch that waits out rate limits and server hiccups: a 429 or 5xx is tried
+ * again up to four times, honouring Retry-After when the server sends one.
+ * raw.githubusercontent.com does rate-limit a run that fetches every release.
+ */
+async function fetchRetrying(url, options, attempts = 5) {
+  for (let attempt = 1; ; attempt++) {
+    const response = await fetch(url, options);
+    if ((response.status !== 429 && response.status < 500) || attempt === attempts) return response;
+    const wait = Number(response.headers.get('retry-after')) || 5 * 2 ** (attempt - 1);
+    console.warn(`${url}: HTTP ${response.status}, retrying in ${wait}s`);
+    await new Promise((resolve) => setTimeout(resolve, wait * 1000));
+  }
+}
+
 async function fetchSource(tool, tag, file) {
   const cached = cacheDir && path.join(cacheDir, tool.repo, tag, file);
   if (cached && fs.existsSync(cached)) return fs.readFileSync(cached, 'utf8');
-  const response = await fetch(tool.url(tag, file));
+  const response = await fetchRetrying(tool.url(tag, file));
   if (response.status === 404) return null;
   if (!response.ok) throw new Error(`${tool.repo}@${tag}:${file}: HTTP ${response.status}`);
   const text = await response.text();
@@ -243,6 +291,21 @@ const requires = new Map(
 
 const previous = fs.existsSync(outputPath) ? JSON.parse(fs.readFileSync(outputPath, 'utf8')) : {};
 
+/* YYYY-MM-DD, reusing the committed file's date so a run only looks up new
+   releases, then the cache, then the network. */
+async function releaseDate(key, tool, version, tag) {
+  const known = previous.tools?.[key]?.releases?.find((r) => r.version === version)?.date;
+  if (known) return known;
+  const cached = cacheDir && path.join(cacheDir, tool.repo, tag, '.date');
+  if (cached && fs.existsSync(cached)) return fs.readFileSync(cached, 'utf8');
+  const date = (await tool.date(tag)).slice(0, 10);
+  if (cached) {
+    fs.mkdirSync(path.dirname(cached), { recursive: true });
+    fs.writeFileSync(cached, date);
+  }
+  return date;
+}
+
 /*
  * Extensions the specifications define purely as a group of others, so a
  * tool that knows every part knows them (see addBundles). Their parts are the
@@ -287,7 +350,12 @@ const extensions = Object.fromEntries(tokens.map((token) => [token, {}]));
 for (const [key, tool] of Object.entries(TOOLS)) {
   const releases = [];
   for (const { version, tag } of releaseTags(tool)) {
-    releases.push({ version, tag, ...(await releaseAt(key, tool, tag)) });
+    releases.push({
+      version,
+      tag,
+      date: await releaseDate(key, tool, version, tag),
+      ...(await releaseAt(key, tool, tag)),
+    });
   }
   // Only releases this run adds are judged (see unacceptedDrops). LLVM's
   // documentation parser gets the same guard as the extension tables.
@@ -309,7 +377,7 @@ for (const [key, tool] of Object.entries(TOOLS)) {
   tools[key] = {
     name: tool.name,
     repo: tool.repo,
-    releases: releases.map(({ version, tag }) => ({ version, tag })),
+    releases: releases.map(({ version, tag, date }) => ({ version, tag, date })),
   };
   for (const token of tokens) {
     const result = standing(releases, token);

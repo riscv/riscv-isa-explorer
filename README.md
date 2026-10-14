@@ -75,7 +75,9 @@ get a dependency-resolved configuration with a valid `-march` string.
   not the same as generating code for every extension in it. The versions are
   read from each release's own source.
 - **Watch the ISA grow.** **Evolution** plots every dated extension on the month
-  it was ratified, over a cumulative curve banded by family.
+  it was ratified, over a cumulative curve banded by family. Below it, one
+  stepped line per tool shows how many extensions each Clang, GCC, binutils,
+  QEMU and Linux release knew, against how many had been ratified by then.
 - **Link out to the specification.** Each extension's **Read Online** button
   opens the page that defines it: docs.riscv.org when it is published there,
   otherwise the specification's source repository, and the button says which.

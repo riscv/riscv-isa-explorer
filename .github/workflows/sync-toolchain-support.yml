@@ -43,6 +43,10 @@ jobs:
       # GitHub). A release whose file moved fails here, by design: the parser
       # in scripts/toolchain-support.mjs needs a look.
       - name: Sync toolchain support
+        # For release dates from GitHub's API; without it the anonymous limit
+        # of 60 requests an hour applies.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/sync_toolchain_support.mjs --report "$RUNNER_TEMP/report.md"
 
       - name: Summarise

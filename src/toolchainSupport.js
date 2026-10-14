@@ -144,3 +144,55 @@ export function marchRequirements(data, march, keys = BUILD_TOOLS) {
       return result;
     });
 }
+
+/*
+ * The history behind the chips, for the Evolution view: at each release of
+ * each tool, how many of the catalogue's extensions it knew, and which were
+ * new. "Knew" is the same reading as everywhere else: accepted in -march
+ * (Clang, GCC), assembled (binutils), emulated (QEMU), detected (Linux), and
+ * supported rather than experimental.
+ *
+ * A tool's first scanned release is a floor (`floor: true`): it counts
+ * everything that release already had, which built up over earlier releases
+ * the scan does not read. `ratified` is how many of the same extensions had
+ * been ratified by each month, from `ratifiedByToken` (token -> "YYYY-MM"),
+ * as a reference line.
+ */
+export function toolchainTimeline(data, ratifiedByToken, keys = Object.keys(data?.tools ?? {})) {
+  if (!data?.tools) return { tools: [], ratified: [], from: null, to: null };
+  const tokens = Object.keys(data.extensions ?? {});
+  const tools = keys
+    .filter((key) => data.tools[key]?.releases?.every((r) => r.date))
+    .map((key) => {
+      const tool = data.tools[key];
+      const index = new Map(tool.releases.map((r, i) => [r.version, i]));
+      const since = (token) => index.get(data.extensions[token]?.[key]?.supported) ?? Infinity;
+      let count = 0;
+      const points = tool.releases.map((release, i) => {
+        const added = tokens.filter((token) => since(token) === i).sort();
+        count += added.length;
+        return { version: release.version, date: release.date, count, added, floor: i === 0 };
+      });
+      return { key, name: tool.name, points };
+    });
+  const dates = tools.flatMap((t) => t.points.map((p) => p.date)).sort();
+  const from = dates[0] ?? null;
+  const to = dates.at(-1) ?? null;
+  // One step per month in which one of these extensions was ratified, plus
+  // the count already ratified when the window opens.
+  const months = tokens
+    .map((token) => ratifiedByToken.get(token))
+    .filter(Boolean)
+    .sort();
+  const ratified = [];
+  if (from) {
+    const start = from.slice(0, 7);
+    let count = months.filter((m) => m <= start).length;
+    ratified.push({ date: from, count });
+    for (const month of [...new Set(months)].filter((m) => m > start && m <= to.slice(0, 7))) {
+      count += months.filter((m) => m === month).length;
+      ratified.push({ date: `${month}-01`, count });
+    }
+  }
+  return { tools, ratified, from, to };
+}

@@ -13,6 +13,15 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Added
+
+- **When the toolchains caught up.** The Evolution dialog gains a second chart:
+  one stepped line per tool, a step per release, showing how many of the
+  catalogue's extensions each Clang, GCC, binutils, QEMU and Linux release
+  knew, against a dashed line of how many had been ratified by then. Hovering
+  a step names the release, its date and what it added. Release dates come
+  from each project's tags.
+
 ## [1.10.3] - 2026-10-13
 
 Catalogue: 211 entries, unchanged from 1.10.2. No saved selection or `-march`

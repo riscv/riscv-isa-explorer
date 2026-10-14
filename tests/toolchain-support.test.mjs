@@ -31,6 +31,7 @@ import {
   marchRequirements,
   marchToken,
   marchTokens,
+  toolchainTimeline,
 } from '../src/toolchainSupport.js';
 import { NON_MARCH_IDS } from '../src/marchUtils.js';
 import {
@@ -528,6 +529,44 @@ test('marchRequirements: the newest minimum, experimental and missing tokens', (
 
   // A token the data does not know (a sandbox extension) is not guessed at.
   assert.equal(byTool('rv64i_xmycustom').llvm.minimum, '14');
+});
+
+test('every scanned release carries its date, in order', () => {
+  for (const [key, tool] of Object.entries(data.tools)) {
+    const dates = tool.releases.map((r) => r.date);
+    for (const date of dates) assert.match(date, /^\d{4}-\d{2}-\d{2}$/, key);
+    assert.deepEqual(dates, [...dates].sort(), key);
+  }
+  // Known release days, as a check on how dates are read.
+  const day = (key, version) => data.tools[key].releases.find((r) => r.version === version).date;
+  assert.equal(day('llvm', '18'), '2024-03-06'); // the tag's date, not its commit's
+  assert.equal(day('gcc', '14'), '2024-05-07');
+  assert.equal(day('binutils', '2.42'), '2024-01-29');
+  assert.equal(day('linux', '6.8'), '2024-03-10');
+});
+
+test('toolchainTimeline counts what each release knew, with the first as a floor', () => {
+  const ratified = new Map(
+    extensions
+      .filter((e) => e.ratification_date)
+      .map((e) => [marchToken(e.id), e.ratification_date.slice(0, 7)]),
+  );
+  const model = toolchainTimeline(data, ratified);
+  const gcc = model.tools.find((t) => t.key === 'gcc');
+  // Counts only grow, each step adds exactly what it lists, and the last
+  // step is today's count.
+  gcc.points.reduce((before, p) => {
+    assert.equal(p.count, before + p.added.length, p.version);
+    return p.count;
+  }, 0);
+  assert.equal(gcc.points[0].floor, true);
+  assert.ok(gcc.points.slice(1).every((p) => !p.floor));
+  const supported = Object.values(data.extensions).filter((e) => e.gcc?.supported).length;
+  assert.equal(gcc.points.at(-1).count, supported);
+  assert.ok(gcc.points.find((p) => p.version === '14').added.includes('zvbb'));
+  // The reference line counts the same extensions, ratified by each month.
+  assert.ok(model.ratified.every((r, i, all) => !i || r.count >= all[i - 1].count));
+  assert.equal(model.from, '2022-02-09');
 });
 
 test('extensionSupport: one standing per tool, and none for non-march ids', () => {

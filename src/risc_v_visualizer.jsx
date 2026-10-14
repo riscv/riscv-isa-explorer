@@ -246,6 +246,7 @@ const profileFromUrl = () => {
 const EncodingMap = React.lazy(() => import('./EncodingMap.jsx'));
 const WorkspacePanel = React.lazy(() => import('./WorkspacePanel.jsx'));
 const ExtensionEvolution = React.lazy(() => import('./ExtensionEvolution.jsx'));
+const ToolchainTimeline = React.lazy(() => import('./ToolchainTimeline.jsx'));
 
 /**
  * True once `open` has been true, and true forever after.
@@ -5295,7 +5296,7 @@ const RISCVExplorer = () => {
                     How the ISA was built
                   </h3>
                   <p className="text-[12px] mt-1" style={{ color: 'var(--riscv-text-3)' }}>
-                    {`How fast the ISA grew, and when each of the ${allExtensionsFlat.length} catalogued extensions arrived.`}
+                    {`How fast the ISA grew, when each of the ${allExtensionsFlat.length} catalogued extensions arrived, and when the toolchains caught up.`}
                   </p>
                 </div>
                 <button
@@ -5325,6 +5326,7 @@ const RISCVExplorer = () => {
                       }
                     }}
                   />
+                  <ToolchainTimeline catalog={extensions} />
                 </React.Suspense>
               </div>
             </div>

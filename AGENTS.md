@@ -77,6 +77,7 @@ src/
   InstructionUsage.jsx        # syntax, intrinsic, Compiler Explorer, Sail/Spike/ACT links
   instructionUsage.js         # syntax, examples, per-instruction -march, godbolt and Sail/Spike/ACT URLs
   ToolchainSupport.jsx / toolchainSupport.js   # build/run tool releases per extension and per -march
+  ToolchainTimeline.jsx       # the Evolution dialog's per-tool timeline (toolchainTimeline())
   specLink.js                 # the details panel's Read Online button label
   profiles.js                 # ratified profile definitions
   --- data (the source of truth) ---
@@ -255,7 +256,9 @@ Then `npm run sync` and `npm test && npm run build`.
   more than 10% (and more than 5 entries) fails the sync as a likely format
   change (`suspiciousDrops`); `--allow-drop tool@version` accepts a real
   removal after checking upstream. Non-`-march` ids (S, U, Sv39…) have no
-  entry and show no toolchain section. Bundles (B, A, Zk/Zkn/Zks, the Zvk
+  entry and show no toolchain section. Each release carries its date (the
+  annotated tag's, else the tagged commit's; binutils from sourceware's tag
+  page), reused from the committed file so a run only looks up new releases. Bundles (B, A, Zk/Zkn/Zks, the Zvk
   shorthands, Zce, Sha: `BUNDLES` in the sync script, checked against the
   graph by the tests) are known to QEMU and Linux once every part is: Linux
   has no `b` entry but detects Zba, Zbb and Zbs (`through`). Compilers and
