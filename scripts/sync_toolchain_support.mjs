@@ -29,6 +29,8 @@ import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import {
   addBases,
+  addBundles,
+  bundlesByParts,
   addQemuImplied,
   parseBinutils,
   parseGccCommon,
@@ -199,7 +201,12 @@ async function releaseAt(key, tool, tag) {
     const impliedBy =
       key === 'qemu' ? addQemuImplied(extensions, extras[0] ?? '', requires) : new Map();
     const assemblyOnly = key === 'llvm' ? parseLlvmUsage(extras[0] ?? '') : new Set();
-    return { extensions, options, impliedBy, assemblyOnly };
+    // Runs code: knowing every part of a bundle is knowing the bundle.
+    // Reads -march literally: only note that the parts are accepted.
+    const run = key === 'qemu' || key === 'linux';
+    const through = run ? addBundles(extensions, bundleParts) : new Map();
+    const byParts = run ? new Set() : bundlesByParts(extensions, bundleParts);
+    return { extensions, options, impliedBy, assemblyOnly, through, byParts };
   }
   throw new Error(`${tool.repo}@${tag}: no extension table found; has the file moved?`);
 }
@@ -235,6 +242,45 @@ const requires = new Map(
 );
 
 const previous = fs.existsSync(outputPath) ? JSON.parse(fs.readFileSync(outputPath, 'utf8')) : {};
+
+/*
+ * Extensions the specifications define purely as a group of others, so a
+ * tool that knows every part knows them (see addBundles). Their parts are the
+ * dependency graph's requirements; tests/toolchain-support.test.mjs keeps
+ * the same list and checks the graph still gives exactly these parts.
+ *
+ *   A                   Zaamo + Zalrsc (unprivileged spec)
+ *   B                   Zba + Zbb + Zbs (unprivileged spec, 20240411)
+ *   Zk, Zkn, Zks        scalar cryptography shorthands
+ *   Zvkn, Zvknc, Zvkng,
+ *   Zvks, Zvksc, Zvksg  vector cryptography shorthands
+ *   Zce                 Zca + Zcb + Zcmp + Zcmt (Zc spec; Zcf too on RV32)
+ *   Sha                 H + the Sh* and Ssstateen it names (privileged spec)
+ */
+const BUNDLES = [
+  'A',
+  'B',
+  'Zk',
+  'Zkn',
+  'Zks',
+  'Zvkn',
+  'Zvknc',
+  'Zvkng',
+  'Zvks',
+  'Zvksc',
+  'Zvksg',
+  'Zce',
+  'Sha',
+];
+const graph = JSON.parse(
+  fs.readFileSync(path.join(root, 'src', 'isa-dependency-graph.json'), 'utf8'),
+);
+const bundleParts = new Map(
+  BUNDLES.map((id) => [
+    marchToken(id),
+    (graph.nodes[id]?.requires ?? []).map((edge) => marchToken(edge.ext)),
+  ]),
+);
 
 const tools = {};
 const extensions = Object.fromEntries(tokens.map((token) => [token, {}]));
@@ -284,7 +330,24 @@ for (const [key, tool] of Object.entries(TOOLS)) {
     if (by) result.impliedBy = idOf.get(by) ?? by;
     // As the newest release's documentation describes it today.
     if (releases.at(-1).assemblyOnly.has(token)) result.assemblyOnly = true;
+    const through = releases.at(-1).through.get(token);
+    if (through) result.through = through.map((t) => idOf.get(t) ?? t);
     extensions[token][key] = result;
+  }
+  // -march tools: from which release the bundle's parts were all accepted,
+  // when that is earlier than the name itself (GCC took _zba_zbb_zbs from 12,
+  // _b only from 15).
+  for (const token of bundleParts.keys()) {
+    if (!extensions[token]) continue;
+    let i = releases.length;
+    while (i > 0 && releases[i - 1].byParts.has(token)) i--;
+    if (i === releases.length) continue;
+    const since = releases[i].version;
+    const entry = extensions[token][key] ?? {};
+    const literal = releases.findIndex((r) => r.version === entry.supported);
+    if (literal >= 0 && literal <= i) continue;
+    entry.parts = { since, via: bundleParts.get(token).map((t) => idOf.get(t) ?? t) };
+    extensions[token][key] = entry;
   }
 }
 

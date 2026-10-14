@@ -11,6 +11,8 @@ import { createRequire } from 'node:module';
 
 import {
   addBases,
+  addBundles,
+  bundlesByParts,
   addQemuImplied,
   parseBinutils,
   parseGccCommon,
@@ -38,6 +40,7 @@ import {
 
 const require = createRequire(import.meta.url);
 const data = require('../src/toolchain-support.json');
+const graph = require('../src/isa-dependency-graph.json');
 const catalog = require('../src/riscv_extensions.json');
 const extensions = Object.values(catalog).flat().filter(Boolean);
 
@@ -280,6 +283,74 @@ test('a drop accepted once stays accepted; only new releases are judged', () => 
   );
 });
 
+// The bundles scripts/sync_toolchain_support.mjs treats as pure groups, with
+// the parts their specifications give. The graph must still agree.
+const BUNDLES = {
+  A: ['Zaamo', 'Zalrsc'],
+  B: ['Zba', 'Zbb', 'Zbs'],
+  Zk: ['Zkn', 'Zkr', 'Zkt'],
+  Zkn: ['Zbkb', 'Zbkc', 'Zbkx', 'Zknd', 'Zkne', 'Zknh'],
+  Zks: ['Zbkb', 'Zbkc', 'Zbkx', 'Zksed', 'Zksh'],
+  Zvkn: ['Zvkb', 'Zvkned', 'Zvknhb', 'Zvkt'],
+  Zvknc: ['Zvbc', 'Zvkn'],
+  Zvkng: ['Zvkg', 'Zvkn'],
+  Zvks: ['Zvkb', 'Zvksed', 'Zvksh', 'Zvkt'],
+  Zvksc: ['Zvbc', 'Zvks'],
+  Zvksg: ['Zvkg', 'Zvks'],
+  Zce: ['Zca', 'Zcb', 'Zcmp', 'Zcmt'],
+  Sha: [
+    'H',
+    'Shcounterenw',
+    'Shgatpa',
+    'Shtvala',
+    'Shvsatpa',
+    'Shvstvala',
+    'Shvstvecd',
+    'Ssstateen',
+  ],
+};
+
+test('the bundles’ parts in the graph are the specification’s', () => {
+  for (const [id, parts] of Object.entries(BUNDLES)) {
+    assert.deepEqual(
+      (graph.nodes[id]?.requires ?? []).map((e) => e.ext).sort(),
+      [...parts].sort(),
+      id,
+    );
+  }
+});
+
+test('a runner that knows every part of a bundle knows the bundle', () => {
+  const bundles = new Map([
+    ['b', ['zba', 'zbb', 'zbs']],
+    ['zvkn', ['zvkb', 'zvkned']],
+    ['zvknc', ['zvbc', 'zvkn']],
+    ['sha', ['h', 'shgatpa']],
+  ]);
+  const extensions = new Map(
+    ['zba', 'zbb', 'zbs', 'zvkb', 'zvkned', 'zvbc', 'h'].map((t) => [t, 'supported']),
+  );
+  const through = addBundles(extensions, bundles);
+  assert.equal(extensions.get('b'), 'supported');
+  assert.deepEqual(through.get('b'), ['zba', 'zbb', 'zbs']);
+  // A bundle of bundles resolves too.
+  assert.equal(extensions.get('zvknc'), 'supported');
+  // A missing part means no claim.
+  assert.equal(extensions.get('sha'), undefined);
+  // An experimental part makes the bundle experimental.
+  const mixed = new Map([
+    ['zba', 'supported'],
+    ['zbb', 'experimental'],
+    ['zbs', 'supported'],
+  ]);
+  addBundles(mixed, bundles);
+  assert.equal(mixed.get('b'), 'experimental');
+  // -march tools only report that the parts are accepted, never the name.
+  const literal = new Map(['zba', 'zbb', 'zbs'].map((t) => [t, 'supported']));
+  assert.deepEqual([...bundlesByParts(literal, bundles)], ['b']);
+  assert.equal(literal.get('b'), undefined);
+});
+
 test('standing: the unbroken run that reaches the newest release', () => {
   const releases = (statuses) =>
     statuses.map((status, i) => ({
@@ -344,7 +415,7 @@ test('the data agrees with the release notes', () => {
   assert.deepEqual(at('zvabd').llvm, { experimental: '23' });
   assert.equal(at('zvabd').gcc, undefined);
   // binutils 2.44 rejects zce (checked against Debian's 2.44); 2.45 takes it.
-  assert.deepEqual(at('zce').binutils, { supported: '2.45' });
+  assert.equal(at('zce').binutils.supported, '2.45');
   // QEMU had Smaia as x-aia in 7.0-7.1 and x-smaia from 7.2, until 9.0.
   assert.deepEqual(at('smaia').qemu, {
     supported: '9.0',
@@ -354,6 +425,20 @@ test('the data agrees with the release notes', () => {
       { option: '-cpu rv64,x-smaia=on', from: '7.2' },
     ],
   });
+  // Linux has Zba, Zbb and Zbs but no b entry: it detects B through them.
+  assert.deepEqual(at('b').linux, { supported: '6.6', through: ['Zba', 'Zbb', 'Zbs'] });
+  // GCC took -march=..._b only from 15, but _zba_zbb_zbs from 12.
+  assert.deepEqual(at('b').gcc, {
+    supported: '15',
+    parts: { since: '12', via: ['Zba', 'Zbb', 'Zbs'] },
+  });
+  // binutils 2.44 rejects zce (checked on Debian's) but takes its parts.
+  assert.deepEqual(at('zce').binutils.parts, {
+    since: '2.44',
+    via: ['Zca', 'Zcb', 'Zcmp', 'Zcmt'],
+  });
+  // Linux lists none of Sha's Sh* parts, so no claim is made.
+  assert.equal(at('sha').linux, undefined);
   // RV64E came years after RV32E: LLVM 17, GCC 14 (lp64e), binutils 2.42.
   assert.deepEqual(at('rv32e').llvm, { supported: '14', assemblyOnly: true });
   assert.deepEqual(at('rv64e').llvm, { supported: '17', assemblyOnly: true });

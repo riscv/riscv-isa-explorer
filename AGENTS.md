@@ -255,7 +255,13 @@ Then `npm run sync` and `npm test && npm run build`.
   more than 10% (and more than 5 entries) fails the sync as a likely format
   change (`suspiciousDrops`); `--allow-drop tool@version` accepts a real
   removal after checking upstream. Non-`-march` ids (S, U, Sv39…) have no
-  entry and show no toolchain section. `COMPILER_EXPLORER_UNSUPPORTED` must
+  entry and show no toolchain section. Bundles (B, A, Zk/Zkn/Zks, the Zvk
+  shorthands, Zce, Sha: `BUNDLES` in the sync script, checked against the
+  graph by the tests) are known to QEMU and Linux once every part is: Linux
+  has no `b` entry but detects Zba, Zbb and Zbs (`through`). Compilers and
+  binutils read `-march` literally (GCC 14 rejects `_b`), so for them the
+  data only records when the parts were all accepted (`parts`). Add a
+  bundle there only if its specification defines it purely as its parts. `COMPILER_EXPLORER_UNSUPPORTED` must
   equal what the pinned Compiler Explorer clang takes only as experimental;
   `tests/toolchain-support.test.mjs` checks it against this data.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;

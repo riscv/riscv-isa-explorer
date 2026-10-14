@@ -275,22 +275,47 @@
     },
     "b": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "parts": {
+          "since": "14",
+          "via": [
+            "Zba",
+            "Zbb",
+            "Zbs"
+          ]
+        }
       },
       "gcc": {
-        "supported": "15"
+        "supported": "15",
+        "parts": {
+          "since": "12",
+          "via": [
+            "Zba",
+            "Zbb",
+            "Zbs"
+          ]
+        }
       },
       "binutils": {
-        "supported": "2.43"
+        "supported": "2.43",
+        "parts": {
+          "since": "2.38",
+          "via": [
+            "Zba",
+            "Zbb",
+            "Zbs"
+          ]
+        }
       },
       "qemu": {
-        "supported": "9.1",
-        "experimental": "9.0",
-        "options": [
-          {
-            "option": "-cpu rv64,x-b=on",
-            "from": "9.0"
-          }
+        "supported": "7.0"
+      },
+      "linux": {
+        "supported": "6.6",
+        "through": [
+          "Zba",
+          "Zbb",
+          "Zbs"
         ]
       }
     },
@@ -497,13 +522,39 @@
     "sdtrigpend": {},
     "sha": {
       "llvm": {
-        "supported": "20"
+        "supported": "20",
+        "parts": {
+          "since": "19",
+          "via": [
+            "H",
+            "Shcounterenw",
+            "Shgatpa",
+            "Shtvala",
+            "Shvsatpa",
+            "Shvstvala",
+            "Shvstvecd",
+            "Ssstateen"
+          ]
+        }
       },
       "gcc": {
         "supported": "16"
       },
       "binutils": {
-        "supported": "2.45"
+        "supported": "2.45",
+        "parts": {
+          "since": "2.43",
+          "via": [
+            "H",
+            "Shcounterenw",
+            "Shgatpa",
+            "Shtvala",
+            "Shvsatpa",
+            "Shvstvala",
+            "Shvstvecd",
+            "Ssstateen"
+          ]
+        }
       },
       "qemu": {
         "supported": "10.0"
@@ -1593,7 +1644,16 @@
         "supported": "14"
       },
       "binutils": {
-        "supported": "2.45"
+        "supported": "2.45",
+        "parts": {
+          "since": "2.44",
+          "via": [
+            "Zca",
+            "Zcb",
+            "Zcmp",
+            "Zcmt"
+          ]
+        }
       },
       "qemu": {
         "supported": "8.1"

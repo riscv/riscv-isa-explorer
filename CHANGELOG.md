@@ -15,6 +15,14 @@ someone silently. Each release below records its catalogue size.
 
 ### Fixed
 
+- **Bundles count as known when every part is.** Linux has no `b` entry: it
+  detects Zba, Zbb and Zbs, so B showed no Linux support at all. B, A, Zk,
+  Zkn, Zks, the vector-crypto shorthands, Zce and Sha are now known to QEMU
+  and Linux once all their parts are (B: Linux 6.6 and QEMU 7.0, through Zba,
+  Zbb and Zbs). Compilers and binutils still need the name in `-march`, as GCC
+  14 rejects `_b`, so their tooltips add when the parts were accepted instead
+  (GCC 12 for Zba, Zbb and Zbs).
+
 - **Experimental Clang extensions keep their "assembly only" mark.** Zvfbfa and
   Zvfofp8min are both, and showed only "experimental"; the builder also left
   them out of the extensions Clang only assembles.

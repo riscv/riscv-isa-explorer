@@ -65,25 +65,42 @@ function Chip({ state, title, children }) {
 const ASSEMBLY_ONLY =
   '. LLVM lists it as Assembly Support: Clang accepts it and assembles it, but generates no code for it';
 
+const list = (items) =>
+  items.length > 1 ? `${items.slice(0, -1).join(', ')} and ${items.at(-1)}` : items[0];
+// For releases that took a bundle's parts but not its name. Named, not
+// spelled as -march: single letters such as Sha's H go in the letter run.
+const spellParts = (s) => (s.parts ? `${list(s.parts.via)} (${s.name} ${s.parts.since}+)` : '');
+
 function standingTitle(s) {
   const { verb, now, then, note: toolNote = '' } = WORDS[s.key] ?? { verb: 'supported by' };
-  const note = `${s.assemblyOnly ? ASSEMBLY_ONLY : ''}${toolNote}`;
+  // For a bundle Linux knows only through its parts, cpuinfo shows the parts.
+  const kernel =
+    s.through && s.key === 'linux'
+      ? '. It has no entry for the bundle itself, and /proc/cpuinfo lists the parts'
+      : toolNote;
+  const note = `${s.assemblyOnly ? ASSEMBLY_ONLY : ''}${kernel}`;
   // QEMU has no switch for these; it provides them with another extension.
-  const part = s.impliedBy ? `, as part of ${s.impliedBy}` : '';
+  const part = s.impliedBy
+    ? `, as part of ${s.impliedBy}`
+    : s.through
+      ? `, through ${list(s.through)}`
+      : '';
+  const before = s.parts ? `; before that, write its parts instead: ${spellParts(s)}` : '';
   if (s.state === 'supported') {
-    const since = s.earliest
-      ? `${capitalise(verb)} ${s.name} ${s.since} and later${part} (the scan starts at ${s.since}, so it may be older)`
-      : `${capitalise(verb)} ${s.name} ${s.since} and later${part}`;
+    const floor = s.earliest ? ` (the scan starts at ${s.since}, so it may be older)` : '';
+    const since = `${capitalise(verb)} ${s.name} ${s.since} and later${floor}${part}`;
     const from = `${s.experimentalSince}${s.experimentalEarliest ? ' or earlier' : ''}`;
-    const before = s.experimentalSince && then ? `; experimental from ${from}, ${then(s)}` : '';
-    return `${since}${before}${note}`;
+    const earlier = s.experimentalSince && then ? `; experimental from ${from}, ${then(s)}` : '';
+    return `${since}${earlier}${before}${note}`;
   }
   if (s.state === 'experimental') {
     const how = now ? now(s) : '';
     const since = s.earliest ? `${s.since} or earlier (the scan starts at ${s.since})` : s.since;
     return `Experimental in ${s.name} since ${since}${part}${how ? `: ${how}` : ''}${note}`;
   }
-  return `Not ${verb} ${s.name} ${s.newest}, the newest release`;
+  return s.parts
+    ? `Not ${verb} ${s.name} ${s.newest} by name; write its parts instead: ${spellParts(s)}`
+    : `Not ${verb} ${s.name} ${s.newest}, the newest release`;
 }
 
 function StandingRow({ label, title, support }) {

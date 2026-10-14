@@ -31,7 +31,10 @@ export function marchToken(id) {
  * `options` lists QEMU's switch for an experimental extension as it was
  * spelled over time, [{ option, from }], the last one current;
  * `impliedBy` names the extension QEMU provides it with (V for Zvl256b);
- * `assemblyOnly` means LLVM accepts and assembles it but generates no code.
+ * `assemblyOnly` means LLVM accepts and assembles it but generates no code;
+ * `through` lists the parts a bundle is known by (Linux has Zba, Zbb and Zbs
+ * but no `b`); `parts` is { since, via } when a -march tool took every part
+ * before it took the bundle's name.
  * `earliest` means the scan's first release already had it, so "since" reads
  * as "this release or earlier"; `experimentalEarliest` is the same for the
  * experimental start of a supported extension.
@@ -49,6 +52,8 @@ function standingFor(tool, entry) {
       options: entry.options ?? [],
       impliedBy: entry.impliedBy ?? null,
       assemblyOnly: Boolean(entry.assemblyOnly),
+      through: entry.through ?? null,
+      parts: entry.parts ?? null,
     };
   }
   if (entry?.experimental) {
@@ -59,10 +64,12 @@ function standingFor(tool, entry) {
       options: entry.options ?? [],
       impliedBy: entry.impliedBy ?? null,
       assemblyOnly: Boolean(entry.assemblyOnly),
+      through: entry.through ?? null,
+      parts: entry.parts ?? null,
       newest,
     };
   }
-  return { state: 'none', newest };
+  return { state: 'none', newest, parts: entry?.parts ?? null };
 }
 
 /*

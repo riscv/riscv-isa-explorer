@@ -333,3 +333,46 @@ export function unacceptedDrops(releases, { key, name, known, allowed, measures 
       .map((d) => `${name} ${d.version} ${what}: ${d.before} -> ${d.after}`),
   );
 }
+
+/*
+ * Bundles: extensions the specifications define purely as a group of others
+ * (B is Zba, Zbb and Zbs). A tool can know every part without listing the
+ * group's own name: Linux detects Zba, Zbb and Zbs and has no `b` entry, and
+ * QEMU emulated all three years before it had a `b` switch.
+ *
+ * For a tool that runs code (QEMU, Linux), knowing every part is knowing the
+ * bundle, so it is added here. `bundles` maps a bundle's token to its parts'
+ * tokens. A bundle made of bundles (Zvknc is Zvkn and Zvbc) resolves in a
+ * later pass. Returns token -> parts, for the ones it added.
+ */
+export function addBundles(extensions, bundles) {
+  const through = new Map();
+  for (let changed = true; changed;) {
+    changed = false;
+    for (const [token, parts] of bundles) {
+      if (extensions.get(token) === 'supported') continue;
+      const statuses = parts.map((part) => extensions.get(part));
+      if (statuses.some((s) => !s)) continue;
+      const status = statuses.every((s) => s === 'supported') ? 'supported' : 'experimental';
+      if (extensions.get(token) === status) continue;
+      extensions.set(token, status);
+      through.set(token, parts);
+      changed = true;
+    }
+  }
+  return through;
+}
+
+/*
+ * For a tool that reads -march literally (Clang, GCC, binutils), knowing the
+ * parts is not accepting the name: GCC 14 rejects -march=..._b while taking
+ * _zba_zbb_zbs. Returns the bundles whose every part it supports, so the page
+ * can say how to spell the bundle for releases before the name.
+ */
+export function bundlesByParts(extensions, bundles) {
+  return new Set(
+    [...bundles]
+      .filter(([, parts]) => parts.every((part) => extensions.get(part) === 'supported'))
+      .map(([token]) => token),
+  );
+}
