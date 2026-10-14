@@ -234,7 +234,16 @@ Then `npm run sync` and `npm test && npm run build`.
   `-menable-experimental-extensions`, the other an `x-` CPU property.
   Linux starts at 6.6 because earlier kernels listed only multi-letter
   extensions and accepted any single letter, V included, before they could
-  run vector code. Versions compare by position in a tool's release list,
+  run vector code. Bases keep their width (`rv32i`, `rv64e`, `rv128i`):
+  every tool lists one `e`, but RV64E came later (LLVM 17, GCC 14 with
+  lp64e, binutils 2.42, QEMU 9.0), and RV128I is in no compiler, so
+  `addBases` reads each tool's own XLEN restriction. QEMU also gets what it
+  provides without naming it: Zvl128b-Zvl1024b from V and `RV_VLEN_MAX`, and
+  anything a supported extension requires in the dependency graph
+  (`addQemuImplied`); the tooltip names the source ("as part of V"). QEMU's
+  experimental switches are stored as QEMU spelled them in each release
+  (`x-aia` before `x-smaia`), never rebuilt from today's name.
+  Versions compare by position in a tool's release list,
   never as numbers (Linux 6.10 follows 6.9). The builder's **Needs** row is
   build tools only: Linux never lists profile-only extensions such as
   Ssccptr, so every profile would read "not yet". `COMPILER_EXPLORER_UNSUPPORTED` must

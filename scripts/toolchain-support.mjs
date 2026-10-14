@@ -136,32 +136,133 @@ const QEMU_ALIASES = { epmp: ['smepmp'], aia: ['smaia', 'ssaia'] };
  * extensions in some releases, so on its own it counts as supported only when
  * no "x-" property says otherwise. Properties such as "mmu" or "pmp" are read
  * too; they match no extension and are simply never looked up.
+ *
+ * The returned Map also carries `properties`: name -> the experimental
+ * property as QEMU spells it, so a renamed one keeps its real name (Smaia was
+ * `x-aia` in 7.x, not `x-smaia`).
  */
 export function parseQemu(text) {
   const plain = new Set();
-  const experimental = new Set();
+  const experimental = new Map(); // name -> property
   const listed = new Set();
-  const add = (set, raw) => {
-    const name = raw.toLowerCase();
-    for (const each of QEMU_ALIASES[name] ?? [name]) set.add(each);
-  };
+  const names = (raw) => QEMU_ALIASES[raw.toLowerCase()] ?? [raw.toLowerCase()];
   const props =
     /(?:DEFINE_PROP_BOOL|MULTI_EXT_CFG_BOOL)\(\s*"([A-Za-z0-9-]+)"|MISA_EXT_INFO\(\s*\w+\s*,\s*"([a-z0-9-]+)"/g;
   for (const m of text.matchAll(props)) {
-    const name = m[1] ?? m[2];
-    if (name.startsWith('x-')) add(experimental, name.slice(2));
-    else add(plain, name);
+    const property = m[1] ?? m[2];
+    if (property.startsWith('x-')) {
+      for (const name of names(property.slice(2))) experimental.set(name, property);
+    } else {
+      for (const name of names(property)) plain.add(name);
+    }
   }
   for (const m of text.matchAll(
     /ISA_(EXPERIMENTAL_|INTERNAL_)?EXT_DATA_ENTRY\(\s*([a-z0-9_]+)\s*,/g,
   )) {
-    add(m[1] === 'EXPERIMENTAL_' ? experimental : listed, m[2]);
+    if (m[1] === 'EXPERIMENTAL_') experimental.set(m[2], `x-${m[2]}`);
+    else listed.add(m[2]);
   }
   const result = new Map();
+  result.properties = new Map();
   for (const name of listed) if (!experimental.has(name)) result.set(name, 'supported');
-  for (const name of experimental) if (!plain.has(name)) result.set(name, 'experimental');
+  for (const [name, property] of experimental) {
+    if (plain.has(name)) continue;
+    result.set(name, 'experimental');
+    result.properties.set(name, property);
+  }
   for (const name of plain) result.set(name, 'supported');
   return result;
+}
+
+/*
+ * The base ISAs a release supports, as -march tokens, added to `extensions`.
+ * Each tool lists `i` and `e` once, but RV64E came later than RV32E almost
+ * everywhere, and RV128I is in none of the compilers, so the bases are read
+ * per XLEN from each tool's own restriction:
+ *
+ *   LLVM      14-16 reject e on RV64 ("standard user-level extension 'e'
+ *             requires 'rv32'"); 17 dropped the check
+ *   GCC       RV64E needs the lp64e ABI, which arrived in 14 (riscv.cc)
+ *   binutils  "rv%d does not support the `e' extension" until it was removed
+ *   QEMU      a dedicated RV32E or RV64E CPU type; the plain `e` property
+ *             before them is not taken as proof of emulation. RV128I is the
+ *             experimental `-cpu x-rv128` (single-threaded TCG only)
+ *   Linux     no E at all; RV32 and RV64 kernels both take I
+ *
+ * `texts` is every file fetched for the release. Returns the options to
+ * record for experimental bases (QEMU's x-rv128).
+ */
+export function addBases(key, extensions, texts) {
+  const all = texts.join('\n');
+  const options = new Map();
+  if (extensions.has('i')) {
+    extensions.set('rv32i', extensions.get('i'));
+    extensions.set('rv64i', extensions.get('i'));
+  }
+  const e = extensions.get('e');
+  const rv64e = {
+    llvm: e && !all.includes("extension 'e' requires 'rv32'"),
+    gcc: e && /ABI_LP64E/.test(all),
+    binutils: e && !all.includes("does not support the `e' extension"),
+    qemu: /TYPE_RISCV_CPU_RV64E\b/.test(all),
+    linux: false,
+  }[key];
+  const rv32e = key === 'qemu' ? /TYPE_RISCV_CPU_RV32E\b/.test(all) : key !== 'linux' && Boolean(e);
+  if (rv32e) extensions.set('rv32e', 'supported');
+  if (rv64e) extensions.set('rv64e', 'supported');
+  if (key === 'qemu') {
+    // Drop the bare letter: without a dedicated CPU type it proves nothing.
+    extensions.delete('e');
+    if (/TYPE_RISCV_CPU_BASE128\b/.test(all)) {
+      extensions.set('rv128i', 'experimental');
+      // QEMU refuses it under multi-threaded TCG (checked on 10.0).
+      options.set('rv128i', '-cpu x-rv128 -accel tcg,thread=single');
+    }
+  }
+  return options;
+}
+
+/*
+ * What QEMU provides without naming it. Its V takes a vlen= of 128 up to
+ * RV_VLEN_MAX (target/riscv/cpu.h), so V brings each Zvl<N>b in that range.
+ * And whatever a supported extension requires (in the catalogue's dependency
+ * graph) must be there too, or QEMU could not offer it: V brings Zve64d.
+ * `requires` maps a token to every token it transitively requires.
+ * Returns token -> the token it came with, for the tooltip.
+ */
+export function addQemuImplied(extensions, cpuHeader, requires) {
+  const impliedBy = new Map();
+  const add = (token, status, from) => {
+    const current = extensions.get(token);
+    if (current === 'supported' || (current === 'experimental' && status === 'experimental'))
+      return;
+    extensions.set(token, status);
+    impliedBy.set(token, from);
+  };
+  const max = Number(cpuHeader.match(/#define\s+RV_VLEN_MAX\s+(\d+)/)?.[1] ?? 0);
+  const v = extensions.get('v');
+  if (v && max >= 128) {
+    for (let vlen = 128; vlen <= max; vlen *= 2) add(`zvl${vlen}b`, v, 'v');
+  }
+  // Supported first, so an extension that is both required by a supported
+  // one and by an experimental one counts as supported. Credit goes to V when
+  // V brings it, else to the named extension that requires the least, the
+  // closest thing to "part of".
+  const named = [...extensions].filter(([token]) => !impliedBy.has(token));
+  for (const status of ['supported', 'experimental']) {
+    const sources = named
+      .filter(([, s]) => s === status)
+      .map(([token]) => token)
+      .sort(
+        (a, b) =>
+          (b === 'v') - (a === 'v') ||
+          (requires.get(a)?.length ?? 0) - (requires.get(b)?.length ?? 0),
+      );
+    for (const token of sources) {
+      for (const required of requires.get(token) ?? []) add(required, status, token);
+    }
+  }
+  return impliedBy;
 }
 
 /* name -> 'supported', from Linux's arch/riscv/kernel/cpufeature.c (6.6+). */

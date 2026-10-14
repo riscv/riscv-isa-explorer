@@ -26,6 +26,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import {
+  addBases,
+  addQemuImplied,
   parseBinutils,
   parseGccCommon,
   parseGccExtDef,
@@ -36,6 +38,7 @@ import {
   standing,
 } from './toolchain-support.mjs';
 import { NON_MARCH_IDS } from '../src/marchUtils.js';
+import { closure } from '../src/isaGraph.js';
 import { marchToken } from '../src/toolchainSupport.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -81,6 +84,8 @@ const TOOLS = {
       ['gcc/config/riscv/riscv-ext.def', parseGccExtDef],
       ['gcc/common/config/riscv/riscv-common.cc', parseGccCommon],
     ],
+    // Where the lp64e ABI, and with it RV64E, shows up.
+    extra: ['gcc/config/riscv/riscv.cc'],
   },
   binutils: {
     name: 'binutils',
@@ -103,6 +108,8 @@ const TOOLS = {
     tag: (t) => t.match(/^v(\d+)\.(\d+)\.0$/)?.slice(1, 3),
     first: [7, 0],
     sources: [['target/riscv/cpu.c', parseQemu]],
+    // RV_VLEN_MAX, the largest vlen= its V takes.
+    extra: ['target/riscv/cpu.h'],
   },
   linux: {
     name: 'Linux',
@@ -160,14 +167,27 @@ async function fetchSource(tool, tag, file) {
   return text;
 }
 
-/* The first source a release has, parsed. A release with none is an error:
-   it means the file moved again and the parser needs a look. */
-async function extensionsAt(tool, tag) {
+/*
+ * One release: its extensions (token -> status, bases included) and, per
+ * token, what the page needs to say about it: QEMU's experimental option and
+ * what an implied extension came with. A release with no table found is an
+ * error: it means the file moved again and the parser needs a look.
+ */
+async function releaseAt(key, tool, tag) {
   for (const [file, parse] of tool.sources) {
     const text = await fetchSource(tool, tag, file);
     if (text === null) continue;
     const extensions = parse(text);
-    if (extensions.size) return extensions;
+    if (!extensions.size) continue;
+    const extras = [];
+    for (const extra of tool.extra ?? []) extras.push((await fetchSource(tool, tag, extra)) ?? '');
+    const options = addBases(key, extensions, [text, ...extras]);
+    for (const [token, property] of extensions.properties ?? []) {
+      options.set(token, `-cpu rv64,${property}=on`);
+    }
+    const impliedBy =
+      key === 'qemu' ? addQemuImplied(extensions, extras[0] ?? '', requires) : new Map();
+    return { extensions, options, impliedBy };
   }
   throw new Error(`${tool.repo}@${tag}: no extension table found; has the file moved?`);
 }
@@ -188,12 +208,26 @@ const tokens = [
   ),
 ].sort();
 
+// token -> catalogue id, and token -> every token it requires, for QEMU's
+// implied extensions.
+const idOf = new Map();
+for (const ext of Object.values(catalog).flat()) {
+  const token = ext && marchToken(ext.id);
+  if (token && !idOf.has(token)) idOf.set(token, ext.id);
+}
+const requires = new Map(
+  [...idOf].map(([token, id]) => [
+    token,
+    [...closure(id)].map(marchToken).filter((t) => t && idOf.has(t)),
+  ]),
+);
+
 const tools = {};
 const extensions = Object.fromEntries(tokens.map((token) => [token, {}]));
 for (const [key, tool] of Object.entries(TOOLS)) {
   const releases = [];
   for (const { version, tag } of releaseTags(tool)) {
-    releases.push({ version, tag, extensions: await extensionsAt(tool, tag) });
+    releases.push({ version, tag, ...(await releaseAt(key, tool, tag)) });
   }
   tools[key] = {
     name: tool.name,
@@ -202,7 +236,22 @@ for (const [key, tool] of Object.entries(TOOLS)) {
   };
   for (const token of tokens) {
     const result = standing(releases, token);
-    if (Object.keys(result).length) extensions[token][key] = result;
+    if (!Object.keys(result).length) continue;
+    // Every spelling of QEMU's switch across the experimental run, with the
+    // release it first appeared in: Smaia was x-aia in 7.0 and x-smaia from
+    // 7.2. The last one is what still works while it stays experimental.
+    if (result.experimental) {
+      const options = [];
+      for (const r of releases) {
+        if (r.extensions.get(token) !== 'experimental') continue;
+        const option = r.options.get(token);
+        if (option && option !== options.at(-1)?.option) options.push({ option, from: r.version });
+      }
+      if (options.length) result.options = options;
+    }
+    const by = releases.at(-1).impliedBy.get(token);
+    if (by) result.impliedBy = idOf.get(by) ?? by;
+    extensions[token][key] = result;
   }
 }
 

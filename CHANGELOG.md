@@ -25,6 +25,18 @@ someone silently. Each release below records its catalogue size.
 
 ### Fixed
 
+- **RV64E and RV128I no longer inherit RV32E's and RV32I's toolchain
+  support.** Toolchain support kept one entry for `e` and one for `i`, so
+  RV64E showed Clang 14 (it arrived in Clang 17) and an `rv128i` builder
+  string showed Clang, GCC and binutils versions though none of them takes
+  it. Each base now has its own entry: RV64E needs Clang 17, GCC 14 and
+  binutils 2.42, and RV128I runs only on QEMU's experimental `x-rv128`.
+- **QEMU support counts what QEMU provides with another extension.** Its V
+  already brought Zve64d and VLEN 128 to 1024 in 7.0, but only extensions
+  QEMU named on their own were counted, so the Zvl ones showed no QEMU at
+  all. They now show QEMU 7.0, "as part of V".
+- **QEMU's experimental switches are spelled as QEMU spelled them.** The
+  tooltip suggested `x-smaia` for releases that called it `x-aia`.
 - **The Ratified badge and the green toolchain chips are readable in the light
   theme.** Their green measured 4.15:1, under the 4.5:1 floor; it is now
   5.90:1.

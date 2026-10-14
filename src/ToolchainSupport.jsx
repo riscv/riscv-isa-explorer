@@ -4,19 +4,26 @@ import { BUILD_TOOLS, RUN_TOOLS, extensionSupport, marchRequirements } from './t
 
 /*
  * What "knows an extension" means for each tool, for the tooltips. Clang and
- * QEMU also have an experimental tier, each switched on its own way.
+ * QEMU also have an experimental tier, each switched on its own way: `now`
+ * says how to use it today, `then` how it was used before it was supported.
  */
+const LLVM_FLAG =
+  '-menable-experimental-extensions and the extension version spelled out in -march';
+const spell = (options) =>
+  options.map(({ option, from }, i) => (i ? `${option} from ${from}` : option)).join(', then ');
+
 const WORDS = {
   llvm: {
     verb: 'accepted in -march by',
-    how: () =>
-      'needs -menable-experimental-extensions and the extension version spelled out in -march',
+    now: () => `needs ${LLVM_FLAG}`,
+    then: () => `which needed ${LLVM_FLAG}`,
   },
   gcc: { verb: 'accepted in -march by' },
   binutils: { verb: 'assembled by' },
   qemu: {
     verb: 'emulated by',
-    how: (token) => `enable it with its x- property, as in -cpu rv64,x-${token}=on`,
+    now: (s) => (s.options.length ? `enable it with ${s.options.at(-1).option}` : ''),
+    then: (s) => (s.options.length ? `as ${spell(s.options)}` : ''),
   },
   linux: {
     verb: 'detected by',
@@ -55,19 +62,20 @@ function Chip({ state, title, children }) {
 }
 
 function standingTitle(s) {
-  const { verb, how, note = '' } = WORDS[s.key] ?? { verb: 'supported by' };
+  const { verb, now, then, note = '' } = WORDS[s.key] ?? { verb: 'supported by' };
+  // QEMU has no switch for these; it provides them with another extension.
+  const part = s.impliedBy ? `, as part of ${s.impliedBy}` : '';
   if (s.state === 'supported') {
     const since = s.earliest
-      ? `${capitalise(verb)} ${s.name} ${s.since} and later (the scan starts at ${s.since}, so it may be older)`
-      : `${capitalise(verb)} ${s.name} ${s.since} and later`;
+      ? `${capitalise(verb)} ${s.name} ${s.since} and later${part} (the scan starts at ${s.since}, so it may be older)`
+      : `${capitalise(verb)} ${s.name} ${s.since} and later${part}`;
     const before =
-      s.experimentalSince && how
-        ? `; experimental from ${s.experimentalSince}, which ${how(s.token)}`
-        : '';
+      s.experimentalSince && then ? `; experimental from ${s.experimentalSince}, ${then(s)}` : '';
     return `${since}${before}${note}`;
   }
   if (s.state === 'experimental') {
-    return `Experimental in ${s.name} since ${s.since}: ${how ? how(s.token) : ''}`;
+    const how = now ? now(s) : '';
+    return `Experimental in ${s.name} since ${s.since}${part}${how ? `: ${how}` : ''}`;
   }
   return `Not ${verb} ${s.name} ${s.newest}, the newest release`;
 }
@@ -146,7 +154,7 @@ export function MarchToolchains({ march }) {
             <Chip
               key={r.key}
               state="experimental"
-              title={`${r.experimental.join(', ')} ${r.experimental.length > 1 ? 'are' : 'is'} experimental in ${r.name}: ${WORDS[r.key]?.how?.(r.experimental[0]) ?? ''}`}
+              title={`${r.experimental.join(', ')} ${r.experimental.length > 1 ? 'are' : 'is'} experimental in ${r.name}: ${r.key === 'llvm' ? `needs ${LLVM_FLAG}` : ''}`}
             >
               {r.name} {r.minimum}+ <span className="italic">experimental</span>
             </Chip>

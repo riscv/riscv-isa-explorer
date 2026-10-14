@@ -10,6 +10,8 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 
 import {
+  addBases,
+  addQemuImplied,
   parseBinutils,
   parseGccCommon,
   parseGccExtDef,
@@ -133,6 +135,8 @@ test('QEMU: properties, x- for experimental, ISA entries and old names', () => {
   assert.equal(old.get('zfh'), 'supported');
   assert.equal(old.get('smaia'), 'experimental');
   assert.equal(old.get('ssaia'), 'experimental');
+  // The property keeps QEMU's own spelling, for the command it suggests.
+  assert.equal(old.properties.get('smaia'), 'x-aia');
   // 8.x: an ISA entry alone is supported, unless an x- property says otherwise.
   const mid = parseQemu(`
     ISA_EXT_DATA_ENTRY(zba, PRIV_VERSION_1_12_0, ext_zba),
@@ -148,6 +152,56 @@ test('QEMU: properties, x- for experimental, ISA entries and old names', () => {
     ISA_INTERNAL_EXT_DATA_ENTRY(zic64b, PRIV_VERSION_1_12_0, ext_zic64b),`);
   assert.equal(recent.get('zvabd'), 'experimental');
   assert.equal(recent.get('zic64b'), 'supported');
+});
+
+test('bases are read per XLEN from each tool’s own restriction', () => {
+  const bases = (key, names, ...texts) => {
+    const extensions = new Map(names.map((n) => [n, 'supported']));
+    const options = addBases(key, extensions, texts);
+    return { set: [...extensions.keys()].filter((k) => k.startsWith('rv')).sort(), options };
+  };
+  const both = ['rv32e', 'rv32i', 'rv64e', 'rv64i'];
+  // LLVM 14-16 refused e on RV64.
+  assert.deepEqual(
+    bases('llvm', ['i', 'e'], `"standard user-level extension 'e' requires 'rv32'"`).set,
+    ['rv32e', 'rv32i', 'rv64i'],
+  );
+  assert.deepEqual(bases('llvm', ['i', 'e'], '').set, both);
+  // GCC needs the lp64e ABI for RV64E.
+  assert.deepEqual(bases('gcc', ['i', 'e'], 'ABI_LP64').set, ['rv32e', 'rv32i', 'rv64i']);
+  assert.deepEqual(bases('gcc', ['i', 'e'], 'ABI_LP64E').set, both);
+  assert.deepEqual(bases('binutils', ['i', 'e'], "rv%d does not support the `e' extension").set, [
+    'rv32e',
+    'rv32i',
+    'rv64i',
+  ]);
+  // QEMU: a dedicated CPU type, not the bare e property; RV128I is x-rv128.
+  const qemu = bases('qemu', ['i', 'e'], 'TYPE_RISCV_CPU_RV32E TYPE_RISCV_CPU_BASE128');
+  assert.deepEqual(qemu.set, ['rv128i', 'rv32e', 'rv32i', 'rv64i']);
+  assert.equal(qemu.options.get('rv128i'), '-cpu x-rv128 -accel tcg,thread=single');
+  assert.deepEqual(bases('linux', ['i', 'e'], '').set, ['rv32i', 'rv64i']);
+});
+
+test('QEMU provides what V brings and what its extensions require', () => {
+  const extensions = new Map([
+    ['v', 'supported'],
+    ['zvbb', 'supported'],
+    ['x', 'experimental'],
+  ]);
+  const requires = new Map([
+    ['v', ['zve64d', 'zve32x', 'zvl128b', 'zvl64b', 'zvl32b']],
+    ['zvbb', ['zvkb', 'zvl32b']],
+    ['x', ['y']],
+  ]);
+  const impliedBy = addQemuImplied(extensions, '#define RV_VLEN_MAX 1024', requires);
+  for (const t of ['zve64d', 'zvl128b', 'zvl256b', 'zvl1024b', 'zvkb']) {
+    assert.equal(extensions.get(t), 'supported', t);
+  }
+  assert.equal(extensions.get('zvl2048b'), undefined);
+  assert.equal(extensions.get('y'), 'experimental');
+  // Credit goes to V before any other extension that requires the same.
+  assert.equal(impliedBy.get('zvl32b'), 'v');
+  assert.equal(impliedBy.get('zvkb'), 'zvbb');
 });
 
 test('Linux: every riscv_isa_ext entry kind', () => {
@@ -224,8 +278,28 @@ test('the data agrees with the release notes', () => {
   assert.equal(at('zvabd').gcc, undefined);
   // binutils 2.44 rejects zce (checked against Debian's 2.44); 2.45 takes it.
   assert.deepEqual(at('zce').binutils, { supported: '2.45' });
-  // QEMU had Smaia only as x-aia until 9.0.
-  assert.deepEqual(at('smaia').qemu, { supported: '9.0', experimental: '7.0' });
+  // QEMU had Smaia as x-aia in 7.0-7.1 and x-smaia from 7.2, until 9.0.
+  assert.deepEqual(at('smaia').qemu, {
+    supported: '9.0',
+    experimental: '7.0',
+    options: [
+      { option: '-cpu rv64,x-aia=on', from: '7.0' },
+      { option: '-cpu rv64,x-smaia=on', from: '7.2' },
+    ],
+  });
+  // RV64E came years after RV32E: LLVM 17, GCC 14 (lp64e), binutils 2.42.
+  assert.deepEqual(at('rv32e').llvm, { supported: '14' });
+  assert.deepEqual(at('rv64e').llvm, { supported: '17' });
+  assert.deepEqual(at('rv64e').gcc, { supported: '14' });
+  assert.deepEqual(at('rv64e').binutils, { supported: '2.42' });
+  assert.equal(at('rv64e').linux, undefined);
+  // RV128I: no compiler, assembler or kernel; QEMU's experimental x-rv128.
+  assert.deepEqual(Object.keys(at('rv128i')), ['qemu']);
+  assert.equal(at('rv128i').qemu.experimental, '7.0');
+  // QEMU 7.0's V already gave Zve64d and VLEN 128-1024 (RV_VLEN_MAX).
+  assert.deepEqual(at('zve64d').qemu.supported, '7.0');
+  assert.deepEqual(at('zvl1024b').qemu, { supported: '7.0', impliedBy: 'V' });
+  assert.equal(at('zvl2048b')?.qemu, undefined);
   // Linux 6.6 already detected V; Zilsd arrived in 6.19, Zabha in 6.13.
   assert.deepEqual(at('v').linux, { supported: '6.6' });
   assert.deepEqual(at('zilsd').linux, { supported: '6.19' });
@@ -248,7 +322,7 @@ test('Compiler Explorer’s exclusions are exactly what its clang takes only as 
 
 test('marchTokens splits the single letters from the rest', () => {
   assert.deepEqual(marchTokens('rv64imafdcv_zba_zvbb'), [
-    'i',
+    'rv64i',
     'm',
     'a',
     'f',
@@ -281,6 +355,14 @@ test('marchRequirements: the newest minimum, experimental and missing tokens', (
   const [linux] = marchRequirements(data, 'rv64imafdcv_zvbb_zawrs', ['linux']);
   assert.equal(linux.minimum, '6.11');
 
+  // The base keeps its width: RV64E needs Clang 17, RV128I builds nowhere.
+  assert.equal(byTool('rv64e').llvm.minimum, '17');
+  assert.equal(byTool('rv32e').llvm.minimum, '14');
+  for (const tool of Object.values(byTool('rv128i'))) {
+    assert.deepEqual(tool.missing, ['rv128i'], tool.key);
+    assert.equal(tool.minimum, null, tool.key);
+  }
+
   // A token the data does not know (a sandbox extension) is not guessed at.
   assert.equal(byTool('rv64i_xmycustom').llvm.minimum, '14');
 });
@@ -295,5 +377,8 @@ test('extensionSupport: one standing per tool, and none for non-march ids', () =
     ['QEMU 8.2', 'Linux 6.8'],
   );
   assert.equal(extensionSupport(data, 'Zvabd').find((s) => s.key === 'gcc').state, 'none');
-  assert.equal(extensionSupport(data, 'RV128I'), null);
+  const rv128 = Object.fromEntries(extensionSupport(data, 'RV128I').map((s) => [s.key, s]));
+  for (const key of ['llvm', 'gcc', 'binutils', 'linux']) assert.equal(rv128[key].state, 'none');
+  assert.equal(rv128.qemu.state, 'experimental');
+  assert.equal(rv128.qemu.options.at(-1).option, '-cpu x-rv128 -accel tcg,thread=single');
 });

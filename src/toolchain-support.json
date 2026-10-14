@@ -285,7 +285,13 @@
       },
       "qemu": {
         "supported": "9.1",
-        "experimental": "9.0"
+        "experimental": "9.0",
+        "options": [
+          {
+            "option": "-cpu rv64,x-b=on",
+            "from": "9.0"
+          }
+        ]
       }
     },
     "c": {
@@ -320,20 +326,6 @@
       },
       "linux": {
         "supported": "6.6"
-      }
-    },
-    "e": {
-      "llvm": {
-        "supported": "14"
-      },
-      "gcc": {
-        "supported": "12"
-      },
-      "binutils": {
-        "supported": "2.38"
-      },
-      "qemu": {
-        "supported": "7.0"
       }
     },
     "f": {
@@ -371,23 +363,6 @@
       }
     },
     "hti": {},
-    "i": {
-      "llvm": {
-        "supported": "14"
-      },
-      "gcc": {
-        "supported": "12"
-      },
-      "binutils": {
-        "supported": "2.38"
-      },
-      "qemu": {
-        "supported": "7.0"
-      },
-      "linux": {
-        "supported": "6.6"
-      }
-    },
     "m": {
       "llvm": {
         "supported": "14"
@@ -417,6 +392,79 @@
       }
     },
     "reri": {},
+    "rv128i": {
+      "qemu": {
+        "experimental": "7.0",
+        "options": [
+          {
+            "option": "-cpu x-rv128 -accel tcg,thread=single",
+            "from": "7.0"
+          }
+        ]
+      }
+    },
+    "rv32e": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      },
+      "binutils": {
+        "supported": "2.38"
+      },
+      "qemu": {
+        "supported": "9.0"
+      }
+    },
+    "rv32i": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      },
+      "binutils": {
+        "supported": "2.38"
+      },
+      "qemu": {
+        "supported": "7.0"
+      },
+      "linux": {
+        "supported": "6.6"
+      }
+    },
+    "rv64e": {
+      "llvm": {
+        "supported": "17"
+      },
+      "gcc": {
+        "supported": "14"
+      },
+      "binutils": {
+        "supported": "2.42"
+      },
+      "qemu": {
+        "supported": "9.0"
+      }
+    },
+    "rv64i": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      },
+      "binutils": {
+        "supported": "2.38"
+      },
+      "qemu": {
+        "supported": "7.0"
+      },
+      "linux": {
+        "supported": "6.6"
+      }
+    },
     "sddbltrp": {},
     "sdext": {
       "llvm": {
@@ -563,7 +611,17 @@
       },
       "qemu": {
         "supported": "9.0",
-        "experimental": "7.0"
+        "experimental": "7.0",
+        "options": [
+          {
+            "option": "-cpu rv64,x-aia=on",
+            "from": "7.0"
+          },
+          {
+            "option": "-cpu rv64,x-smaia=on",
+            "from": "7.2"
+          }
+        ]
       },
       "linux": {
         "supported": "6.6"
@@ -650,7 +708,13 @@
       },
       "qemu": {
         "supported": "8.2",
-        "experimental": "7.0"
+        "experimental": "7.0",
+        "options": [
+          {
+            "option": "-cpu rv64,x-epmp=on",
+            "from": "7.0"
+          }
+        ]
       }
     },
     "smmpm": {
@@ -751,7 +815,17 @@
       },
       "qemu": {
         "supported": "9.0",
-        "experimental": "7.0"
+        "experimental": "7.0",
+        "options": [
+          {
+            "option": "-cpu rv64,x-aia=on",
+            "from": "7.0"
+          },
+          {
+            "option": "-cpu rv64,x-ssaia=on",
+            "from": "7.2"
+          }
+        ]
       },
       "linux": {
         "supported": "6.6"
@@ -1121,7 +1195,13 @@
         "experimental": "20"
       },
       "qemu": {
-        "experimental": "10.0"
+        "experimental": "10.0",
+        "options": [
+          {
+            "option": "-cpu rv64,x-svukte=on",
+            "from": "10.0"
+          }
+        ]
       }
     },
     "svvptc": {
@@ -1167,6 +1247,10 @@
       },
       "binutils": {
         "supported": "2.43"
+      },
+      "qemu": {
+        "supported": "9.0",
+        "impliedBy": "Za64rs"
       }
     },
     "za64rs": {
@@ -1194,7 +1278,7 @@
         "supported": "2.43"
       },
       "qemu": {
-        "supported": "9.0"
+        "supported": "7.0"
       },
       "linux": {
         "supported": "6.15"
@@ -1261,7 +1345,7 @@
         "supported": "2.43"
       },
       "qemu": {
-        "supported": "9.0"
+        "supported": "7.0"
       },
       "linux": {
         "supported": "6.15"
@@ -1375,7 +1459,7 @@
         "supported": "2.38"
       },
       "qemu": {
-        "supported": "7.1"
+        "supported": "7.0"
       },
       "linux": {
         "supported": "6.8"
@@ -1427,7 +1511,7 @@
         "supported": "2.42"
       },
       "qemu": {
-        "supported": "8.1"
+        "supported": "7.0"
       },
       "linux": {
         "supported": "6.11"
@@ -1608,7 +1692,13 @@
       },
       "qemu": {
         "supported": "9.0",
-        "experimental": "8.1"
+        "experimental": "8.1",
+        "options": [
+          {
+            "option": "-cpu rv64,x-zfbfmin=on",
+            "from": "8.1"
+          }
+        ]
       },
       "linux": {
         "supported": "6.15"
@@ -1893,7 +1983,13 @@
       },
       "qemu": {
         "supported": "8.2",
-        "experimental": "8.0"
+        "experimental": "8.0",
+        "options": [
+          {
+            "option": "-cpu rv64,x-zicond=on",
+            "from": "8.0"
+          }
+        ]
       },
       "linux": {
         "supported": "6.7"
@@ -2204,8 +2300,7 @@
         "supported": "2.40"
       },
       "qemu": {
-        "supported": "7.2",
-        "experimental": "7.1"
+        "supported": "7.0"
       }
     },
     "ztso": {
@@ -2306,7 +2401,7 @@
         "supported": "2.38"
       },
       "qemu": {
-        "supported": "9.1"
+        "supported": "7.0"
       },
       "linux": {
         "supported": "6.11"
@@ -2323,7 +2418,7 @@
         "supported": "2.38"
       },
       "qemu": {
-        "supported": "8.0"
+        "supported": "7.0"
       },
       "linux": {
         "supported": "6.11"
@@ -2357,7 +2452,7 @@
         "supported": "2.38"
       },
       "qemu": {
-        "supported": "9.1"
+        "supported": "7.0"
       },
       "linux": {
         "supported": "6.11"
@@ -2384,7 +2479,13 @@
       },
       "qemu": {
         "supported": "9.0",
-        "experimental": "8.1"
+        "experimental": "8.1",
+        "options": [
+          {
+            "option": "-cpu rv64,x-zvfbfmin=on",
+            "from": "8.1"
+          }
+        ]
       },
       "linux": {
         "supported": "6.15"
@@ -2403,7 +2504,13 @@
       },
       "qemu": {
         "supported": "9.0",
-        "experimental": "8.1"
+        "experimental": "8.1",
+        "options": [
+          {
+            "option": "-cpu rv64,x-zvfbfwma=on",
+            "from": "8.1"
+          }
+        ]
       },
       "linux": {
         "supported": "6.15"
@@ -2422,7 +2529,13 @@
       },
       "qemu": {
         "supported": "9.0",
-        "experimental": "8.0"
+        "experimental": "8.0",
+        "options": [
+          {
+            "option": "-cpu rv64,x-zvfh=on",
+            "from": "8.0"
+          }
+        ]
       },
       "linux": {
         "supported": "6.8"
@@ -2440,7 +2553,13 @@
       },
       "qemu": {
         "supported": "9.0",
-        "experimental": "8.0"
+        "experimental": "8.0",
+        "options": [
+          {
+            "option": "-cpu rv64,x-zvfhmin=on",
+            "from": "8.0"
+          }
+        ]
       },
       "linux": {
         "supported": "6.8"
@@ -2717,6 +2836,10 @@
       },
       "binutils": {
         "supported": "2.38"
+      },
+      "qemu": {
+        "supported": "7.0",
+        "impliedBy": "V"
       }
     },
     "zvl128b": {
@@ -2728,6 +2851,10 @@
       },
       "binutils": {
         "supported": "2.38"
+      },
+      "qemu": {
+        "supported": "7.0",
+        "impliedBy": "V"
       }
     },
     "zvl256b": {
@@ -2739,6 +2866,10 @@
       },
       "binutils": {
         "supported": "2.38"
+      },
+      "qemu": {
+        "supported": "7.0",
+        "impliedBy": "V"
       }
     },
     "zvl32b": {
@@ -2750,6 +2881,10 @@
       },
       "binutils": {
         "supported": "2.38"
+      },
+      "qemu": {
+        "supported": "7.0",
+        "impliedBy": "V"
       }
     },
     "zvl512b": {
@@ -2761,6 +2896,10 @@
       },
       "binutils": {
         "supported": "2.38"
+      },
+      "qemu": {
+        "supported": "7.0",
+        "impliedBy": "V"
       }
     },
     "zvl64b": {
@@ -2772,6 +2911,10 @@
       },
       "binutils": {
         "supported": "2.38"
+      },
+      "qemu": {
+        "supported": "7.0",
+        "impliedBy": "V"
       }
     }
   }

@@ -14,21 +14,23 @@ export const RUN_TOOLS = ['qemu', 'linux'];
 const releaseIndex = (tool, version) => tool.releases.findIndex((r) => r.version === version);
 
 /*
- * The -march token for a catalogue extension, or null when it has none. The
- * bases share 'i' and 'e' across widths; RV128I has no toolchain.
+ * The token a catalogue extension is looked up by. A base keeps its width
+ * (rv64e, rv128i): tools added RV64E years after RV32E, and RV128I is in no
+ * compiler at all, so a shared 'e' or 'i' would claim support that is not
+ * there.
  */
 export function marchToken(id) {
-  if (/^RV(32|64)I$/.test(id)) return 'i';
-  if (/^RV(32|64)E$/.test(id)) return 'e';
-  if (/^RV128I$/.test(id)) return null;
   return String(id || '').toLowerCase() || null;
 }
 
 /*
  * One tool's standing for one token:
- *   { state: 'supported', since, experimentalSince?, earliest }
- *   { state: 'experimental', since }
+ *   { state: 'supported', since, experimentalSince?, earliest, options, impliedBy? }
+ *   { state: 'experimental', since, options, impliedBy? }
  *   { state: 'none', newest }
+ * `options` lists QEMU's switch for an experimental extension as it was
+ * spelled over time, [{ option, from }], the last one current;
+ * `impliedBy` names the extension QEMU provides it with (V for Zvl256b).
  * `earliest` means the scan's first release already accepted it, so "since"
  * reads as "this release or earlier".
  */
@@ -41,6 +43,8 @@ function standingFor(tool, entry) {
       since: entry.supported,
       experimentalSince: entry.experimental ?? null,
       earliest: entry.supported === first,
+      options: entry.options ?? [],
+      impliedBy: entry.impliedBy ?? null,
     };
   }
   if (entry?.experimental) {
@@ -48,6 +52,8 @@ function standingFor(tool, entry) {
       state: 'experimental',
       since: entry.experimental,
       earliest: entry.experimental === first,
+      options: entry.options ?? [],
+      impliedBy: entry.impliedBy ?? null,
       newest,
     };
   }
@@ -69,14 +75,17 @@ export function extensionSupport(data, id, keys = Object.keys(data?.tools ?? {})
     }));
 }
 
-/* The tokens of a -march string: the base, its single letters, then the rest. */
+/*
+ * The tokens of a -march string: the base with its width (rv64i), the other
+ * single letters, then the rest.
+ */
 export function marchTokens(march) {
   const m = String(march || '')
     .toLowerCase()
-    .match(/^rv(?:32|64|128)([a-z]*)(.*)$/);
+    .match(/^rv(32|64|128)([ie])([a-z]*)(.*)$/);
   if (!m) return [];
-  const [, letters, rest] = m;
-  return [...letters.split(''), ...rest.split('_').filter(Boolean)];
+  const [, xlen, base, letters, rest] = m;
+  return [`rv${xlen}${base}`, ...letters.split(''), ...rest.split('_').filter(Boolean)];
 }
 
 /*
