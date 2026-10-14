@@ -13,6 +13,22 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Added
+
+- **binutils, QEMU and Linux in toolchain support.** Beside Clang and GCC,
+  each extension now shows the first binutils release that assembles it, the
+  first QEMU that emulates it (marking the ones QEMU still keeps behind an
+  `x-` CPU property) and the first Linux that detects it, in a Build row and a
+  Run row. The builder's **Needs** adds binutils, which GCC relies on to
+  assemble: RVA23 needs binutils 2.45. The versions come from each release's
+  source: binutils 2.38 to 2.47, QEMU 7.0 to 11.1 and Linux 6.6 to 7.2.
+
+### Fixed
+
+- **The Ratified badge and the green toolchain chips are readable in the light
+  theme.** Their green measured 4.15:1, under the 4.5:1 floor; it is now
+  5.90:1.
+
 ## [1.10.0] - 2026-10-13
 
 Catalogue: 211 entries, unchanged from 1.9.0. No saved selection or `-march`

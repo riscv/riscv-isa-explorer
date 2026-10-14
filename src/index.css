@@ -745,7 +745,10 @@ pre,
   --riscv-hairline: rgba(45, 40, 80, 0.08);
   --riscv-plate: rgba(255, 255, 255, 0.75);
 
-  --riscv-check: #15803d;
+  /* green-800 rather than green-700: on its own 14% fill, #15803d measured
+     4.15:1, under the 4.5:1 floor, on the Ratified badge and the toolchain
+     chips. */
+  --riscv-check: #166534;
   --riscv-diff-bg: rgba(143, 100, 8, 0.12);
   --riscv-diff-edge: #8f6408;
   --riscv-check-fill: rgba(21, 128, 61, 0.14);

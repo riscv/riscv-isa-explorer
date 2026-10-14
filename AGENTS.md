@@ -44,7 +44,7 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run sync:udb` | Sync extension metadata from riscv-unified-db |
 | `npm run sync:intrinsics -- <rvv-intrinsic-doc> <riscv-c-api-doc>` | Regenerate `src/instruction-intrinsics.json` |
 | `npm run sync:references -- <sail-riscv> <riscv-isa-sim> <riscv-arch-test>` | Regenerate `src/instruction-references.json` |
-| `npm run sync:toolchains` | Regenerate `src/toolchain-support.json` (fetches from GitHub) |
+| `npm run sync:toolchains` | Regenerate `src/toolchain-support.json` (fetches from GitHub and sourceware) |
 | `npm run sync:params -- <path-to-udb>` | Regenerate `src/isa-params.json` (UDB parameter definitions) |
 | `npm run graph:check -- <path-to-udb>` | Check dependency graph vs UDB |
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
@@ -76,7 +76,7 @@ src/
   configPermalink.js          # ?profile= and ?cfg= share links; shared builder-state sanitiser
   InstructionUsage.jsx        # syntax, intrinsic, Compiler Explorer, Sail/Spike/ACT links
   instructionUsage.js         # syntax, examples, per-instruction -march, godbolt and Sail/Spike/ACT URLs
-  ToolchainSupport.jsx / toolchainSupport.js   # Clang/GCC release per extension and per -march
+  ToolchainSupport.jsx / toolchainSupport.js   # build/run tool releases per extension and per -march
   specLink.js                 # the details panel's Read Online button label
   profiles.js                 # ratified profile definitions
   --- data (the source of truth) ---
@@ -87,7 +87,7 @@ src/
   instruction-metadata.json   # UDB descriptions + assembly templates, generated
   instruction-intrinsics.json # C intrinsics per instruction, generated (sync:intrinsics)
   instruction-references.json # Sail/Spike source and ACT test locations, generated (sync:references)
-  toolchain-support.json      # first Clang/GCC release per -march token, generated (sync:toolchains)
+  toolchain-support.json      # first Clang/GCC/binutils/QEMU/Linux release per -march token (sync:toolchains)
 scripts/                      # sync/seed/check tooling (.mjs / .cjs)
   static-pages.mjs            # crawler-readable page per extension + sitemap, run by the build
 tests/                        # node:test suites (*.test.mjs)
@@ -224,12 +224,20 @@ Then `npm run sync` and `npm test && npm run build`.
   the privileged instructions have no per-instruction test there yet, so they
   show greyed out; that is ACT's coverage, not a sync bug.
 - **Toolchain versions are read from source, never typed in.**
-  `scripts/sync_toolchain_support.mjs` fetches one file per LLVM (14+) and GCC
-  (12+) release and `scripts/toolchain-support.mjs` parses it. That file has
-  moved and changed format several times (listed in the parser's header); a
-  release with no table found fails the sync rather than reading as "no
-  extensions". LLVM's experimental tier is kept apart, because it needs
-  `-menable-experimental-extensions`. `COMPILER_EXPLORER_UNSUPPORTED` must
+  `scripts/sync_toolchain_support.mjs` fetches one file per release of LLVM
+  (14+), GCC (12+), binutils (2.38+, from sourceware: there is no maintained
+  GitHub mirror), QEMU (7.0+) and Linux (6.6+), and
+  `scripts/toolchain-support.mjs` parses it. Those files have moved and
+  changed format several times (listed in the parser's header); a release
+  with no table found fails the sync rather than reading as "no extensions".
+  Clang's and QEMU's experimental tiers are kept apart: one needs
+  `-menable-experimental-extensions`, the other an `x-` CPU property.
+  Linux starts at 6.6 because earlier kernels listed only multi-letter
+  extensions and accepted any single letter, V included, before they could
+  run vector code. Versions compare by position in a tool's release list,
+  never as numbers (Linux 6.10 follows 6.9). The builder's **Needs** row is
+  build tools only: Linux never lists profile-only extensions such as
+  Ssccptr, so every profile would read "not yet". `COMPILER_EXPLORER_UNSUPPORTED` must
   equal what the pinned Compiler Explorer clang takes only as experimental;
   `tests/toolchain-support.test.mjs` checks it against this data.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;
