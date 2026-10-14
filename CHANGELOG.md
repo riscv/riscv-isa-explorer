@@ -13,6 +13,11 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.10.3] - 2026-10-13
+
+Catalogue: 211 entries, unchanged from 1.10.2. No saved selection or `-march`
+string is invalidated by this release, and exported files are unchanged.
+
 ### Fixed
 
 - **Bundles count as known when every part is.** Linux has no `b` entry: it
@@ -21,18 +26,17 @@ someone silently. Each release below records its catalogue size.
   and Linux once all their parts are (B: Linux 6.6 and QEMU 7.0, through Zba,
   Zbb and Zbs). Compilers and binutils still need the name in `-march`, as GCC
   14 rejects `_b`, so their tooltips add when the parts were accepted instead
-  (GCC 12 for Zba, Zbb and Zbs).
-
+  (GCC 12 for Zba, Zbb and Zbs) (#434).
 - **Experimental Clang extensions keep their "assembly only" mark.** Zvfbfa and
   Zvfofp8min are both, and showed only "experimental"; the builder also left
-  them out of the extensions Clang only assembles.
+  them out of the extensions Clang only assembles (#433).
 - **A first scanned release reads as "or earlier" for experimental support
   too.** RV128I said "experimental in QEMU since 7.0", and Smaia "experimental
-  from 7.0", though 7.0 is only where the scan starts.
+  from 7.0", though 7.0 is only where the scan starts (#433).
 - **An accepted drop in the toolchain sync stays accepted.** The guard now
   judges only releases a run adds, so a removal allowed once with
   `--allow-drop` and committed does not stop every later monthly run. It now
-  also covers LLVM's list of assembly-only extensions.
+  also covers LLVM's list of assembly-only extensions (#433).
 
 ## [1.10.2] - 2026-10-13
 
