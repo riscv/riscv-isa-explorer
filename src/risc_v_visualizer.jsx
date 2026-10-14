@@ -629,9 +629,33 @@ const RISCVExplorer = () => {
   const [detailPanelModal, setDetailPanelModal] = useState(false);
   const isCompactLayout = useMediaQuery('(max-width: 1024px)');
   const detailPanelRef = React.useRef(null);
+  // Picking an instruction from the snapshot scrolls the panel to its details
+  // and focuses them; closing the details returns to the extension's name.
+  // The details render below every chip, so without this a click looked as
+  // though it did nothing, and the details card was found only by scrolling.
+  const instructionDetailsRef = React.useRef(null);
+  const extensionNameRef = React.useRef(null);
+  const revealDetailsRef = React.useRef(false);
   const detailOpenerRef = React.useRef(null);
   const [permalinkCopied, setPermalinkCopied] = useState(false);
   const [selectedInstruction, setSelectedInstruction] = useState(null);
+  /* Scrolls the details panel (not the page) so `el` sits near its top. */
+  const scrollPanelTo = React.useCallback((el) => {
+    const panel = el?.closest('.overflow-y-auto');
+    if (!panel) return;
+    const top =
+      el.getBoundingClientRect().top - panel.getBoundingClientRect().top + panel.scrollTop - 12;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    panel.scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' });
+  }, []);
+  React.useEffect(() => {
+    if (!revealDetailsRef.current || !selectedInstruction) return;
+    revealDetailsRef.current = false;
+    const details = instructionDetailsRef.current;
+    if (!details) return;
+    scrollPanelTo(details);
+    details.focus({ preventScroll: true });
+  }, [selectedInstruction, scrollPanelTo]);
   const [selectedCsrName, setSelectedCsrName] = useState(null);
   const [copyStatus, setCopyStatus] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -4334,6 +4358,7 @@ const RISCVExplorer = () => {
                         href={selectedExt.url || 'https://github.com/riscv/riscv-isa-manual'}
                         target="_blank"
                         rel="noreferrer"
+                        ref={extensionNameRef}
                         className="font-black tracking-tight wrap-break-word hover:opacity-80"
                         style={{
                           fontSize: '1.5rem',
@@ -4597,6 +4622,7 @@ const RISCVExplorer = () => {
                                     type="button"
                                     onClick={() => {
                                       if (!isClickable) return;
+                                      revealDetailsRef.current = !isActive;
                                       setSelectedInstruction(
                                         isActive ? null : { mnemonic, ...instructionDetails },
                                       );
@@ -4727,7 +4753,12 @@ const RISCVExplorer = () => {
                       )}
 
                       {selectedInstruction && (
-                        <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
+                        <div
+                          ref={instructionDetailsRef}
+                          tabIndex={-1}
+                          aria-label={`Instruction details: ${selectedInstruction.mnemonic}`}
+                          className="bg-slate-900 p-3 rounded-sm border border-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400"
+                        >
                           <div className="flex items-start justify-between gap-3 mb-2">
                             <h3 className="text-[11px] uppercase tracking-wider text-purple-300 font-bold flex items-center gap-1">
                               <ArrowRight size={10} /> Instruction Details
@@ -4832,7 +4863,13 @@ const RISCVExplorer = () => {
                               <button
                                 type="button"
                                 className="text-[11px] font-mono text-slate-500 hover:text-slate-300"
-                                onClick={() => setSelectedInstruction(null)}
+                                onClick={() => {
+                                  const name = extensionNameRef.current;
+                                  setSelectedInstruction(null);
+                                  // Back to the extension the instruction came from.
+                                  scrollPanelTo(name);
+                                  name?.focus({ preventScroll: true });
+                                }}
                               >
                                 Close
                               </button>

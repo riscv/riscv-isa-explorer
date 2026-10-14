@@ -23,6 +23,14 @@ someone silently. Each release below records its catalogue size.
   assemble: RVA23 needs binutils 2.45. The versions come from each release's
   source: binutils 2.38 to 2.47, QEMU 7.0 to 11.1 and Linux 6.6 to 7.2.
 
+### Changed
+
+- **Picking an instruction takes you to its details.** Clicking an instruction
+  in the Instruction Set Snapshot scrolls the panel to its Instruction Details
+  and moves focus there; Close scrolls back to the extension and focuses its
+  name. The details open below every chip and the toolchain rows, so a click
+  used to look as though nothing had happened.
+
 ### Fixed
 
 - **RV64E and RV128I no longer inherit RV32E's and RV32I's toolchain
