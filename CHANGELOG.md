@@ -13,6 +13,11 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.10.2] - 2026-10-13
+
+Catalogue: 211 entries, unchanged from 1.10.1. No saved selection or `-march`
+string is invalidated by this release, and exported files are unchanged.
+
 ### Fixed
 
 - **Toolchain support says what the tools do, not more.** The compilers'
@@ -21,13 +26,13 @@ someone silently. Each release below records its catalogue size.
   Clang accepts and assembles them but generates no code. Those Clang chips
   now say "assembly only", the panel row is **Tools** rather than **Build**,
   and the builder's row reads **Accepted by** rather than **Needs**, naming
-  any extension Clang only assembles.
+  any extension Clang only assembles (#431).
 - **Privilege and satp modes show no toolchain section.** S, U, N, Sm and
   Sv32 to Sv57 are not `-march` extensions, but their panels listed every
-  tool as "not yet".
+  tool as "not yet" (#431).
 - **The monthly toolchain sync stops on a likely parser failure.** A release
   whose extension table shrinks sharply against the one before now fails the
-  sync instead of reading as support withdrawn.
+  sync instead of reading as support withdrawn (#431).
 
 ## [1.10.1] - 2026-10-13
 
