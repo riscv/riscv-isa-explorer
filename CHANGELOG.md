@@ -13,6 +13,11 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.10.1] - 2026-10-13
+
+Catalogue: 211 entries, unchanged from 1.10.0. No saved selection or `-march`
+string is invalidated by this release, and exported files are unchanged.
+
 ### Added
 
 - **binutils, QEMU and Linux in toolchain support.** Beside Clang and GCC,
@@ -21,7 +26,8 @@ someone silently. Each release below records its catalogue size.
   `x-` CPU property) and the first Linux that detects it, in a Build row and a
   Run row. The builder's **Needs** adds binutils, which GCC relies on to
   assemble: RVA23 needs binutils 2.45. The versions come from each release's
-  source: binutils 2.38 to 2.47, QEMU 7.0 to 11.1 and Linux 6.6 to 7.2.
+  source: binutils 2.38 to 2.47, QEMU 7.0 to 11.1 and Linux 6.6 to 7.2
+  (#427).
 
 ### Changed
 
@@ -29,7 +35,7 @@ someone silently. Each release below records its catalogue size.
   in the Instruction Set Snapshot scrolls the panel to its Instruction Details
   and moves focus there; Close scrolls back to the extension and focuses its
   name. The details open below every chip and the toolchain rows, so a click
-  used to look as though nothing had happened.
+  used to look as though nothing had happened (#429).
 
 ### Fixed
 
@@ -38,16 +44,17 @@ someone silently. Each release below records its catalogue size.
   RV64E showed Clang 14 (it arrived in Clang 17) and an `rv128i` builder
   string showed Clang, GCC and binutils versions though none of them takes
   it. Each base now has its own entry: RV64E needs Clang 17, GCC 14 and
-  binutils 2.42, and RV128I runs only on QEMU's experimental `x-rv128`.
+  binutils 2.42, and RV128I runs only on QEMU's experimental `x-rv128`
+  (#428).
 - **QEMU support counts what QEMU provides with another extension.** Its V
   already brought Zve64d and VLEN 128 to 1024 in 7.0, but only extensions
   QEMU named on their own were counted, so the Zvl ones showed no QEMU at
-  all. They now show QEMU 7.0, "as part of V".
+  all. They now show QEMU 7.0, "as part of V" (#428).
 - **QEMU's experimental switches are spelled as QEMU spelled them.** The
-  tooltip suggested `x-smaia` for releases that called it `x-aia`.
+  tooltip suggested `x-smaia` for releases that called it `x-aia` (#428).
 - **The Ratified badge and the green toolchain chips are readable in the light
   theme.** Their green measured 4.15:1, under the 4.5:1 floor; it is now
-  5.90:1.
+  5.90:1 (#427).
 
 ## [1.10.0] - 2026-10-13
 
