@@ -13,6 +13,19 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Experimental Clang extensions keep their "assembly only" mark.** Zvfbfa and
+  Zvfofp8min are both, and showed only "experimental"; the builder also left
+  them out of the extensions Clang only assembles.
+- **A first scanned release reads as "or earlier" for experimental support
+  too.** RV128I said "experimental in QEMU since 7.0", and Smaia "experimental
+  from 7.0", though 7.0 is only where the scan starts.
+- **An accepted drop in the toolchain sync stays accepted.** The guard now
+  judges only releases a run adds, so a removal allowed once with
+  `--allow-drop` and committed does not stop every later monthly run. It now
+  also covers LLVM's list of assembly-only extensions.
+
 ## [1.10.2] - 2026-10-13
 
 Catalogue: 211 entries, unchanged from 1.10.1. No saved selection or `-march`

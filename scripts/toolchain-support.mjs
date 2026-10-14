@@ -300,16 +300,36 @@ export function parseLlvmUsage(text) {
  * than the release before: more than `share` of them and more than `floor`.
  * Upstream rarely removes extensions, so a drop like that usually means the
  * file changed format and the parser kept only part of it, which standing()
- * would otherwise read as support withdrawn.
+ * would otherwise read as support withdrawn. `measure` picks what to count:
+ * the extension table by default, or LLVM's assembly-only list.
  */
-export function suspiciousDrops(releases, { share = 0.1, floor = 5 } = {}) {
+export function suspiciousDrops(
+  releases,
+  { share = 0.1, floor = 5, measure = (r) => r.extensions.size } = {},
+) {
   const drops = [];
   for (let i = 1; i < releases.length; i++) {
-    const before = releases[i - 1].extensions.size;
-    const after = releases[i].extensions.size;
+    const before = measure(releases[i - 1]);
+    const after = measure(releases[i]);
     if (before - after > floor && before - after > before * share) {
       drops.push({ version: releases[i].version, before, after });
     }
   }
   return drops;
+}
+
+/*
+ * The drops that should stop the sync: those suspiciousDrops() finds for any
+ * of `measures` ([label, measure] pairs) in a release this run adds. A
+ * release already in the committed file (`known`) was accepted then, with
+ * --allow-drop if it needed one, so it is not judged again; otherwise every
+ * later run would fail on the same transition. `allowed` holds
+ * "<tool>@<version>" strings from --allow-drop.
+ */
+export function unacceptedDrops(releases, { key, name, known, allowed, measures }) {
+  return measures.flatMap(([what, measure]) =>
+    suspiciousDrops(releases, { measure })
+      .filter((d) => !known.has(d.version) && !allowed.has(`${key}@${d.version}`))
+      .map((d) => `${name} ${d.version} ${what}: ${d.before} -> ${d.after}`),
+  );
 }

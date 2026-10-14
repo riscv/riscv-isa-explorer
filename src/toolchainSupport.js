@@ -32,8 +32,9 @@ export function marchToken(id) {
  * spelled over time, [{ option, from }], the last one current;
  * `impliedBy` names the extension QEMU provides it with (V for Zvl256b);
  * `assemblyOnly` means LLVM accepts and assembles it but generates no code.
- * `earliest` means the scan's first release already accepted it, so "since"
- * reads as "this release or earlier".
+ * `earliest` means the scan's first release already had it, so "since" reads
+ * as "this release or earlier"; `experimentalEarliest` is the same for the
+ * experimental start of a supported extension.
  */
 function standingFor(tool, entry) {
   const first = tool.releases[0]?.version;
@@ -44,6 +45,7 @@ function standingFor(tool, entry) {
       since: entry.supported,
       experimentalSince: entry.experimental ?? null,
       earliest: entry.supported === first,
+      experimentalEarliest: Boolean(entry.experimental) && entry.experimental === first,
       options: entry.options ?? [],
       impliedBy: entry.impliedBy ?? null,
       assemblyOnly: Boolean(entry.assemblyOnly),
@@ -56,6 +58,7 @@ function standingFor(tool, entry) {
       earliest: entry.experimental === first,
       options: entry.options ?? [],
       impliedBy: entry.impliedBy ?? null,
+      assemblyOnly: Boolean(entry.assemblyOnly),
       newest,
     };
   }

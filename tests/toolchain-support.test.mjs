@@ -22,6 +22,7 @@ import {
   parseQemu,
   standing,
   suspiciousDrops,
+  unacceptedDrops,
 } from '../scripts/toolchain-support.mjs';
 import {
   extensionSupport,
@@ -241,6 +242,44 @@ test('a sharp fall in one release’s extension count is reported, not believed'
   assert.deepEqual(suspiciousDrops([release('1', 20), release('2', 15)]), []);
 });
 
+test('a drop accepted once stays accepted; only new releases are judged', () => {
+  const release = (version, n, asm = 0) => ({
+    version,
+    extensions: new Map(Array.from({ length: n }, (_, i) => [`x${i}`, 'supported'])),
+    assemblyOnly: new Set(Array.from({ length: asm }, (_, i) => `a${i}`)),
+  });
+  const releases = [release('22', 100, 40), release('23', 60, 40)];
+  const measures = [
+    ['extension table', (r) => r.extensions.size],
+    ['Assembly Support list', (r) => r.assemblyOnly.size],
+  ];
+  const run = (known, allowed = []) =>
+    unacceptedDrops(releases, {
+      key: 'llvm',
+      name: 'Clang',
+      known: new Set(known),
+      allowed: new Set(allowed),
+      measures,
+    });
+  // First seen: the sync stops and names it.
+  assert.deepEqual(run(['22']), ['Clang 23 extension table: 100 -> 60']);
+  // Allowed by hand once, then committed: later runs do not trip on it.
+  assert.deepEqual(run(['22'], ['llvm@23']), []);
+  assert.deepEqual(run(['22', '23']), []);
+  // The documentation parser is guarded the same way.
+  const docs = [release('22', 100, 40), release('23', 100, 3)];
+  assert.deepEqual(
+    unacceptedDrops(docs, {
+      key: 'llvm',
+      name: 'Clang',
+      known: new Set(['22']),
+      allowed: new Set(),
+      measures,
+    }),
+    ['Clang 23 Assembly Support list: 40 -> 3'],
+  );
+});
+
 test('standing: the unbroken run that reaches the newest release', () => {
   const releases = (statuses) =>
     statuses.map((status, i) => ({
@@ -325,6 +364,10 @@ test('the data agrees with the release notes', () => {
   assert.equal(at('rv64e').llvm.assemblyOnly, true);
   assert.equal(at('rv32e').llvm.assemblyOnly, true);
   assert.equal(at('zba').llvm.assemblyOnly, undefined);
+  // A representative pair from LLVM's Assembly Support rows, so a format
+  // change in RISCVUsage.rst that loses them shows up here.
+  assert.equal(at('h').llvm.assemblyOnly, true);
+  assert.equal(at('q').llvm.assemblyOnly, true);
   // RV128I: no compiler, assembler or kernel; QEMU's experimental x-rv128.
   assert.deepEqual(Object.keys(at('rv128i')), ['qemu']);
   assert.equal(at('rv128i').qemu.experimental, '7.0');
@@ -416,8 +459,18 @@ test('extensionSupport: one standing per tool, and none for non-march ids', () =
     ['QEMU 8.2', 'Linux 6.8'],
   );
   assert.equal(extensionSupport(data, 'Zvabd').find((s) => s.key === 'gcc').state, 'none');
+  // Experimental and assembly-only at once: neither flag may hide the other.
+  const zvfbfa = Object.fromEntries(extensionSupport(data, 'Zvfbfa').map((s) => [s.key, s]));
+  assert.equal(zvfbfa.llvm.state, 'experimental');
+  assert.equal(zvfbfa.llvm.assemblyOnly, true);
+  const [clang] = marchRequirements(data, 'rv64imafdcv_zvfbfa', ['llvm']);
+  assert.deepEqual(clang.assemblyOnly, ['zvfbfa']);
+  // The first scanned release is a floor, not a date: say "or earlier".
+  const smaia = extensionSupport(data, 'Smaia').find((s) => s.key === 'qemu');
+  assert.equal(smaia.experimentalEarliest, true);
   const rv128 = Object.fromEntries(extensionSupport(data, 'RV128I').map((s) => [s.key, s]));
   for (const key of ['llvm', 'gcc', 'binutils', 'linux']) assert.equal(rv128[key].state, 'none');
   assert.equal(rv128.qemu.state, 'experimental');
+  assert.equal(rv128.qemu.earliest, true);
   assert.equal(rv128.qemu.options.at(-1).option, '-cpu x-rv128 -accel tcg,thread=single');
 });

@@ -39,7 +39,7 @@ import {
   parseLlvmUsage,
   parseQemu,
   standing,
-  suspiciousDrops,
+  unacceptedDrops,
 } from './toolchain-support.mjs';
 import { NON_MARCH_IDS } from '../src/marchUtils.js';
 import { closure } from '../src/isaGraph.js';
@@ -234,6 +234,8 @@ const requires = new Map(
   ]),
 );
 
+const previous = fs.existsSync(outputPath) ? JSON.parse(fs.readFileSync(outputPath, 'utf8')) : {};
+
 const tools = {};
 const extensions = Object.fromEntries(tokens.map((token) => [token, {}]));
 for (const [key, tool] of Object.entries(TOOLS)) {
@@ -241,13 +243,20 @@ for (const [key, tool] of Object.entries(TOOLS)) {
   for (const { version, tag } of releaseTags(tool)) {
     releases.push({ version, tag, ...(await releaseAt(key, tool, tag)) });
   }
-  const drops = suspiciousDrops(releases).filter((d) => !allowedDrops.has(`${key}@${d.version}`));
+  // Only releases this run adds are judged (see unacceptedDrops). LLVM's
+  // documentation parser gets the same guard as the extension tables.
+  const measures = [['extension table', (r) => r.extensions.size]];
+  if (key === 'llvm') measures.push(['Assembly Support list', (r) => r.assemblyOnly.size]);
+  const drops = unacceptedDrops(releases, {
+    key,
+    name: tool.name,
+    known: new Set(previous.tools?.[key]?.releases?.map((r) => r.version) ?? []),
+    allowed: allowedDrops,
+    measures,
+  });
   if (drops.length) {
-    const list = drops
-      .map((d) => `${tool.name} ${d.version}: ${d.before} -> ${d.after}`)
-      .join('; ');
     throw new Error(
-      `extension count fell sharply (${list}). Check whether the source changed format; ` +
+      `a count fell sharply (${drops.join('; ')}). Check whether the source changed format; ` +
         `if upstream really removed them, rerun with --allow-drop ${key}@<version>.`,
     );
   }
@@ -304,7 +313,6 @@ function changeReport(previous) {
   return `changed: ${changed}\n\n${lines.join('\n')}`;
 }
 
-const previous = fs.existsSync(outputPath) ? JSON.parse(fs.readFileSync(outputPath, 'utf8')) : {};
 if (reportPath) fs.writeFileSync(reportPath, changeReport(previous));
 fs.writeFileSync(outputPath, output);
 

@@ -74,13 +74,14 @@ function standingTitle(s) {
     const since = s.earliest
       ? `${capitalise(verb)} ${s.name} ${s.since} and later${part} (the scan starts at ${s.since}, so it may be older)`
       : `${capitalise(verb)} ${s.name} ${s.since} and later${part}`;
-    const before =
-      s.experimentalSince && then ? `; experimental from ${s.experimentalSince}, ${then(s)}` : '';
+    const from = `${s.experimentalSince}${s.experimentalEarliest ? ' or earlier' : ''}`;
+    const before = s.experimentalSince && then ? `; experimental from ${from}, ${then(s)}` : '';
     return `${since}${before}${note}`;
   }
   if (s.state === 'experimental') {
     const how = now ? now(s) : '';
-    return `Experimental in ${s.name} since ${s.since}${part}${how ? `: ${how}` : ''}${note}`;
+    const since = s.earliest ? `${s.since} or earlier (the scan starts at ${s.since})` : s.since;
+    return `Experimental in ${s.name} since ${since}${part}${how ? `: ${how}` : ''}${note}`;
   }
   return `Not ${verb} ${s.name} ${s.newest}, the newest release`;
 }
