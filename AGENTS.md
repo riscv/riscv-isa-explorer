@@ -244,9 +244,18 @@ Then `npm run sync` and `npm test && npm run build`.
   experimental switches are stored as QEMU spelled them in each release
   (`x-aia` before `x-smaia`), never rebuilt from today's name.
   Versions compare by position in a tool's release list,
-  never as numbers (Linux 6.10 follows 6.9). The builder's **Needs** row is
-  build tools only: Linux never lists profile-only extensions such as
-  Ssccptr, so every profile would read "not yet". `COMPILER_EXPLORER_UNSUPPORTED` must
+  never as numbers (Linux 6.10 follows 6.9). What the compilers' tables
+  record is `-march` acceptance, not code generation: LLVM's
+  `docs/RISCVUsage.rst` lists some extensions, and RV32E/RV64E, as
+  "Assembly Support" only, and `parseLlvmUsage` marks those
+  (`assemblyOnly`, from the newest release). Never describe the Tools row as
+  "builds code". The builder's **Accepted by** row is Clang, GCC and
+  binutils only: Linux never lists profile-only extensions such as Ssccptr,
+  so every profile would read "not yet". A release whose table shrinks by
+  more than 10% (and more than 5 entries) fails the sync as a likely format
+  change (`suspiciousDrops`); `--allow-drop tool@version` accepts a real
+  removal after checking upstream. Non-`-march` ids (S, U, Sv39…) have no
+  entry and show no toolchain section. `COMPILER_EXPLORER_UNSUPPORTED` must
   equal what the pinned Compiler Explorer clang takes only as experimental;
   `tests/toolchain-support.test.mjs` checks it against this data.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;

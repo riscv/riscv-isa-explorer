@@ -347,7 +347,8 @@
     },
     "h": {
       "llvm": {
-        "supported": "16"
+        "supported": "16",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "13"
@@ -382,7 +383,8 @@
     },
     "q": {
       "llvm": {
-        "supported": "21"
+        "supported": "21",
+        "assemblyOnly": true
       },
       "binutils": {
         "supported": "2.38"
@@ -405,7 +407,8 @@
     },
     "rv32e": {
       "llvm": {
-        "supported": "14"
+        "supported": "14",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "12"
@@ -436,7 +439,8 @@
     },
     "rv64e": {
       "llvm": {
-        "supported": "17"
+        "supported": "17",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "14"
@@ -469,13 +473,15 @@
     "sdext": {
       "llvm": {
         "supported": "21",
-        "experimental": "20"
+        "experimental": "20",
+        "assemblyOnly": true
       }
     },
     "sdtrig": {
       "llvm": {
         "supported": "21",
-        "experimental": "20"
+        "experimental": "20",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -505,7 +511,8 @@
     },
     "shcounterenw": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -519,7 +526,8 @@
     },
     "shgatpa": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -541,7 +549,8 @@
     },
     "shtvala": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -555,7 +564,8 @@
     },
     "shvsatpa": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -569,7 +579,8 @@
     },
     "shvstvala": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -583,7 +594,8 @@
     },
     "shvstvecd": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -673,7 +685,8 @@
     "smctr": {
       "llvm": {
         "supported": "22",
-        "experimental": "20"
+        "experimental": "20",
+        "assemblyOnly": true
       },
       "binutils": {
         "supported": "2.44"
@@ -782,7 +795,8 @@
     "smsdia": {},
     "smstateen": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "14"
@@ -844,7 +858,8 @@
     },
     "ssccptr": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -859,7 +874,8 @@
     "ssclic": {},
     "sscofpmf": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "14"
@@ -876,7 +892,8 @@
     },
     "sscounterenw": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -905,7 +922,8 @@
     "ssctr": {
       "llvm": {
         "supported": "22",
-        "experimental": "20"
+        "experimental": "20",
+        "assemblyOnly": true
       },
       "binutils": {
         "supported": "2.44"
@@ -966,7 +984,8 @@
     "sspmpen": {},
     "ssqosid": {
       "llvm": {
-        "supported": "20"
+        "supported": "20",
+        "assemblyOnly": true
       },
       "binutils": {
         "supported": "2.45"
@@ -974,7 +993,8 @@
     },
     "ssstateen": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "14"
@@ -988,7 +1008,8 @@
     },
     "ssstrict": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -1002,7 +1023,8 @@
     },
     "sstc": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "14"
@@ -1020,7 +1042,8 @@
     "sstcfg": {},
     "sstvala": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -1034,7 +1057,8 @@
     },
     "sstvecd": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -1050,7 +1074,8 @@
     "ssu32xl": {},
     "ssu64xl": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -1081,7 +1106,8 @@
     },
     "svade": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -1098,7 +1124,8 @@
     },
     "svadu": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -1116,7 +1143,8 @@
     "svatag": {},
     "svbare": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -1127,7 +1155,8 @@
     },
     "svinval": {
       "llvm": {
-        "supported": "16"
+        "supported": "16",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "13"
@@ -1144,7 +1173,8 @@
     },
     "svnapot": {
       "llvm": {
-        "supported": "16"
+        "supported": "16",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "13"
@@ -1269,7 +1299,8 @@
     },
     "zaamo": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "15"
@@ -1336,7 +1367,8 @@
     },
     "zalrsc": {
       "llvm": {
-        "supported": "19"
+        "supported": "19",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "15"
@@ -1365,7 +1397,8 @@
     "zawrs": {
       "llvm": {
         "supported": "17",
-        "experimental": "16"
+        "experimental": "16",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "13"
@@ -1586,7 +1619,8 @@
     },
     "zclsd": {
       "llvm": {
-        "supported": "21"
+        "supported": "21",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "16"
@@ -1635,7 +1669,8 @@
     },
     "zcmt": {
       "llvm": {
-        "supported": "17"
+        "supported": "17",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "14"
@@ -1801,7 +1836,8 @@
     },
     "zicbom": {
       "llvm": {
-        "supported": "15"
+        "supported": "15",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "13"
@@ -1835,7 +1871,8 @@
     },
     "zicboz": {
       "llvm": {
-        "supported": "15"
+        "supported": "15",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "13"
@@ -2049,7 +2086,8 @@
     },
     "zihintpause": {
       "llvm": {
-        "supported": "15"
+        "supported": "15",
+        "assemblyOnly": true
       },
       "gcc": {
         "supported": "14"
@@ -2460,7 +2498,8 @@
     },
     "zvfbfa": {
       "llvm": {
-        "experimental": "22"
+        "experimental": "22",
+        "assemblyOnly": true
       },
       "qemu": {
         "supported": "11.1"
@@ -2567,7 +2606,8 @@
     },
     "zvfofp8min": {
       "llvm": {
-        "experimental": "22"
+        "experimental": "22",
+        "assemblyOnly": true
       }
     },
     "zvkb": {

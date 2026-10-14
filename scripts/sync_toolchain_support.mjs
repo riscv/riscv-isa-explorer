@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 /**
  * Regenerates src/toolchain-support.json: for each catalogue extension, the
- * first release of each tool that knows it. Clang, GCC and binutils build
- * code for it; QEMU emulates it; Linux detects it in the ISA string and
- * reports it to user space.
+ * first release of each tool that knows it. Clang and GCC accept it in -march
+ * and binutils assembles it, which is not the same as generating code for it:
+ * LLVM documents some as assembly-only, and those are marked. QEMU emulates
+ * it; Linux detects it in the ISA string and reports it to user space.
  *
  *   node scripts/sync_toolchain_support.mjs [--cache <dir>] [--report <file>]
+ *                                           [--allow-drop <tool>@<version>]
  *
  * Lists each project's release tags with git ls-remote, then fetches one file
  * per release (see scripts/toolchain-support.mjs for which file, and how each
@@ -34,8 +36,10 @@ import {
   parseLinux,
   parseLlvmFeatures,
   parseLlvmIsaInfo,
+  parseLlvmUsage,
   parseQemu,
   standing,
+  suspiciousDrops,
 } from './toolchain-support.mjs';
 import { NON_MARCH_IDS } from '../src/marchUtils.js';
 import { closure } from '../src/isaGraph.js';
@@ -48,6 +52,11 @@ const option = (name) => {
   return i >= 0 ? path.resolve(args[i + 1] ?? '') : null;
 };
 const cacheDir = option('--cache');
+// --allow-drop llvm@24 (repeatable): accept a large fall in one release's
+// extension count after checking that upstream really removed them.
+const allowedDrops = new Set(
+  args.flatMap((arg, i) => (args[i - 1] === '--allow-drop' ? [arg] : [])),
+);
 const reportPath = option('--report');
 const outputPath = path.join(root, 'src', 'toolchain-support.json');
 
@@ -73,6 +82,8 @@ const TOOLS = {
       ['llvm/lib/Support/RISCVISAInfo.cpp', parseLlvmIsaInfo],
       ['llvm/lib/Target/RISCV/RISCVFeatures.td', parseLlvmFeatures],
     ],
+    // Which extensions are "Assembly Support" only (LLVM 16+).
+    extra: ['llvm/docs/RISCVUsage.rst'],
   },
   gcc: {
     name: 'GCC',
@@ -187,7 +198,8 @@ async function releaseAt(key, tool, tag) {
     }
     const impliedBy =
       key === 'qemu' ? addQemuImplied(extensions, extras[0] ?? '', requires) : new Map();
-    return { extensions, options, impliedBy };
+    const assemblyOnly = key === 'llvm' ? parseLlvmUsage(extras[0] ?? '') : new Set();
+    return { extensions, options, impliedBy, assemblyOnly };
   }
   throw new Error(`${tool.repo}@${tag}: no extension table found; has the file moved?`);
 }
@@ -229,6 +241,16 @@ for (const [key, tool] of Object.entries(TOOLS)) {
   for (const { version, tag } of releaseTags(tool)) {
     releases.push({ version, tag, ...(await releaseAt(key, tool, tag)) });
   }
+  const drops = suspiciousDrops(releases).filter((d) => !allowedDrops.has(`${key}@${d.version}`));
+  if (drops.length) {
+    const list = drops
+      .map((d) => `${tool.name} ${d.version}: ${d.before} -> ${d.after}`)
+      .join('; ');
+    throw new Error(
+      `extension count fell sharply (${list}). Check whether the source changed format; ` +
+        `if upstream really removed them, rerun with --allow-drop ${key}@<version>.`,
+    );
+  }
   tools[key] = {
     name: tool.name,
     repo: tool.repo,
@@ -251,6 +273,8 @@ for (const [key, tool] of Object.entries(TOOLS)) {
     }
     const by = releases.at(-1).impliedBy.get(token);
     if (by) result.impliedBy = idOf.get(by) ?? by;
+    // As the newest release's documentation describes it today.
+    if (releases.at(-1).assemblyOnly.has(token)) result.assemblyOnly = true;
     extensions[token][key] = result;
   }
 }

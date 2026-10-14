@@ -64,13 +64,16 @@ get a dependency-resolved configuration with a valid `-march` string.
   models, the Sail formal model and the Spike simulator, and to its
   Architectural Certification Test (ACT) sit beside these; one that does not
   cover the instruction yet is shown greyed out.
-- **Know which toolchain builds it, and what runs it.** Each extension shows
-  the first release of Clang, GCC and binutils that build code for it, of QEMU
-  that emulates it, and of Linux that detects it, marking the ones Clang and
-  QEMU still treat as experimental. Under the builder's `-march` string,
-  **Needs** gives the oldest Clang, GCC and binutils that take all of it, or
-  names the extensions no release takes yet. The versions are read from each
-  release's own source.
+- **Know which tools take it, and what runs it.** Each extension shows the
+  first release of Clang and GCC that accept it in `-march`, of binutils that
+  assembles it, of QEMU that emulates it, and of Linux that detects it,
+  marking the ones Clang and QEMU still treat as experimental and the ones
+  LLVM documents as assembly-only (accepted and assembled, but no code
+  generated, as for RV32E and RV64E). Under the builder's `-march` string,
+  **Accepted by** gives the oldest Clang, GCC and binutils that accept all of
+  it, or names the extensions no release takes yet. Accepting a `-march` is
+  not the same as generating code for every extension in it. The versions are
+  read from each release's own source.
 - **Watch the ISA grow.** **Evolution** plots every dated extension on the month
   it was ratified, over a cumulative curve banded by family.
 - **Link out to the specification.** Each extension's **Read Online** button

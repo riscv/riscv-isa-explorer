@@ -30,7 +30,8 @@ export function marchToken(id) {
  *   { state: 'none', newest }
  * `options` lists QEMU's switch for an experimental extension as it was
  * spelled over time, [{ option, from }], the last one current;
- * `impliedBy` names the extension QEMU provides it with (V for Zvl256b).
+ * `impliedBy` names the extension QEMU provides it with (V for Zvl256b);
+ * `assemblyOnly` means LLVM accepts and assembles it but generates no code.
  * `earliest` means the scan's first release already accepted it, so "since"
  * reads as "this release or earlier".
  */
@@ -45,6 +46,7 @@ function standingFor(tool, entry) {
       earliest: entry.supported === first,
       options: entry.options ?? [],
       impliedBy: entry.impliedBy ?? null,
+      assemblyOnly: Boolean(entry.assemblyOnly),
     };
   }
   if (entry?.experimental) {
@@ -60,10 +62,14 @@ function standingFor(tool, entry) {
   return { state: 'none', newest };
 }
 
-/* Per tool, how the extension `id` stands; null when it has no -march token. */
+/*
+ * Per tool, how the extension `id` stands. Null when it has no entry at all:
+ * privilege modes, satp modes and sandbox extensions are not -march tokens,
+ * so "not yet supported" would be a false answer for them.
+ */
 export function extensionSupport(data, id, keys = Object.keys(data?.tools ?? {})) {
   const token = marchToken(id);
-  if (!token || !data?.tools) return null;
+  if (!token || !data?.tools || !data.extensions?.[token]) return null;
   const entry = data.extensions?.[token];
   return keys
     .filter((key) => data.tools[key])
@@ -90,7 +96,8 @@ export function marchTokens(march) {
 
 /*
  * What a -march string needs from each build tool:
- *   { key, name, minimum, experimental: [tokens], missing: [tokens], newest }
+ *   { key, name, minimum, experimental: [tokens], missing: [tokens],
+ *     assemblyOnly: [tokens], newest }
  * `minimum` is the newest "supported since" among its tokens. `experimental`
  * lists tokens that release takes only behind -menable-experimental-extensions;
  * `missing` lists tokens no release accepts yet. Tokens the data does not know
@@ -109,12 +116,14 @@ export function marchRequirements(data, march, keys = BUILD_TOOLS) {
         minimum: null,
         experimental: [],
         missing: [],
+        assemblyOnly: [],
         newest: tool.releases.at(-1)?.version,
       };
       for (const token of tokens) {
         const s = standingFor(tool, data.extensions[token][key]);
         if (s.state === 'none') result.missing.push(token);
         else if (s.state === 'experimental') result.experimental.push(token);
+        if (s.assemblyOnly) result.assemblyOnly.push(token);
         if (
           s.state !== 'none' &&
           (!result.minimum || releaseIndex(tool, s.since) > releaseIndex(tool, result.minimum))

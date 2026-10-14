@@ -18,8 +18,10 @@ import {
   parseLinux,
   parseLlvmFeatures,
   parseLlvmIsaInfo,
+  parseLlvmUsage,
   parseQemu,
   standing,
+  suspiciousDrops,
 } from '../scripts/toolchain-support.mjs';
 import {
   extensionSupport,
@@ -213,6 +215,32 @@ test('Linux: every riscv_isa_ext entry kind', () => {
   assert.deepEqual([...parsed.keys()], ['i', 'v', 'zk', 'zilsd']);
 });
 
+test('LLVM: Assembly Support rows and the assembly-only base ISAs', () => {
+  const parsed = parseLlvmUsage(`
+Currently, LLVM fully supports RV32I, and RV64I.  RV32E and
+RV64E are supported by the assembly-based tools only.  RV128I is not supported.
+
+     \`\`H\`\`             Assembly Support
+     \`\`Sstc\`\`          Assembly Support (\`See note <#note>\`__)
+     \`\`Zba\`\`           Supported`);
+  assert.deepEqual([...parsed].sort(), ['h', 'rv32e', 'rv64e', 'sstc']);
+  // Once LLVM generates code for E, the sentence goes and so does the flag.
+  assert.deepEqual([...parseLlvmUsage('LLVM fully supports RV32I, RV32E and RV64E.')], []);
+});
+
+test('a sharp fall in one release’s extension count is reported, not believed', () => {
+  const release = (version, n) => ({
+    version,
+    extensions: new Map(Array.from({ length: n }, (_, i) => [`x${i}`, 'supported'])),
+  });
+  // 100 -> 97 is ordinary churn; 97 -> 60 is a parser that lost the format.
+  assert.deepEqual(suspiciousDrops([release('1', 100), release('2', 97), release('3', 60)]), [
+    { version: '3', before: 97, after: 60 },
+  ]);
+  // A small table losing a few entries is not enough on its own.
+  assert.deepEqual(suspiciousDrops([release('1', 20), release('2', 15)]), []);
+});
+
 test('standing: the unbroken run that reaches the newest release', () => {
   const releases = (statuses) =>
     statuses.map((status, i) => ({
@@ -288,11 +316,15 @@ test('the data agrees with the release notes', () => {
     ],
   });
   // RV64E came years after RV32E: LLVM 17, GCC 14 (lp64e), binutils 2.42.
-  assert.deepEqual(at('rv32e').llvm, { supported: '14' });
-  assert.deepEqual(at('rv64e').llvm, { supported: '17' });
+  assert.deepEqual(at('rv32e').llvm, { supported: '14', assemblyOnly: true });
+  assert.deepEqual(at('rv64e').llvm, { supported: '17', assemblyOnly: true });
   assert.deepEqual(at('rv64e').gcc, { supported: '14' });
   assert.deepEqual(at('rv64e').binutils, { supported: '2.42' });
   assert.equal(at('rv64e').linux, undefined);
+  // LLVM accepts RV32E and RV64E but documents them as assembly-only.
+  assert.equal(at('rv64e').llvm.assemblyOnly, true);
+  assert.equal(at('rv32e').llvm.assemblyOnly, true);
+  assert.equal(at('zba').llvm.assemblyOnly, undefined);
   // RV128I: no compiler, assembler or kernel; QEMU's experimental x-rv128.
   assert.deepEqual(Object.keys(at('rv128i')), ['qemu']);
   assert.equal(at('rv128i').qemu.experimental, '7.0');
@@ -357,6 +389,9 @@ test('marchRequirements: the newest minimum, experimental and missing tokens', (
 
   // The base keeps its width: RV64E needs Clang 17, RV128I builds nowhere.
   assert.equal(byTool('rv64e').llvm.minimum, '17');
+  // and Clang only assembles for it.
+  assert.deepEqual(byTool('rv64e').llvm.assemblyOnly, ['rv64e']);
+  assert.deepEqual(byTool('rv64imafdc_zba').llvm.assemblyOnly, []);
   assert.equal(byTool('rv32e').llvm.minimum, '14');
   for (const tool of Object.values(byTool('rv128i'))) {
     assert.deepEqual(tool.missing, ['rv128i'], tool.key);
@@ -368,6 +403,10 @@ test('marchRequirements: the newest minimum, experimental and missing tokens', (
 });
 
 test('extensionSupport: one standing per tool, and none for non-march ids', () => {
+  // Privilege and satp modes are not -march tokens: no answer, not "not yet".
+  for (const id of ['S', 'U', 'N', 'Sm', 'Sv39', 'Sv57']) {
+    assert.equal(extensionSupport(data, id), null, id);
+  }
   const zvbb = Object.fromEntries(extensionSupport(data, 'Zvbb').map((s) => [s.key, s]));
   assert.equal(zvbb.llvm.state, 'supported');
   assert.equal(zvbb.llvm.experimentalSince, '17');

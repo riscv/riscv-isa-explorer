@@ -61,8 +61,13 @@ function Chip({ state, title, children }) {
   );
 }
 
+// LLVM's own word for it, in llvm/docs/RISCVUsage.rst.
+const ASSEMBLY_ONLY =
+  '. LLVM lists it as Assembly Support: Clang accepts it and assembles it, but generates no code for it';
+
 function standingTitle(s) {
-  const { verb, now, then, note = '' } = WORDS[s.key] ?? { verb: 'supported by' };
+  const { verb, now, then, note: toolNote = '' } = WORDS[s.key] ?? { verb: 'supported by' };
+  const note = `${s.assemblyOnly ? ASSEMBLY_ONLY : ''}${toolNote}`;
   // QEMU has no switch for these; it provides them with another extension.
   const part = s.impliedBy ? `, as part of ${s.impliedBy}` : '';
   if (s.state === 'supported') {
@@ -75,7 +80,7 @@ function standingTitle(s) {
   }
   if (s.state === 'experimental') {
     const how = now ? now(s) : '';
-    return `Experimental in ${s.name} since ${s.since}${part}${how ? `: ${how}` : ''}`;
+    return `Experimental in ${s.name} since ${s.since}${part}${how ? `: ${how}` : ''}${note}`;
   }
   return `Not ${verb} ${s.name} ${s.newest}, the newest release`;
 }
@@ -94,6 +99,7 @@ function StandingRow({ label, title, support }) {
         <Chip key={s.key} state={s.state} title={standingTitle(s)}>
           {s.state === 'none' ? `${s.name}: not yet` : `${s.name} ${s.since}+`}
           {s.state === 'experimental' && <span className="italic">experimental</span>}
+          {s.assemblyOnly && <span className="italic">assembly only</span>}
         </Chip>
       ))}
     </div>
@@ -110,12 +116,16 @@ export function ExtensionToolchains({ id }) {
       <h3
         className="text-[11px] uppercase tracking-widest font-semibold mb-1.5"
         style={{ color: 'var(--riscv-text-3)' }}
-        title="The first release of each tool that knows it, read from each release's source"
+        title="The first release of each tool that accepts, assembles, emulates or detects it, read from each release's source"
       >
         Toolchain support
       </h3>
       <div className="space-y-1.5">
-        <StandingRow label="Build" title="Compilers and assembler" support={build} />
+        <StandingRow
+          label="Tools"
+          title="Compilers that accept it in -march, and the assembler"
+          support={build}
+        />
         <StandingRow label="Run" title="Emulator and kernel" support={run} />
       </div>
     </div>
@@ -123,9 +133,15 @@ export function ExtensionToolchains({ id }) {
 }
 
 /* The builder's row under the -march string: the oldest release of each
-   build tool that takes all of it. QEMU and Linux stay off it: Linux never
-   lists profile-only extensions such as Ssccptr, so every profile would read
-   "not yet". */
+   tool that accepts all of it, which is not a promise of code generation.
+   QEMU and Linux stay off it: Linux never lists profile-only extensions such
+   as Ssccptr, so every profile would read "not yet". */
+const assemblyNote = (r) =>
+  r.assemblyOnly.length
+    ? `. LLVM lists ${r.assemblyOnly.join(', ')} as Assembly Support: Clang assembles ${r.assemblyOnly.length > 1 ? 'them' : 'it'} but generates no code for ${r.assemblyOnly.length > 1 ? 'them' : 'it'}`
+    : '';
+// An assembly-only base means Clang cannot compile for this -march at all.
+const noCodegen = (r) => r.assemblyOnly.some((token) => /^rv\d+[ie]$/.test(token));
 export function MarchToolchains({ march }) {
   const requirements = marchRequirements(toolchainData, march);
   if (!requirements.length) return null;
@@ -135,7 +151,7 @@ export function MarchToolchains({ march }) {
         className="text-[11px] uppercase tracking-widest font-semibold"
         style={{ color: 'var(--riscv-text-3)' }}
       >
-        Needs
+        Accepted by
       </span>
       {requirements.map((r) => {
         if (r.missing.length) {
@@ -154,9 +170,10 @@ export function MarchToolchains({ march }) {
             <Chip
               key={r.key}
               state="experimental"
-              title={`${r.experimental.join(', ')} ${r.experimental.length > 1 ? 'are' : 'is'} experimental in ${r.name}: ${r.key === 'llvm' ? `needs ${LLVM_FLAG}` : ''}`}
+              title={`${r.experimental.join(', ')} ${r.experimental.length > 1 ? 'are' : 'is'} experimental in ${r.name}: ${r.key === 'llvm' ? `needs ${LLVM_FLAG}` : ''}${assemblyNote(r)}`}
             >
               {r.name} {r.minimum}+ <span className="italic">experimental</span>
+              {noCodegen(r) && <span className="italic">assembly only</span>}
             </Chip>
           );
         }
@@ -164,9 +181,9 @@ export function MarchToolchains({ march }) {
           <Chip
             key={r.key}
             state="supported"
-            title={`${r.name} ${r.minimum} and later take every extension in this -march`}
+            title={`${r.name} ${r.minimum} and later accept every extension in this -march${assemblyNote(r)}`}
           >
-            {r.name} {r.minimum}+
+            {r.name} {r.minimum}+{noCodegen(r) && <span className="italic">assembly only</span>}
           </Chip>
         );
       })}

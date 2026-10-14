@@ -273,3 +273,43 @@ export function parseLinux(text) {
   }
   return result;
 }
+
+/*
+ * The extensions LLVM accepts and assembles but generates no code for, from
+ * llvm/docs/RISCVUsage.rst (LLVM 16+): the "Assembly Support" rows of its
+ * extension table, and RV32E and RV64E when its base-ISA section still says
+ * they are "supported by the assembly-based tools only". The -march table
+ * cannot tell these apart from fully supported extensions.
+ */
+export function parseLlvmUsage(text) {
+  const assemblyOnly = new Set();
+  for (const m of text.matchAll(/^\s+``([A-Za-z0-9]+)``\s+Assembly Support/gm)) {
+    assemblyOnly.add(m[1].toLowerCase());
+  }
+  if (
+    /RV32E\s+and\s+RV64E\s+are\s+supported\s+by\s+the\s+assembly-based\s+tools\s+only/.test(text)
+  ) {
+    assemblyOnly.add('rv32e');
+    assemblyOnly.add('rv64e');
+  }
+  return assemblyOnly;
+}
+
+/*
+ * The releases, oldest first, whose table lists clearly fewer extensions
+ * than the release before: more than `share` of them and more than `floor`.
+ * Upstream rarely removes extensions, so a drop like that usually means the
+ * file changed format and the parser kept only part of it, which standing()
+ * would otherwise read as support withdrawn.
+ */
+export function suspiciousDrops(releases, { share = 0.1, floor = 5 } = {}) {
+  const drops = [];
+  for (let i = 1; i < releases.length; i++) {
+    const before = releases[i - 1].extensions.size;
+    const after = releases[i].extensions.size;
+    if (before - after > floor && before - after > before * share) {
+      drops.push({ version: releases[i].version, before, after });
+    }
+  }
+  return drops;
+}
