@@ -17022,7 +17022,7 @@
       },
       "url": "https://docs.riscv.org/reference/isa/priv/machine.html",
       "state": "ratified",
-      "ratification_date": "2021-12",
+      "ratification_date": "2024-10",
       "csrs": {
         "henvcfg": {
           "address": "0x60a",
@@ -26294,7 +26294,7 @@
           "source": "https://github.com/riscv/riscv-unified-db/blob/717c6ddc2a2926dccfa4a8c2e9bf5e67a83c2412/spec/std/isa/csr/I/pmpcfg9.yaml"
         }
       },
-      "version": "1.12.0"
+      "version": "1.13.0"
     }
   ],
   "z_bit": [
@@ -84976,7 +84976,9 @@
       "desc": "Marks conformance to version 1.11 of the machine-level privileged architecture rather than any single feature.",
       "use": "Targeting machine architecture v1.11",
       "url": "https://docs.riscv.org/reference/isa/priv/priv-preface.html",
-      "instructions": {}
+      "instructions": {},
+      "state": "ratified",
+      "ratification_date": "2019-12"
     },
     {
       "id": "Ss1p11",
@@ -84986,7 +84988,9 @@
       "desc": "Marks conformance to version 1.11 of the supervisor-level privileged architecture.",
       "use": "Targeting supervisor architecture v1.11",
       "url": "https://docs.riscv.org/reference/isa/priv/priv-preface.html",
-      "instructions": {}
+      "instructions": {},
+      "state": "ratified",
+      "ratification_date": "2019-06"
     },
     {
       "id": "Sm1p12",
@@ -84996,7 +85000,9 @@
       "desc": "Marks conformance to version 1.12 of the machine-level privileged architecture rather than any single feature.",
       "use": "Targeting machine architecture v1.12",
       "url": "https://docs.riscv.org/reference/isa/priv/priv-preface.html",
-      "instructions": {}
+      "instructions": {},
+      "state": "ratified",
+      "ratification_date": "2021-12"
     },
     {
       "id": "Ss1p12",
@@ -85006,7 +85012,9 @@
       "desc": "Marks conformance to version 1.12 of the supervisor-level privileged architecture, superseding 1.11.",
       "use": "Targeting supervisor architecture v1.12",
       "url": "https://docs.riscv.org/reference/isa/priv/priv-preface.html",
-      "instructions": {}
+      "instructions": {},
+      "state": "ratified",
+      "ratification_date": "2021-12"
     },
     {
       "id": "Sm1p13",
@@ -85016,7 +85024,9 @@
       "desc": "Marks conformance to version 1.13 of the machine-level privileged architecture rather than any single feature.",
       "use": "Targeting machine architecture v1.13",
       "url": "https://docs.riscv.org/reference/isa/priv/priv-preface.html",
-      "instructions": {}
+      "instructions": {},
+      "state": "ratified",
+      "ratification_date": "2024-10"
     },
     {
       "id": "Ss1p13",
@@ -85026,7 +85036,9 @@
       "desc": "Marks conformance to version 1.13 of the supervisor-level privileged architecture, superseding 1.12.",
       "use": "Targeting supervisor architecture v1.13",
       "url": "https://docs.riscv.org/reference/isa/priv/priv-preface.html",
-      "instructions": {}
+      "instructions": {},
+      "state": "ratified",
+      "ratification_date": "2024-10"
     },
     {
       "id": "Sstvala",

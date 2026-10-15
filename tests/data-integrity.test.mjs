@@ -16,9 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const catalog = JSON.parse(
-  readFileSync(join(here, '..', 'src', 'riscv_extensions.json'), 'utf8'),
-);
+const catalog = JSON.parse(readFileSync(join(here, '..', 'src', 'riscv_extensions.json'), 'utf8'));
 
 /** Flatten { category: [ext, ...] } into [[category, ext], ...] */
 function allExtensions() {
@@ -90,7 +88,9 @@ test('instructions carry hex match/mask and an extension attribution', () => {
       for (const field of ['match', 'mask']) {
         const v = details?.[field];
         if (typeof v !== 'string' || !/^0x[0-9a-fA-F]+$/.test(v)) {
-          bad.push(`${ext.id}/${mnemonic}: ${field} is not a hex string (got ${JSON.stringify(v)})`);
+          bad.push(
+            `${ext.id}/${mnemonic}: ${field} is not a hex string (got ${JSON.stringify(v)})`,
+          );
         }
       }
       if (!Array.isArray(details?.extension) || details.extension.length === 0) {
@@ -115,7 +115,8 @@ test('match fits within mask', () => {
       if (!/^0x[0-9a-fA-F]+$/.test(match) || !/^0x[0-9a-fA-F]+$/.test(mask)) continue;
       const m = BigInt(match);
       const k = BigInt(mask);
-      if ((m & ~k) !== 0n) bad.push(`${ext.id}/${mnemonic}: match ${match} has bits outside mask ${mask}`);
+      if ((m & ~k) !== 0n)
+        bad.push(`${ext.id}/${mnemonic}: match ${match} has bits outside mask ${mask}`);
     }
   }
   assert.deepEqual(bad, [], `match/mask inconsistencies:\n  ${bad.join('\n  ')}`);
@@ -163,7 +164,19 @@ test('extensions carry a UDB version, and it is well formed', () => {
   // UDB carries no E.yaml, so the embedded bases have nothing to inherit and
   // sync_udb_extensions.cjs excludes them from its alias map for the same
   // reason. Their ratified state is curated here, not sourced from UDB.
-  const NOT_IN_UDB = new Set(['RV32E', 'RV64E']);
+  // The same holds for the profile names of each privileged version (Sm1p11 to
+  // Ss1p13): UDB has no files for them yet (riscv-unified-db#2507), and a name
+  // such as Sm1p13 has no version of its own to state; it names version 1.13.
+  const NOT_IN_UDB = new Set([
+    'RV32E',
+    'RV64E',
+    'Sm1p11',
+    'Ss1p11',
+    'Sm1p12',
+    'Ss1p12',
+    'Sm1p13',
+    'Ss1p13',
+  ]);
 
   const malformed = [];
   const ratifiedWithout = [];
@@ -185,11 +198,11 @@ test('extensions carry a UDB version, and it is well formed', () => {
   assert.deepEqual(
     ratifiedWithout,
     [],
-    `ratified extensions with no version:\n  ${ratifiedWithout.join('\n  ')}`
+    `ratified extensions with no version:\n  ${ratifiedWithout.join('\n  ')}`,
   );
   assert.ok(
     withVersion > 150,
-    `expected most of the catalogue to carry a version, got ${withVersion}`
+    `expected most of the catalogue to carry a version, got ${withVersion}`,
   );
 });
 
@@ -271,4 +284,28 @@ test('names removed as unsourced or mistaken do not come back', () => {
     if (hit) found.push(`${id} in the dependency graph (${hit[1]})`);
   }
   assert.deepEqual(found, [], `removed names are back:\n  ${found.join('\n  ')}`);
+});
+
+test('the privileged spec 1.13 is ratified, for Sm and for the profile names', () => {
+  // Reported by a reader: the Sm tile said 1.12.0 while S said 1.13.0. UDB's
+  // Sm.yaml still lists 1.13.0 as frozen (2023-12); the ISA manual's privileged
+  // preface lists "Machine ISA 1.13 Ratified", and UDB's S.yaml dates the same
+  // specification's Supervisor 1.13.0 ratification 2024-10. Set here by hand;
+  // the weekly sync only fills a missing state or version, so it keeps these.
+  // Drop this note, not the values, once UDB's Sm.yaml says ratified.
+  const byId = Object.fromEntries(
+    Object.values(catalog)
+      .flat()
+      .filter(Boolean)
+      .map((e) => [e.id, e]),
+  );
+  assert.deepEqual(
+    [byId.Sm.version, byId.Sm.state, byId.Sm.ratification_date],
+    ['1.13.0', 'ratified', '2024-10'],
+  );
+  assert.equal(byId.S.version, '1.13.0');
+  for (const id of ['Sm1p11', 'Ss1p11', 'Sm1p12', 'Ss1p12', 'Sm1p13', 'Ss1p13']) {
+    assert.equal(byId[id].state, 'ratified', id);
+    assert.match(byId[id].ratification_date ?? '', /^\d{4}-\d{2}$/, id);
+  }
 });

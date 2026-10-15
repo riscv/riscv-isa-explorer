@@ -15,6 +15,16 @@ someone silently. Each release below records its catalogue size.
 
 ### Fixed
 
+- **Sm shows the ratified 1.13.** The Machine ISA tile said 1.12.0 (2021-12)
+  while Supervisor said 1.13.0, because riscv-unified-db still lists Sm 1.13.0
+  as frozen. The ISA manual lists Machine ISA 1.13 as ratified, so Sm is now
+  1.13.0, ratified 2024-10 like Supervisor 1.13 from the same specification.
+  The profile names for each privileged version (Sm1p11 to Ss1p13), which
+  showed no status, are marked ratified with their versions' dates. Reported
+  by a reader.
+
+### Fixed
+
 - **Instruction source links open again.** Every instruction's link to its
   riscv-unified-db definition pointed at a commit that exists only in a local
   checkout, so all 1,200 led to a GitHub 404. The descriptions are regenerated
