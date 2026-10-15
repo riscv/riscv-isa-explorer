@@ -44,6 +44,7 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run sync:udb` | Sync extension metadata from riscv-unified-db |
 | `npm run sync:intrinsics -- <rvv-intrinsic-doc> <riscv-c-api-doc>` | Regenerate `src/instruction-intrinsics.json` |
 | `npm run sync:references -- <sail-riscv> <riscv-isa-sim> <riscv-arch-test>` | Regenerate `src/instruction-references.json` |
+| `npm run sync:manual-status -- <riscv-isa-manual>` | Regenerate `src/isa-manual-status.json` (the manual's ratified list) |
 | `npm run sync:toolchains` | Regenerate `src/toolchain-support.json` (fetches from GitHub and sourceware) |
 | `npm run sync:params -- <path-to-udb>` | Regenerate `src/isa-params.json` (UDB parameter definitions) |
 | `npm run graph:check -- <path-to-udb>` | Check dependency graph vs UDB |
@@ -89,6 +90,7 @@ src/
   instruction-intrinsics.json # C intrinsics per instruction, generated (sync:intrinsics)
   instruction-references.json # Sail/Spike source and ACT test locations, generated (sync:references)
   toolchain-support.json      # first Clang/GCC/binutils/QEMU/Linux release per -march token (sync:toolchains)
+  isa-manual-status.json      # the ISA manual prefaces' ratified list, checked against the catalogue
 scripts/                      # sync/seed/check tooling (.mjs / .cjs)
   static-pages.mjs            # crawler-readable page per extension + sitemap, run by the build
 tests/                        # node:test suites (*.test.mjs)
@@ -303,6 +305,12 @@ Then `npm run sync` and `npm test && npm run build`.
   `scripts/` is missing from it. Adding a module means adding a row and a test
   that mentions it. `npm install` installs a pre-push hook (`.githooks/`)
   that runs CI's build, lint, `sync:check` and tests before a push.
+- **The ISA manual outranks UDB on what is ratified.** `tests/manual-status.test.mjs`
+  fails when a module the manual's preface lists as ratified is not ratified,
+  or not at that version, in the catalogue. UDB lagged on Sm 1.13
+  (riscv-unified-db#2740). Fix the catalogue entry by hand (the UDB sync only
+  fills missing states, so it keeps the fix) and file the UDB issue; do not
+  edit the snapshot.
 - CI clones riscv-unified-db at the commit `src/isa-dependency-graph.json`
   records, so the UDB checks never skip there. Every UDB-derived file must
   carry that same commit (`tests/pipeline.test.mjs`): never regenerate from a

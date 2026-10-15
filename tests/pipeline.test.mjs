@@ -100,10 +100,30 @@ test('the UDB-derived files regenerate byte for byte from the pinned commit', (t
   }
 });
 
+test('the ISA manual snapshot regenerates byte for byte from its pinned commit', (t) => {
+  const manual = path.resolve(process.env.MANUAL_DIR ?? path.join(root, '..', 'riscv-isa-manual'));
+  if (!fs.existsSync(path.join(manual, 'src', 'priv', 'preface.adoc'))) {
+    return t.skip('no riscv-isa-manual checkout (CI clones one at the pinned commit)');
+  }
+  const pin = require('../src/isa-manual-status.json').source.commit;
+  const head = spawnSync('git', ['-C', manual, 'rev-parse', 'HEAD'], {
+    encoding: 'utf8',
+  }).stdout.trim();
+  if (head !== pin)
+    return t.skip(`manual checkout is at ${head.slice(0, 7)}, not ${pin.slice(0, 7)}`);
+  const run = node('sync_manual_status.mjs', [manual, '--check']);
+  assert.equal(run.status, 0, run.stdout + run.stderr);
+});
+
 test('the syncs that need another checkout refuse to run without it', () => {
   // Their parsers are tested elsewhere; here, only that a missing argument is
   // an error with a usage line, never a silent write of empty data.
-  for (const script of ['sync_intrinsics.mjs', 'sync_reference_impls.mjs', 'sync_udb_params.mjs']) {
+  for (const script of [
+    'sync_intrinsics.mjs',
+    'sync_reference_impls.mjs',
+    'sync_udb_params.mjs',
+    'sync_manual_status.mjs',
+  ]) {
     const run = node(script, []);
     assert.equal(run.status, 2, `${script} exited ${run.status}`);
     assert.match(run.stdout + run.stderr, /usage/i, script);

@@ -18,6 +18,7 @@
     "sync:references": "node scripts/sync_reference_impls.mjs",
     "sync:references:check": "node scripts/sync_reference_impls.mjs --check",
     "sync:toolchains": "node scripts/sync_toolchain_support.mjs",
+    "sync:manual-status": "node scripts/sync_manual_status.mjs",
     "prepare": "git config core.hooksPath .githooks || true",
     "sync:udb": "node scripts/sync_udb_extensions.cjs",
     "sync:params": "node scripts/sync_udb_params.mjs",

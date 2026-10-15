@@ -1,0 +1,748 @@
+{
+  "source": {
+    "repo": "riscv/riscv-isa-manual",
+    "commit": "1b9ca13819259df4b3bc87a7d7dcda06dd2fb6a9"
+  },
+  "volumes": {
+    "unprivileged": {
+      "file": "src/unpriv/preface.adoc",
+      "ratified": [
+        {
+          "name": "RV32I",
+          "id": "RV32I",
+          "version": "2.1"
+        },
+        {
+          "name": "RV64I",
+          "id": "RV64I",
+          "version": "2.1"
+        },
+        {
+          "name": "RV32E",
+          "id": "RV32E",
+          "version": "2.0"
+        },
+        {
+          "name": "RV64E",
+          "id": "RV64E",
+          "version": "2.0"
+        },
+        {
+          "name": "RVWMO",
+          "id": null,
+          "version": "2.0"
+        },
+        {
+          "name": "ztso",
+          "id": "ztso",
+          "version": "1.0"
+        },
+        {
+          "name": "zifencei",
+          "id": "zifencei",
+          "version": "2.0"
+        },
+        {
+          "name": "zicsr",
+          "id": "zicsr",
+          "version": "2.0"
+        },
+        {
+          "name": "zicntr",
+          "id": "zicntr",
+          "version": "2.0"
+        },
+        {
+          "name": "zihpm",
+          "id": "zihpm",
+          "version": "2.0"
+        },
+        {
+          "name": "m",
+          "id": "m",
+          "version": "2.0"
+        },
+        {
+          "name": "zmmul",
+          "id": "zmmul",
+          "version": "1.0"
+        },
+        {
+          "name": "zicond",
+          "id": "zicond",
+          "version": "1.0"
+        },
+        {
+          "name": "zilsd",
+          "id": "zilsd",
+          "version": "1.0"
+        },
+        {
+          "name": "ziccif",
+          "id": "ziccif",
+          "version": "1.0"
+        },
+        {
+          "name": "ziccid",
+          "id": "ziccid",
+          "version": "1.0"
+        },
+        {
+          "name": "ziccrse",
+          "id": "ziccrse",
+          "version": "1.0"
+        },
+        {
+          "name": "ziccamoa",
+          "id": "ziccamoa",
+          "version": "1.0"
+        },
+        {
+          "name": "ziccamoc",
+          "id": "ziccamoc",
+          "version": "1.0"
+        },
+        {
+          "name": "zicclsm",
+          "id": "zicclsm",
+          "version": "1.0"
+        },
+        {
+          "name": "zic64b",
+          "id": "zic64b",
+          "version": "1.0"
+        },
+        {
+          "name": "zimop",
+          "id": "zimop",
+          "version": "1.0"
+        },
+        {
+          "name": "zicfilp",
+          "id": "zicfilp",
+          "version": "1.0"
+        },
+        {
+          "name": "zicfiss",
+          "id": "zicfiss",
+          "version": "1.0"
+        },
+        {
+          "name": "zihintntl",
+          "id": "zihintntl",
+          "version": "1.0"
+        },
+        {
+          "name": "zihintpause",
+          "id": "zihintpause",
+          "version": "2.0"
+        },
+        {
+          "name": "zicbom",
+          "id": "zicbom",
+          "version": "1.0"
+        },
+        {
+          "name": "zicboz",
+          "id": "zicboz",
+          "version": "1.0"
+        },
+        {
+          "name": "zicbop",
+          "id": "zicbop",
+          "version": "1.0"
+        },
+        {
+          "name": "a",
+          "id": "a",
+          "version": "2.1"
+        },
+        {
+          "name": "zalrsc",
+          "id": "zalrsc",
+          "version": "1.0"
+        },
+        {
+          "name": "za128rs",
+          "id": "za128rs",
+          "version": "1.0"
+        },
+        {
+          "name": "za64rs",
+          "id": "za64rs",
+          "version": "1.0"
+        },
+        {
+          "name": "zawrs",
+          "id": "zawrs",
+          "version": "1.0"
+        },
+        {
+          "name": "zaamo",
+          "id": "zaamo",
+          "version": "1.0"
+        },
+        {
+          "name": "zalasr",
+          "id": "zalasr",
+          "version": "1.0"
+        },
+        {
+          "name": "zabha",
+          "id": "zabha",
+          "version": "1.0"
+        },
+        {
+          "name": "zacas",
+          "id": "zacas",
+          "version": "1.0"
+        },
+        {
+          "name": "zama16b",
+          "id": "zama16b",
+          "version": "1.0"
+        },
+        {
+          "name": "f",
+          "id": "f",
+          "version": "2.2"
+        },
+        {
+          "name": "d",
+          "id": "d",
+          "version": "2.2"
+        },
+        {
+          "name": "q",
+          "id": "q",
+          "version": "2.2"
+        },
+        {
+          "name": "zfh",
+          "id": "zfh",
+          "version": "1.0"
+        },
+        {
+          "name": "zfhmin",
+          "id": "zfhmin",
+          "version": "1.0"
+        },
+        {
+          "name": "zfa",
+          "id": "zfa",
+          "version": "1.0"
+        },
+        {
+          "name": "zfbfmin",
+          "id": "zfbfmin",
+          "version": "1.0"
+        },
+        {
+          "name": "zfinx",
+          "id": "zfinx",
+          "version": "1.0"
+        },
+        {
+          "name": "zdinx",
+          "id": "zdinx",
+          "version": "1.0"
+        },
+        {
+          "name": "zhinx",
+          "id": "zhinx",
+          "version": "1.0"
+        },
+        {
+          "name": "zhinxmin",
+          "id": "zhinxmin",
+          "version": "1.0"
+        },
+        {
+          "name": "zca",
+          "id": "zca",
+          "version": "1.0"
+        },
+        {
+          "name": "zcf",
+          "id": "zcf",
+          "version": "1.0"
+        },
+        {
+          "name": "zcd",
+          "id": "zcd",
+          "version": "1.0"
+        },
+        {
+          "name": "c",
+          "id": "c",
+          "version": "2.0"
+        },
+        {
+          "name": "zcb",
+          "id": "zcb",
+          "version": "1.0"
+        },
+        {
+          "name": "zcmt",
+          "id": "zcmt",
+          "version": "1.0"
+        },
+        {
+          "name": "zcmp",
+          "id": "zcmp",
+          "version": "1.0"
+        },
+        {
+          "name": "zce",
+          "id": "zce",
+          "version": "1.0"
+        },
+        {
+          "name": "zclsd",
+          "id": "zclsd",
+          "version": "1.0"
+        },
+        {
+          "name": "zcmop",
+          "id": "zcmop",
+          "version": "1.0"
+        },
+        {
+          "name": "zba",
+          "id": "zba",
+          "version": "1.0"
+        },
+        {
+          "name": "zbb",
+          "id": "zbb",
+          "version": "1.0"
+        },
+        {
+          "name": "zbs",
+          "id": "zbs",
+          "version": "1.0"
+        },
+        {
+          "name": "b",
+          "id": "b",
+          "version": "1.0"
+        },
+        {
+          "name": "zbc",
+          "id": "zbc",
+          "version": "1.0"
+        },
+        {
+          "name": "zbkb",
+          "id": "zbkb",
+          "version": "1.0"
+        },
+        {
+          "name": "zbkc",
+          "id": "zbkc",
+          "version": "1.0"
+        },
+        {
+          "name": "zbkx",
+          "id": "zbkx",
+          "version": "1.0"
+        },
+        {
+          "name": "zvl*",
+          "id": "zvl*",
+          "version": "1.0"
+        },
+        {
+          "name": "zve32x",
+          "id": "zve32x",
+          "version": "1.0"
+        },
+        {
+          "name": "zve32f",
+          "id": "zve32f",
+          "version": "1.0"
+        },
+        {
+          "name": "zve64x",
+          "id": "zve64x",
+          "version": "1.0"
+        },
+        {
+          "name": "zve64f",
+          "id": "zve64f",
+          "version": "1.0"
+        },
+        {
+          "name": "zve64d",
+          "id": "zve64d",
+          "version": "1.0"
+        },
+        {
+          "name": "v",
+          "id": "v",
+          "version": "1.0"
+        },
+        {
+          "name": "zvfhmin",
+          "id": "zvfhmin",
+          "version": "1.0"
+        },
+        {
+          "name": "zvfh",
+          "id": "zvfh",
+          "version": "1.0"
+        },
+        {
+          "name": "zvfbfmin",
+          "id": "zvfbfmin",
+          "version": "1.0"
+        },
+        {
+          "name": "zvfbfwma",
+          "id": "zvfbfwma",
+          "version": "1.0"
+        },
+        {
+          "name": "zvbb",
+          "id": "zvbb",
+          "version": "1.0"
+        },
+        {
+          "name": "zvbc",
+          "id": "zvbc",
+          "version": "1.0"
+        },
+        {
+          "name": "zknd",
+          "id": "zknd",
+          "version": "1.0"
+        },
+        {
+          "name": "zkne",
+          "id": "zkne",
+          "version": "1.0"
+        },
+        {
+          "name": "zknh",
+          "id": "zknh",
+          "version": "1.0"
+        },
+        {
+          "name": "zksed",
+          "id": "zksed",
+          "version": "1.0"
+        },
+        {
+          "name": "zksh",
+          "id": "zksh",
+          "version": "1.0"
+        },
+        {
+          "name": "zkr",
+          "id": "zkr",
+          "version": "1.0"
+        },
+        {
+          "name": "zkn",
+          "id": "zkn",
+          "version": "1.0"
+        },
+        {
+          "name": "zks",
+          "id": "zks",
+          "version": "1.0"
+        },
+        {
+          "name": "zk",
+          "id": "zk",
+          "version": "1.0"
+        },
+        {
+          "name": "zkt",
+          "id": "zkt",
+          "version": "1.0"
+        },
+        {
+          "name": "zvkb",
+          "id": "zvkb",
+          "version": "1.0"
+        },
+        {
+          "name": "zvkg",
+          "id": "zvkg",
+          "version": "1.0"
+        },
+        {
+          "name": "zvkned",
+          "id": "zvkned",
+          "version": "1.0"
+        },
+        {
+          "name": "zvknha",
+          "id": "zvknha",
+          "version": "1.0"
+        },
+        {
+          "name": "zvknhb",
+          "id": "zvknhb",
+          "version": "1.0"
+        },
+        {
+          "name": "zvksed",
+          "id": "zvksed",
+          "version": "1.0"
+        },
+        {
+          "name": "zvksh",
+          "id": "zvksh",
+          "version": "1.0"
+        },
+        {
+          "name": "zvkn",
+          "id": "zvkn",
+          "version": "1.0"
+        },
+        {
+          "name": "zvknc",
+          "id": "zvknc",
+          "version": "1.0"
+        },
+        {
+          "name": "zvkng",
+          "id": "zvkng",
+          "version": "1.0"
+        },
+        {
+          "name": "zvks",
+          "id": "zvks",
+          "version": "1.0"
+        },
+        {
+          "name": "zvksc",
+          "id": "zvksc",
+          "version": "1.0"
+        },
+        {
+          "name": "zvksg",
+          "id": "zvksg",
+          "version": "1.0"
+        },
+        {
+          "name": "zvkt",
+          "id": "zvkt",
+          "version": "1.0"
+        }
+      ]
+    },
+    "privileged": {
+      "file": "src/priv/preface.adoc",
+      "ratified": [
+        {
+          "name": "Machine",
+          "id": "Sm",
+          "version": "1.13"
+        },
+        {
+          "name": "Supervisor",
+          "id": "S",
+          "version": "1.13"
+        },
+        {
+          "name": "smstateen",
+          "id": "smstateen",
+          "version": "1.0"
+        },
+        {
+          "name": "smcsrind",
+          "id": "smcsrind",
+          "version": "1.0"
+        },
+        {
+          "name": "smepmp",
+          "id": "smepmp",
+          "version": "1.0"
+        },
+        {
+          "name": "smcntrpmf",
+          "id": "smcntrpmf",
+          "version": "1.0"
+        },
+        {
+          "name": "smrnmi",
+          "id": "smrnmi",
+          "version": "1.0"
+        },
+        {
+          "name": "smcdeleg",
+          "id": "smcdeleg",
+          "version": "1.0"
+        },
+        {
+          "name": "smdbltrp",
+          "id": "smdbltrp",
+          "version": "1.0"
+        },
+        {
+          "name": "smctr",
+          "id": "smctr",
+          "version": "1.0"
+        },
+        {
+          "name": "Control-flow Integrity",
+          "id": null,
+          "version": "1.0"
+        },
+        {
+          "name": "Pointer Masking",
+          "id": null,
+          "version": "1.0"
+        },
+        {
+          "name": "svade",
+          "id": "svade",
+          "version": "1.0"
+        },
+        {
+          "name": "svnapot",
+          "id": "svnapot",
+          "version": "1.0"
+        },
+        {
+          "name": "svpbmt",
+          "id": "svpbmt",
+          "version": "1.0"
+        },
+        {
+          "name": "svadu",
+          "id": "svadu",
+          "version": "1.0"
+        },
+        {
+          "name": "svinval",
+          "id": "svinval",
+          "version": "1.0"
+        },
+        {
+          "name": "svvptc",
+          "id": "svvptc",
+          "version": "1.0"
+        },
+        {
+          "name": "svrsw60t59b",
+          "id": "svrsw60t59b",
+          "version": "1.0"
+        },
+        {
+          "name": "ssstateen",
+          "id": "ssstateen",
+          "version": "1.0"
+        },
+        {
+          "name": "sscsrind",
+          "id": "sscsrind",
+          "version": "1.0"
+        },
+        {
+          "name": "ssccfg",
+          "id": "ssccfg",
+          "version": "1.0"
+        },
+        {
+          "name": "ssqosid",
+          "id": "ssqosid",
+          "version": "1.0"
+        },
+        {
+          "name": "ssu64xl",
+          "id": "ssu64xl",
+          "version": "1.0"
+        },
+        {
+          "name": "ssccptr",
+          "id": "ssccptr",
+          "version": "1.0"
+        },
+        {
+          "name": "sstvecd",
+          "id": "sstvecd",
+          "version": "1.0"
+        },
+        {
+          "name": "sstvala",
+          "id": "sstvala",
+          "version": "1.0"
+        },
+        {
+          "name": "sscounterenw",
+          "id": "sscounterenw",
+          "version": "1.0"
+        },
+        {
+          "name": "ssstrict",
+          "id": "ssstrict",
+          "version": "1.0"
+        },
+        {
+          "name": "sstc",
+          "id": "sstc",
+          "version": "1.0"
+        },
+        {
+          "name": "sscofpmf",
+          "id": "sscofpmf",
+          "version": "1.0"
+        },
+        {
+          "name": "ssdbltrp",
+          "id": "ssdbltrp",
+          "version": "1.0"
+        },
+        {
+          "name": "h",
+          "id": "h",
+          "version": "1.0"
+        },
+        {
+          "name": "shlcofideleg",
+          "id": "shlcofideleg",
+          "version": "1.0"
+        },
+        {
+          "name": "shvstvecd",
+          "id": "shvstvecd",
+          "version": "1.0"
+        },
+        {
+          "name": "shcounterenw",
+          "id": "shcounterenw",
+          "version": "1.0"
+        },
+        {
+          "name": "shvstvala",
+          "id": "shvstvala",
+          "version": "1.0"
+        },
+        {
+          "name": "shtvala",
+          "id": "shtvala",
+          "version": "1.0"
+        },
+        {
+          "name": "shvsatpa",
+          "id": "shvsatpa",
+          "version": "1.0"
+        },
+        {
+          "name": "shgatpa",
+          "id": "shgatpa",
+          "version": "1.0"
+        },
+        {
+          "name": "sha",
+          "id": "sha",
+          "version": "1.0"
+        }
+      ]
+    }
+  }
+}

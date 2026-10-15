@@ -32,6 +32,7 @@ a row here and a test behind it.
 | Main view, tiles and entry point | `src/risc_v_visualizer.jsx`, `src/ExtensionTile.jsx`, `src/tileMemo.js`, `src/main.jsx`, `src/RiscvLogo.jsx` | `render-smoke`, `render-views`, `extension-tile` |
 | Focus handling in dialogs | `src/focusTrap.js` | `focus-trap` |
 | Ask AI (feature-flagged off) | `src/AskAiLauncher.jsx`, `feature-flags.cjs` | `render-views` |
+| Ratified list from the ISA manual (catches UDB lagging the manual) | `src/isa-manual-status.json`, `scripts/manual-status.mjs`, `scripts/sync_manual_status.mjs` | `manual-status`, `pipeline` |
 | Completeness against UDB | `src/completeness.js`, `scripts/check-udb-completeness.mjs` | `completeness`, `udb-parser`, `sync-tooling` |
 | Weekly UDB sync | `scripts/sync_udb_extensions.cjs` | `sync-tooling`, `csr-fields`, `catalog-coverage` |
 | Opcodes drift report | `scripts/check-opcodes-drift.mjs` | `opcodes-drift` |
@@ -52,8 +53,9 @@ Test names are files in `tests/`, without `.test.mjs`.
 | Generated `-march` strings against clang | yes | no |
 
 CI clones riscv-unified-db at the commit `src/isa-dependency-graph.json`
-records, so the UDB checks run against exactly the upstream the data came
-from, and the clone fails if that commit is not on GitHub.
+records, and riscv-isa-manual at the commit `src/isa-manual-status.json`
+records, so those checks run against exactly the upstream the data came from,
+and a clone fails if its commit is not on GitHub.
 
 Two tests skip everywhere unless `RISCV_CLANG` names a recent RISC-V clang:
 assembling every instruction example and compiling every intrinsic. Run them

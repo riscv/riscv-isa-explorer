@@ -45,6 +45,15 @@ jobs:
           git -C ../riscv-unified-db fetch -q --depth 1 https://github.com/riscv/riscv-unified-db.git "$pin"
           git -C ../riscv-unified-db checkout -q FETCH_HEAD
           echo "riscv-unified-db at $pin"
+      # The same for the ISA manual snapshot (src/isa-manual-status.json), so
+      # tests/pipeline.test.mjs can check it regenerates from its commit.
+      - name: Check out riscv-isa-manual at the pinned commit
+        run: |
+          pin=$(node -p "require('./src/isa-manual-status.json').source.commit")
+          git init -q ../riscv-isa-manual
+          git -C ../riscv-isa-manual fetch -q --depth 1 https://github.com/riscv/riscv-isa-manual.git "$pin"
+          git -C ../riscv-isa-manual checkout -q FETCH_HEAD
+          echo "riscv-isa-manual at $pin"
       - name: Tests
         # Explicit, so the CSR-field tests accept the detached checkout above.
         env:

@@ -13,6 +13,15 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Added
+
+- **The catalogue is checked against the ISA manual's list of ratified
+  modules.** Both prefaces of the ISA manual list every ratified module and its
+  version. A snapshot of those lists, refreshed weekly, is now compared with
+  the catalogue on every test run, so the next time riscv-unified-db lags the
+  manual (as it did on Sm 1.13) CI fails and an issue opens, instead of a
+  reader noticing.
+
 ## [1.11.1] - 2026-10-15
 
 Catalogue: 211 entries, unchanged from 1.11.0. No saved selection or `-march`
