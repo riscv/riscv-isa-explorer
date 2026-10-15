@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "788785b57a5011a8ad96044463c7b2e621297351",
+      "commit": "717c6ddc2a2926dccfa4a8c2e9bf5e67a83c2412",
       "branch": "main",
       "path": "spec/std/isa/ext"
     },
@@ -324,8 +324,19 @@
       "verified": "udb"
     },
     "Smcdeleg": {
-      "requires": [],
-      "verified": "udb"
+      "requires": [
+        {
+          "ext": "Ssccfg",
+          "src": "udb",
+          "ref": "Smcdeleg.yaml requirements.extension",
+          "corequisite": true
+        },
+        {
+          "ext": "Sscsrind",
+          "src": "udb",
+          "ref": "Smcdeleg.yaml requirements.extension"
+        }
+      ]
     },
     "Smcfiss": {
       "requires": [],
@@ -394,14 +405,14 @@
     "Smpmpdeleg": {
       "requires": [
         {
-          "ext": "Smcsrind",
-          "src": "spec",
-          "ref": "SPMP v1.0 §4 — \"The Smcsrind extension for indirect CSR access must be implemented.\""
+          "ext": "S",
+          "src": "udb",
+          "ref": "Smpmpdeleg.yaml requirements.extension"
         },
         {
-          "ext": "Sspmp",
-          "src": "spec",
-          "ref": "SPMP v1.0 §4.1 — delegates PMP entries to S-mode, \"thereby creating SPMP entries\""
+          "ext": "Smcsrind",
+          "src": "udb",
+          "ref": "Smpmpdeleg.yaml requirements.extension"
         }
       ]
     },
@@ -451,8 +462,19 @@
       ]
     },
     "Ssccfg": {
-      "requires": [],
-      "verified": "udb"
+      "requires": [
+        {
+          "ext": "Smcdeleg",
+          "src": "udb",
+          "ref": "Ssccfg.yaml requirements.extension",
+          "corequisite": true
+        },
+        {
+          "ext": "Sscsrind",
+          "src": "udb",
+          "ref": "Ssccfg.yaml requirements.extension"
+        }
+      ]
     },
     "Ssccptr": {
       "requires": [],
@@ -527,9 +549,14 @@
     "Sspmp": {
       "requires": [
         {
+          "ext": "Smpmpdeleg",
+          "src": "udb",
+          "ref": "Sspmp.yaml requirements.extension"
+        },
+        {
           "ext": "Sscsrind",
-          "src": "spec",
-          "ref": "SPMP v1.0 §2.1 — \"The Sscsrind extension for indirect CSR access must be implemented.\""
+          "src": "udb",
+          "ref": "Sspmp.yaml requirements.extension"
         }
       ]
     },
@@ -537,8 +564,8 @@
       "requires": [
         {
           "ext": "Sspmp",
-          "src": "spec",
-          "ref": "SPMP v1.0 §3 — an SPMP entry is active only when spmpen[i] is set and spmpcfg[i].A is non-zero"
+          "src": "udb",
+          "ref": "Sspmpen.yaml requirements.extension"
         }
       ]
     },

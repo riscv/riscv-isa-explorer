@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "788785b57a5011a8ad96044463c7b2e621297351",
+      "commit": "717c6ddc2a2926dccfa4a8c2e9bf5e67a83c2412",
       "branch": "main",
       "path": "spec/std/isa/param"
     }
@@ -2207,10 +2207,185 @@
       },
       "src": "MCTRCTL_TRETINH_IMPLEMENTED.yaml"
     },
+    "MEDELEG_DELEGATABLE": {
+      "name": "MEDELEG_DELEGATABLE",
+      "long_name": "Exceptions that can be delegated through medeleg",
+      "description": "Indicates which synchronous exceptions can be delegated via `medeleg`. Entry _i_ corresponds to `medeleg` bit _i_, whose index is the exception code reported in `mcause`. When an entry is true, the corresponding `medeleg` bit is writable. When an entry is false, the corresponding `medeleg` bit is read-only zero. An implementation may support any subset of the delegatable exceptions, but no bit of `medeleg` may be read-only one. `MEDELEG_DELEGATABLE[11]` (environment call from M-mode) and `MEDELEG_DELEGATABLE[16]` (double trap) must always be false.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "boolean"
+        },
+        "maxItems": 64,
+        "minItems": 64
+      },
+      "definedBy": {
+        "extension": {
+          "name": "S"
+        }
+      },
+      "requirements": {
+        "allOf": [
+          {
+            "param": {
+              "allOf": [
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 11,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 16,
+                  "equal": false
+                }
+              ]
+            }
+          },
+          {
+            "param": {
+              "allOf": [
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 14,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 17,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 32,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 33,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 34,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 35,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 36,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 37,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 38,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 39,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 40,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 41,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 42,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 43,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 44,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 45,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 46,
+                  "equal": false
+                },
+                {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 47,
+                  "equal": false
+                }
+              ]
+            }
+          },
+          {
+            "if": {
+              "not": {
+                "extension": {
+                  "name": "H"
+                }
+              }
+            },
+            "then": {
+              "param": {
+                "allOf": [
+                  {
+                    "name": "MEDELEG_DELEGATABLE",
+                    "index": 10,
+                    "equal": false
+                  },
+                  {
+                    "name": "MEDELEG_DELEGATABLE",
+                    "index": 20,
+                    "equal": false
+                  },
+                  {
+                    "name": "MEDELEG_DELEGATABLE",
+                    "index": 21,
+                    "equal": false
+                  },
+                  {
+                    "name": "MEDELEG_DELEGATABLE",
+                    "index": 22,
+                    "equal": false
+                  },
+                  {
+                    "name": "MEDELEG_DELEGATABLE",
+                    "index": 23,
+                    "equal": false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "src": "MEDELEG_DELEGATABLE.yaml"
+    },
     "MEI_INTR_IMPL": {
       "name": "MEI_INTR_IMPL",
       "long_name": "Machine-level external interrupts are implemented",
-      "description": "Whether or not machine-level external interrupts are implemented. Possible values: true:: Machine-level external interrupts are implemented. `mie.MEIE` and `mideleg.MEI` are writable. false:: Machine-level external interrupts are not implemented. `mie.MEIE` and `mideleg.MEI` are read-only zero.",
+      "description": "Whether or not machine-level external interrupts are implemented. Possible values: true:: Machine-level external interrupts are implemented. `mie.MEIE` is writable, and `mideleg.MEI` is writable if `MIDELEG_DELEGATABLE[11]` is true. false:: Machine-level external interrupts are not implemented. `mie.MEIE` and `mideleg.MEI` are read-only zero.",
       "schema": {
         "type": "boolean"
       },
@@ -2227,6 +2402,265 @@
         }
       },
       "src": "MEI_INTR_IMPL.yaml"
+    },
+    "MIDELEG_DELEGATABLE": {
+      "name": "MIDELEG_DELEGATABLE",
+      "long_name": "Interrupts that can be delegated through mideleg",
+      "description": "Indicates which interrupts can be delegated via `mideleg`. Entry _i_ corresponds to `mideleg` bit _i_, which uses the same bit layout as `mip`. When an entry is true, the corresponding interrupt can be delegated: the `mideleg` bit is writable, except for bits that are always delegated, which are read-only one. When an entry is false, the corresponding `mideleg` bit is read-only zero. An unimplemented interrupt cannot be delegated, i.e., if `STI_INTR_IMPL` is false, `MIDELEG_DELEGATABLE[5]` must be false. When the H extension is implemented, VSSI, VSTI, and VSEI are always delegated to HS-mode, so `MIDELEG_DELEGATABLE[2]`, `[6]`, and `[10]` must be true. SGEI is also always delegated when any guest external interrupts are implemented (`NUM_EXTERNAL_GUEST_INTERRUPTS` is nonzero), so `MIDELEG_DELEGATABLE[12]` must then be true; otherwise it must be false. When H is not implemented, all four must be false.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "boolean"
+        },
+        "maxItems": 64,
+        "minItems": 64
+      },
+      "definedBy": {
+        "extension": {
+          "name": "S"
+        }
+      },
+      "requirements": {
+        "allOf": [
+          {
+            "param": {
+              "allOf": [
+                {
+                  "name": "MIDELEG_DELEGATABLE",
+                  "index": 0,
+                  "equal": false
+                },
+                {
+                  "name": "MIDELEG_DELEGATABLE",
+                  "index": 4,
+                  "equal": false
+                },
+                {
+                  "name": "MIDELEG_DELEGATABLE",
+                  "index": 8,
+                  "equal": false
+                },
+                {
+                  "name": "MIDELEG_DELEGATABLE",
+                  "index": 14,
+                  "equal": false
+                },
+                {
+                  "name": "MIDELEG_DELEGATABLE",
+                  "index": 15,
+                  "equal": false
+                }
+              ]
+            }
+          },
+          {
+            "if": {
+              "param": {
+                "name": "MIDELEG_DELEGATABLE",
+                "index": 1,
+                "equal": true
+              }
+            },
+            "then": {
+              "param": {
+                "name": "SSI_INTR_IMPL",
+                "equal": true
+              }
+            }
+          },
+          {
+            "if": {
+              "param": {
+                "name": "MIDELEG_DELEGATABLE",
+                "index": 3,
+                "equal": true
+              }
+            },
+            "then": {
+              "param": {
+                "name": "MSI_INTR_IMPL",
+                "equal": true
+              }
+            }
+          },
+          {
+            "if": {
+              "param": {
+                "name": "MIDELEG_DELEGATABLE",
+                "index": 5,
+                "equal": true
+              }
+            },
+            "then": {
+              "param": {
+                "name": "STI_INTR_IMPL",
+                "equal": true
+              }
+            }
+          },
+          {
+            "if": {
+              "param": {
+                "name": "MIDELEG_DELEGATABLE",
+                "index": 7,
+                "equal": true
+              }
+            },
+            "then": {
+              "param": {
+                "name": "MTI_INTR_IMPL",
+                "equal": true
+              }
+            }
+          },
+          {
+            "if": {
+              "param": {
+                "name": "MIDELEG_DELEGATABLE",
+                "index": 9,
+                "equal": true
+              }
+            },
+            "then": {
+              "param": {
+                "name": "SEI_INTR_IMPL",
+                "equal": true
+              }
+            }
+          },
+          {
+            "if": {
+              "param": {
+                "name": "MIDELEG_DELEGATABLE",
+                "index": 11,
+                "equal": true
+              }
+            },
+            "then": {
+              "param": {
+                "name": "MEI_INTR_IMPL",
+                "equal": true
+              }
+            }
+          },
+          {
+            "if": {
+              "not": {
+                "extension": {
+                  "name": "Sscofpmf"
+                }
+              }
+            },
+            "then": {
+              "param": {
+                "name": "MIDELEG_DELEGATABLE",
+                "index": 13,
+                "equal": false
+              }
+            }
+          },
+          {
+            "if": {
+              "extension": {
+                "name": "H"
+              }
+            },
+            "then": {
+              "allOf": [
+                {
+                  "param": {
+                    "allOf": [
+                      {
+                        "name": "MIDELEG_DELEGATABLE",
+                        "index": 2,
+                        "equal": true
+                      },
+                      {
+                        "name": "MIDELEG_DELEGATABLE",
+                        "index": 6,
+                        "equal": true
+                      },
+                      {
+                        "name": "MIDELEG_DELEGATABLE",
+                        "index": 10,
+                        "equal": true
+                      }
+                    ]
+                  }
+                },
+                {
+                  "if": {
+                    "not": {
+                      "param": {
+                        "name": "NUM_EXTERNAL_GUEST_INTERRUPTS",
+                        "equal": 0
+                      }
+                    }
+                  },
+                  "then": {
+                    "param": {
+                      "name": "MIDELEG_DELEGATABLE",
+                      "index": 12,
+                      "equal": true
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "param": {
+                      "name": "NUM_EXTERNAL_GUEST_INTERRUPTS",
+                      "equal": 0
+                    }
+                  },
+                  "then": {
+                    "param": {
+                      "name": "MIDELEG_DELEGATABLE",
+                      "index": 12,
+                      "equal": false
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "if": {
+              "not": {
+                "extension": {
+                  "name": "H"
+                }
+              }
+            },
+            "then": {
+              "param": {
+                "allOf": [
+                  {
+                    "name": "MIDELEG_DELEGATABLE",
+                    "index": 2,
+                    "equal": false
+                  },
+                  {
+                    "name": "MIDELEG_DELEGATABLE",
+                    "index": 6,
+                    "equal": false
+                  },
+                  {
+                    "name": "MIDELEG_DELEGATABLE",
+                    "index": 10,
+                    "equal": false
+                  },
+                  {
+                    "name": "MIDELEG_DELEGATABLE",
+                    "index": 12,
+                    "equal": false
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "src": "MIDELEG_DELEGATABLE.yaml"
     },
     "MIMPID_IMPLEMENTED": {
       "name": "MIMPID_IMPLEMENTED",
@@ -2382,7 +2816,7 @@
     "MSI_INTR_IMPL": {
       "name": "MSI_INTR_IMPL",
       "long_name": "Machine-level software interrupts are implemented",
-      "description": "Whether or not machine-level software interrupts are implemented. Possible values: true:: Machine-level software interrupts are implemented. `mie.MSIE` and `mideleg.MSI` are writable. false:: Machine-level software interrupts are not implemented. `mie.MSIE` and `mideleg.MSI` are read-only zero.",
+      "description": "Whether or not machine-level software interrupts are implemented. Possible values: true:: Machine-level software interrupts are implemented. `mie.MSIE` is writable, and `mideleg.MSI` is writable if `MIDELEG_DELEGATABLE[3]` is true. false:: Machine-level software interrupts are not implemented. `mie.MSIE` and `mideleg.MSI` are read-only zero.",
       "schema": {
         "type": "boolean"
       },
@@ -2651,7 +3085,7 @@
     "MTI_INTR_IMPL": {
       "name": "MTI_INTR_IMPL",
       "long_name": "Machine-level timer interrupts are implemented",
-      "description": "Whether or not machine-level timer interrupts are implemented. Possible values: true:: Machine-level timer interrupts are implemented. `mie.MTIE`, `mideleg.MTI`, and `mtimecmp` are writable. false:: Machine-level timer interrupts are not implemented. `mie.MTIE` and `mideleg.MTI` are read-only zero. `mtimecmp` is optional and may be read-only zero.",
+      "description": "Whether or not machine-level timer interrupts are implemented. Possible values: true:: Machine-level timer interrupts are implemented. `mie.MTIE` and `mtimecmp` are writable, and `mideleg.MTI` is writable if `MIDELEG_DELEGATABLE[7]` is true. false:: Machine-level timer interrupts are not implemented. `mie.MTIE` and `mideleg.MTI` are read-only zero. `mtimecmp` is optional and may be read-only zero.",
       "schema": {
         "type": "boolean"
       },
@@ -4228,7 +4662,7 @@
     "SEI_INTR_IMPL": {
       "name": "SEI_INTR_IMPL",
       "long_name": "Supervisor-level external interrupts are implemented",
-      "description": "Whether or not supervisor-level external interrupts are implemented. Possible values: true:: Supervisor-level external interrupts are implemented. `mie.SEIE` and `mideleg.SEI` are writable. false:: Supervisor-level external interrupts are not implemented. `mie.SEIE`, `mip.SEIP`, and `mideleg.SEI` are read-only zero.",
+      "description": "Whether or not supervisor-level external interrupts are implemented. Possible values: true:: Supervisor-level external interrupts are implemented. `mie.SEIE` is writable, and `mideleg.SEI` is writable if `MIDELEG_DELEGATABLE[9]` is true. false:: Supervisor-level external interrupts are not implemented. `mie.SEIE`, `mip.SEIP`, and `mideleg.SEI` are read-only zero.",
       "schema": {
         "type": "boolean"
       },
@@ -4267,10 +4701,35 @@
       },
       "src": "SEW_MIN.yaml"
     },
+    "SSEED_READ_ONLY_ZERO": {
+      "name": "SSEED_READ_ONLY_ZERO",
+      "long_name": "Whether `mseccfg.SSEED` is read-only zero",
+      "description": "Indicates whether the `mseccfg.SSEED` field is hardwired read-only zero. Options: true:: `mseccfg.SSEED` is read-only zero. false:: `mseccfg.SSEED` is writable.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Sm",
+              "version": ">= 1.12"
+            },
+            {
+              "name": "Zkr"
+            },
+            {
+              "name": "S"
+            }
+          ]
+        }
+      },
+      "src": "SSEED_READ_ONLY_ZERO.yaml"
+    },
     "SSI_INTR_IMPL": {
       "name": "SSI_INTR_IMPL",
       "long_name": "Supervisor-level software interrupts are implemented",
-      "description": "Whether or not supervisor-level software interrupts are implemented. Possible values: true:: Supervisor-level software interrupts are implemented. `mie.SSIE` and `mideleg.SSI` are writable. false:: Supervisor-level software interrupts are not implemented. `mie.SSIE`, `mip.SSIP`, and `mideleg.SSI` are read-only zero.",
+      "description": "Whether or not supervisor-level software interrupts are implemented. Possible values: true:: Supervisor-level software interrupts are implemented. `mie.SSIE` is writable, and `mideleg.SSI` is writable if `MIDELEG_DELEGATABLE[1]` is true. false:: Supervisor-level software interrupts are not implemented. `mie.SSIE`, `mip.SSIP`, and `mideleg.SSI` are read-only zero.",
       "schema": {
         "type": "boolean"
       },
@@ -4321,7 +4780,7 @@
     "STI_INTR_IMPL": {
       "name": "STI_INTR_IMPL",
       "long_name": "Supervisor-level timer interrupts are implemented",
-      "description": "Whether or not supervisor-level timer interrupts are implemented. If Sstc is implemented, then STI_INTR_IMPL must be true. Possible values: true:: Supervisor-level timer interrupts are implemented. `mie.STIE` and `mideleg.STI` are writable. false:: Supervisor-level timer interrupts are not implemented. `mie.STIE`, `mip.STIP`, and `mideleg.STI` are read-only zero.",
+      "description": "Whether or not supervisor-level timer interrupts are implemented. If Sstc is implemented, then STI_INTR_IMPL must be true. Possible values: true:: Supervisor-level timer interrupts are implemented. `mie.STIE` is writable, and `mideleg.STI` is writable if `MIDELEG_DELEGATABLE[5]` is true. false:: Supervisor-level timer interrupts are not implemented. `mie.STIE`, `mip.STIP`, and `mideleg.STI` are read-only zero.",
       "schema": {
         "type": "boolean"
       },
@@ -5341,6 +5800,31 @@
       },
       "src": "TRAP_ON_UNIMPLEMENTED_INSTRUCTION.yaml"
     },
+    "USEED_READ_ONLY_ZERO": {
+      "name": "USEED_READ_ONLY_ZERO",
+      "long_name": "Whether `mseccfg.USEED` is read-only zero",
+      "description": "Indicates whether the `mseccfg.USEED` field is hardwired read-only zero. Options: true:: `mseccfg.USEED` is read-only zero. false:: `mseccfg.USEED` is writable.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Sm",
+              "version": ">= 1.12"
+            },
+            {
+              "name": "Zkr"
+            },
+            {
+              "name": "U"
+            }
+          ]
+        }
+      },
+      "src": "USEED_READ_ONLY_ZERO.yaml"
+    },
     "UXLEN": {
       "name": "UXLEN",
       "long_name": null,
@@ -5695,48 +6179,6 @@
         "idl()": "(MXLEN == 32) -> VMID_WIDTH <= 7;\n"
       },
       "src": "VMID_WIDTH.yaml"
-    },
-    "VSEI_INTR_IMPL": {
-      "name": "VSEI_INTR_IMPL",
-      "long_name": "Virtual supervisor-level external interrupts are implemented",
-      "description": "Whether or not virtual supervisor-level external interrupts are implemented. Possible values: true:: Virtual supervisor-level external interrupts are implemented. `mie.VSEIE` and `mideleg.VSEI` are writable. false:: Virtual supervisor-level external interrupts are not implemented. `mie.VSEIE`, `mip.VSEIP`, and `mideleg.VSEI` are read-only zero.",
-      "schema": {
-        "type": "boolean"
-      },
-      "definedBy": {
-        "extension": {
-          "allOf": [
-            {
-              "name": "Zicsr"
-            },
-            {
-              "name": "H"
-            }
-          ]
-        }
-      },
-      "src": "VSEI_INTR_IMPL.yaml"
-    },
-    "VSSI_INTR_IMPL": {
-      "name": "VSSI_INTR_IMPL",
-      "long_name": "Virtual supervisor-level software interrupts are implemented",
-      "description": "Whether or not virtual supervisor-level software interrupts are implemented. Possible values: true:: Virtual supervisor-level software interrupts are implemented. `mie.VSSIE` and `mideleg.VSSI` are writable. false:: Virtual supervisor-level software interrupts are not implemented. `mie.VSSIE`, `mip.VSSIP`, and `mideleg.VSSI` are read-only zero.",
-      "schema": {
-        "type": "boolean"
-      },
-      "definedBy": {
-        "extension": {
-          "allOf": [
-            {
-              "name": "Zicsr"
-            },
-            {
-              "name": "H"
-            }
-          ]
-        }
-      },
-      "src": "VSSI_INTR_IMPL.yaml"
     },
     "VSSTAGE_MODE_BARE": {
       "name": "VSSTAGE_MODE_BARE",
