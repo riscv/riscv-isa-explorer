@@ -23,6 +23,22 @@ someone silently. Each release below records its catalogue size.
 
 ### Changed
 
+- **CSR details are drawn like the ISA manual's register figures.** The
+  register is laid out in 32-bit rows with bit numbers on every field, one-bit
+  fields labelled vertically, and each field coloured by what software can do
+  with it (writable, hardware-updated, read-only, configuration-dependent),
+  with a legend. Pointing at a field highlights its table row. The table now
+  says "Any legal value" and "Config-dependent" instead of UDB's raw
+  `UNDEFINED_LEGAL` and `dynamic`, shows conditions as short terms ("RV64",
+  "F or Zvl32b") instead of `allOf`/`anyOf`, and lists only the fields that
+  exist at the chosen XLEN. The RV32/RV64 switch appears only for registers it
+  changes, and a fixed 32-bit CSR is no longer drawn half "Unspecified" on a
+  64-bit strip.
+- **Numbered CSR families fold into one chip.** PMPADDR0–63, PMPCFG0–15 and
+  the HPM counters each take one chip that opens a grid of their members, and
+  the list is in natural order (PMPADDR2 before PMPADDR10). Sm's list goes
+  from 223 chips to about 40. The selected chip is readable in the light theme.
+
 - **Instruction details in clear sections.** The card is grouped into three
   titled sections, Write it (assembly, intrinsic, Compiler Explorer), Encoding
   (bit fields, variable fields, match and mask, compressed forms) and

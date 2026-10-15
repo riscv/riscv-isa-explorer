@@ -1,219 +1,367 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
+import { X } from 'lucide-react';
+import {
+  accessInfo,
+  conditionTerms,
+  csrDependsOnXlen,
+  csrFields,
+  csrRows,
+  csrWidth,
+  formatAddress,
+  groupCsrNames,
+  resetLabel,
+} from './csrLayout.js';
 
-function bitRange(bits, xlen) {
-  const selected = typeof bits === 'string' ? bits : bits?.[`rv${xlen}`];
-  if (!selected || !/^\d+(?:-\d+)?$/.test(selected)) return null;
-  const [high, low = high] = selected.split('-').map(Number);
-  if (high < low || high >= xlen) return null;
-  return { high, low };
+// Names longer than this many characters per bit are set vertically, the way
+// the ISA manual's register diagrams label one-bit fields.
+const CHARS_PER_BIT = 1.6;
+
+const KIND_LEGEND = [
+  { kind: 'rw', label: 'Software writable' },
+  { kind: 'hw', label: 'Hardware also updates' },
+  { kind: 'ro', label: 'Read-only' },
+  { kind: 'cfg', label: 'Depends on configuration' },
+];
+
+function isVertical(segment) {
+  return segment.field && segment.field.name.length > segment.width * CHARS_PER_BIT;
 }
 
-function formatAddress(address) {
-  if (typeof address === 'number' || /^\d+$/.test(String(address || ''))) {
-    const numeric = Number(address);
-    if (Number.isSafeInteger(numeric) && numeric >= 0) {
-      return `0x${numeric.toString(16).toUpperCase()}`;
-    }
-  }
-  if (/^0x[\da-f]+$/i.test(String(address || ''))) {
-    return `0x${String(address).slice(2).toUpperCase()}`;
-  }
-  return address ? String(address).toUpperCase() : 'unknown';
+function DiagramRow({ row, active, onHover, onPick }) {
+  const tall = row.segments.some(isVertical);
+  return (
+    <div
+      className="riscv-csr-row"
+      style={{ gridTemplateColumns: `repeat(${row.bits}, minmax(0, 1fr))` }}
+    >
+      {row.segments.map((segment) => {
+        const { field } = segment;
+        const span =
+          segment.high === segment.low ? `${segment.high}` : `${segment.high}:${segment.low}`;
+        const kind = field ? accessInfo(field.type).kind : 'gap';
+        const vertical = isVertical(segment);
+        return (
+          <div
+            key={`${segment.high}-${segment.low}`}
+            title={
+              field
+                ? `${field.name} [${span}] · ${accessInfo(field.type).meaning}`
+                : `Bits ${span}: no field described here`
+            }
+            className={`riscv-csr-cell riscv-csr-cell--${kind}${field && active === field.name ? ' is-active' : ''}`}
+            style={{ gridColumn: `span ${segment.width}`, minHeight: tall ? 84 : 44 }}
+            onMouseEnter={field ? () => onHover(field.name) : undefined}
+            onMouseLeave={field ? () => onHover(null) : undefined}
+            onClick={field ? () => onPick(field.name) : undefined}
+          >
+            <span className="riscv-csr-bits">
+              <span>{segment.high}</span>
+              {segment.width > 1 && <span>{segment.low}</span>}
+            </span>
+            {field && (
+              <span className={`riscv-csr-name${vertical ? ' is-vertical' : ''}`}>
+                {field.name}
+              </span>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
-function conditionLabel(condition) {
-  if (!condition) return 'No additional condition recorded';
-  if (condition.xlen) return `XLEN = ${condition.xlen}`;
-  if (condition.extension?.name) return `Extension ${condition.extension.name}`;
-  if (condition.extension?.anyOf) {
-    return condition.extension.anyOf
-      .map((item) => conditionLabel({ extension: item }))
-      .join(' OR ');
-  }
-  for (const operator of ['allOf', 'anyOf', 'oneOf']) {
-    if (condition[operator]) {
-      return condition[operator].map(conditionLabel).join(` ${operator} `);
-    }
-  }
-  return JSON.stringify(condition);
+const CHIP = 'riscv-csr-pick';
+const CHIP_OFF = '';
+const CHIP_ON = 'is-on';
+
+/**
+ * The extension's CSRs as chips, numbered families folded into one chip that
+ * opens a strip of its members. The family holding the selected CSR opens by
+ * itself, so a search hit on pmpaddr12 lands with its family visible.
+ */
+export function CsrChipList({ csrs, selected, onSelect }) {
+  const items = useMemo(() => groupCsrNames(Object.keys(csrs)), [csrs]);
+  const [openKey, setOpenKey] = useState(null);
+  const selectedFamily = items.find(
+    (item) => item.kind === 'family' && item.members.some((m) => m.name === selected),
+  );
+  const open = openKey ?? selectedFamily?.key ?? null;
+  const openFamily = items.find((item) => item.key === open);
+
+  const tip = (name) => {
+    const csr = csrs[name] || {};
+    return [csr.desc, csr.address, csr.priv_mode && `${csr.priv_mode}-mode`]
+      .filter(Boolean)
+      .join(' · ');
+  };
+
+  return (
+    <>
+      <div className="flex flex-wrap gap-1">
+        {items.map((item) =>
+          item.kind === 'family' ? (
+            <button
+              type="button"
+              key={item.key}
+              aria-expanded={open === item.key}
+              onClick={() => setOpenKey(open === item.key ? '' : item.key)}
+              title={`${item.members.length} registers: ${tip(item.members[0].name)}`}
+              className={`${CHIP} riscv-csr-family ${selectedFamily === item ? CHIP_ON : CHIP_OFF}`}
+            >
+              {item.label.toUpperCase()}
+              <span className="riscv-csr-family-count">{item.members.length}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              key={item.name}
+              aria-pressed={selected === item.name}
+              onClick={() => onSelect(item.name)}
+              title={tip(item.name) || undefined}
+              className={`${CHIP} ${selected === item.name ? CHIP_ON : CHIP_OFF}`}
+            >
+              {item.name.toUpperCase()}
+            </button>
+          ),
+        )}
+      </div>
+      {openFamily && (
+        <div
+          className="riscv-csr-members"
+          role="group"
+          aria-label={`${openFamily.label.toUpperCase()} registers`}
+        >
+          {openFamily.members.map((member) => (
+            <button
+              type="button"
+              key={member.name}
+              aria-pressed={selected === member.name}
+              aria-label={member.name.toUpperCase()}
+              title={tip(member.name) || undefined}
+              onClick={() => onSelect(member.name)}
+              className={`${CHIP} ${selected === member.name ? CHIP_ON : CHIP_OFF}`}
+            >
+              {member.index}
+            </button>
+          ))}
+        </div>
+      )}
+    </>
+  );
 }
 
 export default function CsrDetails({ name, csr, owners = [], onClose }) {
   const [xlen, setXlen] = useState(64);
-  const fields = useMemo(() => Object.entries(csr?.fields || {}), [csr]);
-  const resolved = fields
-    .map(([fieldName, field]) => ({ ...field, name: fieldName, range: bitRange(field.bits, xlen) }))
-    .filter((field) => field.range)
-    .sort((a, b) => b.range.high - a.range.high);
-  const segments = [];
-  let bit = xlen - 1;
-  while (bit >= 0) {
-    const field = resolved.find(({ range }) => range.high === bit);
-    if (field) {
-      const width = field.range.high - field.range.low + 1;
-      segments.push({ field, high: bit, low: field.range.low, width });
-      bit = field.range.low - 1;
-      continue;
-    }
-    const nextField = resolved.find(({ range }) => range.high < bit);
-    const low = nextField ? nextField.range.high + 1 : 0;
-    segments.push({ high: bit, low, width: bit - low + 1 });
-    bit = low - 1;
-  }
+  const [active, setActive] = useState(null);
+  const rowRefs = useRef(new Map());
+  const width = csrWidth(csr, xlen);
+  const { fields, otherXlen } = useMemo(() => csrFields(csr, xlen), [csr, xlen]);
+  const rows = useMemo(() => csrRows(fields, width), [fields, width]);
+  const placed = fields.filter((field) => field.range);
+  const kinds = new Set(placed.map((field) => accessInfo(field.type).kind));
+  const hasGap = rows.some((row) => row.segments.some((segment) => !segment.field));
+  const lengthLabel = csr?.length === 'MXLEN' ? `MXLEN (${width} bits)` : `${width} bits`;
+
+  const pick = (fieldName) => {
+    setActive(fieldName);
+    rowRefs.current.get(fieldName)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  };
 
   return (
-    <section
-      aria-label={`${name} CSR details`}
-      className="mt-3 rounded-sm border p-3"
-      style={{ borderColor: 'var(--riscv-border-2)', background: 'var(--riscv-surface-2)' }}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <h4 className="font-mono font-bold" style={{ color: 'var(--riscv-text)' }}>
-            {name.toUpperCase()}
+    <section aria-label={`${name} CSR details`} className="riscv-csr mt-3">
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h4 className="riscv-csr-title">
+            <span className="font-mono">{name.toUpperCase()}</span>
+            {csr?.desc && <span className="riscv-csr-desc">{csr.desc}</span>}
           </h4>
-          <p className="text-xs" style={{ color: 'var(--riscv-text-3)' }}>
-            {csr?.desc || 'No description in the current source'} · address{' '}
-            {formatAddress(csr?.address)}
-            {csr?.priv_mode ? ` · ${csr.priv_mode}-mode` : ''} · {csr?.length || 'MXLEN'} bits
-          </p>
-          {owners.length > 0 && (
-            <p className="mt-1 text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
-              Listed with: {owners.join(', ')}
-            </p>
-          )}
+          <dl className="riscv-csr-meta">
+            <div>
+              <dt>Address</dt>
+              <dd className="font-mono">{formatAddress(csr?.address)}</dd>
+            </div>
+            {csr?.priv_mode && (
+              <div>
+                <dt>Mode</dt>
+                <dd>{csr.priv_mode}</dd>
+              </div>
+            )}
+            <div>
+              <dt>Width</dt>
+              <dd>{lengthLabel}</dd>
+            </div>
+            {owners.length > 0 && (
+              <div>
+                <dt>Listed with</dt>
+                <dd>{owners.join(', ')}</dd>
+              </div>
+            )}
+          </dl>
         </div>
-        <button type="button" className="riscv-btn px-2 py-1 text-xs" onClick={onClose}>
-          Close
-        </button>
-      </div>
-
-      <div className="mt-3 flex items-center gap-2 text-xs" role="group" aria-label="CSR width">
-        <span style={{ color: 'var(--riscv-text-3)' }}>Register width</span>
-        {[32, 64].map((width) => (
-          <button
-            key={width}
-            type="button"
-            aria-pressed={xlen === width}
-            className="riscv-btn px-2 py-1"
-            onClick={() => setXlen(width)}
-          >
-            RV{width}
-          </button>
-        ))}
-      </div>
-
-      {resolved.length > 0 && (
-        <div className="mt-3 overflow-x-auto">
-          <div
-            className="grid gap-px"
-            style={{
-              gridTemplateColumns: `repeat(${xlen}, minmax(0, 1fr))`,
-              minWidth: `${xlen * 12}px`,
-            }}
-            aria-label={`Known ${xlen}-bit CSR fields`}
-          >
-            {segments.map((segment, index) => {
-              const { field } = segment;
-              return (
-                <div
-                  key={`${segment.high}-${segment.low}-${index}`}
-                  title={
-                    field
-                      ? `${field.name} [${segment.high}:${segment.low}]`
-                      : `Bits ${segment.high}:${segment.low} are not described in the source`
-                  }
-                  className="h-8 overflow-hidden text-center text-[9px] leading-8"
-                  style={{
-                    background: field ? 'var(--riscv-violet-dim)' : 'var(--riscv-surface)',
-                    color: 'var(--riscv-text)',
-                    border: '1px solid var(--riscv-border-2)',
-                    gridColumn: `span ${segment.width}`,
-                  }}
-                >
-                  {field ? `${field.name} ${segment.high}:${segment.low}` : 'Unspecified'}
-                </div>
-              );
-            })}
-          </div>
-          <div
-            className="mt-1 flex justify-between font-mono text-[10px]"
-            style={{ color: 'var(--riscv-text-3)' }}
-          >
-            <span>{xlen - 1}</span>
-            <span>0</span>
-          </div>
-        </div>
-      )}
-
-      <div className="mt-3 overflow-x-auto">
-        <table className="w-full text-left text-xs">
-          <thead style={{ color: 'var(--riscv-text-3)' }}>
-            <tr>
-              <th className="pr-2">Bits</th>
-              <th className="pr-2">Field</th>
-              <th className="pr-2">Access</th>
-              <th className="pr-2">Reset</th>
-              <th>Defined when</th>
-            </tr>
-          </thead>
-          <tbody>
-            {fields.map(([fieldName, field]) => {
-              const bits = typeof field.bits === 'string' ? field.bits : field.bits?.[`rv${xlen}`];
-              return (
-                <tr key={fieldName} style={{ color: 'var(--riscv-text)' }}>
-                  <td className="pr-2 font-mono">{bits || 'not defined for this XLEN'}</td>
-                  <td className="pr-2 font-mono">{fieldName}</td>
-                  <td className="pr-2">
-                    {field.type === 'dynamic' ? 'Configuration-dependent' : field.type || 'Unknown'}
-                  </td>
-                  <td>
-                    {field.reset === 'dynamic'
-                      ? 'Configuration-dependent'
-                      : field.reset || 'Unknown'}
-                  </td>
-                  <td>{conditionLabel(field.defined_by)}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      {resolved.length !== fields.length && (
-        <p className="mt-2 text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
-          Some field positions are symbolic, out of range for RV{xlen}, or unspecified in the source
-          and are listed without a diagram position.
-        </p>
-      )}
-      {!csr?.fields && (
-        <p className="mt-2 text-xs" style={{ color: 'var(--riscv-text-3)' }}>
-          Field data is not available in the current catalogue source.
-        </p>
-      )}
-      {csr?.fields && Object.keys(csr.fields).length === 0 && (
-        <p className="mt-2 text-xs" style={{ color: 'var(--riscv-text-3)' }}>
-          The source defines this CSR but does not provide a field map yet.
-        </p>
-      )}
-      <p className="mt-2 text-[10px]" style={{ color: 'var(--riscv-text-3)' }}>
-        Field positions, access types, reset values, and conditions follow the recorded source;
-        dynamic values depend on the implementation configuration.
-      </p>
-      {csr?.source ? (
-        <a
-          className="mt-1 inline-flex items-center text-[10px] underline"
-          style={{ color: 'var(--riscv-violet)' }}
-          href={csr.source}
-          target="_blank"
-          rel="noreferrer"
+        <button
+          type="button"
+          className="riscv-btn p-1"
+          onClick={onClose}
+          aria-label={`Close ${name.toUpperCase()} details`}
+          title="Close"
         >
-          Open pinned CSR source
-        </a>
-      ) : (
-        <p className="mt-1 text-[10px]" style={{ color: 'var(--riscv-text-3)' }}>
-          No upstream CSR source is recorded for this entry.
-        </p>
+          <X size={14} />
+        </button>
+      </header>
+
+      {csrDependsOnXlen(csr) && (
+        <div className="riscv-csr-xlen" role="group" aria-label="Register width">
+          {[32, 64].map((value) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={xlen === value}
+              onClick={() => {
+                setXlen(value);
+                setActive(null);
+              }}
+            >
+              RV{value}
+            </button>
+          ))}
+        </div>
       )}
+
+      {placed.length > 0 && (
+        <>
+          <div
+            className="riscv-csr-diagram"
+            role="img"
+            aria-label={`${name.toUpperCase()} bit layout, ${width} bits: ${placed
+              .map(
+                (field) =>
+                  `${field.name} ${field.range.high}${field.range.high === field.range.low ? '' : `-${field.range.low}`}`,
+              )
+              .join(', ')}`}
+          >
+            {rows.map((row) => (
+              <DiagramRow
+                key={row.high}
+                row={row}
+                active={active}
+                onHover={setActive}
+                onPick={pick}
+              />
+            ))}
+          </div>
+          <ul className="riscv-csr-legend" aria-label="Access types">
+            {KIND_LEGEND.filter(({ kind }) => kinds.has(kind)).map(({ kind, label }) => (
+              <li key={kind}>
+                <span className={`riscv-csr-swatch riscv-csr-cell--${kind}`} aria-hidden="true" />
+                {label}
+              </li>
+            ))}
+            {hasGap && (
+              <li>
+                <span className="riscv-csr-swatch riscv-csr-cell--gap" aria-hidden="true" />
+                No field described
+              </li>
+            )}
+          </ul>
+        </>
+      )}
+
+      {fields.length > 0 && (
+        <div className="riscv-csr-table-wrap">
+          <table className="riscv-csr-table">
+            <thead>
+              <tr>
+                <th scope="col">Bits</th>
+                <th scope="col">Field</th>
+                <th scope="col">Access</th>
+                <th scope="col">Reset</th>
+                <th scope="col">Present when</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fields.map((field) => {
+                const access = accessInfo(field.type);
+                const terms = conditionTerms(field.defined_by, xlen);
+                const bits = field.range
+                  ? field.range.high === field.range.low
+                    ? `${field.range.high}`
+                    : `${field.range.high}:${field.range.low}`
+                  : '—';
+                return (
+                  <tr
+                    key={field.name}
+                    ref={(node) => {
+                      if (node) rowRefs.current.set(field.name, node);
+                      else rowRefs.current.delete(field.name);
+                    }}
+                    className={active === field.name ? 'is-active' : undefined}
+                    onMouseEnter={() => setActive(field.name)}
+                    onMouseLeave={() => setActive(null)}
+                  >
+                    <td className="font-mono whitespace-nowrap">{bits}</td>
+                    <td className="font-mono font-semibold">{field.name}</td>
+                    <td>
+                      <span
+                        className={`riscv-csr-chip riscv-csr-cell--${access.kind}`}
+                        title={access.meaning}
+                      >
+                        {access.label}
+                      </span>
+                    </td>
+                    <td className="whitespace-nowrap">
+                      <span
+                        className={
+                          /^\d+$/.test(String(field.reset)) ? 'font-mono' : 'riscv-csr-muted'
+                        }
+                      >
+                        {resetLabel(field.reset)}
+                      </span>
+                    </td>
+                    <td>
+                      {terms.length === 0 ? (
+                        <span className="riscv-csr-muted">Always</span>
+                      ) : (
+                        <span className="riscv-csr-terms">
+                          {terms.map((term) => (
+                            <span key={term} className="riscv-csr-term">
+                              {term}
+                            </span>
+                          ))}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="riscv-csr-notes">
+        {otherXlen > 0 && (
+          <p>
+            {otherXlen} {otherXlen === 1 ? 'field exists' : 'fields exist'} only in RV
+            {xlen === 64 ? 32 : 64}.
+          </p>
+        )}
+        {placed.length !== fields.length && (
+          <p>Fields marked — have a position that depends on the configuration.</p>
+        )}
+        {!csr?.fields && <p>Field data is not available in the current catalogue source.</p>}
+        {csr?.fields && Object.keys(csr.fields).length === 0 && (
+          <p>The source defines this CSR but does not provide a field map yet.</p>
+        )}
+        <p>
+          From riscv-unified-db. &ldquo;Config&rdquo; access and reset values depend on the
+          implementation&rsquo;s parameters.{' '}
+          {csr?.source && (
+            <a href={csr.source} target="_blank" rel="noreferrer">
+              View source
+            </a>
+          )}
+        </p>
+      </div>
     </section>
   );
 }

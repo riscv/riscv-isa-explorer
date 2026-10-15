@@ -56,7 +56,7 @@ import InstructionUsage from './InstructionUsage.jsx';
 import DetailSection from './DetailSection.jsx';
 import { specificationLink } from './specLink.js';
 import { ExtensionToolchains } from './ToolchainSupport.jsx';
-import CsrDetails from './CsrDetails.jsx';
+import CsrDetails, { CsrChipList } from './CsrDetails.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import { computeLockedExtensions, missingMandatory } from './workspaceLock.js';
 import { parameterNames } from './isaParams.js';
@@ -4730,39 +4730,14 @@ const RISCVExplorer = () => {
                             {extensionCsrLabels[selectedExt.id] || 'CSRs'} (
                             {Object.keys(selectedExt.csrs).length})
                           </h3>
-                          <div className="flex flex-wrap gap-1">
-                            {Object.keys(selectedExt.csrs)
-                              .sort()
-                              .map((name) => {
-                                const csr = selectedExt.csrs[name] || {};
-                                // Address and description are what identify a CSR;
-                                // both ride along in the catalogue entry.
-                                const tip = [
-                                  csr.desc,
-                                  csr.address,
-                                  csr.priv_mode && `${csr.priv_mode}-mode`,
-                                ]
-                                  .filter(Boolean)
-                                  .join(' · ');
-                                return (
-                                  <button
-                                    type="button"
-                                    key={name}
-                                    aria-pressed={selectedCsrName === name}
-                                    onClick={() => {
-                                      setSelectedInstruction(null);
-                                      setSelectedCsrName((current) =>
-                                        current === name ? null : name,
-                                      );
-                                    }}
-                                    title={tip || undefined}
-                                    className={`px-1.5 py-0.5 rounded-sm border text-[11px] font-mono ${selectedCsrName === name ? 'border-sky-400 bg-sky-500/20 text-sky-100' : 'border-slate-700 bg-slate-800/70 text-slate-200'}`}
-                                  >
-                                    {name.toUpperCase()}
-                                  </button>
-                                );
-                              })}
-                          </div>
+                          <CsrChipList
+                            csrs={selectedExt.csrs}
+                            selected={selectedCsrName}
+                            onSelect={(name) => {
+                              setSelectedInstruction(null);
+                              setSelectedCsrName((current) => (current === name ? null : name));
+                            }}
+                          />
                           {selectedCsrName && selectedExt.csrs[selectedCsrName] && (
                             <CsrDetails
                               name={selectedCsrName}

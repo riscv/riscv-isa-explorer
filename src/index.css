@@ -2951,3 +2951,345 @@ pre,
   outline-offset: -2px;
   z-index: 10;
 }
+
+/* ─── CSR details ────────────────────────────────────────────────────────────
+   Register diagram in 32-bit rows plus the field table. Cells are coloured by
+   what software can do with the field (UDB's access type), not by field, so
+   a glance answers "what can I write here". Fills are low-alpha washes and
+   all text stays on --riscv-text, so contrast rests on the surface tokens
+   that already clear AA in both themes. */
+:root {
+  --riscv-csr-rw: rgba(56, 189, 248, 0.16);
+  --riscv-csr-rw-edge: #38bdf8;
+  --riscv-csr-hw: rgba(245, 158, 11, 0.16);
+  --riscv-csr-hw-edge: #f59e0b;
+  --riscv-csr-ro: rgba(148, 163, 184, 0.14);
+  --riscv-csr-ro-edge: #94a3b8;
+  --riscv-csr-cfg: rgba(139, 124, 248, 0.18);
+  --riscv-csr-cfg-edge: #8b7cf8;
+  --riscv-csr-gap-line: rgba(255, 255, 255, 0.06);
+}
+:root[data-theme='light'] {
+  --riscv-csr-rw: rgba(3, 105, 161, 0.1);
+  --riscv-csr-rw-edge: #0369a1;
+  --riscv-csr-hw: rgba(176, 111, 5, 0.12);
+  --riscv-csr-hw-edge: #b06f05;
+  --riscv-csr-ro: rgba(100, 116, 139, 0.12);
+  --riscv-csr-ro-edge: #64748b;
+  --riscv-csr-cfg: rgba(109, 91, 208, 0.12);
+  --riscv-csr-cfg-edge: #6d5bd0;
+  --riscv-csr-gap-line: rgba(45, 40, 80, 0.08);
+}
+
+.riscv-csr {
+  border: 1px solid var(--riscv-border-2);
+  background: var(--riscv-surface-2);
+  border-radius: 4px;
+  padding: 12px;
+  color: var(--riscv-text);
+}
+.riscv-csr-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.riscv-csr-desc {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--riscv-text-2);
+}
+.riscv-csr-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 6px;
+  font-size: 11px;
+}
+.riscv-csr-meta > div {
+  display: flex;
+  gap: 5px;
+}
+.riscv-csr-meta dt {
+  color: var(--riscv-text-3);
+}
+.riscv-csr-meta dd {
+  color: var(--riscv-text);
+  font-weight: 600;
+}
+
+.riscv-csr-xlen {
+  display: inline-flex;
+  margin-top: 10px;
+  border: 1px solid var(--riscv-border-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.riscv-csr-xlen button {
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--riscv-text-2);
+  background: transparent;
+}
+.riscv-csr-xlen button + button {
+  border-left: 1px solid var(--riscv-border-2);
+}
+.riscv-csr-xlen button[aria-pressed='true'] {
+  background: var(--riscv-violet-dim);
+  color: var(--riscv-text);
+}
+.riscv-csr-xlen button:focus-visible {
+  outline: 2px solid var(--riscv-violet);
+  outline-offset: -2px;
+}
+
+.riscv-csr-diagram {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+  overflow-x: auto;
+}
+.riscv-csr-row {
+  display: grid;
+  min-width: 320px;
+}
+.riscv-csr-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding: 2px 1px 4px;
+  border: 1px solid var(--riscv-border-2);
+  margin-left: -1px;
+  overflow: hidden;
+  cursor: default;
+}
+.riscv-csr-row > .riscv-csr-cell:first-child {
+  margin-left: 0;
+}
+.riscv-csr-cell--rw {
+  background: var(--riscv-csr-rw);
+  box-shadow: inset 0 3px 0 var(--riscv-csr-rw-edge);
+}
+.riscv-csr-cell--hw {
+  background: var(--riscv-csr-hw);
+  box-shadow: inset 0 3px 0 var(--riscv-csr-hw-edge);
+}
+.riscv-csr-cell--ro {
+  background: var(--riscv-csr-ro);
+  box-shadow: inset 0 3px 0 var(--riscv-csr-ro-edge);
+}
+.riscv-csr-cell--cfg {
+  background: var(--riscv-csr-cfg);
+  box-shadow: inset 0 3px 0 var(--riscv-csr-cfg-edge);
+}
+.riscv-csr-cell--gap {
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 4px,
+    var(--riscv-csr-gap-line) 4px 5px
+  );
+}
+.riscv-csr-cell:not(.riscv-csr-cell--gap) {
+  cursor: pointer;
+}
+.riscv-csr-cell.is-active {
+  outline: 2px solid var(--riscv-violet);
+  outline-offset: -2px;
+  z-index: 1;
+}
+.riscv-csr-bits {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1px 2px 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+  line-height: 1.1;
+  color: var(--riscv-text-3);
+}
+.riscv-csr-bits > span:only-child {
+  margin: 0 auto;
+}
+.riscv-csr-name {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  max-width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.riscv-csr-name.is-vertical {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 9px;
+  max-height: 68px;
+}
+
+.riscv-csr-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 8px;
+  font-size: 10px;
+  color: var(--riscv-text-2);
+}
+.riscv-csr-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.riscv-csr-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 10px;
+  border: 1px solid var(--riscv-border-2);
+}
+
+.riscv-csr-table-wrap {
+  margin-top: 12px;
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid var(--riscv-border);
+  border-radius: 4px;
+}
+.riscv-csr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  text-align: left;
+}
+.riscv-csr-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 5px 8px;
+  background: var(--riscv-surface);
+  color: var(--riscv-text-3);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--riscv-border-2);
+}
+.riscv-csr-table td {
+  padding: 4px 8px;
+  vertical-align: top;
+  border-top: 1px solid var(--riscv-border);
+}
+.riscv-csr-table tbody tr.is-active {
+  background: var(--riscv-violet-dim);
+}
+.riscv-csr-chip {
+  display: inline-block;
+  padding: 0 6px;
+  border-radius: 3px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 18px;
+  white-space: nowrap;
+}
+.riscv-csr-terms {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.riscv-csr-term {
+  padding: 0 5px;
+  border: 1px solid var(--riscv-border-2);
+  border-radius: 3px;
+  font-size: 10px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+.riscv-csr-muted {
+  color: var(--riscv-text-3);
+}
+.riscv-csr-notes {
+  margin-top: 8px;
+  font-size: 10px;
+  color: var(--riscv-text-3);
+}
+.riscv-csr-notes p + p {
+  margin-top: 2px;
+}
+.riscv-csr-notes a {
+  color: var(--riscv-violet);
+  text-decoration: underline;
+}
+/* Chips and swatches carry the access colour as a full edge, not the
+   diagram's top stripe, which reads as a rendering fault at chip size. */
+.riscv-csr-chip.riscv-csr-cell--rw,
+.riscv-csr-swatch.riscv-csr-cell--rw {
+  box-shadow: none;
+  border: 1px solid var(--riscv-csr-rw-edge);
+}
+.riscv-csr-chip.riscv-csr-cell--hw,
+.riscv-csr-swatch.riscv-csr-cell--hw {
+  box-shadow: none;
+  border: 1px solid var(--riscv-csr-hw-edge);
+}
+.riscv-csr-chip.riscv-csr-cell--ro,
+.riscv-csr-swatch.riscv-csr-cell--ro {
+  box-shadow: none;
+  border: 1px solid var(--riscv-csr-ro-edge);
+}
+.riscv-csr-chip.riscv-csr-cell--cfg,
+.riscv-csr-swatch.riscv-csr-cell--cfg {
+  box-shadow: none;
+  border: 1px solid var(--riscv-csr-cfg-edge);
+}
+.riscv-csr-family {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.riscv-csr-family-count {
+  padding: 0 4px;
+  border-radius: 6px;
+  font-size: 9px;
+  line-height: 14px;
+  background: var(--riscv-tint-4);
+}
+.riscv-csr-members {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(34px, 1fr));
+  gap: 3px;
+  margin-top: 6px;
+  padding: 6px;
+  border: 1px dashed var(--riscv-border-2);
+  border-radius: 4px;
+}
+/* CSR chips use theme tokens. The Tailwind sky-100 they used before left the
+   selected chip unreadable on the light theme. */
+.riscv-csr-pick {
+  padding: 1px 6px;
+  border: 1px solid var(--riscv-border-2);
+  border-radius: 3px;
+  background: var(--riscv-tint-2);
+  color: var(--riscv-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+}
+.riscv-csr-pick:hover {
+  border-color: var(--riscv-violet);
+}
+.riscv-csr-pick.is-on {
+  border-color: var(--riscv-violet);
+  background: var(--riscv-violet-dim);
+  font-weight: 700;
+}
+.riscv-csr-pick:focus-visible {
+  outline: 2px solid var(--riscv-violet);
+  outline-offset: 1px;
+}
