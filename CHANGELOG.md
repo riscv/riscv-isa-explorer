@@ -13,6 +13,14 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Fixed
+
+- **The Use Case box is readable in the light theme.** A rule meant to darken
+  the catalogue's coloured group headings also caught the details panel's own
+  sections, so the white Use Case box was halved to mid-grey with muddy text,
+  and the Description and Toolchain support sections were dimmed too. The rule
+  now stops at the details panel; Use Case text reads at 6.6:1.
+
 ### Changed
 
 - **Instruction details in clear sections.** The card is grouped into three

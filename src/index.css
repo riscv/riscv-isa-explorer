@@ -1279,8 +1279,12 @@ pre,
    the groups. Measured across all 15: min 5.17:1, max 7.81:1.
 
    :has() lets one rule catch the icon alongside its heading, so the two do not
-   drift apart. New sections inherit this automatically. */
-:root[data-theme='light'] div:has(> h3.uppercase.tracking-widest) {
+   drift apart. New sections inherit this automatically.
+
+   Scoped to the catalogue: the details panel uses the same heading style for
+   its own sections, which already carry theme colours, and darkening them
+   halved a white box to mid-grey (the Use Case card) along with its text. */
+:root[data-theme='light'] div:has(> h3.uppercase.tracking-widest):not(#detail-panel div) {
   filter: brightness(0.5) saturate(1.5);
 }
 
