@@ -125,7 +125,19 @@ function ReferenceLink({ name, open, missing, url, commit, parts }) {
   );
 }
 
-export default function InstructionUsage({ extension, instruction, catalogIds, expanded = false }) {
+/*
+ * `part` picks what to render: 'write' (assembly, intrinsic, Compiler
+ * Explorer), 'references' (Sail, Spike, ACT), or everything when omitted, as
+ * the expanded view shows it. The details card puts the two parts in their
+ * own sections.
+ */
+export default function InstructionUsage({
+  extension,
+  instruction,
+  catalogIds,
+  expanded = false,
+  part = null,
+}) {
   const usage = React.useMemo(() => {
     const key = String(instruction?.mnemonic || '').toLowerCase();
     if (!key) return null;
@@ -169,10 +181,22 @@ export default function InstructionUsage({ extension, instruction, catalogIds, e
   }, [extension?.id, instruction, catalogIds]);
 
   if (!usage) return null;
+  const write = part === null || part === 'write';
+  const references = part === null || part === 'references';
+
+  // The 'write' section on its own needs something to say when UDB records no
+  // syntax and there is no intrinsic or example to compile.
+  if (part === 'write' && !usage.syntax && !usage.intrinsic && !usage.explorer) {
+    return (
+      <p className="text-[12px]" style={{ color: 'var(--riscv-text-3)' }}>
+        No assembly syntax is recorded for this instruction in riscv-unified-db.
+      </p>
+    );
+  }
 
   return (
     <div className="space-y-3">
-      {usage.syntax && (
+      {write && usage.syntax && (
         <div>
           <Label expanded={expanded}>Assembly</Label>
           <Code expanded={expanded}>{usage.syntax}</Code>
@@ -198,7 +222,7 @@ export default function InstructionUsage({ extension, instruction, catalogIds, e
         </div>
       )}
 
-      {usage.intrinsic && (
+      {write && usage.intrinsic && (
         <div>
           <Label expanded={expanded}>C intrinsic</Label>
           <Code expanded={expanded}>{usage.intrinsic.prototype}</Code>
@@ -230,16 +254,7 @@ export default function InstructionUsage({ extension, instruction, catalogIds, e
         </div>
       )}
 
-      <div>
-        <Label expanded={expanded}>Reference implementations and tests</Label>
-        <div className="flex flex-wrap gap-1.5">
-          {REFERENCE_MODELS.map(({ key, ...model }) => (
-            <ReferenceLink key={key} {...model} {...usage.references[key]} />
-          ))}
-        </div>
-      </div>
-
-      {usage.explorer && (
+      {write && usage.explorer && (
         <a
           className="inline-flex items-center gap-1.5 px-2 py-1 riscv-btn"
           href={usage.explorer}
@@ -251,6 +266,19 @@ export default function InstructionUsage({ extension, instruction, catalogIds, e
           Try in Compiler Explorer
           <ArrowUpRight size={11} />
         </a>
+      )}
+
+      {references && (
+        <div>
+          {/* The section heading says it in the card; the expanded view, which
+              shows everything at once, still needs the label. */}
+          {part === null && <Label expanded={expanded}>Reference implementations and tests</Label>}
+          <div className="flex flex-wrap gap-1.5">
+            {REFERENCE_MODELS.map(({ key, ...model }) => (
+              <ReferenceLink key={key} {...model} {...usage.references[key]} />
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

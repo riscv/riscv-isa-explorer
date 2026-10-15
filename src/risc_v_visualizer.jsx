@@ -44,6 +44,7 @@ import {
   Sun,
   Moon,
   GitCompare,
+  PenLine,
 } from 'lucide-react';
 import extensions from './riscv_extensions.json';
 import instructionMetadata from './instruction-metadata.json';
@@ -52,6 +53,7 @@ import ExtensionTile from './ExtensionTile.jsx';
 import CompareView from './CompareView.jsx';
 import EncodingDiagram from './EncodingDiagram.jsx';
 import InstructionUsage from './InstructionUsage.jsx';
+import DetailSection from './DetailSection.jsx';
 import { specificationLink } from './specLink.js';
 import { ExtensionToolchains } from './ToolchainSupport.jsx';
 import CsrDetails from './CsrDetails.jsx';
@@ -246,6 +248,13 @@ const profileFromUrl = () => {
 const EncodingMap = React.lazy(() => import('./EncodingMap.jsx'));
 const WorkspacePanel = React.lazy(() => import('./WorkspacePanel.jsx'));
 const ExtensionEvolution = React.lazy(() => import('./ExtensionEvolution.jsx'));
+
+/* The instruction details card's sections, in order, for its jump links. */
+const INSTRUCTION_SECTIONS = [
+  { id: 'insn-write', title: 'Write it' },
+  { id: 'insn-encoding', title: 'Encoding' },
+  { id: 'insn-references', title: 'Implementations and tests' },
+];
 const ToolchainTimeline = React.lazy(() => import('./ToolchainTimeline.jsx'));
 
 /**
@@ -4879,13 +4888,15 @@ const RISCVExplorer = () => {
                               </button>
                               <button
                                 type="button"
-                                className="text-[11px] font-mono text-slate-500 hover:text-slate-300"
+                                className="inline-flex items-center gap-1 px-2 py-1 riscv-btn"
+                                aria-label="Close the instruction details"
                                 onClick={() => {
                                   // Back to the extension, once the details are gone (see the effect).
                                   returnToNameRef.current = true;
                                   setSelectedInstruction(null);
                                 }}
                               >
+                                <X size={12} aria-hidden="true" />
                                 Close
                               </button>
                             </div>
@@ -4922,7 +4933,7 @@ const RISCVExplorer = () => {
                                     target="_blank"
                                     rel="noreferrer"
                                   >
-                                    Unified DB source <ArrowUpRight size={11} />
+                                    Source: riscv-unified-db <ArrowUpRight size={11} />
                                   </a>
                                 </div>
                               )}
@@ -4939,178 +4950,220 @@ const RISCVExplorer = () => {
                             )}
                           </div>
 
+                          {/* Jump links: the card runs long, and each section is
+                              a heading a screen reader can also reach directly. */}
+                          <nav
+                            aria-label="Instruction details sections"
+                            className="mb-3 flex flex-wrap items-center gap-1.5 text-[11px]"
+                          >
+                            <span style={{ color: 'var(--riscv-text-3)' }}>Jump to:</span>
+                            {INSTRUCTION_SECTIONS.map(({ id, title }) => (
+                              <button
+                                key={id}
+                                type="button"
+                                className="px-2 py-0.5 riscv-btn"
+                                onClick={() => {
+                                  const target = document.getElementById(id);
+                                  if (!target) return;
+                                  scrollPanelTo(target);
+                                  target.focus({ preventScroll: true });
+                                }}
+                              >
+                                {title}
+                              </button>
+                            ))}
+                          </nav>
+
                           <div className="space-y-3">
-                            <InstructionUsage
-                              extension={selectedExt}
-                              instruction={selectedInstruction}
-                              catalogIds={BUILDER_CHECKS.catalogIds}
-                            />
-                            <div>
-                              <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
-                                Encoding
-                              </div>
-                              <EncodingDiagram encoding={selectedInstruction.encoding} />
-                              <div className="mt-1 text-[11px] text-slate-500">
-                                Fixed bits are <span className="font-mono">0/1</span>, variable bits
-                                are <span className="font-mono">x</span>.
-                              </div>
-                            </div>
+                            <DetailSection id="insn-write" icon={PenLine} title="Write it">
+                              <InstructionUsage
+                                extension={selectedExt}
+                                instruction={selectedInstruction}
+                                catalogIds={BUILDER_CHECKS.catalogIds}
+                                part="write"
+                              />
+                            </DetailSection>
 
-                            <div>
-                              <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
-                                Variable Fields
+                            <DetailSection id="insn-encoding" icon={Binary} title="Encoding">
+                              <div>
+                                <EncodingDiagram encoding={selectedInstruction.encoding} />
+                                <div className="mt-1 text-[11px] text-slate-500">
+                                  Fixed bits are <span className="font-mono">0/1</span>, variable
+                                  bits are <span className="font-mono">x</span>.
+                                </div>
                               </div>
-                              <div className="flex flex-wrap gap-1">
-                                {(selectedInstruction.variable_fields || []).map((field) => (
-                                  <span
-                                    key={field}
-                                    className="px-1.5 py-0.5 rounded-sm border border-slate-700 bg-slate-800/70 text-[11px] font-mono text-slate-200"
+
+                              <div>
+                                <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
+                                  Variable Fields
+                                </div>
+                                <div className="flex flex-wrap gap-1">
+                                  {(selectedInstruction.variable_fields || []).map((field) => (
+                                    <span
+                                      key={field}
+                                      className="px-1.5 py-0.5 rounded-sm border border-slate-700 bg-slate-800/70 text-[11px] font-mono text-slate-200"
+                                    >
+                                      {field}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
+                                    Match
+                                  </div>
+                                  <div
+                                    className={`font-mono text-[12px] text-slate-100 bg-slate-800/70 border rounded px-2 py-1 ${
+                                      searchQuery.trim().length &&
+                                      String(selectedInstruction.match || '')
+                                        .toLowerCase()
+                                        .includes(searchQuery.trim().toLowerCase())
+                                        ? 'border-yellow-400 bg-yellow-500/10'
+                                        : 'border-slate-700'
+                                    }`}
                                   >
-                                    {field}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2">
-                              <div>
-                                <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
-                                  Match
-                                </div>
-                                <div
-                                  className={`font-mono text-[12px] text-slate-100 bg-slate-800/70 border rounded px-2 py-1 ${
-                                    searchQuery.trim().length &&
-                                    String(selectedInstruction.match || '')
-                                      .toLowerCase()
-                                      .includes(searchQuery.trim().toLowerCase())
-                                      ? 'border-yellow-400 bg-yellow-500/10'
-                                      : 'border-slate-700'
-                                  }`}
-                                >
-                                  {selectedInstruction.match}
-                                </div>
-                              </div>
-                              <div>
-                                <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
-                                  Mask
-                                </div>
-                                <div
-                                  className={`font-mono text-[12px] text-slate-100 bg-slate-800/70 border rounded px-2 py-1 ${
-                                    searchQuery.trim().length &&
-                                    String(selectedInstruction.mask || '')
-                                      .toLowerCase()
-                                      .includes(searchQuery.trim().toLowerCase())
-                                      ? 'border-yellow-400 bg-yellow-500/10'
-                                      : 'border-slate-700'
-                                  }`}
-                                >
-                                  {selectedInstruction.mask}
-                                </div>
-                              </div>
-                            </div>
-
-                            {compressedMapping && (
-                              <div className="rounded-sm border border-slate-700 bg-slate-950/50 p-3">
-                                <div className="text-[11px] uppercase tracking-wider text-cyan-300 font-bold mb-2">
-                                  Compressed Mapping
-                                </div>
-                                <div className="space-y-2">
-                                  <div>
-                                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
-                                      Compressed
-                                    </div>
-                                    <div className="font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded-sm px-2 py-1">
-                                      {compressedMapping.compressed}
-                                    </div>
+                                    {selectedInstruction.match}
                                   </div>
-                                  <div>
-                                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
-                                      Standard Equivalent
-                                    </div>
-                                    {hasStandardEquivalent ? (
-                                      <button
-                                        type="button"
-                                        className="w-full text-left font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded-sm px-2 py-1 hover:border-cyan-400/60"
-                                        onClick={() =>
-                                          selectStandardEquivalent(standardEquivalentMnemonic)
-                                        }
-                                        data-tooltip="Open standard instruction details"
-                                      >
-                                        <span className="inline-flex items-center gap-1">
-                                          {compressedMapping.standard}
-                                          <ArrowUpRight size={12} className="opacity-70" />
-                                        </span>
-                                      </button>
-                                    ) : (
-                                      <div className="font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded-sm px-2 py-1">
-                                        {compressedMapping.standard}
+                                </div>
+                                <div>
+                                  <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
+                                    Mask
+                                  </div>
+                                  <div
+                                    className={`font-mono text-[12px] text-slate-100 bg-slate-800/70 border rounded px-2 py-1 ${
+                                      searchQuery.trim().length &&
+                                      String(selectedInstruction.mask || '')
+                                        .toLowerCase()
+                                        .includes(searchQuery.trim().toLowerCase())
+                                        ? 'border-yellow-400 bg-yellow-500/10'
+                                        : 'border-slate-700'
+                                    }`}
+                                  >
+                                    {selectedInstruction.mask}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {compressedMapping && (
+                                <div className="rounded-sm border border-slate-700 bg-slate-950/50 p-3">
+                                  <div className="text-[11px] uppercase tracking-wider text-cyan-300 font-bold mb-2">
+                                    Compressed Mapping
+                                  </div>
+                                  <div className="space-y-2">
+                                    <div>
+                                      <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
+                                        Compressed
                                       </div>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
-                                      Equivalent Instruction
+                                      <div className="font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded-sm px-2 py-1">
+                                        {compressedMapping.compressed}
+                                      </div>
                                     </div>
-                                    {standardEquivalentMnemonic ? (
-                                      hasStandardEquivalent ? (
+                                    <div>
+                                      <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
+                                        Standard Equivalent
+                                      </div>
+                                      {hasStandardEquivalent ? (
                                         <button
                                           type="button"
-                                          className="inline-flex items-center gap-1 text-[12px] font-mono text-cyan-200 hover:text-cyan-100 underline"
+                                          className="w-full text-left font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded-sm px-2 py-1 hover:border-cyan-400/60"
                                           onClick={() =>
                                             selectStandardEquivalent(standardEquivalentMnemonic)
                                           }
                                           data-tooltip="Open standard instruction details"
                                         >
-                                          {standardEquivalentMnemonic}
-                                          <ArrowUpRight size={12} className="opacity-70" />
+                                          <span className="inline-flex items-center gap-1">
+                                            {compressedMapping.standard}
+                                            <ArrowUpRight size={12} className="opacity-70" />
+                                          </span>
                                         </button>
                                       ) : (
-                                        <div className="text-[12px] text-slate-500 font-mono">
-                                          {standardEquivalentMnemonic}
+                                        <div className="font-mono text-[12px] text-slate-100 bg-slate-800/70 border border-slate-700 rounded-sm px-2 py-1">
+                                          {compressedMapping.standard}
                                         </div>
-                                      )
-                                    ) : (
-                                      <div className="text-[12px] text-slate-500">Unavailable</div>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
-                                      Description
+                                      )}
                                     </div>
-                                    <div className="text-[12px] text-slate-200">
-                                      {compressedMapping.description}
+                                    <div>
+                                      <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
+                                        Equivalent Instruction
+                                      </div>
+                                      {standardEquivalentMnemonic ? (
+                                        hasStandardEquivalent ? (
+                                          <button
+                                            type="button"
+                                            className="inline-flex items-center gap-1 text-[12px] font-mono text-cyan-200 hover:text-cyan-100 underline"
+                                            onClick={() =>
+                                              selectStandardEquivalent(standardEquivalentMnemonic)
+                                            }
+                                            data-tooltip="Open standard instruction details"
+                                          >
+                                            {standardEquivalentMnemonic}
+                                            <ArrowUpRight size={12} className="opacity-70" />
+                                          </button>
+                                        ) : (
+                                          <div className="text-[12px] text-slate-500 font-mono">
+                                            {standardEquivalentMnemonic}
+                                          </div>
+                                        )
+                                      ) : (
+                                        <div className="text-[12px] text-slate-500">
+                                          Unavailable
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <div className="text-[11px] uppercase tracking-wider text-slate-500 font-bold mb-1">
+                                        Description
+                                      </div>
+                                      <div className="text-[12px] text-slate-200">
+                                        {compressedMapping.description}
+                                      </div>
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
 
-                            {compressedEquivalents.length > 0 && (
-                              <div className="rounded-sm border border-slate-700 bg-slate-950/40 p-3">
-                                <div className="text-[11px] uppercase tracking-wider text-emerald-300 font-bold mb-2">
-                                  Compressed Equivalents
+                              {compressedEquivalents.length > 0 && (
+                                <div className="rounded-sm border border-slate-700 bg-slate-950/40 p-3">
+                                  <div className="text-[11px] uppercase tracking-wider text-emerald-300 font-bold mb-2">
+                                    Compressed Equivalents
+                                  </div>
+                                  <div className="space-y-2">
+                                    {compressedEquivalents.map((entry) => (
+                                      <button
+                                        key={entry.mnemonic}
+                                        type="button"
+                                        className="w-full text-left rounded-sm border border-slate-700 bg-slate-900/60 px-2 py-1.5 hover:border-emerald-400/60"
+                                        onClick={() => selectCompressedEquivalent(entry.mnemonic)}
+                                        data-tooltip={`Open ${entry.mnemonic} details`}
+                                      >
+                                        <div className="flex items-center gap-1 text-[12px] font-mono text-emerald-200">
+                                          {normalizeMnemonicKey(entry.mnemonic)}
+                                          <ArrowUpRight size={12} className="opacity-70" />
+                                        </div>
+                                        <div className="text-[11px] font-mono text-slate-400">
+                                          {entry.compressed}
+                                        </div>
+                                      </button>
+                                    ))}
+                                  </div>
                                 </div>
-                                <div className="space-y-2">
-                                  {compressedEquivalents.map((entry) => (
-                                    <button
-                                      key={entry.mnemonic}
-                                      type="button"
-                                      className="w-full text-left rounded-sm border border-slate-700 bg-slate-900/60 px-2 py-1.5 hover:border-emerald-400/60"
-                                      onClick={() => selectCompressedEquivalent(entry.mnemonic)}
-                                      data-tooltip={`Open ${entry.mnemonic} details`}
-                                    >
-                                      <div className="flex items-center gap-1 text-[12px] font-mono text-emerald-200">
-                                        {normalizeMnemonicKey(entry.mnemonic)}
-                                        <ArrowUpRight size={12} className="opacity-70" />
-                                      </div>
-                                      <div className="text-[11px] font-mono text-slate-400">
-                                        {entry.compressed}
-                                      </div>
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
+                              )}
+                            </DetailSection>
+
+                            <DetailSection
+                              id="insn-references"
+                              icon={FlaskConical}
+                              title="Implementations and tests"
+                            >
+                              <InstructionUsage
+                                extension={selectedExt}
+                                instruction={selectedInstruction}
+                                catalogIds={BUILDER_CHECKS.catalogIds}
+                                part="references"
+                              />
+                            </DetailSection>
                           </div>
                         </div>
                       )}

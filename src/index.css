@@ -2828,6 +2828,13 @@ pre,
   font-weight: 700;
 }
 
+/* One titled section of the instruction details (DetailSection.jsx): a light
+   box on the card's surface, so the card reads as separate parts. */
+.riscv-detail-section {
+  background: var(--riscv-tint-1);
+  border: 1px solid var(--riscv-border);
+}
+
 /* Toolchain timeline (ToolchainTimeline.jsx): one stepped line per tool,
    coloured from the equal-luminance palette above, over a dashed reference. */
 .riscv-tl {

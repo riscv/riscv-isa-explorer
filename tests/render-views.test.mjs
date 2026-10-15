@@ -125,9 +125,14 @@ test('picking an instruction shows its details, references and encoding, and Clo
   assert.equal(document.activeElement, details, 'focus did not move to the details');
   const links = [...details.querySelectorAll('a')].map((a) => a.textContent.trim());
   for (const name of ['Sail', 'Spike']) assert.ok(links.includes(name), `${name} link missing`);
-  assert.match(details.textContent, /Reference implementations and tests/);
+  assert.match(details.textContent, /Implementations and tests/);
   assert.match(details.textContent, /ACT/);
   assert.ok(details.querySelector('svg, [class*="encoding"], table'), 'encoding diagram missing');
+  // Three titled sections, each a real heading, with jump links that move focus.
+  const headings = [...details.querySelectorAll('section h4')].map((h) => h.textContent.trim());
+  assert.deepEqual(headings, ['Write it', 'Encoding', 'Implementations and tests']);
+  button(details.querySelector('nav'), 'Encoding').click();
+  assert.equal(document.activeElement?.id, 'insn-encoding', 'the jump link did not move focus');
   button(details, 'Close').click();
   await waitFor(() => !document.querySelector('[aria-label^="Instruction details"]'));
   // Waited for, not read at once: on a slow runner the re-render that removes

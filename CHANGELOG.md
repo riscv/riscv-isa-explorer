@@ -13,6 +13,16 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Changed
+
+- **Instruction details in clear sections.** The card is grouped into three
+  titled sections, Write it (assembly, intrinsic, Compiler Explorer), Encoding
+  (bit fields, variable fields, match and mask, compressed forms) and
+  Implementations and tests (Sail, Spike, ACT), each a heading a screen reader
+  can jump to. Jump links under the description move straight to a section,
+  Close is a proper button, and the source link says it points at
+  riscv-unified-db.
+
 ### Added
 
 - **The catalogue is checked against the ISA manual's list of ratified

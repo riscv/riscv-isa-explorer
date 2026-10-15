@@ -23,7 +23,7 @@ a row here and a test behind it.
 | Compare | `src/compareModel.js`, `src/CompareView.jsx`, `src/CompareTray.jsx` | `compare-model`, `render-smoke` |
 | Encoding tools | `src/encodingUtils.js`, `src/encodingMap.js`, `src/EncodingMap.jsx`, `src/EncodingDiagram.jsx` | `encoding-utils`, `encoding-map`, `render-views` |
 | Extension Sandbox | `src/sandboxModel.js`, `src/SandboxPanel.jsx` | `sandbox-model`, `render-views` |
-| Instruction details (syntax, intrinsics, Compiler Explorer) | `src/instructionUsage.js`, `src/InstructionUsage.jsx`, `src/instructionMetadata.js`, `src/instruction-metadata.json`, `src/instruction-intrinsics.json`, `scripts/sync_instruction_metadata.mjs`, `scripts/sync_intrinsics.mjs` | `instruction-usage`, `pipeline`, `render-views` |
+| Instruction details (syntax, intrinsics, Compiler Explorer) | `src/instructionUsage.js`, `src/InstructionUsage.jsx`, `src/DetailSection.jsx`, `src/instructionMetadata.js`, `src/instruction-metadata.json`, `src/instruction-intrinsics.json`, `scripts/sync_instruction_metadata.mjs`, `scripts/sync_intrinsics.mjs` | `instruction-usage`, `pipeline`, `render-views` |
 | Sail, Spike and ACT links | `src/instruction-references.json`, `scripts/sail-assembly.mjs`, `scripts/sync_reference_impls.mjs` | `reference-implementations`, `pipeline` |
 | Toolchain support and timeline | `src/toolchain-support.json`, `src/toolchainSupport.js`, `src/ToolchainSupport.jsx`, `src/ToolchainTimeline.jsx`, `scripts/toolchain-support.mjs`, `scripts/sync_toolchain_support.mjs` | `toolchain-support`, `render-views` |
 | CSR details | `src/CsrDetails.jsx` | `csr-fields`, `render-views` |
