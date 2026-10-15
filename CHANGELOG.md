@@ -13,6 +13,16 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Fixed
+
+- **The weekly UDB sync runs again.** On 2026-10-12 UDB started shipping the
+  SPMP family and a mutual requirement between Smcdeleg and Ssccfg, and the
+  sync's own checks stopped it: one insisted SPMP stay on the "missing from
+  UDB" watchlist, and the dependency graph rejected the two loops. SPMP now
+  syncs from UDB like any other extension (dropping a hand-written edge that
+  reversed UDB's), and extensions defined to be implemented together are
+  modelled as co-requisites.
+
 ## [1.11.0] - 2026-10-14
 
 Catalogue: 211 entries, unchanged from 1.10.3. No saved selection or `-march`

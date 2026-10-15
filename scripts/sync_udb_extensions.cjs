@@ -421,19 +421,21 @@ const supervisorPattern = /^(Ss|Sm|Sv|Sd|Su|Sh|Sn)/;
 /*
  * Extensions UDB does not model at all, kept on the watchlist by name.
  *
- * The rule above is a proxy for "nothing is known about this yet", and the SPMP
- * family breaks it in both directions: these are ratified, their metadata was
- * transcribed by hand from the specification PDF, and carrying a long_name is
- * precisely what drops an entry off the derived list. So the one part of the
- * catalogue where we are AHEAD of UDB is the one part this report would go
- * quiet about — and the hand-written version, CSR addresses and ratification
- * date would never be reconciled against upstream's once it catches up.
+ * The rule above is a proxy for "nothing is known about this yet", and an
+ * extension we describe by hand from its specification breaks it: carrying a
+ * long_name is precisely what drops an entry off the derived list. So the one
+ * part of the catalogue where we are AHEAD of UDB would be the one part this
+ * report goes quiet about, and the hand-written version, CSR addresses and
+ * ratification date would never be reconciled against upstream's.
  *
- * Naming them keeps them in "Still missing from UDB" until UDB ships them, at
- * which point this run populates them from upstream and the id can be dropped
- * from this set. Everything here must match supervisorPattern.
+ * Naming one keeps it in "Still missing from UDB" until UDB ships it, at which
+ * point this run populates it from upstream like any other entry; drop the id
+ * then. Everything here must match supervisorPattern.
+ *
+ * Empty since 2026-10, when UDB shipped the SPMP family (Sspmp, Sspmpen,
+ * Smpmpdeleg), the extensions this was written for.
  */
-const ALWAYS_WATCH = new Set(['Sspmp', 'Sspmpen', 'Smpmpdeleg']);
+const ALWAYS_WATCH = new Set([]);
 
 const gaps = [];
 for (const [id, loc] of entryIndex) {

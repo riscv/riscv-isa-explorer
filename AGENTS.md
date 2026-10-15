@@ -145,8 +145,17 @@ Then `npm run sync` and `npm test && npm run build`.
   `long_name` counts as already synced — so describing an extension ourselves is
   what drops it off the list. Anything UDB has never carried therefore has to be
   named in `ALWAYS_WATCH`, or the one part of the catalogue where we are ahead
-  of UDB is the one part the report goes quiet about. The SPMP family is there
-  now; remove an id once UDB ships it. `tests/sync-tooling.test.mjs` guards it.
+  of UDB is the one part the report goes quiet about. It is empty since UDB
+  shipped the SPMP family (2026-10); drop an id once UDB ships it, though a
+  stale one no longer fails the weekly sync. `tests/sync-tooling.test.mjs`
+  checks both directions against the UDB checkout.
+- **Mutual UDB requirements are co-requisites, not cycles.** Smcdeleg and
+  Ssccfg each require the other in UDB because they are implemented together.
+  The seeder marks such pairs `corequisite: true` on both edges, and
+  `validateGraph` accepts only a pair marked on both sides; any other cycle is
+  still an error. `closure()` already walks the pair correctly (pick one, get
+  both). A hand edge in `LOCAL_EDGES` that reverses a UDB edge makes a real
+  cycle: SPMP's Smpmpdeleg -> Sspmp was removed for that reason.
 - **The Zve\* instruction sets are DERIVED, not synced.** riscv-opcodes has no
   `rv_zve*` tag and unified-db files all 627 vector instructions under one owner
   (`Zvl32b`), so nothing upstream says what each embedded subset contains. The

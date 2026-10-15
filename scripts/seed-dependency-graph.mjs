@@ -196,7 +196,9 @@ function readUdb(root) {
       found.hard.forEach((n) => hard.add(n));
       found.excluded.forEach((n) => excluded.add(n));
       for (const prm of found.params) {
-        if (!params.some((x) => x.name === prm.name && x.kind === prm.kind && x.value === prm.value)) {
+        if (
+          !params.some((x) => x.name === prm.name && x.kind === prm.kind && x.value === prm.value)
+        ) {
           params.push(prm);
         }
       }
@@ -246,13 +248,17 @@ function readUdb(root) {
         .filter(Boolean);
       branch = at.find((b) => b === 'main' || b === 'master') || at[0] || 'detached';
     }
-  } catch { /* not a git checkout — provenance degrades, extraction still works */ }
+  } catch {
+    /* not a git checkout — provenance degrades, extraction still works */
+  }
   return { graph, known, commit, branch, conditionalNodes };
 }
 
 /** Extension ids in the shipped catalog. */
 function readCatalogIds() {
-  const cat = JSON.parse(fs.readFileSync(path.join(repoRoot, 'src', 'riscv_extensions.json'), 'utf8'));
+  const cat = JSON.parse(
+    fs.readFileSync(path.join(repoRoot, 'src', 'riscv_extensions.json'), 'utf8'),
+  );
   const ids = [];
   for (const group of Object.values(cat)) {
     if (Array.isArray(group)) group.forEach((e) => e?.id && ids.push(e.id));
@@ -266,36 +272,39 @@ function readCatalogIds() {
 // clothes, and this graph is meant to be auditable.
 // ---------------------------------------------------------------------------
 const LOCAL_EDGES = {
-  Zdinx:    [{ ext: 'Zicsr', src: 'isa-manual', ref: 'Vol.I §21 — Zdinx uses the fcsr/frm/fflags CSRs' }],
-  Zhinx:    [{ ext: 'Zicsr', src: 'isa-manual', ref: 'Vol.I §21 — Zhinx uses the fcsr/frm/fflags CSRs' }],
-  Zhinxmin: [{ ext: 'Zicsr', src: 'isa-manual', ref: 'Vol.I §21 — Zhinxmin uses the fcsr/frm/fflags CSRs' }],
-  Zfh:      [{ ext: 'Zfhmin', src: 'isa-manual', ref: 'Vol.I §16.2 — Zfh is a superset of Zfhmin' }],
+  Zdinx: [
+    { ext: 'Zicsr', src: 'isa-manual', ref: 'Vol.I §21 — Zdinx uses the fcsr/frm/fflags CSRs' },
+  ],
+  Zhinx: [
+    { ext: 'Zicsr', src: 'isa-manual', ref: 'Vol.I §21 — Zhinx uses the fcsr/frm/fflags CSRs' },
+  ],
+  Zhinxmin: [
+    { ext: 'Zicsr', src: 'isa-manual', ref: 'Vol.I §21 — Zhinxmin uses the fcsr/frm/fflags CSRs' },
+  ],
+  Zfh: [{ ext: 'Zfhmin', src: 'isa-manual', ref: 'Vol.I §16.2 — Zfh is a superset of Zfhmin' }],
   // clang implies zvfhmin for Zvfh, and Zvfh is the full vector half-precision
   // extension to Zvfhmin's conversion-only subset — the same superset relation
   // UDB *does* record for the scalar pair (Zfh -> Zfhmin). UDB's Zvfh.yaml
   // lists only Zve32f and Zfhmin, so this edge rests on clang plus the scalar
   // analogue rather than on UDB. Marked src:clang so the weaker backing shows.
-  Zvfh:     [{ ext: 'Zvfhmin', src: 'clang', ref: 'clang -march=rv64i_zvfh implies +zvfhmin; UDB Zvfh.yaml is silent' }],
+  Zvfh: [
+    {
+      ext: 'Zvfhmin',
+      src: 'clang',
+      ref: 'clang -march=rv64i_zvfh implies +zvfhmin; UDB Zvfh.yaml is silent',
+    },
+  ],
 
-  // The SPMP family, ratified 8/2026 as its own specification and absent from
-  // UDB entirely — so nothing above this line can produce these edges, and
-  // `npm run udb:check` cannot see the extensions are missing in the first
-  // place. Every edge below is quoted from the document.
-  Sspmp: [
-    { ext: 'Sscsrind', src: 'spec', ref: 'SPMP v1.0 §2.1 — "The Sscsrind extension for indirect CSR access must be implemented."' },
-  ],
-  Sspmpen: [
-    { ext: 'Sspmp', src: 'spec', ref: 'SPMP v1.0 §3 — an SPMP entry is active only when spmpen[i] is set and spmpcfg[i].A is non-zero' },
-  ],
-  Smpmpdeleg: [
-    { ext: 'Smcsrind', src: 'spec', ref: 'SPMP v1.0 §4 — "The Smcsrind extension for indirect CSR access must be implemented."' },
-    { ext: 'Sspmp', src: 'spec', ref: 'SPMP v1.0 §4.1 — delegates PMP entries to S-mode, "thereby creating SPMP entries"' },
-  ],
+  // The SPMP family (Sspmp, Sspmpen, Smpmpdeleg) had hand-quoted edges here
+  // while UDB lacked it. UDB has carried it since 2026-10, so its edges now
+  // come from there. One of ours went with them: Smpmpdeleg -> Sspmp was an
+  // inference from "thereby creating SPMP entries", not a requirement the
+  // spec states, and with UDB's Sspmp -> Smpmpdeleg it made a cycle.
   Zimt: [
     {
       ext: 'Zimop',
       src: 'spec',
-      ref: 'riscv-memory-tagging, src/mte_tag.adoc — Zimt encoding compatibility paragraph',
+      ref: 'riscv/riscv-memory-tagging@76a5deef39782a8286104c74ff5a604a90d87fa8, src/mte_tag.adoc — Zimt encoding compatibility paragraph',
     },
   ],
 };
@@ -379,10 +388,10 @@ for (const id of catalogIds.slice().sort((a, b) => a.localeCompare(b))) {
   if (choices.length || localChoices.length) {
     node.requiresOneOf = [
       ...choices.map((options) => ({
-      options: options.slice().sort(),
-      default: pickDefault(options),
-      src: 'udb',
-      ref: `${id}.yaml requirements.extension.anyOf`,
+        options: options.slice().sort(),
+        default: pickDefault(options),
+        src: 'udb',
+        ref: `${id}.yaml requirements.extension.anyOf`,
       })),
       ...localChoices.map((choice) => ({ ...choice, options: choice.options.slice().sort() })),
     ];
@@ -410,13 +419,32 @@ for (const id of catalogIds.slice().sort((a, b) => a.localeCompare(b))) {
   // actually says is "it depends, conditionally".
   if (udb[id]?.conditional) node.conditionalRequirements = true;
   if (udb[id]?.params?.length) {
-    node.params = udb[id].params.map((prm) => ({ ...prm, src: 'udb', ref: `${id}.yaml requirements … param` }));
+    node.params = udb[id].params.map((prm) => ({
+      ...prm,
+      src: 'udb',
+      ref: `${id}.yaml requirements … param`,
+    }));
   }
 
   if (requires.length === 0 && !node.requiresOneOf && !node.conditionalRequirements) {
     node.verified = udbKnown.has(id) ? 'udb' : 'none';
   }
   nodes[id] = node;
+}
+
+// Co-requisites. UDB sometimes states a requirement in both directions,
+// because the two extensions are defined to be implemented together: Smcdeleg
+// requires Ssccfg and Ssccfg requires Smcdeleg. That is a pair, not a mistake,
+// so both edges are marked and validateGraph accepts the loop they make. Any
+// other cycle is still an error.
+for (const [id, node] of Object.entries(nodes)) {
+  for (const edge of node.requires ?? []) {
+    const back = nodes[edge.ext]?.requires?.find((e) => e.ext === id);
+    if (back && edge.src === 'udb' && back.src === 'udb') {
+      edge.corequisite = true;
+      back.corequisite = true;
+    }
+  }
 }
 
 // Close the graph. UDB requires a few extensions our catalog does not carry
@@ -479,7 +507,9 @@ const graph = {
   },
   // Sorted so a regeneration produces a reviewable diff rather than a reshuffle.
   nodes: Object.fromEntries(
-    Object.keys(nodes).sort((a, b) => a.localeCompare(b)).map((id) => [id, nodes[id]]),
+    Object.keys(nodes)
+      .sort((a, b) => a.localeCompare(b))
+      .map((id) => [id, nodes[id]]),
   ),
 };
 
@@ -500,7 +530,8 @@ if (checkOnly) {
   for (const id of [...new Set([...Object.keys(nodes), ...Object.keys(committed)])].sort()) {
     const mine = summarize(committed[id]);
     const theirs = summarize(nodes[id]);
-    if (mine !== theirs) drift.push(`  ${id}: committed [${mine || '-'}] vs upstream [${theirs || '-'}]`);
+    if (mine !== theirs)
+      drift.push(`  ${id}: committed [${mine || '-'}] vs upstream [${theirs || '-'}]`);
   }
   // Name the branch on every outcome. Without it a drift report is ambiguous
   // between "this repo is stale" and "you are pointed at a feature branch".
@@ -530,9 +561,9 @@ if (checkOnly) {
   if (conditionalNodes.length) {
     console.log(
       `\n  ${conditionalNodes.length} node(s) have conditional requirements this model does not\n` +
-      '  represent (negations and xlen guards). Their unconditional edges are kept;\n' +
-      '  the conditional parts are dropped rather than flattened into false hard edges:\n' +
-      `    ${conditionalNodes.join(', ')}`,
+        '  represent (negations and xlen guards). Their unconditional edges are kept;\n' +
+        '  the conditional parts are dropped rather than flattened into false hard edges:\n' +
+        `    ${conditionalNodes.join(', ')}`,
     );
   }
 }

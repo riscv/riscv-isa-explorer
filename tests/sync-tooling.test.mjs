@@ -140,16 +140,18 @@ test('--dry-run leaves the UDB sync catalogue alone', () => {
   assert.equal(hashCatalog(), before);
 });
 
-test('extensions UDB does not carry stay on the watchlist', (t) => {
+test('extensions UDB does not carry stay on the watchlist, and leave it once UDB does', (t) => {
   /*
-   * The report's watchlist is derived — an entry carrying a long_name is taken
+   * The report's watchlist is derived: an entry carrying a long_name is taken
    * to be already synced and dropped from it. That rule assumes UDB is always
-   * ahead of us. SPMP is where it is not: ratified in its own specification,
-   * absent from UDB entirely, and described here from that PDF, which is
-   * exactly what would remove it from the list.
+   * ahead of us, so ALWAYS_WATCH names the extensions we describe by hand
+   * because UDB has none.
    *
-   * So the one part of the catalogue UDB is behind on would be the one part the
-   * weekly report never mentions. ALWAYS_WATCH holds them there.
+   * Both directions are checked against the checkout, so UDB catching up never
+   * fails the weekly sync: a watched id UDB still lacks must be reported
+   * missing, and one UDB now ships must be populated instead. The SPMP family
+   * is the case that taught this: it sat on the list until UDB shipped it in
+   * 2026-10, and a test that insisted it stay missing stopped that week's sync.
    */
   const udb = UDB;
   if (!fs.existsSync(path.join(udb, 'spec', 'std', 'isa', 'ext'))) {
@@ -157,14 +159,27 @@ test('extensions UDB does not carry stay on the watchlist', (t) => {
     return;
   }
 
+  const source = fs.readFileSync(path.join(root, 'scripts', 'sync_udb_extensions.cjs'), 'utf8');
+  const watched = [
+    ...(source.match(/const ALWAYS_WATCH = new Set\(\[([^\]]*)\]\)/)?.[1] ?? '').matchAll(
+      /'([^']+)'/g,
+    ),
+  ].map((m) => m[1]);
+  const inUdb = (id) => fs.existsSync(path.join(udb, 'spec', 'std', 'isa', 'ext', `${id}.yaml`));
+
   const { status, stdout } = run('sync_udb_extensions.cjs', [udb, '--dry-run']);
   assert.equal(status, 0, stdout);
-  for (const id of ['Sspmp', 'Sspmpen', 'Smpmpdeleg']) {
-    assert.match(
-      stdout,
-      new RegExp(`^\\s+- ${id}$`, 'm'),
-      `${id} should be reported as still missing from UDB:\n${stdout}`,
+  const missing = (id) => new RegExp(`^\\s+- ${id}$`, 'm').test(stdout);
+  for (const id of watched) {
+    assert.equal(
+      missing(id),
+      !inUdb(id),
+      `${id}: watched, ${inUdb(id) ? 'in' : 'not in'} UDB\n${stdout}`,
     );
+  }
+  // Now that UDB ships SPMP, it is synced like anything else, not listed.
+  for (const id of ['Sspmp', 'Sspmpen', 'Smpmpdeleg']) {
+    if (inUdb(id)) assert.equal(missing(id), false, `${id} is in UDB but still reported missing`);
   }
 });
 

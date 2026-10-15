@@ -228,6 +228,28 @@ test('validation catches a cycle', () => {
   assert.match(cycles[0], /A -> B -> C -> A/);
 });
 
+test('a co-requisite pair marked on both sides is not a cycle', () => {
+  // Smcdeleg and Ssccfg: UDB has each require the other, by design.
+  const co = (ext) => ({ ...cite(ext), corequisite: true });
+  const pair = validateGraph(fixture({ A: { requires: [co('B')] }, B: { requires: [co('A')] } }));
+  assert.deepEqual(pair.errors, []);
+  // Marked on one side only: the loop is still a cycle, and the flag is wrong.
+  const oneSided = validateGraph(
+    fixture({ A: { requires: [co('B')] }, B: { requires: [cite('A')] } }),
+  );
+  assert.ok(oneSided.errors.some((e) => e.startsWith('dependency cycle')), `${oneSided.errors}`);
+  assert.ok(oneSided.errors.some((e) => e.includes('marked corequisite')), `${oneSided.errors}`);
+  // A real cycle through a marked pair is still caught.
+  const through = validateGraph(
+    fixture({
+      A: { requires: [co('B')] },
+      B: { requires: [co('A'), cite('C')] },
+      C: { requires: [cite('B')] },
+    }),
+  );
+  assert.ok(through.errors.some((e) => /B -> C -> B/.test(e)), `${through.errors}`);
+});
+
 test('validation catches an uncited edge', () => {
   const { errors } = validateGraph(fixture({
     A: { requires: [{ ext: 'B', src: 'udb' }] },

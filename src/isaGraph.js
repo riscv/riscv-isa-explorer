@@ -154,6 +154,7 @@ export function validateGraph(graph = graphData, catalogIds = null) {
   }
 
   errors.push(...findCycles(nodes));
+  errors.push(...corequisiteErrors(nodes));
 
   if (catalogIds) {
     const inGraph = new Set(ids);
@@ -182,6 +183,33 @@ export function validateGraph(graph = graphData, catalogIds = null) {
   };
 }
 
+/*
+ * Co-requisites: two extensions defined to be implemented together, each
+ * requiring the other (Smcdeleg and Ssccfg). Both edges carry
+ * `corequisite: true`, and only a pair marked on both sides counts, so a stray
+ * flag cannot hide a real cycle.
+ */
+function isCorequisite(nodes, id, edge) {
+  return (
+    edge.corequisite === true &&
+    (nodes[edge.ext]?.requires ?? []).some((back) => back.ext === id && back.corequisite === true)
+  );
+}
+
+function corequisiteErrors(nodes) {
+  const errors = [];
+  for (const [id, node] of Object.entries(nodes)) {
+    for (const edge of node.requires ?? []) {
+      if (edge.corequisite === true && !isCorequisite(nodes, id, edge)) {
+        errors.push(
+          `${id} -> ${edge.ext} is marked corequisite but ${edge.ext} does not require ${id} back`,
+        );
+      }
+    }
+  }
+  return errors;
+}
+
 /** Every dependency cycle, reported once per cycle as a readable path. */
 function findCycles(nodes) {
   const found = [];
@@ -198,6 +226,8 @@ function findCycles(nodes) {
     state.set(id, 'visiting');
     stack.push(id);
     for (const edge of nodes[id]?.requires ?? []) {
+      // A declared co-requisite pair loops by design; see corequisiteErrors.
+      if (isCorequisite(nodes, id, edge)) continue;
       if (nodes[edge.ext]) walk(edge.ext); // dangling edges are reported separately
     }
     stack.pop();
