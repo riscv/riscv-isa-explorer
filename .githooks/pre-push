@@ -1,0 +1,14 @@
+#!/bin/sh
+# Runs what CI's build-and-test job runs, before the push leaves this machine.
+# Installed by `npm install` (package.json "prepare" sets core.hooksPath).
+# Git's own flag skips it for one push when you really mean to.
+#
+# The UDB checks run when ../riscv-unified-db (or $UDB_DIR) is checked out and
+# skip otherwise; CI always runs them, at the pinned commit. See docs/TESTING.md.
+set -e
+cd "$(git rev-parse --show-toplevel)"
+echo "pre-push: build, lint, sync:check and tests"
+npm run --silent build > /dev/null
+npm run --silent lint
+npm run --silent sync:check > /dev/null
+npm test --silent

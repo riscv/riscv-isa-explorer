@@ -33,6 +33,18 @@ jobs:
         run: npm run lint
       - name: Check generated instruction data
         run: npm run sync:check
+      # The tests that compare our data with riscv-unified-db skip without a
+      # checkout, and on 2026-10-12 that let a failure surface only in the
+      # weekly sync. Cloned at the exact commit the data files record, so the
+      # result never depends on what UDB merged today, and the fetch itself
+      # fails if that commit is not on GitHub (generated from a local branch).
+      - name: Check out riscv-unified-db at the pinned commit
+        run: |
+          pin=$(node -p "require('./src/isa-dependency-graph.json').sources.udb.commit")
+          git init -q ../riscv-unified-db
+          git -C ../riscv-unified-db fetch -q --depth 1 https://github.com/riscv/riscv-unified-db.git "$pin"
+          git -C ../riscv-unified-db checkout -q FETCH_HEAD
+          echo "riscv-unified-db at $pin"
       - name: Tests
         run: npm test
 

@@ -274,3 +274,43 @@ test('every workflow that runs the tests builds first', () => {
     assert.ok(buildAt >= 0 && buildAt < testAt, `${file}: runs npm test without building first`);
   }
 });
+
+test('every scheduled sync is watched by the failure alert', () => {
+  // A scheduled sync that fails opens nothing, so without the alert a broken
+  // week is invisible: the UDB sync failed on 2026-10-12 and was noticed two
+  // days later. Every workflow that runs on a schedule and opens a pull
+  // request must be named in sync-failure-alert.yml.
+  const dir = path.join(root, '.github', 'workflows');
+  const alert = fs.readFileSync(path.join(dir, 'sync-failure-alert.yml'), 'utf8');
+  const watched = (alert.match(/workflows:\n((?:\s+- .+\n)+)/)?.[1] ?? '')
+    .split('\n')
+    .map((line) => line.replace(/^\s+- /, '').trim())
+    .filter(Boolean);
+  assert.match(alert, /issues: write/);
+  const syncs = fs
+    .readdirSync(dir)
+    .map((file) => fs.readFileSync(path.join(dir, file), 'utf8'))
+    .filter(
+      (text) => /\n\s+schedule:/.test(text) && text.includes('peter-evans/create-pull-request'),
+    )
+    .map((text) => text.match(/^name:\s*(.+)$/m)[1].trim());
+  assert.ok(syncs.length >= 3, `expected the scheduled syncs, found ${syncs}`);
+  for (const name of syncs)
+    assert.ok(watched.includes(name), `${name} is not watched by the alert`);
+});
+
+test('the pre-push hook runs what CI runs, and npm install sets it up', () => {
+  // So a failing build, lint or test is caught before the push, not by CI.
+  const hook = path.join(root, '.githooks', 'pre-push');
+  assert.ok(fs.statSync(hook).mode & 0o111, '.githooks/pre-push must be executable');
+  const text = fs.readFileSync(hook, 'utf8');
+  const ci = fs.readFileSync(path.join(root, '.github', 'workflows', 'ci.yml'), 'utf8');
+  for (const step of ['npm run build', 'npm run lint', 'npm run sync:check', 'npm test']) {
+    assert.ok(ci.includes(step), `ci.yml no longer runs ${step}; update the hook and this list`);
+  }
+  for (const step of ['build', 'lint', 'sync:check', 'npm test']) {
+    assert.ok(text.includes(step), `the hook does not run ${step}`);
+  }
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  assert.match(pkg.scripts.prepare ?? '', /core\.hooksPath \.githooks/);
+});

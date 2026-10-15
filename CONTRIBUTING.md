@@ -85,6 +85,11 @@ npm run links:check                    # documentation links vs docs.riscv.org
 
 ## Invariants the tests enforce
 
+`docs/TESTING.md` lists every part of the explorer and the tests behind it; a
+new file in `src/` or `scripts/` fails `tests/coverage-map.test.mjs` until it
+has a row there. `npm install` sets up a pre-push hook that runs the same build,
+lint and tests as CI.
+
 Each of these exists because it was once broken:
 
 - **Every catalogue extension has a graph node.** Adding an extension without

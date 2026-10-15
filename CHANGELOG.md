@@ -15,6 +15,17 @@ someone silently. Each release below records its catalogue size.
 
 ### Fixed
 
+- **Instruction source links open again.** Every instruction's link to its
+  riscv-unified-db definition pointed at a commit that exists only in a local
+  checkout, so all 1,200 led to a GitHub 404. The descriptions are regenerated
+  from riscv-unified-db main at the same commit as the rest of the data, which
+  also picks up 27 upstream wording fixes.
+- **A failed scheduled sync is reported.** Each weekly sync that fails now opens
+  (or updates) an issue with the run and the failing step, and closes it when a
+  later run succeeds. The UDB sync had failed silently for two days.
+
+### Fixed
+
 - **The weekly UDB sync runs again.** On 2026-10-12 UDB started shipping the
   SPMP family and a mutual requirement between Smcdeleg and Ssccfg, and the
   sync's own checks stopped it: one insisted SPMP stay on the "missing from

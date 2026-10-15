@@ -1,0 +1,74 @@
+name: Sync failure alert
+
+# The scheduled syncs open a pull request when they succeed and nothing at all
+# when they fail. On 2026-10-12 the UDB sync failed and nobody knew for two
+# days. This watches every scheduled sync and keeps one issue per workflow:
+# opened (or updated) when a run fails, closed when a later run succeeds.
+#
+# tests/sync-tooling.test.mjs checks that every workflow with a schedule that
+# opens pull requests is listed here, so a new sync cannot be left out.
+on:
+  workflow_run:
+    workflows:
+      - Sync UDB Extensions
+      - Sync Sail, Spike and ACT links
+      - Sync toolchain support
+    types: [completed]
+
+permissions:
+  issues: write
+  actions: read
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'failure' || github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Open, update or close the issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NAME: ${{ github.event.workflow_run.name }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          EVENT: ${{ github.event.workflow_run.event }}
+          CONCLUSION: ${{ github.event.workflow_run.conclusion }}
+          STARTED: ${{ github.event.workflow_run.run_started_at }}
+        run: |
+          marker="<!-- sync-failure: ${NAME} -->"
+          existing=$(gh issue list --state open --label automated --limit 100 --json number,body \
+            --jq "map(select(.body | contains(\"${marker}\"))) | .[0].number // empty")
+
+          if [ "${CONCLUSION}" = "success" ]; then
+            if [ -n "${existing}" ]; then
+              gh issue comment "${existing}" --body "Recovered: [run ${RUN_ID}](${RUN_URL}) succeeded."
+              gh issue close "${existing}" --reason completed
+            fi
+            exit 0
+          fi
+
+          failed=$(gh run view "${RUN_ID}" --json jobs \
+            --jq '[.jobs[] | .name as $j | .steps[] | select(.conclusion == "failure") | "\($j): \(.name)"] | join(", ")')
+          {
+            echo "${marker}"
+            echo "The **${NAME}** workflow failed, so this run opened no pull request."
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Run | [${RUN_ID}](${RUN_URL}) |"
+            echo "| Started | ${STARTED} (${EVENT}) |"
+            echo "| Failed step | ${failed:-see the run log} |"
+            echo
+            echo "A failure at \`Validate the result\` usually means upstream changed and one of"
+            echo "our checks disagrees with it, not that the sync script broke. Start from the"
+            echo "test named in the log."
+            echo
+            echo "Closed automatically when a later run succeeds."
+          } > body.md
+
+          if [ -n "${existing}" ]; then
+            gh issue edit "${existing}" --body-file body.md
+            gh issue comment "${existing}" --body "Failed again: [run ${RUN_ID}](${RUN_URL})."
+          else
+            gh issue create --title "Scheduled sync failed: ${NAME}" --body-file body.md --label automated
+          fi

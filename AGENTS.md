@@ -298,6 +298,15 @@ Then `npm run sync` and `npm test && npm run build`.
   `git rebase --signoff origin/main` then force-push with `--force-with-lease`.
 - Before a PR: `npm test && npm run build` (both must pass — see the PR template
   checklist).
+- **Every key part has a row in `docs/TESTING.md`** naming its files and
+  tests, and `tests/coverage-map.test.mjs` fails when a file in `src/` or
+  `scripts/` is missing from it. Adding a module means adding a row and a test
+  that mentions it. `npm install` installs a pre-push hook (`.githooks/`)
+  that runs CI's build, lint, `sync:check` and tests before a push.
+- CI clones riscv-unified-db at the commit `src/isa-dependency-graph.json`
+  records, so the UDB checks never skip there. Every UDB-derived file must
+  carry that same commit (`tests/pipeline.test.mjs`): never regenerate from a
+  local UDB branch, whose commit GitHub does not have.
 - CI (`.github/workflows/ci.yml`) runs install → build → test → feeds every
   generated `-march` string to clang. Distro clang (18) skips four `modern`
   profile strings; they're covered by tests instead. A `-march` string no
@@ -305,6 +314,8 @@ Then `npm run sync` and `npm test && npm run build`.
 
 ## Where to look for more
 
+- `docs/TESTING.md` — every key part, its files and its tests; what runs in
+  CI and in the pre-push hook.
 - `README.md` — feature tour, data-source authority table, Encoder Validator /
   Encoding Map explanations, regeneration commands.
 - `CONTRIBUTING.md` — DCO details, the invariants the tests enforce (and why
