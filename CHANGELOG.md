@@ -13,6 +13,19 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.11.1] - 2026-10-15
+
+Catalogue: 211 entries, unchanged from 1.11.0. No saved selection or `-march`
+string is invalidated by this release, and exported files are unchanged.
+
+### Changed
+
+- **This week's riscv-unified-db data.** The SPMP family (Sspmp, Sspmpen,
+  Smpmpdeleg) is now synced from UDB instead of transcribed from its
+  specification, CSR field maps follow UDB's current modelling (fields whose
+  behaviour depends on the configuration are marked dynamic), and every CSR
+  source link points at the same UDB commit as the rest of the data (#439).
+
 ### Fixed
 
 - **Sm shows the ratified 1.13.** The Machine ISA tile said 1.12.0 (2021-12)
@@ -21,28 +34,25 @@ someone silently. Each release below records its catalogue size.
   1.13.0, ratified 2024-10 like Supervisor 1.13 from the same specification.
   The profile names for each privileged version (Sm1p11 to Ss1p13), which
   showed no status, are marked ratified with their versions' dates. Reported
-  by a reader.
-
-### Fixed
-
+  by a reader (#443).
 - **Instruction source links open again.** Every instruction's link to its
   riscv-unified-db definition pointed at a commit that exists only in a local
   checkout, so all 1,200 led to a GitHub 404. The descriptions are regenerated
   from riscv-unified-db main at the same commit as the rest of the data, which
-  also picks up 27 upstream wording fixes.
-- **A failed scheduled sync is reported.** Each weekly sync that fails now opens
-  (or updates) an issue with the run and the failing step, and closes it when a
-  later run succeeds. The UDB sync had failed silently for two days.
-
-### Fixed
-
-- **The weekly UDB sync runs again.** On 2026-10-12 UDB started shipping the
-  SPMP family and a mutual requirement between Smcdeleg and Ssccfg, and the
-  sync's own checks stopped it: one insisted SPMP stay on the "missing from
-  UDB" watchlist, and the dependency graph rejected the two loops. SPMP now
-  syncs from UDB like any other extension (dropping a hand-written edge that
-  reversed UDB's), and extensions defined to be implemented together are
-  modelled as co-requisites.
+  also picks up 27 upstream wording fixes (#440).
+- **Closing the instruction details reliably returns to the extension.** Focus
+  moved back to the extension's name before the details had gone, and on a
+  slow machine the re-render could take it away again (#440).
+- **An `?ext=` link no longer takes focus back.** It focuses the extension's
+  tile shortly after the page loads, and did so even if the reader had already
+  moved focus elsewhere. It now leaves focus where the reader put it (#442).
+- **The weekly UDB sync runs again, and a failed sync is reported.** On
+  2026-10-12 UDB started shipping the SPMP family and a mutual requirement
+  between Smcdeleg and Ssccfg, and the sync's own checks stopped it. SPMP now
+  syncs like any other extension, extensions defined to be implemented
+  together are modelled as co-requisites (#438), and a scheduled sync that
+  fails now opens an issue with the run and the failing step, closed when a
+  later run succeeds (#440).
 
 ## [1.11.0] - 2026-10-14
 
