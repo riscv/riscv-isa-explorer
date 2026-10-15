@@ -124,6 +124,9 @@ test('picking an instruction shows its details, references and encoding, and Clo
   assert.ok(details.querySelector('svg, [class*="encoding"], table'), 'encoding diagram missing');
   button(details, 'Close').click();
   await waitFor(() => !document.querySelector('[aria-label^="Instruction details"]'));
+  // Waited for, not read at once: on a slow runner the re-render that removes
+  // the details can land after the click returns.
+  await waitFor(() => document.activeElement?.textContent.trim() === 'F');
   assert.equal(document.activeElement?.textContent.trim(), 'F', 'focus did not return to the name');
   noErrors(errors);
 });

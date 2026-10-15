@@ -46,6 +46,9 @@ jobs:
           git -C ../riscv-unified-db checkout -q FETCH_HEAD
           echo "riscv-unified-db at $pin"
       - name: Tests
+        # Explicit, so the CSR-field tests accept the detached checkout above.
+        env:
+          UDB_DIR: ${{ github.workspace }}/../riscv-unified-db
         run: npm test
 
       # Validates generated -march strings against a real toolchain rather than

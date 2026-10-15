@@ -637,6 +637,7 @@ const RISCVExplorer = () => {
   const instructionDetailsRef = React.useRef(null);
   const extensionNameRef = React.useRef(null);
   const revealDetailsRef = React.useRef(false);
+  const returnToNameRef = React.useRef(false);
   const detailOpenerRef = React.useRef(null);
   const [permalinkCopied, setPermalinkCopied] = useState(false);
   const [selectedInstruction, setSelectedInstruction] = useState(null);
@@ -649,6 +650,15 @@ const RISCVExplorer = () => {
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     panel.scrollTo({ top: Math.max(0, top), behavior: reduce ? 'auto' : 'smooth' });
   }, []);
+  // After the re-render that removes the details, not before it: moved any
+  // earlier, focus could be taken back by that render on a slow machine.
+  React.useEffect(() => {
+    if (!returnToNameRef.current || selectedInstruction) return;
+    returnToNameRef.current = false;
+    const name = extensionNameRef.current;
+    scrollPanelTo(name);
+    name?.focus({ preventScroll: true });
+  }, [selectedInstruction, scrollPanelTo]);
   React.useEffect(() => {
     if (!revealDetailsRef.current || !selectedInstruction) return;
     revealDetailsRef.current = false;
@@ -4865,11 +4875,9 @@ const RISCVExplorer = () => {
                                 type="button"
                                 className="text-[11px] font-mono text-slate-500 hover:text-slate-300"
                                 onClick={() => {
-                                  const name = extensionNameRef.current;
+                                  // Back to the extension, once the details are gone (see the effect).
+                                  returnToNameRef.current = true;
                                   setSelectedInstruction(null);
-                                  // Back to the extension the instruction came from.
-                                  scrollPanelTo(name);
-                                  name?.focus({ preventScroll: true });
                                 }}
                               >
                                 Close
