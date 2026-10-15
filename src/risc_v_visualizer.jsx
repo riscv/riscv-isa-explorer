@@ -2067,6 +2067,12 @@ const RISCVExplorer = () => {
     const timer = window.setTimeout(() => {
       const tile = document.getElementById(`ext-${id}`);
       if (!tile) return;
+      // Only onto a page nobody has touched yet. If focus has already moved,
+      // into the details panel or anywhere else, the reader got there first,
+      // and taking it back would undo their action; CI caught a test doing
+      // just that within the 120 ms.
+      const active = document.activeElement;
+      if (active && active !== document.body) return;
       tile.querySelector('.ext-tile-primary')?.focus({ preventScroll: true });
       // Instant, unlike search: there is no earlier position to animate from
       // on a fresh load, and a smooth scroll this early was cut short by the

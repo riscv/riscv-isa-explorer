@@ -66,6 +66,12 @@ async function mount(url) {
   window.eval(fs.readFileSync(path.join(dist, 'bundle.js'), 'utf8'));
   mounted.push(dom);
   await waitFor(() => window.document.querySelector('[id^="ext-"]'));
+  // An ?ext= link focuses its tile on a short timer after mount. Let it land
+  // first: on a slow runner it otherwise fires mid-test and takes the focus a
+  // test is checking (CI caught exactly that).
+  if (new URL(url).searchParams.has('ext')) {
+    await waitFor(() => window.document.activeElement?.classList?.contains('ext-tile-primary'));
+  }
   return { window, document: window.document, errors };
 }
 
@@ -127,7 +133,11 @@ test('picking an instruction shows its details, references and encoding, and Clo
   // Waited for, not read at once: on a slow runner the re-render that removes
   // the details can land after the click returns.
   await waitFor(() => document.activeElement?.textContent.trim() === 'F');
-  assert.equal(document.activeElement?.textContent.trim(), 'F', 'focus did not return to the name');
+  assert.equal(
+    document.activeElement?.textContent.trim(),
+    'F',
+    `focus did not return to the name; it is on ${document.activeElement?.outerHTML.slice(0, 160)}`,
+  );
   noErrors(errors);
 });
 
