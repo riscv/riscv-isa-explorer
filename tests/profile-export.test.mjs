@@ -57,7 +57,7 @@ test('mandatory beats implied, and implied beats optional', () => {
       const walk = (x) => (graph[x] ?? []).forEach((y) => out.add(y) && walk(y));
       walk(id);
       return out;
-    };
+    },
   });
   assert.equal(m.get('A').requirement, 'mandatory');
   assert.equal(m.get('B').requirement, 'implied');
