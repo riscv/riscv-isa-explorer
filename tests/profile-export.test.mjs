@@ -57,7 +57,7 @@ test('mandatory beats implied, and implied beats optional', () => {
       const walk = (x) => (graph[x] ?? []).forEach((y) => out.add(y) && walk(y));
       walk(id);
       return out;
-    },
+    };
   });
   assert.equal(m.get('A').requirement, 'mandatory');
   assert.equal(m.get('B').requirement, 'implied');
@@ -236,6 +236,12 @@ test('cell text is escaped and characters XML forbids are dropped', () => {
   assert.ok(!sheet.includes('\u0001'));
   // Excel rejects / and : in sheet names.
   assert.match(files.get('xl/workbook.xml'), /name="a b c"/);
+});
+
+test('non-BMP characters (e.g. emoji) survive xlsx XML escaping', () => {
+  const files = readZip(buildXlsx([{ name: 'Sheet1', rows: [['h'], ['😀 test ✓']] }]));
+  const sheet = files.get('xl/worksheets/sheet1.xml');
+  assert.ok(sheet.includes('<t xml:space="preserve">😀 test ✓</t>'));
 });
 
 test('column names run A..Z then AA', () => {
