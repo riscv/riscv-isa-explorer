@@ -379,7 +379,8 @@ export const EXTENSION_ALIASES = { I: ['RV32I', 'RV64I', 'RV32E', 'RV64E'] };
 export const UPSTREAM_ERRATA = {
   'VABS.V':
     'Zvabd v0.9 (riscv-isa-manual#3279) makes vabs.v an assembler alias for ' +
-    'vabd.vx vd, vs2, x0; unified-db still gives it an encoding of its own',
+    'vabd.vx vd, vs2, x0; unified-db still gives it an encoding of its own ' +
+    '(riscv-unified-db#2731, fix in #2732)',
 };
 
 /*
