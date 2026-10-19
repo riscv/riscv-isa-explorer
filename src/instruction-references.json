@@ -5302,6 +5302,13 @@
       ],
       "spike": "vabd_vv"
     },
+    "vabd.vx": {
+      "sail": [
+        37,
+        104
+      ],
+      "spike": "vabd_vx"
+    },
     "vabdu.vv": {
       "sail": [
         37,
@@ -5309,11 +5316,12 @@
       ],
       "spike": "vabdu_vv"
     },
-    "vabs.v": {
+    "vabdu.vx": {
       "sail": [
         37,
-        104
-      ]
+        105
+      ],
+      "spike": "vabdu_vx"
     },
     "vadc.vim": {
       "sail": [
@@ -9727,12 +9735,26 @@
       ],
       "spike": "vwabda_vv"
     },
+    "vwabda.vx": {
+      "sail": [
+        37,
+        247
+      ],
+      "spike": "vwabda_vx"
+    },
     "vwabdau.vv": {
       "sail": [
         37,
         183
       ],
       "spike": "vwabdau_vv"
+    },
+    "vwabdau.vx": {
+      "sail": [
+        37,
+        251
+      ],
+      "spike": "vwabdau_vx"
     },
     "vwadd.vv": {
       "sail": [

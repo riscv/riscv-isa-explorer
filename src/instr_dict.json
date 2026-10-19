@@ -6312,7 +6312,7 @@
     "mask": "0xfc00707f"
   },
   "vabd_vv": {
-    "encoding": "010001-----------010-----1010111",
+    "encoding": "010101-----------010-----1010111",
     "variable_fields": [
       "vm",
       "vs2",
@@ -6322,11 +6322,25 @@
     "extension": [
       "rv_zvabd"
     ],
-    "match": "0x44002057",
+    "match": "0x54002057",
+    "mask": "0xfc00707f"
+  },
+  "vabd_vx": {
+    "encoding": "010101-----------110-----1010111",
+    "variable_fields": [
+      "vm",
+      "vs2",
+      "rs1",
+      "vd"
+    ],
+    "extension": [
+      "rv_zvabd"
+    ],
+    "match": "0x54006057",
     "mask": "0xfc00707f"
   },
   "vabdu_vv": {
-    "encoding": "010011-----------010-----1010111",
+    "encoding": "010110-----------010-----1010111",
     "variable_fields": [
       "vm",
       "vs2",
@@ -6336,21 +6350,22 @@
     "extension": [
       "rv_zvabd"
     ],
-    "match": "0x4c002057",
+    "match": "0x58002057",
     "mask": "0xfc00707f"
   },
-  "vabs_v": {
-    "encoding": "010010------10000010-----1010111",
+  "vabdu_vx": {
+    "encoding": "010110-----------110-----1010111",
     "variable_fields": [
       "vm",
       "vs2",
+      "rs1",
       "vd"
     ],
     "extension": [
       "rv_zvabd"
     ],
-    "match": "0x48082057",
-    "mask": "0xfc0ff07f"
+    "match": "0x58006057",
+    "mask": "0xfc00707f"
   },
   "vadc_vim": {
     "encoding": "0100000----------011-----1010111",
@@ -15272,7 +15287,7 @@
     "mask": "0xfc0ff07f"
   },
   "vwabda_vv": {
-    "encoding": "010101-----------010-----1010111",
+    "encoding": "111101-----------000-----1010111",
     "variable_fields": [
       "vm",
       "vs2",
@@ -15282,11 +15297,25 @@
     "extension": [
       "rv_zvabd"
     ],
-    "match": "0x54002057",
+    "match": "0xf4000057",
+    "mask": "0xfc00707f"
+  },
+  "vwabda_vx": {
+    "encoding": "111101-----------100-----1010111",
+    "variable_fields": [
+      "vm",
+      "vs2",
+      "rs1",
+      "vd"
+    ],
+    "extension": [
+      "rv_zvabd"
+    ],
+    "match": "0xf4004057",
     "mask": "0xfc00707f"
   },
   "vwabdau_vv": {
-    "encoding": "010110-----------010-----1010111",
+    "encoding": "111110-----------000-----1010111",
     "variable_fields": [
       "vm",
       "vs2",
@@ -15296,7 +15325,21 @@
     "extension": [
       "rv_zvabd"
     ],
-    "match": "0x58002057",
+    "match": "0xf8000057",
+    "mask": "0xfc00707f"
+  },
+  "vwabdau_vx": {
+    "encoding": "111110-----------100-----1010111",
+    "variable_fields": [
+      "vm",
+      "vs2",
+      "rs1",
+      "vd"
+    ],
+    "extension": [
+      "rv_zvabd"
+    ],
+    "match": "0xf8004057",
     "mask": "0xfc00707f"
   },
   "vwadd_vv": {

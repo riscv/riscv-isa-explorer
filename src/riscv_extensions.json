@@ -70962,47 +70962,6 @@
       "url": "https://github.com/riscv/riscv-isa-manual",
       "instructions": {
         "VABD.VV": {
-          "encoding": "010001-----------010-----1010111",
-          "variable_fields": [
-            "vm",
-            "vs2",
-            "vs1",
-            "vd"
-          ],
-          "extension": [
-            "rv_zvabd"
-          ],
-          "match": "0x44002057",
-          "mask": "0xfc00707f"
-        },
-        "VABDU.VV": {
-          "encoding": "010011-----------010-----1010111",
-          "variable_fields": [
-            "vm",
-            "vs2",
-            "vs1",
-            "vd"
-          ],
-          "extension": [
-            "rv_zvabd"
-          ],
-          "match": "0x4c002057",
-          "mask": "0xfc00707f"
-        },
-        "VABS.V": {
-          "encoding": "010010------10000010-----1010111",
-          "variable_fields": [
-            "vm",
-            "vs2",
-            "vd"
-          ],
-          "extension": [
-            "rv_zvabd"
-          ],
-          "match": "0x48082057",
-          "mask": "0xfc0ff07f"
-        },
-        "VWABDA.VV": {
           "encoding": "010101-----------010-----1010111",
           "variable_fields": [
             "vm",
@@ -71016,7 +70975,21 @@
           "match": "0x54002057",
           "mask": "0xfc00707f"
         },
-        "VWABDAU.VV": {
+        "VABD.VX": {
+          "encoding": "010101-----------110-----1010111",
+          "variable_fields": [
+            "vm",
+            "vs2",
+            "rs1",
+            "vd"
+          ],
+          "extension": [
+            "rv_zvabd"
+          ],
+          "match": "0x54006057",
+          "mask": "0xfc00707f"
+        },
+        "VABDU.VV": {
           "encoding": "010110-----------010-----1010111",
           "variable_fields": [
             "vm",
@@ -71028,6 +71001,76 @@
             "rv_zvabd"
           ],
           "match": "0x58002057",
+          "mask": "0xfc00707f"
+        },
+        "VABDU.VX": {
+          "encoding": "010110-----------110-----1010111",
+          "variable_fields": [
+            "vm",
+            "vs2",
+            "rs1",
+            "vd"
+          ],
+          "extension": [
+            "rv_zvabd"
+          ],
+          "match": "0x58006057",
+          "mask": "0xfc00707f"
+        },
+        "VWABDA.VV": {
+          "encoding": "111101-----------000-----1010111",
+          "variable_fields": [
+            "vm",
+            "vs2",
+            "vs1",
+            "vd"
+          ],
+          "extension": [
+            "rv_zvabd"
+          ],
+          "match": "0xf4000057",
+          "mask": "0xfc00707f"
+        },
+        "VWABDA.VX": {
+          "encoding": "111101-----------100-----1010111",
+          "variable_fields": [
+            "vm",
+            "vs2",
+            "rs1",
+            "vd"
+          ],
+          "extension": [
+            "rv_zvabd"
+          ],
+          "match": "0xf4004057",
+          "mask": "0xfc00707f"
+        },
+        "VWABDAU.VV": {
+          "encoding": "111110-----------000-----1010111",
+          "variable_fields": [
+            "vm",
+            "vs2",
+            "vs1",
+            "vd"
+          ],
+          "extension": [
+            "rv_zvabd"
+          ],
+          "match": "0xf8000057",
+          "mask": "0xfc00707f"
+        },
+        "VWABDAU.VX": {
+          "encoding": "111110-----------100-----1010111",
+          "variable_fields": [
+            "vm",
+            "vs2",
+            "rs1",
+            "vd"
+          ],
+          "extension": [
+            "rv_zvabd"
+          ],
+          "match": "0xf8004057",
           "mask": "0xfc00707f"
         }
       },

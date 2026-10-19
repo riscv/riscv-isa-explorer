@@ -15,6 +15,12 @@ someone silently. Each release below records its catalogue size.
 
 ### Fixed
 
+- **Zvabd's encodings match the v0.9 draft.** ARC reassigned them
+  (riscv-isa-manual#3279): VABD and VABDU moved to funct6 0x15 and 0x16, and
+  VWABDA and VWABDAU to 0x3D and 0x3E in the OPIVV space. The four `.vx` forms
+  the draft adds are now listed, and VABS.V is gone: the draft defines it as an
+  assembler alias for `vabd.vx vd, vs2, x0`, not an encoding of its own. Sail
+  and Spike link all eight.
 - **The Use Case box is readable in the light theme.** A rule meant to darken
   the catalogue's coloured group headings also caught the details panel's own
   sections, so the white Use Case box was halved to mid-grey with muddy text,
