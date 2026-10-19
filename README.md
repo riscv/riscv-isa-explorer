@@ -175,7 +175,7 @@ hand-written link to their specification's repository.
 | static extension pages and `sitemap.xml` | generated from the catalogue on every build, for search engines and AI crawlers; nothing to run by hand |
 | toolchain support | the `sync-toolchain-support` workflow, the 1st of each month at 10:00 UTC, opens or updates a PR when a new Clang, GCC, binutils, QEMU or Linux release ships or an extension's standing changes |
 | Sail, Spike and ACT links | the `sync-reference-impls` workflow, Mondays at 08:00 UTC, opens or updates a PR when an instruction gains or loses a link; new upstream commits alone do not, since the links are pinned |
-| instruction encodings | **by hand.** The `check-opcodes-drift` workflow, Mondays at 07:00 UTC, files an issue when upstream is ahead |
+| instruction encodings | **by hand.** The `check-opcodes-drift` workflow, Mondays at 07:00 UTC, files an issue when upstream is ahead, or carries different bits under a name we list (drafts included) |
 | new extensions | **by hand.** The weekly sync only enriches entries we already have; the `check-udb-completeness` workflow, Mondays at 09:00 UTC, keeps one issue updated with what riscv-unified-db has and we do not |
 
 `src/instr_dict.json` is hand-maintained on purpose and is not regenerated from

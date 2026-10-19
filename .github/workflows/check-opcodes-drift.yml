@@ -83,7 +83,8 @@ jobs:
         run: |
           {
             echo "<!-- opcodes-drift-report -->"
-            echo "riscv-opcodes has ratified encodings that \`src/instr_dict.json\` does not carry."
+            echo "riscv-opcodes has ratified encodings that \`src/instr_dict.json\` does not"
+            echo "carry, or different bits under a mnemonic it does."
             echo
             echo '```'
             cat drift.txt
@@ -98,7 +99,7 @@ jobs:
             echo
             echo "**Not applied automatically.** \`src/instr_dict.json\` is hand-maintained"
             echo "and holds entries upstream does not, so regenerating it from riscv-opcodes"
-            echo "would delete them. Add the new encodings by hand, run \`npm run sync\` to"
+            echo "would delete them. Add or correct the encodings by hand, run \`npm run sync\` to"
             echo "route them onto the catalogue, then \`npm test\`."
             echo
             echo "Closed automatically once the two are back in sync."
@@ -110,7 +111,7 @@ jobs:
               --body "Still drifting as of upstream \`${UPSTREAM_SHA}\`. Report updated."
           else
             gh issue create \
-              --title "riscv-opcodes has ratified encodings we do not carry" \
+              --title "riscv-opcodes has encodings we lack or disagree with" \
               --body-file body.md \
               --label automated,data-sync
           fi

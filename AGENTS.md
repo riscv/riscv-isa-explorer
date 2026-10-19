@@ -49,7 +49,7 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run sync:params -- <path-to-udb>` | Regenerate `src/isa-params.json` (UDB parameter definitions) |
 | `npm run graph:check -- <path-to-udb>` | Check dependency graph vs UDB |
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
-| `npm run opcodes:check -- <path-to-riscv-opcodes>` | Report instruction-encoding drift |
+| `npm run opcodes:check -- <path-to-riscv-opcodes>` | Report missing encodings and bits that disagree (drafts included) |
 | `npm run udb:check -- <path-to-udb> [--published]` | Report ratified extensions/instructions we lack; `--published` also checks every draft we list |
 
 There is no separate typecheck (no TypeScript).
