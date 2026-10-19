@@ -307,6 +307,11 @@
           "version": "7.2",
           "tag": "v7.2",
           "date": "2026-08-16"
+        },
+        {
+          "version": "7.3",
+          "tag": "v7.3",
+          "date": "2026-10-18"
         }
       ]
     }
@@ -755,6 +760,9 @@
       },
       "qemu": {
         "supported": "10.0"
+      },
+      "linux": {
+        "supported": "7.3"
       }
     },
     "smcfiss": {},
@@ -773,6 +781,9 @@
       },
       "qemu": {
         "supported": "9.1"
+      },
+      "linux": {
+        "supported": "7.3"
       }
     },
     "smcsrind": {
@@ -787,6 +798,9 @@
       },
       "qemu": {
         "supported": "10.0"
+      },
+      "linux": {
+        "supported": "7.3"
       }
     },
     "smctr": {
@@ -961,6 +975,9 @@
       },
       "qemu": {
         "supported": "10.0"
+      },
+      "linux": {
+        "supported": "7.3"
       }
     },
     "ssccptr": {
@@ -1024,6 +1041,9 @@
       },
       "qemu": {
         "supported": "10.0"
+      },
+      "linux": {
+        "supported": "7.3"
       }
     },
     "ssctr": {
@@ -1096,6 +1116,9 @@
       },
       "binutils": {
         "supported": "2.45"
+      },
+      "linux": {
+        "supported": "7.3"
       }
     },
     "ssstateen": {
@@ -1402,6 +1425,9 @@
       },
       "qemu": {
         "supported": "9.0"
+      },
+      "linux": {
+        "supported": "7.3"
       }
     },
     "zaamo": {
@@ -2015,6 +2041,9 @@
       },
       "qemu": {
         "supported": "9.0"
+      },
+      "linux": {
+        "supported": "7.3"
       }
     },
     "ziccamoc": {
@@ -2039,6 +2068,9 @@
       },
       "qemu": {
         "supported": "9.0"
+      },
+      "linux": {
+        "supported": "7.3"
       }
     },
     "zicclsm": {
@@ -2053,6 +2085,9 @@
       },
       "qemu": {
         "supported": "9.0"
+      },
+      "linux": {
+        "supported": "7.3"
       }
     },
     "ziccrse": {

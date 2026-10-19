@@ -29,6 +29,8 @@ someone silently. Each release below records its catalogue size.
 
 ### Changed
 
+- **Linux 7.3 in the toolchain data.** It detects Smcdeleg, Smcntrpmf,
+  Smcsrind, Ssccfg, Sscsrind, Ssqosid, Za64rs, Ziccamoa, Ziccif and Zicclsm.
 - **Synced with riscv-unified-db `3c02662`.** Sspmp needs Smpmpdeleg only
   alongside Machine ISA 1.13, so the builder no longer adds it to every SPMP
   configuration; `menvcfg` and `henvcfg` gain Smcdeleg's CDE bit; VABD and
