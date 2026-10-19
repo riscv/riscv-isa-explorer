@@ -508,9 +508,7 @@ test('ratified-only attribution drops development co-owners from its metric', ()
     catalogue,
     {
       extensions: [],
-      instructions: [
-        { ...amocas, mnemonic: 'AMOCAS.B', definedBy: ['DraftOwner', 'Zabha'] },
-      ],
+      instructions: [{ ...amocas, mnemonic: 'AMOCAS.B', definedBy: ['DraftOwner', 'Zabha'] }],
     },
     { onlyRatified: true, ratifiedExtensions: ['Zabha'] },
   );
@@ -529,6 +527,59 @@ test('ratification filtering is case-insensitive and defaults to off', () => {
 
   const off = compareAgainstUpstream(catalogue, upstream);
   assert.deepEqual(off.missingExtensions, ['Zsynthetic'], 'unfiltered by default');
+});
+
+test('published scope checks drafts the catalogue lists, and only those', () => {
+  // The Zvabd incident: ARC moved VABD.VV from funct6 0x11 to 0x15, and the
+  // ratified-only check could not see it because Zvabd is a draft.
+  const ours = rowFor('Zvabd', 'VABD.VV');
+  const moved = { match: ours.match ^ (0x04n << 26n), mask: ours.mask };
+  const upstream = {
+    extensions: ['Zvabd', 'Zunpublisheddraft'],
+    instructions: [
+      { mnemonic: 'VABD.VV', ...moved, definedBy: ['Zvabd'] },
+      {
+        mnemonic: 'DRAFTONLY',
+        match: 0x4000000bn,
+        mask: 0xffffffffn,
+        definedBy: ['Zunpublisheddraft'],
+      },
+    ],
+  };
+
+  const ratifiedOnly = compareAgainstUpstream(catalogue, upstream, { onlyRatified: true });
+  assert.equal(ratifiedOnly.encodingMismatches.length, 0, 'the gap this scope exists to close');
+
+  const published = compareAgainstUpstream(catalogue, upstream, {
+    onlyRatified: true,
+    includePublished: true,
+  });
+  assert.deepEqual(
+    published.encodingMismatches.map((m) => `${m.extension} ${m.mnemonic}`),
+    ['Zvabd VABD.VV'],
+  );
+  assert.deepEqual(published.missingInstructions, [], 'a draft we do not carry is not a gap');
+  assert.deepEqual(published.missingExtensions, []);
+  assert.equal(published.complete, false);
+});
+
+test('published scope follows extension aliases', () => {
+  // Upstream's bare I is this catalogue's RV32I/RV64I, so it is published here.
+  const upstream = {
+    extensions: [],
+    instructions: [
+      { mnemonic: 'BASEONLY', match: 0x5000000bn, mask: 0xffffffffn, definedBy: ['I'] },
+    ],
+  };
+  const result = compareAgainstUpstream(catalogue, upstream, {
+    onlyRatified: true,
+    includePublished: true,
+    extensionAliases: { I: ['RV32I', 'RV64I'] },
+  });
+  assert.deepEqual(
+    result.missingInstructions.map((m) => m.mnemonic),
+    ['BASEONLY'],
+  );
 });
 
 // ── variant spellings ──────────────────────────────────────────────────────

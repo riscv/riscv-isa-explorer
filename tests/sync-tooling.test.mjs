@@ -224,6 +224,46 @@ test('the UDB completeness JSON is complete and parseable', (t) => {
   assert.ok(report.coverage?.global, 'JSON report should contain global coverage');
 });
 
+test('every encoding the catalogue publishes agrees with UDB, drafts included', (t) => {
+  // Ratified-only scope never looked at Zvabd, so when ARC reassigned its
+  // opcodes the catalogue kept the old ones with every check green. The
+  // published scope covers everything we list, whatever its state.
+  const udb = UDB;
+  if (!fs.existsSync(path.join(udb, 'spec', 'std', 'isa', 'ext'))) {
+    t.skip('no riscv-unified-db checkout available (set UDB_DIR)');
+    return;
+  }
+
+  const { status, stdout } = run('check-udb-completeness.mjs', [udb, '--published', '--json']);
+  assert.ok(status === 0 || status === 1, `unexpected checker status ${status}:\n${stdout}`);
+  const report = JSON.parse(stdout);
+  assert.deepEqual(
+    report.encodingMismatches.map(
+      (m) => `${m.extension} ${m.mnemonic}: ${m.local} vs ${m.upstream}`,
+    ),
+    [],
+    'a published encoding disagrees with UDB',
+  );
+  assert.deepEqual(report.malformed, []);
+});
+
+test('every UDB erratum is still in UDB', async (t) => {
+  const udb = UDB;
+  const specDir = path.join(udb, 'spec', 'std', 'isa');
+  if (!fs.existsSync(path.join(specDir, 'ext'))) {
+    t.skip('no riscv-unified-db checkout available (set UDB_DIR)');
+    return;
+  }
+  const { UPSTREAM_ERRATA, parseUpstream } = await import('../scripts/check-udb-completeness.mjs');
+  const upstream = new Set(parseUpstream(specDir).instructions.map((i) => i.mnemonic));
+  for (const mnemonic of Object.keys(UPSTREAM_ERRATA)) {
+    assert.ok(
+      upstream.has(mnemonic),
+      `UDB no longer lists ${mnemonic}; drop it from UPSTREAM_ERRATA`,
+    );
+  }
+});
+
 test('every sync bot signs off as the same identity it authors as, and signs', () => {
   // The DCO gate compares the Signed-off-by trailer against the commit author
   // (%an <%ae>), but create-pull-request writes that trailer from the

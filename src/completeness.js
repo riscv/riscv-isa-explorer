@@ -153,10 +153,20 @@ export function compareAgainstUpstream(catalogue, upstream, options = {}) {
      */
     onlyRatified = false,
     ratifiedExtensions = [],
+    /*
+     * With onlyRatified, also keep every extension this catalogue publishes,
+     * whatever its upstream state.
+     *
+     * Ratified-only scope never looked at Zvabd, because Zvabd is a draft, so
+     * when ARC reassigned its opcodes the catalogue kept showing the old ones
+     * and every check passed. An extension we publish is one a reader trusts
+     * us on, ratified or not. Drafts we do not carry stay out of scope, so this
+     * adds no "missing" noise for upstream work nobody asked us to publish.
+     */
+    includePublished = false,
   } = options;
 
   const ratified = new Set(ratifiedExtensions.map((x) => x.toLowerCase()));
-  const isRatified = (id) => ratified.has(String(id).toLowerCase());
 
   const aliasesFor = (id) => {
     const mapped = extensionAliases[id] || extensionAliases[id.toLowerCase()];
@@ -171,6 +181,10 @@ export function compareAgainstUpstream(catalogue, upstream, options = {}) {
       .map((e) => e.id.toLowerCase()),
   );
 
+  const inScope = (id) =>
+    ratified.has(String(id).toLowerCase()) ||
+    (includePublished && aliasesFor(String(id)).some((alias) => localIds.has(alias)));
+
   const byExtension = new Map();
   for (const row of local) {
     const key = row.extension.toLowerCase();
@@ -181,12 +195,12 @@ export function compareAgainstUpstream(catalogue, upstream, options = {}) {
   const missingExtensions = (upstream.extensions || [])
     .filter((id) => !localIds.has(id.toLowerCase()))
     .filter((id) => !allowMissingExtensions.includes(id))
-    .filter((id) => !onlyRatified || isRatified(id))
+    .filter((id) => !onlyRatified || inScope(id))
     .sort();
 
-  // An instruction is only a ratified gap if something ratified defines it.
-  const upstreamIsRatified = (inst) =>
-    !onlyRatified || (inst.definedBy || []).some((owner) => isRatified(owner));
+  // An instruction is only a gap if something in scope defines it.
+  const upstreamInScope = (inst) =>
+    !onlyRatified || (inst.definedBy || []).some((owner) => inScope(owner));
 
   const missingInstructions = [];
   const attributedDifferently = [];
@@ -197,7 +211,7 @@ export function compareAgainstUpstream(catalogue, upstream, options = {}) {
   for (const inst of upstream.instructions || []) {
     const mnemonic = inst.mnemonic.toUpperCase();
     if (allowMissingInstructions.includes(mnemonic)) continue;
-    if (!upstreamIsRatified(inst)) continue;
+    if (!upstreamInScope(inst)) continue;
     considered++;
 
     /*
@@ -207,7 +221,7 @@ export function compareAgainstUpstream(catalogue, upstream, options = {}) {
      * prefix.
      */
     const scopedOwners = onlyRatified
-      ? (inst.definedBy || []).filter((owner) => isRatified(owner))
+      ? (inst.definedBy || []).filter((owner) => inScope(owner))
       : inst.definedBy || [];
     const owners = scopedOwners.flatMap(aliasesFor);
     const candidates = owners.flatMap((o) => byExtension.get(o) || []);
