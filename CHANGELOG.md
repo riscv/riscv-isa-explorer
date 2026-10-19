@@ -13,6 +13,15 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-10-19
+
+Catalogue: 211 entries, unchanged from 1.11.1; none added or removed. Zvabd's
+instruction list changes (VABS.V removed, four `.vx` forms added), which is
+why this is a minor release. Exported output changes in two places: a YAML
+export that includes the instruction catalogue carries the new Zvabd
+encodings, and a selection containing Sspmp no longer pulls in Smpmpdeleg, so
+its `-march` string and export are shorter.
+
 ### Fixed
 
 - **Zvabd's encodings match the v0.9 draft.** ARC reassigned them
@@ -20,23 +29,15 @@ someone silently. Each release below records its catalogue size.
   VWABDA and VWABDAU to 0x3D and 0x3E in the OPIVV space. The four `.vx` forms
   the draft adds are now listed, and VABS.V is gone: the draft defines it as an
   assembler alias for `vabd.vx vd, vs2, x0`, not an encoding of its own. Sail
-  and Spike link all eight.
+  and Spike link all eight (#453).
 - **The Use Case box is readable in the light theme.** A rule meant to darken
   the catalogue's coloured group headings also caught the details panel's own
   sections, so the white Use Case box was halved to mid-grey with muddy text,
   and the Description and Toolchain support sections were dimmed too. The rule
-  now stops at the details panel; Use Case text reads at 6.6:1.
+  now stops at the details panel; Use Case text reads at 6.6:1 (#446).
 
 ### Changed
 
-- **Linux 7.3 in the toolchain data.** It detects Smcdeleg, Smcntrpmf,
-  Smcsrind, Ssccfg, Sscsrind, Ssqosid, Za64rs, Ziccamoa, Ziccif and Zicclsm.
-- **Synced with riscv-unified-db `3c02662`.** Sspmp needs Smpmpdeleg only
-  alongside Machine ISA 1.13, so the builder no longer adds it to every SPMP
-  configuration; `menvcfg` and `henvcfg` gain Smcdeleg's CDE bit; VABD and
-  VABDU accept SEW=32 (and 64 with Zve64x). UDB now writes the hypervisor
-  loads and stores and FLQ with their address in parentheses, so the local
-  corrections for them are gone.
 - **CSR details are drawn like the ISA manual's register figures.** The
   register is laid out in 32-bit rows with bit numbers on every field, one-bit
   fields labelled vertically, and each field coloured by what software can do
@@ -47,19 +48,30 @@ someone silently. Each release below records its catalogue size.
   "F or Zvl32b") instead of `allOf`/`anyOf`, and lists only the fields that
   exist at the chosen XLEN. The RV32/RV64 switch appears only for registers it
   changes, and a fixed 32-bit CSR is no longer drawn half "Unspecified" on a
-  64-bit strip.
+  64-bit strip (#447).
 - **Numbered CSR families fold into one chip.** PMPADDR0–63, PMPCFG0–15 and
   the HPM counters each take one chip that opens a grid of their members, and
   the list is in natural order (PMPADDR2 before PMPADDR10). Sm's list goes
-  from 223 chips to about 40. The selected chip is readable in the light theme.
-
+  from 223 chips to about 40. The selected chip is readable in the light theme
+  (#447).
 - **Instruction details in clear sections.** The card is grouped into three
   titled sections, Write it (assembly, intrinsic, Compiler Explorer), Encoding
   (bit fields, variable fields, match and mask, compressed forms) and
   Implementations and tests (Sail, Spike, ACT), each a heading a screen reader
   can jump to. Jump links under the description move straight to a section,
   Close is a proper button, and the source link says it points at
-  riscv-unified-db.
+  riscv-unified-db (#445).
+- **Synced with riscv-unified-db `3c02662`.** Sspmp needs Smpmpdeleg only
+  alongside Machine ISA 1.13, so the builder no longer adds it to every SPMP
+  configuration; `menvcfg` and `henvcfg` gain Smcdeleg's CDE bit; VABD and
+  VABDU accept SEW=32 (and 64 with Zve64x). UDB now writes the hypervisor
+  loads and stores and FLQ with their address in parentheses, so the local
+  corrections for them are gone (#453).
+- **Linux 7.3 in the toolchain data.** It detects Smcdeleg, Smcntrpmf,
+  Smcsrind, Ssccfg, Sscsrind, Ssqosid, Za64rs, Ziccamoa, Ziccif and Zicclsm
+  (#453).
+- **BEQI and BNEI link to their riscv-arch-test tests**, and the Sail and
+  Spike links follow those projects' current commits (#451).
 
 ### Added
 
@@ -68,7 +80,12 @@ someone silently. Each release below records its catalogue size.
   version. A snapshot of those lists, refreshed weekly, is now compared with
   the catalogue on every test run, so the next time riscv-unified-db lags the
   manual (as it did on Sm 1.13) CI fails and an issue opens, instead of a
-  reader noticing.
+  reader noticing (#444, #452).
+- **Draft extensions we publish are checked against upstream, bit for bit.**
+  The UDB check now covers every extension the catalogue lists, not only
+  ratified ones, and the riscv-opcodes drift report compares encodings rather
+  than names. Either would have caught the stale Zvabd encodings; CI and the
+  weekly reports now do (#454).
 
 ## [1.11.1] - 2026-10-15
 
