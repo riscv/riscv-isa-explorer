@@ -29,6 +29,12 @@ someone silently. Each release below records its catalogue size.
 
 ### Changed
 
+- **Synced with riscv-unified-db `3c02662`.** Sspmp needs Smpmpdeleg only
+  alongside Machine ISA 1.13, so the builder no longer adds it to every SPMP
+  configuration; `menvcfg` and `henvcfg` gain Smcdeleg's CDE bit; VABD and
+  VABDU accept SEW=32 (and 64 with Zve64x). UDB now writes the hypervisor
+  loads and stores and FLQ with their address in parentheses, so the local
+  corrections for them are gone.
 - **CSR details are drawn like the ISA manual's register figures.** The
   register is laid out in 32-bit rows with bit numbers on every field, one-bit
   fields labelled vertically, and each field coloured by what software can do

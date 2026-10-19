@@ -66,7 +66,7 @@ test('syntax is written the way the specification writes it', () => {
   assert.equal(assemblySyntax('lw', 'xd, imm(xs1)'), 'lw rd, imm(rs1)');
   assert.equal(assemblySyntax('vmerge.vvm', 'vd, vs2, vs1, v0'), 'vmerge.vvm vd, vs2, vs1, v0');
   assert.equal(assemblySyntax('ecall', ''), 'ecall');
-  assert.equal(assemblySyntax('hlv.d', 'xd, xs1'), 'hlv.d rd, (rs1)', 'upstream fix applied');
+  assert.equal(assemblySyntax('fli.s', 'fd, xs1'), 'fli.s fd, imm', 'upstream fix applied');
   assert.equal(assemblySyntax('add', undefined), '');
 });
 
