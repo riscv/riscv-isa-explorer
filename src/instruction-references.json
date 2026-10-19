@@ -1,7 +1,7 @@
 {
   "sail": {
     "repo": "riscv/sail-riscv",
-    "commit": "319335c923c91983f2dfd3b18e216a4b7b728e18",
+    "commit": "cd3f185e3a40cd402632d78a2bc213d62ae6f753",
     "files": [
       "model/extensions/I/base_insts.sail",
       "model/extensions/B/zba_insts.sail",
@@ -64,11 +64,11 @@
   },
   "spike": {
     "repo": "riscv-software-src/riscv-isa-sim",
-    "commit": "f8a060b7bea8da6f738f193ed1b66b665978d092"
+    "commit": "5a760667bf0d0ab893173b9eeff9c109c8d7dd9a"
   },
   "act": {
     "repo": "riscv/riscv-arch-test",
-    "commit": "0f2951e507a2d136db50b7ba60f8fdc32f60552a"
+    "commit": "51c0ed49294c5797a59d0203517b14e1f5fe9656"
   },
   "instructions": {
     "add": {
@@ -250,7 +250,7 @@
     "amoadd.b": {
       "sail": [
         3,
-        129
+        140
       ],
       "spike": "amoadd_b",
       "act": [
@@ -261,7 +261,7 @@
     "amoadd.d": {
       "sail": [
         3,
-        129
+        140
       ],
       "spike": "amoadd_d",
       "act": [
@@ -272,7 +272,7 @@
     "amoadd.h": {
       "sail": [
         3,
-        129
+        140
       ],
       "spike": "amoadd_h",
       "act": [
@@ -283,7 +283,7 @@
     "amoadd.w": {
       "sail": [
         3,
-        129
+        140
       ],
       "spike": "amoadd_w",
       "act": [
@@ -294,7 +294,7 @@
     "amoand.b": {
       "sail": [
         3,
-        131
+        142
       ],
       "spike": "amoand_b",
       "act": [
@@ -305,7 +305,7 @@
     "amoand.d": {
       "sail": [
         3,
-        131
+        142
       ],
       "spike": "amoand_d",
       "act": [
@@ -316,7 +316,7 @@
     "amoand.h": {
       "sail": [
         3,
-        131
+        142
       ],
       "spike": "amoand_h",
       "act": [
@@ -327,7 +327,7 @@
     "amoand.w": {
       "sail": [
         3,
-        131
+        142
       ],
       "spike": "amoand_w",
       "act": [
@@ -338,7 +338,7 @@
     "amocas.b": {
       "sail": [
         3,
-        138
+        149
       ],
       "spike": "amocas_b",
       "act": [
@@ -349,7 +349,7 @@
     "amocas.d": {
       "sail": [
         3,
-        138
+        149
       ],
       "spike": "amocas_d",
       "act": [
@@ -360,7 +360,7 @@
     "amocas.h": {
       "sail": [
         3,
-        138
+        149
       ],
       "spike": "amocas_h",
       "act": [
@@ -371,7 +371,7 @@
     "amocas.q": {
       "sail": [
         3,
-        138
+        149
       ],
       "spike": "amocas_q",
       "act": [
@@ -382,7 +382,7 @@
     "amocas.w": {
       "sail": [
         3,
-        138
+        149
       ],
       "spike": "amocas_w",
       "act": [
@@ -393,7 +393,7 @@
     "amomax.b": {
       "sail": [
         3,
-        134
+        145
       ],
       "spike": "amomax_b",
       "act": [
@@ -404,7 +404,7 @@
     "amomax.d": {
       "sail": [
         3,
-        134
+        145
       ],
       "spike": "amomax_d",
       "act": [
@@ -415,7 +415,7 @@
     "amomax.h": {
       "sail": [
         3,
-        134
+        145
       ],
       "spike": "amomax_h",
       "act": [
@@ -426,7 +426,7 @@
     "amomax.w": {
       "sail": [
         3,
-        134
+        145
       ],
       "spike": "amomax_w",
       "act": [
@@ -437,7 +437,7 @@
     "amomaxu.b": {
       "sail": [
         3,
-        136
+        147
       ],
       "spike": "amomaxu_b",
       "act": [
@@ -448,7 +448,7 @@
     "amomaxu.d": {
       "sail": [
         3,
-        136
+        147
       ],
       "spike": "amomaxu_d",
       "act": [
@@ -459,7 +459,7 @@
     "amomaxu.h": {
       "sail": [
         3,
-        136
+        147
       ],
       "spike": "amomaxu_h",
       "act": [
@@ -470,7 +470,7 @@
     "amomaxu.w": {
       "sail": [
         3,
-        136
+        147
       ],
       "spike": "amomaxu_w",
       "act": [
@@ -481,7 +481,7 @@
     "amomin.b": {
       "sail": [
         3,
-        133
+        144
       ],
       "spike": "amomin_b",
       "act": [
@@ -492,7 +492,7 @@
     "amomin.d": {
       "sail": [
         3,
-        133
+        144
       ],
       "spike": "amomin_d",
       "act": [
@@ -503,7 +503,7 @@
     "amomin.h": {
       "sail": [
         3,
-        133
+        144
       ],
       "spike": "amomin_h",
       "act": [
@@ -514,7 +514,7 @@
     "amomin.w": {
       "sail": [
         3,
-        133
+        144
       ],
       "spike": "amomin_w",
       "act": [
@@ -525,7 +525,7 @@
     "amominu.b": {
       "sail": [
         3,
-        135
+        146
       ],
       "spike": "amominu_b",
       "act": [
@@ -536,7 +536,7 @@
     "amominu.d": {
       "sail": [
         3,
-        135
+        146
       ],
       "spike": "amominu_d",
       "act": [
@@ -547,7 +547,7 @@
     "amominu.h": {
       "sail": [
         3,
-        135
+        146
       ],
       "spike": "amominu_h",
       "act": [
@@ -558,7 +558,7 @@
     "amominu.w": {
       "sail": [
         3,
-        135
+        146
       ],
       "spike": "amominu_w",
       "act": [
@@ -569,7 +569,7 @@
     "amoor.b": {
       "sail": [
         3,
-        132
+        143
       ],
       "spike": "amoor_b",
       "act": [
@@ -580,7 +580,7 @@
     "amoor.d": {
       "sail": [
         3,
-        132
+        143
       ],
       "spike": "amoor_d",
       "act": [
@@ -591,7 +591,7 @@
     "amoor.h": {
       "sail": [
         3,
-        132
+        143
       ],
       "spike": "amoor_h",
       "act": [
@@ -602,7 +602,7 @@
     "amoor.w": {
       "sail": [
         3,
-        132
+        143
       ],
       "spike": "amoor_w",
       "act": [
@@ -613,7 +613,7 @@
     "amoswap.b": {
       "sail": [
         3,
-        128
+        139
       ],
       "spike": "amoswap_b",
       "act": [
@@ -624,7 +624,7 @@
     "amoswap.d": {
       "sail": [
         3,
-        128
+        139
       ],
       "spike": "amoswap_d",
       "act": [
@@ -635,7 +635,7 @@
     "amoswap.h": {
       "sail": [
         3,
-        128
+        139
       ],
       "spike": "amoswap_h",
       "act": [
@@ -646,7 +646,7 @@
     "amoswap.w": {
       "sail": [
         3,
-        128
+        139
       ],
       "spike": "amoswap_w",
       "act": [
@@ -657,7 +657,7 @@
     "amoxor.b": {
       "sail": [
         3,
-        130
+        141
       ],
       "spike": "amoxor_b",
       "act": [
@@ -668,7 +668,7 @@
     "amoxor.d": {
       "sail": [
         3,
-        130
+        141
       ],
       "spike": "amoxor_d",
       "act": [
@@ -679,7 +679,7 @@
     "amoxor.h": {
       "sail": [
         3,
-        130
+        141
       ],
       "spike": "amoxor_h",
       "act": [
@@ -690,7 +690,7 @@
     "amoxor.w": {
       "sail": [
         3,
-        130
+        141
       ],
       "spike": "amoxor_w",
       "act": [
@@ -780,7 +780,11 @@
         6,
         29
       ],
-      "spike": "beqi"
+      "spike": "beqi",
+      "act": [
+        "rv64i/Zibi/Zibi-beqi-00.S",
+        1
+      ]
     },
     "bext": {
       "sail": [
@@ -886,7 +890,11 @@
         6,
         30
       ],
-      "spike": "bnei"
+      "spike": "bnei",
+      "act": [
+        "rv64i/Zibi/Zibi-bnei-00.S",
+        1
+      ]
     },
     "brev8": {
       "sail": [
@@ -1614,7 +1622,7 @@
     "cbo.clean": {
       "sail": [
         13,
-        112
+        125
       ],
       "spike": "cbo_clean",
       "act": [
@@ -1625,7 +1633,7 @@
     "cbo.flush": {
       "sail": [
         13,
-        119
+        132
       ],
       "spike": "cbo_flush",
       "act": [
@@ -1636,7 +1644,7 @@
     "cbo.inval": {
       "sail": [
         13,
-        126
+        139
       ],
       "spike": "cbo_inval",
       "act": [
@@ -1916,7 +1924,7 @@
     "ebreak": {
       "sail": [
         0,
-        725
+        736
       ],
       "spike": "ebreak"
     },
@@ -4194,7 +4202,7 @@
     "mret": {
       "sail": [
         0,
-        605
+        616
       ],
       "spike": "mret"
     },
@@ -4701,7 +4709,7 @@
     "sfence.vma": {
       "sail": [
         0,
-        763
+        774
       ],
       "spike": "sfence_vma"
     },
@@ -5143,7 +5151,7 @@
     "sret": {
       "sail": [
         0,
-        653
+        664
       ],
       "spike": "sret"
     },
@@ -6306,112 +6314,112 @@
     "vl1re16.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl1re16_v"
     },
     "vl1re32.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl1re32_v"
     },
     "vl1re64.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl1re64_v"
     },
     "vl1re8.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl1re8_v"
     },
     "vl2re16.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl2re16_v"
     },
     "vl2re32.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl2re32_v"
     },
     "vl2re64.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl2re64_v"
     },
     "vl2re8.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl2re8_v"
     },
     "vl4re16.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl4re16_v"
     },
     "vl4re32.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl4re32_v"
     },
     "vl4re64.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl4re64_v"
     },
     "vl4re8.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl4re8_v"
     },
     "vl8re16.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl8re16_v"
     },
     "vl8re32.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl8re32_v"
     },
     "vl8re64.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl8re64_v"
     },
     "vl8re8.v": {
       "sail": [
         48,
-        487
+        496
       ],
       "spike": "vl8re8_v"
     },
@@ -6474,259 +6482,259 @@
     "vlm.v": {
       "sail": [
         48,
-        610
+        619
       ],
       "spike": "vlm_v"
     },
     "vloxei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei16_v"
     },
     "vloxei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei32_v"
     },
     "vloxei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei64_v"
     },
     "vloxei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei8_v"
     },
     "vloxseg2ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei16_v"
     },
     "vloxseg2ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei32_v"
     },
     "vloxseg2ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei64_v"
     },
     "vloxseg2ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei8_v"
     },
     "vloxseg3ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei16_v"
     },
     "vloxseg3ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei32_v"
     },
     "vloxseg3ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei64_v"
     },
     "vloxseg3ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei8_v"
     },
     "vloxseg4ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei16_v"
     },
     "vloxseg4ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei32_v"
     },
     "vloxseg4ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei64_v"
     },
     "vloxseg4ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei8_v"
     },
     "vloxseg5ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei16_v"
     },
     "vloxseg5ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei32_v"
     },
     "vloxseg5ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei64_v"
     },
     "vloxseg5ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei8_v"
     },
     "vloxseg6ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei16_v"
     },
     "vloxseg6ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei32_v"
     },
     "vloxseg6ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei64_v"
     },
     "vloxseg6ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei8_v"
     },
     "vloxseg7ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei16_v"
     },
     "vloxseg7ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei32_v"
     },
     "vloxseg7ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei64_v"
     },
     "vloxseg7ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei8_v"
     },
     "vloxseg8ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei16_v"
     },
     "vloxseg8ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei32_v"
     },
     "vloxseg8ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei64_v"
     },
     "vloxseg8ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vloxei8_v"
     },
     "vlse16.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse16_v"
     },
     "vlse32.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse32_v"
     },
     "vlse64.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse64_v"
     },
     "vlse8.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse8_v"
     },
@@ -7125,420 +7133,420 @@
     "vlsseg2e16.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse16_v"
     },
     "vlsseg2e32.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse32_v"
     },
     "vlsseg2e64.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse64_v"
     },
     "vlsseg2e8.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse8_v"
     },
     "vlsseg3e16.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse16_v"
     },
     "vlsseg3e32.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse32_v"
     },
     "vlsseg3e64.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse64_v"
     },
     "vlsseg3e8.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse8_v"
     },
     "vlsseg4e16.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse16_v"
     },
     "vlsseg4e32.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse32_v"
     },
     "vlsseg4e64.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse64_v"
     },
     "vlsseg4e8.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse8_v"
     },
     "vlsseg5e16.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse16_v"
     },
     "vlsseg5e32.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse32_v"
     },
     "vlsseg5e64.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse64_v"
     },
     "vlsseg5e8.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse8_v"
     },
     "vlsseg6e16.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse16_v"
     },
     "vlsseg6e32.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse32_v"
     },
     "vlsseg6e64.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse64_v"
     },
     "vlsseg6e8.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse8_v"
     },
     "vlsseg7e16.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse16_v"
     },
     "vlsseg7e32.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse32_v"
     },
     "vlsseg7e64.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse64_v"
     },
     "vlsseg7e8.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse8_v"
     },
     "vlsseg8e16.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse16_v"
     },
     "vlsseg8e32.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse32_v"
     },
     "vlsseg8e64.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse64_v"
     },
     "vlsseg8e8.v": {
       "sail": [
         48,
-        241
+        250
       ],
       "spike": "vlse8_v"
     },
     "vluxei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei16_v"
     },
     "vluxei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei32_v"
     },
     "vluxei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei64_v"
     },
     "vluxei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei8_v"
     },
     "vluxseg2ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei16_v"
     },
     "vluxseg2ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei32_v"
     },
     "vluxseg2ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei64_v"
     },
     "vluxseg2ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei8_v"
     },
     "vluxseg3ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei16_v"
     },
     "vluxseg3ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei32_v"
     },
     "vluxseg3ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei64_v"
     },
     "vluxseg3ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei8_v"
     },
     "vluxseg4ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei16_v"
     },
     "vluxseg4ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei32_v"
     },
     "vluxseg4ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei64_v"
     },
     "vluxseg4ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei8_v"
     },
     "vluxseg5ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei16_v"
     },
     "vluxseg5ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei32_v"
     },
     "vluxseg5ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei64_v"
     },
     "vluxseg5ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei8_v"
     },
     "vluxseg6ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei16_v"
     },
     "vluxseg6ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei32_v"
     },
     "vluxseg6ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei64_v"
     },
     "vluxseg6ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei8_v"
     },
     "vluxseg7ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei16_v"
     },
     "vluxseg7ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei32_v"
     },
     "vluxseg7ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei64_v"
     },
     "vluxseg7ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei8_v"
     },
     "vluxseg8ei16.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei16_v"
     },
     "vluxseg8ei32.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei32_v"
     },
     "vluxseg8ei64.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei64_v"
     },
     "vluxseg8ei8.v": {
       "sail": [
         48,
-        359
+        368
       ],
       "spike": "vluxei8_v"
     },
@@ -8427,28 +8435,28 @@
     "vs1r.v": {
       "sail": [
         48,
-        544
+        553
       ],
       "spike": "vs1r_v"
     },
     "vs2r.v": {
       "sail": [
         48,
-        544
+        553
       ],
       "spike": "vs2r_v"
     },
     "vs4r.v": {
       "sail": [
         48,
-        544
+        553
       ],
       "spike": "vs4r_v"
     },
     "vs8r.v": {
       "sail": [
         48,
-        544
+        553
       ],
       "spike": "vs8r_v"
     },
@@ -8511,28 +8519,28 @@
     "vse16.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse16_v"
     },
     "vse32.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse32_v"
     },
     "vse64.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse64_v"
     },
     "vse8.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse8_v"
     },
@@ -8665,7 +8673,7 @@
     "vsm.v": {
       "sail": [
         48,
-        610
+        619
       ],
       "spike": "vsm_v"
     },
@@ -8721,224 +8729,224 @@
     "vsoxei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei16_v"
     },
     "vsoxei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei32_v"
     },
     "vsoxei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei64_v"
     },
     "vsoxei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei8_v"
     },
     "vsoxseg2ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei16_v"
     },
     "vsoxseg2ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei32_v"
     },
     "vsoxseg2ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei64_v"
     },
     "vsoxseg2ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei8_v"
     },
     "vsoxseg3ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei16_v"
     },
     "vsoxseg3ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei32_v"
     },
     "vsoxseg3ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei64_v"
     },
     "vsoxseg3ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei8_v"
     },
     "vsoxseg4ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei16_v"
     },
     "vsoxseg4ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei32_v"
     },
     "vsoxseg4ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei64_v"
     },
     "vsoxseg4ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei8_v"
     },
     "vsoxseg5ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei16_v"
     },
     "vsoxseg5ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei32_v"
     },
     "vsoxseg5ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei64_v"
     },
     "vsoxseg5ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei8_v"
     },
     "vsoxseg6ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei16_v"
     },
     "vsoxseg6ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei32_v"
     },
     "vsoxseg6ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei64_v"
     },
     "vsoxseg6ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei8_v"
     },
     "vsoxseg7ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei16_v"
     },
     "vsoxseg7ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei32_v"
     },
     "vsoxseg7ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei64_v"
     },
     "vsoxseg7ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei8_v"
     },
     "vsoxseg8ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei16_v"
     },
     "vsoxseg8ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei32_v"
     },
     "vsoxseg8ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei64_v"
     },
     "vsoxseg8ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsoxei8_v"
     },
@@ -8987,224 +8995,224 @@
     "vsse16.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse16_v"
     },
     "vsse32.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse32_v"
     },
     "vsse64.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse64_v"
     },
     "vsse8.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse8_v"
     },
     "vsseg2e16.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse16_v"
     },
     "vsseg2e32.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse32_v"
     },
     "vsseg2e64.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse64_v"
     },
     "vsseg2e8.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse8_v"
     },
     "vsseg3e16.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse16_v"
     },
     "vsseg3e32.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse32_v"
     },
     "vsseg3e64.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse64_v"
     },
     "vsseg3e8.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse8_v"
     },
     "vsseg4e16.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse16_v"
     },
     "vsseg4e32.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse32_v"
     },
     "vsseg4e64.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse64_v"
     },
     "vsseg4e8.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse8_v"
     },
     "vsseg5e16.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse16_v"
     },
     "vsseg5e32.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse32_v"
     },
     "vsseg5e64.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse64_v"
     },
     "vsseg5e8.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse8_v"
     },
     "vsseg6e16.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse16_v"
     },
     "vsseg6e32.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse32_v"
     },
     "vsseg6e64.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse64_v"
     },
     "vsseg6e8.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse8_v"
     },
     "vsseg7e16.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse16_v"
     },
     "vsseg7e32.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse32_v"
     },
     "vsseg7e64.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse64_v"
     },
     "vsseg7e8.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse8_v"
     },
     "vsseg8e16.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse16_v"
     },
     "vsseg8e32.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse32_v"
     },
     "vsseg8e64.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse64_v"
     },
     "vsseg8e8.v": {
       "sail": [
         48,
-        184
+        193
       ],
       "spike": "vse8_v"
     },
@@ -9253,196 +9261,196 @@
     "vssseg2e16.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse16_v"
     },
     "vssseg2e32.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse32_v"
     },
     "vssseg2e64.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse64_v"
     },
     "vssseg2e8.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse8_v"
     },
     "vssseg3e16.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse16_v"
     },
     "vssseg3e32.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse32_v"
     },
     "vssseg3e64.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse64_v"
     },
     "vssseg3e8.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse8_v"
     },
     "vssseg4e16.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse16_v"
     },
     "vssseg4e32.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse32_v"
     },
     "vssseg4e64.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse64_v"
     },
     "vssseg4e8.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse8_v"
     },
     "vssseg5e16.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse16_v"
     },
     "vssseg5e32.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse32_v"
     },
     "vssseg5e64.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse64_v"
     },
     "vssseg5e8.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse8_v"
     },
     "vssseg6e16.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse16_v"
     },
     "vssseg6e32.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse32_v"
     },
     "vssseg6e64.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse64_v"
     },
     "vssseg6e8.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse8_v"
     },
     "vssseg7e16.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse16_v"
     },
     "vssseg7e32.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse32_v"
     },
     "vssseg7e64.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse64_v"
     },
     "vssseg7e8.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse8_v"
     },
     "vssseg8e16.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse16_v"
     },
     "vssseg8e32.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse32_v"
     },
     "vssseg8e64.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse64_v"
     },
     "vssseg8e8.v": {
       "sail": [
         48,
-        299
+        308
       ],
       "spike": "vsse8_v"
     },
@@ -9491,224 +9499,224 @@
     "vsuxei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei16_v"
     },
     "vsuxei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei32_v"
     },
     "vsuxei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei64_v"
     },
     "vsuxei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei8_v"
     },
     "vsuxseg2ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei16_v"
     },
     "vsuxseg2ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei32_v"
     },
     "vsuxseg2ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei64_v"
     },
     "vsuxseg2ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei8_v"
     },
     "vsuxseg3ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei16_v"
     },
     "vsuxseg3ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei32_v"
     },
     "vsuxseg3ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei64_v"
     },
     "vsuxseg3ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei8_v"
     },
     "vsuxseg4ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei16_v"
     },
     "vsuxseg4ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei32_v"
     },
     "vsuxseg4ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei64_v"
     },
     "vsuxseg4ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei8_v"
     },
     "vsuxseg5ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei16_v"
     },
     "vsuxseg5ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei32_v"
     },
     "vsuxseg5ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei64_v"
     },
     "vsuxseg5ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei8_v"
     },
     "vsuxseg6ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei16_v"
     },
     "vsuxseg6ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei32_v"
     },
     "vsuxseg6ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei64_v"
     },
     "vsuxseg6ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei8_v"
     },
     "vsuxseg7ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei16_v"
     },
     "vsuxseg7ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei32_v"
     },
     "vsuxseg7ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei64_v"
     },
     "vsuxseg7ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei8_v"
     },
     "vsuxseg8ei16.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei16_v"
     },
     "vsuxseg8ei32.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei32_v"
     },
     "vsuxseg8ei64.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei64_v"
     },
     "vsuxseg8ei8.v": {
       "sail": [
         48,
-        427
+        436
       ],
       "spike": "vsuxei8_v"
     },
@@ -10009,7 +10017,7 @@
     "wfi": {
       "sail": [
         0,
-        736
+        747
       ],
       "spike": "wfi"
     },
