@@ -13,7 +13,7 @@
  * so differences do not establish that an encoding is missing.
  *
  * Usage:
- *   node scripts/report-instruction-owners.mjs <path-to-udb> --report
+ *   node scripts/report-instruction-owners.mjs <path-to-udb>
  *
  * Exits 0 after reporting, including when matches are missing; 2 on invalid
  * arguments or a read/parse error.
@@ -27,6 +27,12 @@ import YAML from 'yaml';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 const object = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+// Same suffix normalization as isVariantSpelling in src/completeness.js.
+const normalizeMnemonic = (name) =>
+  name
+    .toUpperCase()
+    .replace(/\.(AQRL|AQ|RL)$/, '')
+    .replace(/\.(RV32|RV64)$/, '');
 
 /**
  * Collect extension names from definedBy, counting each name once.
@@ -149,8 +155,8 @@ export function ownershipReport(catalog, instructions) {
   const differences = entries
     .map((entry) => {
       const names = Object.keys(entry.instructions ?? {}).sort(compare);
-      const owned = byOwner.get(entry.id);
-      const missing = names.filter((name) => !owned?.has(name.toUpperCase()));
+      const owned = new Set([...(byOwner.get(entry.id)?.keys() ?? [])].map(normalizeMnemonic));
+      const missing = names.filter((name) => !owned.has(normalizeMnemonic(name)));
       return {
         id: entry.id,
         current: names.length,
@@ -191,7 +197,7 @@ export function formatReport(report, revision) {
   const lines = [
     `UDB revision: ${revision}`,
     `Catalogue: ${report.catalogueCount} entries; UDB: ${report.instructionCount} instruction files`,
-    'Direct owner/name matching only; no aliases, bundles or vector derivation applied.',
+    'Owner/name matching uses standard mnemonic suffix rules; no aliases, bundles or vector derivation applied.',
     'Conditions below are preserved, not evaluated; an owner match is not a claim of availability.',
     'Differences are migration planning findings, not encoding coverage defects.',
   ];
@@ -235,11 +241,11 @@ export function formatReport(report, revision) {
 }
 
 function main(args) {
-  if (args.length !== 2 || !args.includes('--report') || !args.some((a) => !a.startsWith('-'))) {
-    console.error('usage: node scripts/report-instruction-owners.mjs <path-to-udb> --report');
+  if (args.length !== 1 || args[0].startsWith('-')) {
+    console.error('usage: node scripts/report-instruction-owners.mjs <path-to-udb>');
     return 2;
   }
-  const udbRoot = path.resolve(args.find((arg) => !arg.startsWith('-')));
+  const udbRoot = path.resolve(args[0]);
   try {
     const instructions = readInstructions(udbRoot);
     const catalog = JSON.parse(

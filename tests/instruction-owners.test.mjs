@@ -205,6 +205,41 @@ test('direct comparison uses exact owner IDs, shows partial losses, and applies 
   );
 });
 
+test('RV32 catalogue spellings match plain UDB names within the same owner', () => {
+  const catalog = {
+    group: [
+      { id: 'Zilsd', instructions: { 'LD.RV32': {}, 'SD.RV32': {}, 'LD.LOCAL': {} } },
+      {
+        id: 'Zclsd',
+        instructions: {
+          'C.LD.RV32': {},
+          'C.LDSP.RV32': {},
+          'C.SD.RV32': {},
+          'C.SDSP.RV32': {},
+        },
+      },
+      { id: 'Zbb', instructions: { 'ZEXT.H.RV32': {} } },
+      { id: 'Zbkb', instructions: { 'REV8.RV32': {} } },
+      { id: 'Other', instructions: { 'LD.RV32': {} } },
+    ],
+  };
+  const rv32 = (name) => ({ allOf: [{ xlen: 32 }, ext(name)] });
+  const rows = [
+    instruction('LD', rv32('Zilsd')),
+    instruction('SD', rv32('Zilsd')),
+    instruction('C.LD', rv32('Zclsd')),
+    instruction('C.LDSP', rv32('Zclsd')),
+    instruction('C.SD', rv32('Zclsd')),
+    instruction('C.SDSP', rv32('Zclsd')),
+    instruction('ZEXT.H', rv32('Zbb')),
+    instruction('REV8', { allOf: [{ xlen: 32 }, { anyOf: [ext('Zbb'), ext('Zbkb')] }] }),
+  ];
+  assert.deepEqual(ownershipReport(catalog, rows).differences, [
+    { id: 'Other', current: 1, matched: 0, missing: ['LD.RV32'] },
+    { id: 'Zilsd', current: 3, matched: 2, missing: ['LD.LOCAL'] },
+  ]);
+});
+
 test('recursive YAML reading supports flow style, CRLF, and retains relative sources', (t) => {
   const dir = checkout(t, {
     'Smctr/nested/sctrclr.yaml':
@@ -293,7 +328,7 @@ test('CLI reports findings successfully and changes neither source nor project i
       .map((f) => path.join(dir, 'spec/std/isa/inst/Test', f)),
   ];
   const before = files.map((file) => fs.readFileSync(path.resolve(root, file)));
-  const result = run(dir, '--report');
+  const result = run(dir);
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.stderr, '');
   assert.match(result.stdout, /UDB revision: unavailable/);
@@ -306,7 +341,7 @@ test('CLI reports findings successfully and changes neither source nor project i
   files.forEach((file, index) => {
     assert.ok(fs.readFileSync(path.resolve(root, file)).equals(before[index]), `${file} changed`);
   });
-  assert.equal(run('--report', dir).stdout, result.stdout, 'output is deterministic');
+  assert.equal(run(dir).stdout, result.stdout, 'output is deterministic');
 });
 
 test('CLI uses nonzero exit for bad input, without emitting a misleading partial report', (t) => {
@@ -318,7 +353,7 @@ test('CLI uses nonzero exit for bad input, without emitting a misleading partial
     [dir],
     [dir, '--json'],
     [dir, '--report', '--typo'],
-    [path.join(dir, 'missing-checkout'), '--report'],
+    [path.join(dir, 'missing-checkout')],
     [dir, '--report'],
   ]) {
     const result = run(...args);
