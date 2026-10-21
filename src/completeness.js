@@ -77,6 +77,15 @@ export function isOrderingRefinement(local, upstream) {
 }
 
 /**
+ * A mnemonic without the suffixes that only spell a variant of it: an ordering
+ * suffix (.AQ, .RL, .AQRL), then an XLEN suffix (.RV32, .RV64). Expects the
+ * upper-case spelling the catalogue and upstream both use.
+ */
+export function variantBase(mnemonic) {
+  return mnemonic.replace(/\.(AQRL|AQ|RL)$/, '').replace(/\.(RV32|RV64)$/, '');
+}
+
+/**
  * Is `local` a variant spelling of the same instruction as `upstream`?
  *
  * Coverage by a differently-named row is only meaningful for names that denote
@@ -92,7 +101,7 @@ export function isOrderingRefinement(local, upstream) {
  * complete because somebody else's bits happen to be a superset.
  */
 export function isVariantSpelling(local, upstream) {
-  const strip = (m) => m.replace(/\.(AQRL|AQ|RL)$/, '').replace(/\.(RV32|RV64)$/, '');
+  const strip = variantBase;
   if (local === upstream) return true;
   return strip(local) === strip(upstream) && strip(local).length > 0;
 }

@@ -15,6 +15,7 @@ import {
   flattenCatalogue,
   compareAgainstUpstream,
   isVariantSpelling,
+  variantBase,
 } from '../src/completeness.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -602,6 +603,16 @@ test('a variant spelling is an ordering or XLEN suffix, nothing looser', () => {
   assert.equal(isVariantSpelling('C.ADD', 'C.JALR'), false);
   assert.equal(isVariantSpelling('PACKW', 'ZEXT.H'), false);
   assert.equal(isVariantSpelling('FENCE', 'FENCE.TSO'), false);
+});
+
+test('variantBase strips one ordering suffix, then one XLEN suffix, nothing else', () => {
+  assert.equal(variantBase('AMOADD.W.AQRL'), 'AMOADD.W');
+  assert.equal(variantBase('LR.W.AQ'), 'LR.W');
+  assert.equal(variantBase('SC.D.RL'), 'SC.D');
+  assert.equal(variantBase('C.LDSP.RV32'), 'C.LDSP');
+  assert.equal(variantBase('REV8.RV64'), 'REV8');
+  assert.equal(variantBase('FENCE.TSO'), 'FENCE.TSO');
+  assert.equal(variantBase('ADD'), 'ADD');
 });
 
 test('a broader row with an unrelated name does not count as coverage', () => {

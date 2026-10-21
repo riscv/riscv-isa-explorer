@@ -23,16 +23,12 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
+import { variantBase } from '../src/completeness.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 const object = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
-// Same suffix normalization as isVariantSpelling in src/completeness.js.
-const normalizeMnemonic = (name) =>
-  name
-    .toUpperCase()
-    .replace(/\.(AQRL|AQ|RL)$/, '')
-    .replace(/\.(RV32|RV64)$/, '');
+const normalizeMnemonic = (name) => variantBase(name.toUpperCase());
 
 /**
  * Collect extension names from definedBy, counting each name once.

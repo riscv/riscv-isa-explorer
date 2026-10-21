@@ -48,7 +48,13 @@ function checkout(t, files) {
 const run = (...args) => {
   const result = spawnSync(
     process.execPath,
-    [path.join(root, 'scripts/report-instruction-owners.mjs'), ...args],
+    [
+      // src/completeness.js is an ES module in a package without "type", so
+      // importing it warns on stderr; only that warning is silenced here.
+      '--disable-warning=MODULE_TYPELESS_PACKAGE_JSON',
+      path.join(root, 'scripts/report-instruction-owners.mjs'),
+      ...args,
+    ],
     {
       cwd: os.tmpdir(), // Catalogue and imports must not depend on the caller's cwd.
       encoding: 'utf8',
