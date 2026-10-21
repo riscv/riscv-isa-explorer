@@ -1,7 +1,8 @@
 name: Check UDB Completeness
 
 # Reports extensions and instructions that riscv-unified-db has ratified and
-# this catalogue does not carry.
+# this catalogue does not carry, and any encoding we publish -- drafts
+# included -- whose bits disagree with unified-db's.
 #
 # WHY THIS EXISTS
 #
@@ -61,7 +62,7 @@ jobs:
         id: check
         run: |
           set +e
-          npm run udb:check --silent -- ../riscv-unified-db > report.txt 2>&1
+          npm run udb:check --silent -- ../riscv-unified-db --published > report.txt 2>&1
           status=$?
           set -e
           cat report.txt
@@ -98,7 +99,8 @@ jobs:
         run: |
           {
             echo "<!-- udb-completeness-report -->"
-            echo "riscv-unified-db has ratified material this catalogue does not carry."
+            echo "riscv-unified-db has ratified material this catalogue does not carry, or"
+            echo "disagrees with an encoding the catalogue publishes."
             echo
             echo '```'
             cat report.txt
@@ -108,11 +110,12 @@ jobs:
             echo
             echo '```'
             echo "git clone --depth 1 https://github.com/riscv/riscv-unified-db.git ../riscv-unified-db"
-            echo "npm run udb:check -- ../riscv-unified-db"
+            echo "npm run udb:check -- ../riscv-unified-db --published"
             echo '```'
             echo
-            echo "Scope is **ratified only**. unified-db carries drafts and in-development"
-            echo "work too; pass \`--all\` to see those, but they are not completeness gaps."
+            echo "Scope is **ratified, plus every draft this catalogue lists**: a draft we"
+            echo "publish is checked bit for bit, one we do not carry is ignored. Pass"
+            echo "\`--all\` to see every upstream draft; those are not completeness gaps."
             echo
             echo "**Not applied automatically.** Adding an extension is a curation decision:"
             echo "it needs a description, a use case, a documentation link and a dependency"

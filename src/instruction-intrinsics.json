@@ -787,6 +787,14 @@
     "count": 44,
     "source": "https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/56493ff319bfdcd3f1bb8d9426e29d6b4e95b018/auto-generated/intrinsic_funcs/14_zvabd_-_vector_absolute_difference_instructions.adoc#vector-integer-abd-instructions"
   },
+  "vabd.vx": {
+    "header": "riscv_vector.h",
+    "prototypes": [
+      "vuint32m1_t __riscv_vabd_vx_u32m1(vint32m1_t vs2, int32_t rs1, size_t vl);"
+    ],
+    "count": 44,
+    "source": "https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/56493ff319bfdcd3f1bb8d9426e29d6b4e95b018/auto-generated/intrinsic_funcs/14_zvabd_-_vector_absolute_difference_instructions.adoc#vector-integer-abd-instructions"
+  },
   "vabdu.vv": {
     "header": "riscv_vector.h",
     "prototypes": [
@@ -795,13 +803,13 @@
     "count": 44,
     "source": "https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/56493ff319bfdcd3f1bb8d9426e29d6b4e95b018/auto-generated/intrinsic_funcs/14_zvabd_-_vector_absolute_difference_instructions.adoc#vector-integer-abdu-instructions"
   },
-  "vabs.v": {
+  "vabdu.vx": {
     "header": "riscv_vector.h",
     "prototypes": [
-      "vuint32m1_t __riscv_vabs_v_u32m1(vint32m1_t vs2, size_t vl);"
+      "vuint32m1_t __riscv_vabdu_vx_u32m1(vuint32m1_t vs2, uint32_t rs1, size_t vl);"
     ],
     "count": 44,
-    "source": "https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/56493ff319bfdcd3f1bb8d9426e29d6b4e95b018/auto-generated/intrinsic_funcs/14_zvabd_-_vector_absolute_difference_instructions.adoc#vector-integer-abs-instructions"
+    "source": "https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/56493ff319bfdcd3f1bb8d9426e29d6b4e95b018/auto-generated/intrinsic_funcs/14_zvabd_-_vector_absolute_difference_instructions.adoc#vector-integer-abdu-instructions"
   },
   "vadc.vvm": {
     "header": "riscv_vector.h",
@@ -5379,10 +5387,26 @@
     "count": 22,
     "source": "https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/56493ff319bfdcd3f1bb8d9426e29d6b4e95b018/auto-generated/intrinsic_funcs/14_zvabd_-_vector_absolute_difference_instructions.adoc#vector-integer-wabda-instructions"
   },
+  "vwabda.vx": {
+    "header": "riscv_vector.h",
+    "prototypes": [
+      "vuint32m1_t __riscv_vwabda_vx_u32m1(vuint32m1_t vd, vint16mf2_t vs2, int16_t rs1, size_t vl);"
+    ],
+    "count": 22,
+    "source": "https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/56493ff319bfdcd3f1bb8d9426e29d6b4e95b018/auto-generated/intrinsic_funcs/14_zvabd_-_vector_absolute_difference_instructions.adoc#vector-integer-wabda-instructions"
+  },
   "vwabdau.vv": {
     "header": "riscv_vector.h",
     "prototypes": [
       "vuint32m1_t __riscv_vwabdau_vv_u32m1(vuint32m1_t vd, vuint16mf2_t vs2, vuint16mf2_t vs1, size_t vl);"
+    ],
+    "count": 22,
+    "source": "https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/56493ff319bfdcd3f1bb8d9426e29d6b4e95b018/auto-generated/intrinsic_funcs/14_zvabd_-_vector_absolute_difference_instructions.adoc#vector-integer-wabdau-instructions"
+  },
+  "vwabdau.vx": {
+    "header": "riscv_vector.h",
+    "prototypes": [
+      "vuint32m1_t __riscv_vwabdau_vx_u32m1(vuint32m1_t vd, vuint16mf2_t vs2, uint16_t rs1, size_t vl);"
     ],
     "count": 22,
     "source": "https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/56493ff319bfdcd3f1bb8d9426e29d6b4e95b018/auto-generated/intrinsic_funcs/14_zvabd_-_vector_absolute_difference_instructions.adoc#vector-integer-wabdau-instructions"

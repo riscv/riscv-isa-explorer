@@ -29,6 +29,31 @@ const root = path.join(here, '..');
 const CATALOG = path.join(root, 'src', 'riscv_extensions.json');
 const UDB = path.resolve(process.env.UDB_DIR ?? path.join(root, '..', 'riscv-unified-db'));
 
+/*
+ * A reason to skip the UDB comparisons, or null when the checkout is at the
+ * commit the graph pins. CI clones exactly that commit; a local checkout on
+ * some other commit would pass or fail these for reasons unrelated to the
+ * branch under test.
+ */
+function udbNotAtPin() {
+  if (!fs.existsSync(path.join(UDB, 'spec', 'std', 'isa', 'ext'))) {
+    return 'no riscv-unified-db checkout available (set UDB_DIR)';
+  }
+  const graph = JSON.parse(
+    fs.readFileSync(path.join(root, 'src', 'isa-dependency-graph.json'), 'utf8'),
+  );
+  const pinned = graph.sources.udb.commit;
+  let head = '';
+  try {
+    head = execFileSync('git', ['-C', UDB, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  } catch {
+    return 'riscv-unified-db checkout is not a git repository';
+  }
+  return head === pinned
+    ? null
+    : `UDB checkout is at ${head.slice(0, 7)}, not the pinned ${pinned.slice(0, 7)}`;
+}
+
 const hashCatalog = () => createHash('sha256').update(fs.readFileSync(CATALOG)).digest('hex');
 
 /** Run a script, returning { status, stdout }. Never throws on a non-zero exit. */
@@ -222,6 +247,42 @@ test('the UDB completeness JSON is complete and parseable', (t) => {
   const report = JSON.parse(stdout);
   assert.equal(typeof report.complete, 'boolean');
   assert.ok(report.coverage?.global, 'JSON report should contain global coverage');
+});
+
+test('every encoding the catalogue publishes agrees with UDB, drafts included', (t) => {
+  // Ratified-only scope never looked at Zvabd, so when ARC reassigned its
+  // opcodes the catalogue kept the old ones with every check green. The
+  // published scope covers everything we list, whatever its state.
+  const udb = UDB;
+  const skip = udbNotAtPin();
+  if (skip) return t.skip(skip);
+
+  const { status, stdout } = run('check-udb-completeness.mjs', [udb, '--published', '--json']);
+  assert.ok(status === 0 || status === 1, `unexpected checker status ${status}:\n${stdout}`);
+  const report = JSON.parse(stdout);
+  assert.deepEqual(
+    report.encodingMismatches.map(
+      (m) => `${m.extension} ${m.mnemonic}: ${m.local} vs ${m.upstream}`,
+    ),
+    [],
+    'a published encoding disagrees with UDB',
+  );
+  assert.deepEqual(report.malformed, []);
+});
+
+test('every UDB erratum is still in UDB', async (t) => {
+  const udb = UDB;
+  const specDir = path.join(udb, 'spec', 'std', 'isa');
+  const skip = udbNotAtPin();
+  if (skip) return t.skip(skip);
+  const { UPSTREAM_ERRATA, parseUpstream } = await import('../scripts/check-udb-completeness.mjs');
+  const upstream = new Set(parseUpstream(specDir).instructions.map((i) => i.mnemonic));
+  for (const mnemonic of Object.keys(UPSTREAM_ERRATA)) {
+    assert.ok(
+      upstream.has(mnemonic),
+      `UDB no longer lists ${mnemonic}; drop it from UPSTREAM_ERRATA`,
+    );
+  }
 });
 
 test('every sync bot signs off as the same identity it authors as, and signs', () => {

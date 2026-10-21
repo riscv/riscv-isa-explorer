@@ -34,6 +34,7 @@ a row here and a test behind it.
 | Ask AI (feature-flagged off) | `src/AskAiLauncher.jsx`, `feature-flags.cjs` | `render-views` |
 | Ratified list from the ISA manual (catches UDB lagging the manual) | `src/isa-manual-status.json`, `scripts/manual-status.mjs`, `scripts/sync_manual_status.mjs` | `manual-status`, `pipeline` |
 | Completeness against UDB | `src/completeness.js`, `scripts/check-udb-completeness.mjs` | `completeness`, `udb-parser`, `sync-tooling` |
+| UDB instruction ownership migration report | `scripts/report-instruction-owners.mjs` | `instruction-owners` |
 | Weekly UDB sync | `scripts/sync_udb_extensions.cjs` | `sync-tooling`, `csr-fields`, `catalog-coverage` |
 | Opcodes drift report | `scripts/check-opcodes-drift.mjs` | `opcodes-drift` |
 | Documentation links | `scripts/map-doc-links.mjs` | `doc-links` |

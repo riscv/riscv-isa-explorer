@@ -49,8 +49,8 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run sync:params -- <path-to-udb>` | Regenerate `src/isa-params.json` (UDB parameter definitions) |
 | `npm run graph:check -- <path-to-udb>` | Check dependency graph vs UDB |
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
-| `npm run opcodes:check -- <path-to-riscv-opcodes>` | Report instruction-encoding drift |
-| `npm run udb:check -- <path-to-udb>` | Report ratified extensions/instructions we lack |
+| `npm run opcodes:check -- <path-to-riscv-opcodes>` | Report missing encodings and bits that disagree (drafts included) |
+| `npm run udb:check -- <path-to-udb> [--published]` | Report ratified extensions/instructions we lack; `--published` also checks every draft we list |
 
 There is no separate typecheck (no TypeScript).
 
@@ -173,6 +173,12 @@ Then `npm run sync` and `npm test && npm run build`.
   files AMOCAS.B under Zabha, this catalogue under Zacas. Watch it move; do not
   gate on it. Reporting only the first is how five extensions shipped with empty
   instruction maps while every check passed.
+  Pass `--published` (the weekly workflow does, and so does
+  `tests/sync-tooling.test.mjs`) to also check every extension the catalogue
+  lists, drafts included: ratified-only scope never looked at Zvabd, so its
+  stale encodings outlived ARC's reassignment. An instruction UDB lists that
+  the spec does not define goes in `UPSTREAM_ERRATA`, with the reason; the
+  test fails once UDB drops it.
 - **`src/isa-params.json` is definitions, not values.** It says what a parameter
   IS: type, admissible values, and the conditions under which it exists. It
   chooses nothing. Values come from two other places: the constraints in

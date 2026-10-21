@@ -2,7 +2,12 @@
 /**
  * Report what riscv-unified-db has that this catalogue does not.
  *
- *   node scripts/check-udb-completeness.mjs <path-to-riscv-unified-db> [--json]
+ *   node scripts/check-udb-completeness.mjs <path-to-riscv-unified-db> [--published | --all] [--json]
+ *
+ * Three scopes. The default is what upstream has ever ratified. --published
+ * adds every extension the catalogue already lists, drafts included, so an
+ * encoding we publish is checked even when upstream has not ratified it; it
+ * still ignores drafts we do not carry. --all is every upstream extension.
  *
  * The decision logic lives in src/completeness.js, which takes no I/O so it can
  * be tested without a checkout. This file only reads YAML and prints.
@@ -94,7 +99,8 @@ export function parseVariables(text) {
   const block = text.match(/^\s*variables:\r?\n([\s\S]*)/m);
   if (!block) return [];
   const out = [];
-  const re = /-\s*name:\s*(\w+)\s*\r?\n\s*location:\s*(\d+)-(\d+)([\s\S]*?)(?=\r?\n\s*-\s*name:|$)/g;
+  const re =
+    /-\s*name:\s*(\w+)\s*\r?\n\s*location:\s*(\d+)-(\d+)([\s\S]*?)(?=\r?\n\s*-\s*name:|$)/g;
   for (const m of block[1].matchAll(re)) {
     const notList = m[4].match(/not:\s*\[([\s\S]*?)\]/);
     out.push({
@@ -365,6 +371,19 @@ export function parseUpstream(specDir) {
 export const EXTENSION_ALIASES = { I: ['RV32I', 'RV64I', 'RV32E', 'RV64E'] };
 
 /*
+ * Instructions unified-db lists that the specification does not define, each
+ * with the reason. They are left out of the gap count and printed on their
+ * own, and tests/sync-tooling.test.mjs fails once upstream drops one, so an
+ * entry cannot outlive the error it excuses.
+ */
+export const UPSTREAM_ERRATA = {
+  'VABS.V':
+    'Zvabd v0.9 (riscv-isa-manual#3279) makes vabs.v an assembler alias for ' +
+    'vabd.vx vd, vs2, x0; unified-db still gives it an encoding of its own ' +
+    '(riscv-unified-db#2731, fix in #2732)',
+};
+
+/*
  * Exit codes match check-opcodes-drift.mjs, which the reporting workflow keys
  * off: 0 complete, 1 gaps found, 2 the checkout could not be read. Conflating
  * the last two would let a broken clone report a perfect catalogue, which is
@@ -374,10 +393,11 @@ function main(argv) {
   const udbRoot = argv[2];
   const asJson = argv.includes('--json');
   const includeAll = argv.includes('--all');
+  const includePublished = argv.includes('--published');
 
   if (!udbRoot || !fs.existsSync(udbRoot)) {
     console.error(
-      'usage: node scripts/check-udb-completeness.mjs <path-to-riscv-unified-db> [--all] [--json]',
+      'usage: node scripts/check-udb-completeness.mjs <path-to-riscv-unified-db> [--published | --all] [--json]',
     );
     return 2;
   }
@@ -413,7 +433,9 @@ function main(argv) {
     {
       extensionAliases: EXTENSION_ALIASES,
       allowMissingExtensions: Object.keys(EXTENSION_ALIASES),
+      allowMissingInstructions: Object.keys(UPSTREAM_ERRATA),
       onlyRatified: !includeAll,
+      includePublished,
       ratifiedExtensions,
     },
   );
@@ -434,8 +456,9 @@ function main(argv) {
       `(${ratifiedExtensions.length} ever ratified), ${instructions.length} instructions`,
   );
   console.log(
-    `scope: ${includeAll ? 'all upstream' : 'ratified only'}` +
-      '   (pass --all to include draft and in-development work)',
+    `scope: ${
+      includeAll ? 'all upstream' : includePublished ? 'ratified + published here' : 'ratified only'
+    }` + '   (--published adds drafts this catalogue lists; --all adds every draft)',
   );
   console.log(`catalogue:  ${Object.values(catalogue).flat().filter(Boolean).length} extensions\n`);
 
@@ -468,6 +491,14 @@ function main(argv) {
           : '      upstream carries another encoding under this name',
       );
     }
+  }
+
+  const errata = Object.entries(UPSTREAM_ERRATA).filter(([mnemonic]) =>
+    instructions.some((i) => i.mnemonic === mnemonic),
+  );
+  if (errata.length) {
+    console.log(`\nknown upstream errors, not counted (${errata.length}):`);
+    for (const [mnemonic, reason] of errata) console.log(`    ${mnemonic}  ${reason}`);
   }
 
   if (result.malformed.length) {

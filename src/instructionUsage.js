@@ -22,27 +22,12 @@ import { BASE_ISA_IDS, buildMarchString } from './marchUtils.js';
 
 /*
  * Operand templates UDB writes wrongly, found by assembling every example.
- * The hypervisor loads and stores take their address in parentheses, flq is
- * written like every other load, fli takes a floating-point constant rather
- * than a register, and fcvtmod.w.d only accepts the rtz rounding mode. Each
- * entry must still differ from UDB's own template: the test fails once
- * upstream is fixed, so the entry can be dropped instead of lingering.
+ * fli takes a floating-point constant rather than a register, and fcvtmod.w.d
+ * only accepts the rtz rounding mode. Each entry must still differ from UDB's
+ * own template: the test fails once upstream is fixed, so the entry can be
+ * dropped instead of lingering.
  */
-const HLV = [
-  'hlv.b',
-  'hlv.bu',
-  'hlv.h',
-  'hlv.hu',
-  'hlv.w',
-  'hlv.wu',
-  'hlv.d',
-  'hlvx.hu',
-  'hlvx.wu',
-];
 export const ASSEMBLY_FIXES = {
-  ...Object.fromEntries(HLV.map((name) => [name, 'xd, (xs1)'])),
-  ...Object.fromEntries(['hsv.b', 'hsv.h', 'hsv.w', 'hsv.d'].map((name) => [name, 'xs2, (xs1)'])),
-  flq: 'fd, imm(xs1)',
   ...Object.fromEntries(['fli.h', 'fli.s', 'fli.d', 'fli.q'].map((name) => [name, 'fd, imm'])),
   'fcvtmod.w.d': 'xd, fs1, rtz',
 };
