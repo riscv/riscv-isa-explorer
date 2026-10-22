@@ -23,7 +23,7 @@
  */
 import React from 'react';
 import { Plus, GitCompare } from 'lucide-react';
-import { tilePropsAreEqual } from './tileMemo.js';
+import { tilePropsAreEqual, tileEmphasis } from './tileMemo.js';
 
 function ExtensionTile({
   data,
@@ -44,8 +44,12 @@ function ExtensionTile({
 }) {
   const isDiscontinued = data.discontinued === 1;
   const isSelected = selectedExtId === data.id;
-  const highlighted = isHighlighted(data.id) || matchesSearch || isSelected;
-  const dimmed = isDimmed(data.id) && !matchesSearch && !isSelected;
+  const { highlighted, dimmed } = tileEmphasis({
+    highlighted: isHighlighted(data.id),
+    dimmed: isDimmed(data.id),
+    matchesSearch,
+    isSelected,
+  });
   // Where this extension stands in the highlighted profile, if one is. Mandatory
   // members already get the highlight ring; implied and optional ones get a tag
   // that says which, so the difference is not carried by an outline alone.

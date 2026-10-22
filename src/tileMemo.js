@@ -17,6 +17,23 @@
  * re-renders tiles whose match state changed.
  */
 
+/**
+ * Whether a tile is highlighted and whether it is dimmed.
+ *
+ * An active profile or volume filter decides what is dimmed, and a search match
+ * only highlights within it. A match used to override the filter, so with RVA23
+ * highlighted, searching "pmp" lit Sspmp up exactly like a mandatory member
+ * although it is not in the profile. The selected tile stays undimmed, so the
+ * details panel never points at a greyed-out tile.
+ */
+export function tileEmphasis({ highlighted, dimmed, matchesSearch, isSelected }) {
+  const excluded = dimmed && !isSelected;
+  return {
+    highlighted: isSelected || (!excluded && (highlighted || matchesSearch)),
+    dimmed: excluded,
+  };
+}
+
 /** True when the tile can be skipped. */
 export function tilePropsAreEqual(prev, next) {
   if (prev.data !== next.data) return false;
