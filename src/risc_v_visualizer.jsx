@@ -2471,15 +2471,22 @@ const RISCVExplorer = () => {
     if (compareOpen && compareKind !== 'profile' && compareKeys.length < 2) setCompareOpen(false);
   }, [compareOpen, compareKind, compareKeys]);
 
+  // The highlighted profile or volume, named for the empty state. While one is
+  // active, search looks only at its members: a match outside it used to be
+  // selected and shown in full colour, which read as membership (Sspmp under
+  // RVA23, which no profile includes).
+  const searchScopeLabel = activeProfile || (activeVolume ? `Volume ${activeVolume}` : null);
+
   // Calculate if search has any matching extensions
   const hasSearchMatches = React.useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return true;
     return allExtsList.some((ext) => {
+      if (isDimmed(ext.id)) return false;
       const indexStr = extensionSearchIndexById.get(ext.id) || '';
       return indexStr.includes(q);
     });
-  }, [searchQuery, allExtsList, extensionSearchIndexById]);
+  }, [searchQuery, allExtsList, extensionSearchIndexById, isDimmed]);
 
   // Scroll to extension tile when search matches an extension ID or instruction mnemonic,
   // and automatically open the Selected Details panel. Use a ref to avoid re-scrolling
@@ -2494,7 +2501,11 @@ const RISCVExplorer = () => {
       return;
     }
 
-    const allExts = Object.values(extensions).flat();
+    const allExts = Object.values(extensions)
+      .flat()
+      .filter((ext) => !isDimmed(ext.id));
+    // A selection outside the filter must not be searched first either.
+    const searchFirst = selectedExt && !isDimmed(selectedExt.id) ? selectedExt : null;
     let matchedMnemonic = null;
     let matchedDetails = null;
     let matchedCsrName = null;
@@ -2508,8 +2519,8 @@ const RISCVExplorer = () => {
 
     // If no exact extension ID match, try to match an instruction mnemonic
     if (!targetExt) {
-      const instructionSearchOrder = selectedExt
-        ? [selectedExt, ...allExts.filter((ext) => ext.id !== selectedExt.id)]
+      const instructionSearchOrder = searchFirst
+        ? [searchFirst, ...allExts.filter((ext) => ext.id !== searchFirst.id)]
         : allExts;
       for (const ext of instructionSearchOrder) {
         const mnemonics = Object.keys(ext.instructions || {});
@@ -2526,8 +2537,8 @@ const RISCVExplorer = () => {
     // Exact CSR lookup selects the register itself so readers land on its
     // field map instead of only the extension that owns it.
     if (!targetExt) {
-      const csrSearchOrder = selectedExt
-        ? [selectedExt, ...allExts.filter((ext) => ext.id !== selectedExt.id)]
+      const csrSearchOrder = searchFirst
+        ? [searchFirst, ...allExts.filter((ext) => ext.id !== searchFirst.id)]
         : allExts;
       const csrHit = csrSearchOrder.flatMap((ext) =>
         Object.entries(ext.csrs || {})
@@ -2614,7 +2625,7 @@ const RISCVExplorer = () => {
       setSelectedCsrName(null);
       setSearchMatches(null);
     }
-  }, [searchQuery, extensionSearchIndexById, selectedExt]);
+  }, [searchQuery, extensionSearchIndexById, selectedExt, isDimmed]);
 
   // Compute stat bar numbers from loaded JSON
   const totalExtensions = React.useMemo(
@@ -4294,7 +4305,16 @@ const RISCVExplorer = () => {
                   style={{ color: 'var(--riscv-text-2)', lineHeight: 1.5 }}
                 >
                   We couldn't find any extensions, instructions, or encodings matching{' '}
-                  <strong style={{ color: 'var(--riscv-text)' }}>"{searchQuery}"</strong>.
+                  <strong style={{ color: 'var(--riscv-text)' }}>"{searchQuery}"</strong>
+                  {searchScopeLabel ? (
+                    <>
+                      {' '}
+                      in <strong style={{ color: 'var(--riscv-text)' }}>{searchScopeLabel}</strong>.
+                      Clear the highlight to search the whole catalogue.
+                    </>
+                  ) : (
+                    '.'
+                  )}
                 </p>
                 <button onClick={() => setSearchQuery('')} className="mt-6 riscv-btn px-4 py-2">
                   Clear Search
