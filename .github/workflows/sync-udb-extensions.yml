@@ -70,6 +70,16 @@ jobs:
       - name: Sync parameter definitions
         run: node scripts/sync_udb_params.mjs ../riscv-unified-db
 
+      # tests/pipeline.test.mjs requires every UDB-derived file to come from the
+      # same commit. These two were left out, so any week UDB moved, the new pin
+      # disagreed with instruction-metadata.json and "Validate the result"
+      # failed: the job passed only in weeks when upstream had not changed.
+      - name: Sync instruction metadata
+        run: node scripts/sync_instruction_metadata.mjs ../riscv-unified-db
+
+      - name: Sync profile optional sets
+        run: node scripts/sync-profile-optional.mjs ../riscv-unified-db
+
       - name: Build
         run: npm run build
 
@@ -79,12 +89,12 @@ jobs:
       - name: Check for changes
         id: changes
         run: |
-          # All three synced files, not just the first two. A UDB release that
+          # Every synced file, not just the first few. A UDB release that
           # touches only spec/std/isa/param/ changes src/isa-params.json and
           # nothing else; left out of this list, that sync would run, write the
           # file, find "no changes", open no pull request, and throw the update
-          # away with the runner. Silently, once per day.
-          SYNCED="src/riscv_extensions.json src/isa-dependency-graph.json src/isa-params.json"
+          # away with the runner. Silently, once per run.
+          SYNCED="src/riscv_extensions.json src/isa-dependency-graph.json src/isa-params.json src/instruction-metadata.json src/profile-optional.json"
           if git diff --quiet $SYNCED; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No new extension or parameter data in UDB."
@@ -131,9 +141,11 @@ jobs:
             node scripts/sync_udb_extensions.cjs ../riscv-unified-db
             node scripts/seed-dependency-graph.mjs --udb ../riscv-unified-db
             node scripts/sync_udb_params.mjs ../riscv-unified-db
+            node scripts/sync_instruction_metadata.mjs ../riscv-unified-db
+            node scripts/sync-profile-optional.mjs ../riscv-unified-db
             ```
 
-            Three files may change, and they come from different parsers:
+            Five files may change, and they come from different parsers:
 
             - `src/riscv_extensions.json` — extension metadata (CSRs, `long_name`,
               `type`, `state`, `ratification_date`, `behavior`).
@@ -145,6 +157,11 @@ jobs:
               one is worth reading closely, because
               `tests/isa-params.test.mjs` checks the graph's own constraints
               against these schemas and a narrowed enum can invalidate one.
+            - `src/instruction-metadata.json` — instruction descriptions and
+              assembly templates. It carries the UDB commit on every record, so
+              it changes whenever the pin does.
+            - `src/profile-optional.json` — each profile's optional extensions,
+              resolved through UDB's profile inheritance.
 
             `npm test` passed before this PR was opened, so the graph is
             structurally valid and every catalog extension has a node. Review the

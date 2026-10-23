@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "3c026622d9bf32d3a60ee007bca40fa41e54a6e6",
+      "commit": "71ad457a48c4dcacd42b8a80f1f1c62f03cac8ae",
       "branch": "main",
       "path": "spec/std/isa/param"
     }
@@ -405,23 +405,43 @@
       },
       "src": "GSTAGE_MODE_BARE.yaml"
     },
-    "HCONTEXT_AVAILABLE": {
-      "name": "HCONTEXT_AVAILABLE",
-      "long_name": "HCONTEXT Availability",
-      "description": "Specifies if HCONTEXT is available",
+    "HCONTEXT_IMPLEMENTED": {
+      "name": "HCONTEXT_IMPLEMENTED",
+      "long_name": "hcontext CSR is implemented",
+      "description": "Specifies if the hcontext CSR is implemented",
       "schema": {
         "type": "boolean"
       },
       "definedBy": {
-        "extension": {
-          "name": "Sdtrig"
-        }
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "extension": {
+              "name": "H"
+            }
+          }
+        ]
       },
       "requirements": {
-        "idl()": "HCONTEXT_AVAILABLE -> MCONTEXT_AVAILABLE;",
-        "reason": "HCONTEXT cannot exist without MCONTEXT"
+        "if": {
+          "param": {
+            "name": "HCONTEXT_IMPLEMENTED",
+            "equal": true
+          }
+        },
+        "then": {
+          "param": {
+            "name": "MCONTEXT_IMPLEMENTED",
+            "equal": true,
+            "reason": "HCONTEXT cannot exist without MCONTEXT"
+          }
+        }
       },
-      "src": "HCONTEXT_AVAILABLE.yaml"
+      "src": "HCONTEXT_IMPLEMENTED.yaml"
     },
     "HCOUNTENABLE_EN": {
       "name": "HCOUNTENABLE_EN",
@@ -1435,6 +1455,181 @@
       },
       "src": "HPM_EVENTS.yaml"
     },
+    "HSTATEEN0_C_TYPE": {
+      "name": "HSTATEEN0_C_TYPE",
+      "long_name": "Behavior of hstateen0.C",
+      "description": "Behavior of the `hstateen0.C` bit: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "H"
+            }
+          },
+          {
+            "extension": {
+              "anyOf": [
+                {
+                  "name": "Smstateen"
+                },
+                {
+                  "name": "Ssstateen"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "allOf": [
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "MSTATEEN0_C_TYPE",
+                    "equal": "read-only-0"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "HSTATEEN0_C_TYPE",
+                "equal": "read-only-0"
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "HSTATEEN0_C_TYPE",
+                    "equal": "read-only-1"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "MSTATEEN0_C_TYPE",
+                "equal": "read-only-1"
+              }
+            }
+          }
+        ]
+      },
+      "src": "HSTATEEN0_C_TYPE.yaml"
+    },
+    "HSTATEEN0_FCSR_TYPE": {
+      "name": "HSTATEEN0_FCSR_TYPE",
+      "long_name": "Behavior of hstateen0.FCSR",
+      "description": "Behavior of the `hstateen0.FCSR` bit: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Zfinx"
+            }
+          },
+          {
+            "extension": {
+              "name": "H"
+            }
+          },
+          {
+            "extension": {
+              "anyOf": [
+                {
+                  "name": "Smstateen"
+                },
+                {
+                  "name": "Ssstateen"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "allOf": [
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "MSTATEEN0_FCSR_TYPE",
+                    "equal": "read-only-0"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "HSTATEEN0_FCSR_TYPE",
+                "equal": "read-only-0"
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "HSTATEEN0_FCSR_TYPE",
+                    "equal": "read-only-1"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "MSTATEEN0_FCSR_TYPE",
+                "equal": "read-only-1"
+              }
+            }
+          }
+        ]
+      },
+      "src": "HSTATEEN0_FCSR_TYPE.yaml"
+    },
     "HSTATEEN_AIA_TYPE": {
       "name": "HSTATEEN_AIA_TYPE",
       "long_name": null,
@@ -1613,23 +1808,80 @@
         ]
       },
       "definedBy": {
-        "extension": {
-          "allOf": [
-            {
+        "allOf": [
+          {
+            "extension": {
               "name": "Zcmt"
-            },
-            {
-              "name": "H"
-            },
-            {
-              "name": "Ssstateen"
             }
-          ]
-        }
+          },
+          {
+            "extension": {
+              "name": "H"
+            }
+          },
+          {
+            "extension": {
+              "anyOf": [
+                {
+                  "name": "Smstateen"
+                },
+                {
+                  "name": "Ssstateen"
+                }
+              ]
+            }
+          }
+        ]
       },
       "requirements": {
-        "idl()": "MSTATEEN_JVT_TYPE == \"read-only-0\" -> HSTATEEN_JVT_TYPE == \"read-only-0\";\nMSTATEEN_JVT_TYPE == \"read-only-1\" -> HSTATEEN_JVT_TYPE == \"read-only-1\";\n",
-        "reason": "HSTATEEN cannot have more options that MSTATEEN\n"
+        "allOf": [
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "MSTATEEN_JVT_TYPE",
+                    "equal": "read-only-0"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "HSTATEEN_JVT_TYPE",
+                "equal": "read-only-0"
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "HSTATEEN_JVT_TYPE",
+                    "equal": "read-only-1"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "MSTATEEN_JVT_TYPE",
+                "equal": "read-only-1"
+              }
+            }
+          }
+        ]
       },
       "src": "HSTATEEN_JVT_TYPE.yaml"
     },
@@ -1918,10 +2170,10 @@
       },
       "src": "MCID_WIDTH.yaml"
     },
-    "MCONTEXT_AVAILABLE": {
-      "name": "MCONTEXT_AVAILABLE",
-      "long_name": null,
-      "description": "Specifies if MCONTEXT is available",
+    "MCONTEXT_IMPLEMENTED": {
+      "name": "MCONTEXT_IMPLEMENTED",
+      "long_name": "mcontext CSR is implemented",
+      "description": "Specifies if the mcontext CSR is implemented",
       "schema": {
         "type": "boolean"
       },
@@ -1930,7 +2182,7 @@
           "name": "Sdtrig"
         }
       },
-      "src": "MCONTEXT_AVAILABLE.yaml"
+      "src": "MCONTEXT_IMPLEMENTED.yaml"
     },
     "MCOUNTENABLE_EN": {
       "name": "MCOUNTENABLE_EN",
@@ -2833,6 +3085,302 @@
         }
       },
       "src": "MSI_INTR_IMPL.yaml"
+    },
+    "MSTATEEN0_C_TYPE": {
+      "name": "MSTATEEN0_C_TYPE",
+      "long_name": "Behavior of mstateen0.C",
+      "description": "Behavior of the `mstateen0.C` bit, which controls access to any and all custom state: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 An implementation with no custom state must set this to 'read-only-0'.",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Smstateen"
+        }
+      },
+      "src": "MSTATEEN0_C_TYPE.yaml"
+    },
+    "MSTATEEN0_FCSR_TYPE": {
+      "name": "MSTATEEN0_FCSR_TYPE",
+      "long_name": "Behavior of mstateen0.FCSR",
+      "description": "Behavior of the `mstateen0.FCSR` bit, which controls access to `fcsr` when floating-point instructions operate on `x` registers (Zfinx and related extensions): * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 Whenever `misa.F` = 1, `mstateen0.FCSR` is read-only zero, so this parameter exists only when Zfinx is implemented.",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Zfinx"
+            },
+            {
+              "name": "Smstateen"
+            }
+          ]
+        }
+      },
+      "src": "MSTATEEN0_FCSR_TYPE.yaml"
+    },
+    "MSTATEEN0_P1P13_TYPE": {
+      "name": "MSTATEEN0_P1P13_TYPE",
+      "long_name": "Behavior of mstateen0.P1P13",
+      "description": "Behavior of the `mstateen0.P1P13` bit, which controls access to `hedelegh`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 `hedelegh` exists only when the hypervisor extension is implemented and HS-mode can run with XLEN=32 (SXLEN includes 32). Otherwise, `mstateen0.P1P13` is read-only zero and this parameter does not exist.",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "param": {
+              "name": "SXLEN",
+              "includes": 32
+            }
+          },
+          {
+            "extension": {
+              "allOf": [
+                {
+                  "name": "H"
+                },
+                {
+                  "name": "Smstateen"
+                },
+                {
+                  "name": "S",
+                  "version": ">= 1.13"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "src": "MSTATEEN0_P1P13_TYPE.yaml"
+    },
+    "MSTATEEN0_SE0_TYPE": {
+      "name": "MSTATEEN0_SE0_TYPE",
+      "long_name": "Behavior of mstateen0.SE0",
+      "description": "Behavior of the `mstateen0.SE0`, which controls access to `hstateen0`, `hstateen0h`, and `sstateen0`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 `mstateen0.SE0` may be read-only zero only if the hypervisor extension is not implemented and `sstateen0` is all read-only zeros.",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Smstateen"
+        }
+      },
+      "requirements": {
+        "allOf": [
+          {
+            "if": {
+              "extension": {
+                "name": "H"
+              }
+            },
+            "then": {
+              "param": {
+                "name": "MSTATEEN0_SE0_TYPE",
+                "notEqual": "read-only-0"
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "S"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "MSTATEEN0_SE0_TYPE",
+                    "equal": "read-only-0"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "allOf": [
+                {
+                  "param": {
+                    "name": "SSTATEEN0_C_TYPE",
+                    "equal": "read-only-0"
+                  }
+                },
+                {
+                  "if": {
+                    "extension": {
+                      "name": "Zfinx"
+                    }
+                  },
+                  "then": {
+                    "param": {
+                      "name": "SSTATEEN0_FCSR_TYPE",
+                      "equal": "read-only-0"
+                    }
+                  }
+                },
+                {
+                  "if": {
+                    "extension": {
+                      "name": "Zcmt"
+                    }
+                  },
+                  "then": {
+                    "param": {
+                      "name": "SSTATEEN_JVT_TYPE",
+                      "equal": "read-only-0"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "src": "MSTATEEN0_SE0_TYPE.yaml"
+    },
+    "MSTATEEN0_SRMCFG_TYPE": {
+      "name": "MSTATEEN0_SRMCFG_TYPE",
+      "long_name": "Behavior of mstateen0.SRMCFG",
+      "description": "Behavior of the `mstateen0.SRMCFG` bit, which controls access to `srmcfg`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Ssqosid"
+            },
+            {
+              "name": "Smstateen"
+            }
+          ]
+        }
+      },
+      "src": "MSTATEEN0_SRMCFG_TYPE.yaml"
+    },
+    "MSTATEEN1_SE0_TYPE": {
+      "name": "MSTATEEN1_SE0_TYPE",
+      "long_name": "Behavior of mstateen1.SE0",
+      "description": "Behavior of the `mstateen1.SE0`, which controls access to `hstateen1`, `hstateen1h`, and `sstateen1`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 `mstateen1.SE0` may be read-only zero only if the hypervisor extension is not implemented and `sstateen1` is all read-only zeros. No bits of `sstateen1` are currently defined, so only the hypervisor condition applies.",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Smstateen"
+        }
+      },
+      "requirements": {
+        "if": {
+          "extension": {
+            "name": "H"
+          }
+        },
+        "then": {
+          "param": {
+            "name": "MSTATEEN1_SE0_TYPE",
+            "notEqual": "read-only-0"
+          }
+        }
+      },
+      "src": "MSTATEEN1_SE0_TYPE.yaml"
+    },
+    "MSTATEEN2_SE0_TYPE": {
+      "name": "MSTATEEN2_SE0_TYPE",
+      "long_name": "Behavior of mstateen2.SE0",
+      "description": "Behavior of the `mstateen2.SE0`, which controls access to `hstateen2`, `hstateen2h`, and `sstateen2`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 `mstateen2.SE0` may be read-only zero only if the hypervisor extension is not implemented and `sstateen2` is all read-only zeros. No bits of `sstateen2` are currently defined, so only the hypervisor condition applies.",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Smstateen"
+        }
+      },
+      "requirements": {
+        "if": {
+          "extension": {
+            "name": "H"
+          }
+        },
+        "then": {
+          "param": {
+            "name": "MSTATEEN2_SE0_TYPE",
+            "notEqual": "read-only-0"
+          }
+        }
+      },
+      "src": "MSTATEEN2_SE0_TYPE.yaml"
+    },
+    "MSTATEEN3_SE0_TYPE": {
+      "name": "MSTATEEN3_SE0_TYPE",
+      "long_name": "Behavior of mstateen3.SE0",
+      "description": "Behavior of the `mstateen3.SE0`, which controls access to `hstateen3`, `hstateen3h`, and `sstateen3`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 `mstateen3.SE0` may be read-only zero only if the hypervisor extension is not implemented and `sstateen3` is all read-only zeros. No bits of `sstateen3` are currently defined, so only the hypervisor condition applies.",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Smstateen"
+        }
+      },
+      "requirements": {
+        "if": {
+          "extension": {
+            "name": "H"
+          }
+        },
+        "then": {
+          "param": {
+            "name": "MSTATEEN3_SE0_TYPE",
+            "notEqual": "read-only-0"
+          }
+        }
+      },
+      "src": "MSTATEEN3_SE0_TYPE.yaml"
     },
     "MSTATEEN_AIA_TYPE": {
       "name": "MSTATEEN_AIA_TYPE",
@@ -4609,6 +5157,27 @@
       },
       "src": "SATP_MODE_BARE.yaml"
     },
+    "SCONTEXT_IMPLEMENTED": {
+      "name": "SCONTEXT_IMPLEMENTED",
+      "long_name": "scontext CSR is implemented",
+      "description": "Specifies if the scontext CSR is implemented",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Sdtrig"
+            },
+            {
+              "name": "S"
+            }
+          ]
+        }
+      },
+      "src": "SCONTEXT_IMPLEMENTED.yaml"
+    },
     "SCOUNTENABLE_EN": {
       "name": "SCOUNTENABLE_EN",
       "long_name": null,
@@ -4658,6 +5227,806 @@
         }
       },
       "src": "SCTRDEPTH_DEPTH_LEGAL_VALUES.yaml"
+    },
+    "SDTRIG_BREAKPOINT_REENTRANCY": {
+      "name": "SDTRIG_BREAKPOINT_REENTRANCY",
+      "long_name": "Breakpoint reentrancy mechanism",
+      "description": "How the hart prevents triggers with action=0 (breakpoint exception) from re-firing inside their own handler (Debug spec 1.0, Sdtrig \"Native Triggers\"). * No_reentrancy_support: no specific support for reentrancy. * Use_interrupt_enables: triggers with action=0 do not match or fire in M-mode while mstatus.MIE is 0 (and likewise S/VS-mode with sstatus.SIE / vsstatus.SIE when delegated). * Use_tcontrol: tcontrol.mte and tcontrol.mpte are implemented, and medeleg[3] is hard-wired to 0.",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "No_reentrancy_support",
+          "Use_interrupt_enables",
+          "Use_tcontrol"
+        ]
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sdtrig"
+        }
+      },
+      "requirements": {
+        "if": {
+          "param": {
+            "name": "SDTRIG_BREAKPOINT_REENTRANCY",
+            "equal": "Use_tcontrol"
+          }
+        },
+        "then": {
+          "allOf": [
+            {
+              "param": {
+                "name": "TCONTROL_IMPLEMENTED",
+                "equal": true,
+                "reason": "The Use_tcontrol mechanism requires the tcontrol CSR."
+              }
+            },
+            {
+              "if": {
+                "extension": {
+                  "name": "S"
+                }
+              },
+              "then": {
+                "param": {
+                  "name": "MEDELEG_DELEGATABLE",
+                  "index": 3,
+                  "equal": false
+                }
+              }
+            }
+          ]
+        }
+      },
+      "src": "SDTRIG_BREAKPOINT_REENTRANCY.yaml"
+    },
+    "SDTRIG_ETRIGGER_SUPPORTED_EXCEPTIONS": {
+      "name": "SDTRIG_ETRIGGER_SUPPORTED_EXCEPTIONS",
+      "long_name": "List of exceptions supported by etrigger",
+      "description": "The set of exception codes (mcause Exception Code) that etrigger can be enabled for, i.e. the bits of etrigger.tdata2 that are writable as 1. Debug spec 1.0, etrigger: \"Hardware may support only a subset of exceptions.\"",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 63
+        },
+        "maxItems": 64,
+        "minItems": 1,
+        "uniqueItems": true
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_ETRIGGER_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports etrigger."
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "idl()": "for (U32 i = 32; i < 64; i++) {\n  (MXLEN == 32) -> !$array_includes?(SDTRIG_ETRIGGER_SUPPORTED_EXCEPTIONS, i);\n}\n",
+        "reason": "etrigger.tdata2 is XLEN bits wide, so codes above 31 cannot be selected when XLEN is 32."
+      },
+      "src": "SDTRIG_ETRIGGER_SUPPORTED_EXCEPTIONS.yaml"
+    },
+    "SDTRIG_ETRIGGER_SUPPORTED_TRIGGERS": {
+      "name": "SDTRIG_ETRIGGER_SUPPORTED_TRIGGERS",
+      "long_name": "List of triggers that support etrigger",
+      "description": "Indicates which triggers support etrigger. Entry i is true if the trigger selected by tselect=i supports etrigger. Must have exactly SDTRIG_NUM_TRIGGERS entries.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "boolean"
+        },
+        "maxItems": "18446744073709551616",
+        "minItems": 0
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sdtrig"
+        }
+      },
+      "src": "SDTRIG_ETRIGGER_SUPPORTED_TRIGGERS.yaml"
+    },
+    "SDTRIG_ICOUNT_COUNT_HARDWIRED_1": {
+      "name": "SDTRIG_ICOUNT_COUNT_HARDWIRED_1",
+      "long_name": "icount.COUNT is hard-wired to 1",
+      "description": "If true then icount.count is hard-wired to 1 for all icount triggers: it does not become 0 when the trigger matches, and icount.m, icount.s, icount.u, icount.vs, and icount.vu are cleared when the trigger fires. If false, icount.count is writable and becomes 0 when the trigger matches with a count of 1.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_ICOUNT_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports icount."
+            }
+          }
+        ]
+      },
+      "src": "SDTRIG_ICOUNT_COUNT_HARDWIRED_1.yaml"
+    },
+    "SDTRIG_ICOUNT_SELF_WRITE_SETS_PENDING": {
+      "name": "SDTRIG_ICOUNT_SELF_WRITE_SETS_PENDING",
+      "long_name": "icount self-write sets pending",
+      "description": "If true, a write to tdata1 that configures an icount trigger with count=1 also sets icount.pending when the writing instruction itself matches the trigger. If false, the writing instruction does not make the trigger pending.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_ICOUNT_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports icount."
+            }
+          }
+        ]
+      },
+      "src": "SDTRIG_ICOUNT_SELF_WRITE_SETS_PENDING.yaml"
+    },
+    "SDTRIG_ICOUNT_SUPPORTED_TRIGGERS": {
+      "name": "SDTRIG_ICOUNT_SUPPORTED_TRIGGERS",
+      "long_name": "List of triggers that support icount",
+      "description": "Indicates which triggers support icount. Entry i is true if the trigger selected by tselect=i supports icount. Must have exactly SDTRIG_NUM_TRIGGERS entries.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "boolean"
+        },
+        "maxItems": "18446744073709551616",
+        "minItems": 1
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sdtrig"
+        }
+      },
+      "src": "SDTRIG_ICOUNT_SUPPORTED_TRIGGERS.yaml"
+    },
+    "SDTRIG_ITRIGGER_SUPPORTED_INTERRUPTS": {
+      "name": "SDTRIG_ITRIGGER_SUPPORTED_INTERRUPTS",
+      "long_name": "List of interrupts supported by itrigger",
+      "description": "The set of interrupt codes (mcause Exception Code) that itrigger can be enabled for, i.e. the bits of itrigger.tdata2 that are writable as 1. Debug spec 1.0, itrigger: \"Hardware may only support a subset of interrupts for this trigger.\"",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 63
+        },
+        "maxItems": 64,
+        "minItems": 1,
+        "uniqueItems": true
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_ITRIGGER_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports itrigger."
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "idl()": "for (U32 i = 32; i < 64; i++) {\n  (MXLEN == 32) -> !$array_includes?(SDTRIG_ITRIGGER_SUPPORTED_INTERRUPTS, i);\n}\n",
+        "reason": "itrigger.tdata2 is XLEN bits wide, so codes above 31 cannot be selected when XLEN is 32."
+      },
+      "src": "SDTRIG_ITRIGGER_SUPPORTED_INTERRUPTS.yaml"
+    },
+    "SDTRIG_ITRIGGER_SUPPORTED_TRIGGERS": {
+      "name": "SDTRIG_ITRIGGER_SUPPORTED_TRIGGERS",
+      "long_name": "List of triggers that support itrigger",
+      "description": "Indicates which triggers support itrigger. Entry i is true if the trigger selected by tselect=i supports itrigger. Must have exactly SDTRIG_NUM_TRIGGERS entries.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "boolean"
+        },
+        "maxItems": "18446744073709551616",
+        "minItems": 0
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sdtrig"
+        }
+      },
+      "src": "SDTRIG_ITRIGGER_SUPPORTED_TRIGGERS.yaml"
+    },
+    "SDTRIG_MAX_CHAIN_LENGTH": {
+      "name": "SDTRIG_MAX_CHAIN_LENGTH",
+      "long_name": "Maximum trigger chain length",
+      "description": "The maximum number of triggers in a trigger chain. A value of 1 means chaining is not supported. Cannot exceed SDTRIG_NUM_TRIGGERS. Debug spec 1.0, mcontrol6.chain: \"Implementations that wish to limit the maximum length of a trigger chain (eg. to meet timing requirements) may do so by zeroing chain in writes to mcontrol6 that would make the chain too long.\"",
+      "schema": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": "18446744073709551615"
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports mcontrol6."
+            }
+          }
+        ]
+      },
+      "src": "SDTRIG_MAX_CHAIN_LENGTH.yaml"
+    },
+    "SDTRIG_MCONTROL6_EXECUTE_WRITABLE": {
+      "name": "SDTRIG_MCONTROL6_EXECUTE_WRITABLE",
+      "long_name": "mcontrol6.EXECUTE is writable",
+      "description": "If true, mcontrol6.EXECUTE can be set to 1, so mcontrol6 triggers can match on instruction execution. If false, mcontrol6.EXECUTE is read-only 0. Since mcontrol6.EXECUTE resets to 0, 0 is always supported.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports mcontrol6."
+            }
+          }
+        ]
+      },
+      "src": "SDTRIG_MCONTROL6_EXECUTE_WRITABLE.yaml"
+    },
+    "SDTRIG_MCONTROL6_LOAD_WRITABLE": {
+      "name": "SDTRIG_MCONTROL6_LOAD_WRITABLE",
+      "long_name": "mcontrol6.LOAD is writable",
+      "description": "If true, mcontrol6.LOAD can be set to 1, so mcontrol6 triggers can match on loads. If false, mcontrol6.LOAD is read-only 0. Since mcontrol6.LOAD resets to 0, 0 is always supported.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports mcontrol6."
+            }
+          }
+        ]
+      },
+      "src": "SDTRIG_MCONTROL6_LOAD_WRITABLE.yaml"
+    },
+    "SDTRIG_MCONTROL6_MASKMAX6": {
+      "name": "SDTRIG_MCONTROL6_MASKMAX6",
+      "long_name": "NAPOT ranges supported by match control type 6",
+      "description": "In implementations that support match mode 1 (NAPOT), not all NAPOT ranges may be supported. All NAPOT ranges between 2^1 and 2^SDTRIG_MCONTROL6_MASKMAX6 are supported.",
+      "schema": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 64
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports mcontrol6."
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "idl()": "MXLEN == 32 -> SDTRIG_MCONTROL6_MASKMAX6 <= 32;\n"
+      },
+      "src": "SDTRIG_MCONTROL6_MASKMAX6.yaml"
+    },
+    "SDTRIG_MCONTROL6_MATCH_LEGAL_VALUES": {
+      "name": "SDTRIG_MCONTROL6_MATCH_LEGAL_VALUES",
+      "long_name": "Legal values of mcontrol6.MATCH",
+      "description": "The set of values that mcontrol6.MATCH supports.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            8,
+            9,
+            12,
+            13
+          ]
+        },
+        "maxItems": 10,
+        "minItems": 1,
+        "uniqueItems": true
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports mcontrol6."
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "idl()": "-> $array_includes?(SDTRIG_MCONTROL6_MATCH_LEGAL_VALUES, 0);\n",
+        "reason": "The reset value of mcontrol6.match is 0, so 0 must be a legal value."
+      },
+      "src": "SDTRIG_MCONTROL6_MATCH_LEGAL_VALUES.yaml"
+    },
+    "SDTRIG_MCONTROL6_SELECT_WRITABLE": {
+      "name": "SDTRIG_MCONTROL6_SELECT_WRITABLE",
+      "long_name": "mcontrol6.SELECT is writable",
+      "description": "If true, mcontrol6.SELECT can be set to 1, so mcontrol6 triggers can match on data (select=1) as well as address. If false, mcontrol6.SELECT is read-only 0. Since mcontrol6.SELECT resets to 0, 0 is always supported.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports mcontrol6."
+            }
+          }
+        ]
+      },
+      "src": "SDTRIG_MCONTROL6_SELECT_WRITABLE.yaml"
+    },
+    "SDTRIG_MCONTROL6_SIZE_LEGAL_VALUES": {
+      "name": "SDTRIG_MCONTROL6_SIZE_LEGAL_VALUES",
+      "long_name": "Legal values of mcontrol6.SIZE",
+      "description": "The set of values that mcontrol6.SIZE supports (0: any, 1: 8-bit, 2: 16-bit, 3: 32-bit, 4: 48-bit, 5: 64-bit, 6: 128-bit).",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        },
+        "maxItems": 7,
+        "minItems": 1,
+        "uniqueItems": true
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports mcontrol6."
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "idl()": "-> $array_includes?(SDTRIG_MCONTROL6_SIZE_LEGAL_VALUES, 0);\n",
+        "reason": "Debug spec 1.0, mcontrol6.size: \"An implementation must support the value of 0, but all other values are optional.\""
+      },
+      "src": "SDTRIG_MCONTROL6_SIZE_LEGAL_VALUES.yaml"
+    },
+    "SDTRIG_MCONTROL6_STORE_WRITABLE": {
+      "name": "SDTRIG_MCONTROL6_STORE_WRITABLE",
+      "long_name": "mcontrol6.STORE is writable",
+      "description": "If true, mcontrol6.STORE can be set to 1, so mcontrol6 triggers can match on stores. If false, mcontrol6.STORE is read-only 0. Since mcontrol6.STORE resets to 0, 0 is always supported.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS",
+              "includes": true,
+              "reason": "Only relevant if at least one trigger supports mcontrol6."
+            }
+          }
+        ]
+      },
+      "src": "SDTRIG_MCONTROL6_STORE_WRITABLE.yaml"
+    },
+    "SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS": {
+      "name": "SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS",
+      "long_name": "List of triggers that support mcontrol6",
+      "description": "Indicates which triggers support mcontrol6. Entry i is true if the trigger selected by tselect=i supports mcontrol6. Must have exactly SDTRIG_NUM_TRIGGERS entries.",
+      "schema": {
+        "type": "array",
+        "items": {
+          "type": "boolean"
+        },
+        "maxItems": "18446744073709551616",
+        "minItems": 1
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sdtrig"
+        }
+      },
+      "src": "SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS.yaml"
+    },
+    "SDTRIG_M_WRITABLE": {
+      "name": "SDTRIG_M_WRITABLE",
+      "long_name": "Trigger M bit is writable",
+      "description": "If true, the M bit in every trigger type that has one (mcontrol, mcontrol6, icount, itrigger, etrigger) can be set to 1, so triggers can match in M-mode. If false, the M bit is read-only 0. Since the M bit resets to 0, 0 is always supported.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sdtrig"
+        }
+      },
+      "src": "SDTRIG_M_WRITABLE.yaml"
+    },
+    "SDTRIG_NUM_TRIGGERS": {
+      "name": "SDTRIG_NUM_TRIGGERS",
+      "long_name": "Number of triggers implemented",
+      "description": "The number of triggers implemented. Triggers are indexed by tselect from 0 to SDTRIG_NUM_TRIGGERS - 1.",
+      "schema": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": "18446744073709551615"
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sdtrig"
+        }
+      },
+      "requirements": {
+        "idl()": "MXLEN == 32 -> SDTRIG_NUM_TRIGGERS <= 33'h100000000;\n"
+      },
+      "src": "SDTRIG_NUM_TRIGGERS.yaml"
+    },
+    "SDTRIG_S_WRITABLE": {
+      "name": "SDTRIG_S_WRITABLE",
+      "long_name": "Trigger S bit is writable",
+      "description": "If true, the S bit in every trigger type that has one (mcontrol, mcontrol6, icount, itrigger, etrigger) can be set to 1, so triggers can match in S/HS-mode. If false, the S bit is read-only 0. Since the S bit resets to 0, 0 is always supported.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Sdtrig"
+            },
+            {
+              "name": "S"
+            }
+          ]
+        }
+      },
+      "src": "SDTRIG_S_WRITABLE.yaml"
+    },
+    "SDTRIG_TEXTRA_MHSELECT_MCONTEXT_MATCH": {
+      "name": "SDTRIG_TEXTRA_MHSELECT_MCONTEXT_MATCH",
+      "long_name": "textra.mhselect supports mcontext matching",
+      "description": "If true, textra.mhselect values 4 (and, with H, 1 and 5) are supported, matching on mcontext. Unsupported mhselect values are legalized to 0 (ignore).",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "MCONTEXT_IMPLEMENTED",
+              "equal": true
+            }
+          },
+          {
+            "param": {
+              "name": "TDATA3_IMPLEMENTED",
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "SDTRIG_TEXTRA_MHSELECT_MCONTEXT_MATCH.yaml"
+    },
+    "SDTRIG_TEXTRA_MHSELECT_VMID_MATCH": {
+      "name": "SDTRIG_TEXTRA_MHSELECT_VMID_MATCH",
+      "long_name": "textra.mhselect supports VMID matching",
+      "description": "If true, textra.mhselect values 2 and 6 are supported, matching on the VMID in hgatp. Unsupported mhselect values are legalized to 0 (ignore).",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "extension": {
+              "name": "H"
+            }
+          },
+          {
+            "param": {
+              "name": "TDATA3_IMPLEMENTED",
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "SDTRIG_TEXTRA_MHSELECT_VMID_MATCH.yaml"
+    },
+    "SDTRIG_TEXTRA_MHVALUE_LEN": {
+      "name": "SDTRIG_TEXTRA_MHVALUE_LEN",
+      "long_name": "Number of implemented textra.mhvalue bits",
+      "description": "The number of implemented textra.mhvalue bits. Bits above these are read-only zero.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 13
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "TDATA3_IMPLEMENTED",
+              "equal": true
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "idl()": "MXLEN == 32 -> SDTRIG_TEXTRA_MHVALUE_LEN <= 6;\n",
+        "reason": "textra32.mhvalue is 6 bits wide."
+      },
+      "src": "SDTRIG_TEXTRA_MHVALUE_LEN.yaml"
+    },
+    "SDTRIG_TEXTRA_SSELECT_ASID_MATCH": {
+      "name": "SDTRIG_TEXTRA_SSELECT_ASID_MATCH",
+      "long_name": "textra.sselect supports ASID matching",
+      "description": "If true, textra.sselect value 2 is supported, matching on the ASID in satp or vsatp. Unsupported sselect values are legalized to 0 (ignore).",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "extension": {
+              "name": "S"
+            }
+          },
+          {
+            "param": {
+              "name": "TDATA3_IMPLEMENTED",
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "SDTRIG_TEXTRA_SSELECT_ASID_MATCH.yaml"
+    },
+    "SDTRIG_TEXTRA_SSELECT_SCONTEXT_MATCH": {
+      "name": "SDTRIG_TEXTRA_SSELECT_SCONTEXT_MATCH",
+      "long_name": "textra.sselect supports scontext matching",
+      "description": "If true, textra.sselect value 1 is supported, matching on scontext. Unsupported sselect values are legalized to 0 (ignore).",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "extension": {
+              "name": "S"
+            }
+          },
+          {
+            "param": {
+              "name": "SCONTEXT_IMPLEMENTED",
+              "equal": true
+            }
+          },
+          {
+            "param": {
+              "name": "TDATA3_IMPLEMENTED",
+              "equal": true
+            }
+          }
+        ]
+      },
+      "src": "SDTRIG_TEXTRA_SSELECT_SCONTEXT_MATCH.yaml"
+    },
+    "SDTRIG_TEXTRA_SVALUE_LEN": {
+      "name": "SDTRIG_TEXTRA_SVALUE_LEN",
+      "long_name": "Number of implemented textra.svalue bits",
+      "description": "The number of implemented textra.svalue bits. Bits above these are read-only zero.",
+      "schema": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 32
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "TDATA3_IMPLEMENTED",
+              "equal": true
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "idl()": "MXLEN == 32 -> SDTRIG_TEXTRA_SVALUE_LEN <= 16;\n",
+        "reason": "textra32.svalue is 16 bits wide."
+      },
+      "src": "SDTRIG_TEXTRA_SVALUE_LEN.yaml"
+    },
+    "SDTRIG_U_WRITABLE": {
+      "name": "SDTRIG_U_WRITABLE",
+      "long_name": "Trigger U bit is writable",
+      "description": "If true, the U bit in every trigger type that has one (mcontrol, mcontrol6, icount, itrigger, etrigger) can be set to 1, so triggers can match in U-mode. If false, the U bit is read-only 0. Since the U bit resets to 0, 0 is always supported.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Sdtrig"
+            },
+            {
+              "name": "U"
+            }
+          ]
+        }
+      },
+      "src": "SDTRIG_U_WRITABLE.yaml"
+    },
+    "SDTRIG_VS_WRITABLE": {
+      "name": "SDTRIG_VS_WRITABLE",
+      "long_name": "Trigger VS bit is writable",
+      "description": "If true, the VS bit in every trigger type that has one (mcontrol, mcontrol6, icount, itrigger, etrigger) can be set to 1, so triggers can match in VS-mode. If false, the VS bit is read-only 0. Since the VS bit resets to 0, 0 is always supported.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Sdtrig"
+            },
+            {
+              "name": "H"
+            }
+          ]
+        }
+      },
+      "src": "SDTRIG_VS_WRITABLE.yaml"
+    },
+    "SDTRIG_VU_WRITABLE": {
+      "name": "SDTRIG_VU_WRITABLE",
+      "long_name": "Trigger VU bit is writable",
+      "description": "If true, the VU bit in every trigger type that has one (mcontrol, mcontrol6, icount, itrigger, etrigger) can be set to 1, so triggers can match in VU-mode. If false, the VU bit is read-only 0. Since the VU bit resets to 0, 0 is always supported.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "Sdtrig"
+            },
+            {
+              "name": "H"
+            }
+          ]
+        }
+      },
+      "src": "SDTRIG_VU_WRITABLE.yaml"
     },
     "SEI_INTR_IMPL": {
       "name": "SEI_INTR_IMPL",
@@ -4747,6 +6116,227 @@
       },
       "src": "SSI_INTR_IMPL.yaml"
     },
+    "SSTATEEN0_C_TYPE": {
+      "name": "SSTATEEN0_C_TYPE",
+      "long_name": "Behavior of sstateen0.C",
+      "description": "Behavior of the `sstateen0.C` bit: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "S"
+            }
+          },
+          {
+            "extension": {
+              "anyOf": [
+                {
+                  "name": "Smstateen"
+                },
+                {
+                  "name": "Ssstateen"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "allOf": [
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "MSTATEEN0_C_TYPE",
+                    "equal": "read-only-0"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "SSTATEEN0_C_TYPE",
+                "equal": "read-only-0"
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "SSTATEEN0_C_TYPE",
+                    "equal": "read-only-1"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "MSTATEEN0_C_TYPE",
+                "equal": "read-only-1"
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "H"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "SSTATEEN0_C_TYPE",
+                    "equal": "read-only-1"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "HSTATEEN0_C_TYPE",
+                "equal": "read-only-1"
+              }
+            }
+          }
+        ]
+      },
+      "src": "SSTATEEN0_C_TYPE.yaml"
+    },
+    "SSTATEEN0_FCSR_TYPE": {
+      "name": "SSTATEEN0_FCSR_TYPE",
+      "long_name": "Behavior of sstateen0.FCSR",
+      "description": "Behavior of the `sstateen0.FCSR` bit: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1",
+      "schema": {
+        "type": "string",
+        "enum": [
+          "rw",
+          "read-only-0",
+          "read-only-1"
+        ]
+      },
+      "definedBy": {
+        "allOf": [
+          {
+            "extension": {
+              "name": "Zfinx"
+            }
+          },
+          {
+            "extension": {
+              "name": "S"
+            }
+          },
+          {
+            "extension": {
+              "anyOf": [
+                {
+                  "name": "Smstateen"
+                },
+                {
+                  "name": "Ssstateen"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "requirements": {
+        "allOf": [
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "MSTATEEN0_FCSR_TYPE",
+                    "equal": "read-only-0"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "SSTATEEN0_FCSR_TYPE",
+                "equal": "read-only-0"
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "SSTATEEN0_FCSR_TYPE",
+                    "equal": "read-only-1"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "MSTATEEN0_FCSR_TYPE",
+                "equal": "read-only-1"
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "H"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "SSTATEEN0_FCSR_TYPE",
+                    "equal": "read-only-1"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "HSTATEEN0_FCSR_TYPE",
+                "equal": "read-only-1"
+              }
+            }
+          }
+        ]
+      },
+      "src": "SSTATEEN0_FCSR_TYPE.yaml"
+    },
     "SSTATEEN_JVT_TYPE": {
       "name": "SSTATEEN_JVT_TYPE",
       "long_name": null,
@@ -4760,20 +6350,103 @@
         ]
       },
       "definedBy": {
-        "extension": {
-          "allOf": [
-            {
+        "allOf": [
+          {
+            "extension": {
               "name": "Zcmt"
-            },
-            {
-              "name": "Ssstateen"
             }
-          ]
-        }
+          },
+          {
+            "extension": {
+              "name": "S"
+            }
+          },
+          {
+            "extension": {
+              "anyOf": [
+                {
+                  "name": "Smstateen"
+                },
+                {
+                  "name": "Ssstateen"
+                }
+              ]
+            }
+          }
+        ]
       },
       "requirements": {
-        "idl()": "MSTATEEN_JVT_TYPE == \"read-only-0\" -> SSTATEEN_JVT_TYPE == \"read-only-0\";\nMSTATEEN_JVT_TYPE == \"read-only-1\" -> SSTATEEN_JVT_TYPE == \"read-only-1\";\n\nHSTATEEN_JVT_TYPE == \"read-only-0\" -> SSTATEEN_JVT_TYPE == \"read-only-0\";\nHSTATEEN_JVT_TYPE == \"read-only-1\" -> SSTATEEN_JVT_TYPE == \"read-only-1\";\n",
-        "reason": "SSTATEEN cannot have more options that MSTATEEN\n\nSSTATEEN cannot have more options that HSTATEEN\n"
+        "allOf": [
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "MSTATEEN_JVT_TYPE",
+                    "equal": "read-only-0"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "SSTATEEN_JVT_TYPE",
+                "equal": "read-only-0"
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "Smstateen"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "SSTATEEN_JVT_TYPE",
+                    "equal": "read-only-1"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "MSTATEEN_JVT_TYPE",
+                "equal": "read-only-1"
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "extension": {
+                    "name": "H"
+                  }
+                },
+                {
+                  "param": {
+                    "name": "SSTATEEN_JVT_TYPE",
+                    "equal": "read-only-1"
+                  }
+                }
+              ]
+            },
+            "then": {
+              "param": {
+                "name": "HSTATEEN_JVT_TYPE",
+                "equal": "read-only-1"
+              }
+            }
+          }
+        ]
       },
       "src": "SSTATEEN_JVT_TYPE.yaml"
     },
@@ -5321,6 +6994,56 @@
         }
       },
       "src": "S_MODE_ENDIANNESS.yaml"
+    },
+    "TCONTROL_IMPLEMENTED": {
+      "name": "TCONTROL_IMPLEMENTED",
+      "long_name": "tcontrol CSR is implemented",
+      "description": "Specifies if the tcontrol CSR is implemented",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sdtrig"
+        }
+      },
+      "src": "TCONTROL_IMPLEMENTED.yaml"
+    },
+    "TDATA2_IMPLEMENTED": {
+      "name": "TDATA2_IMPLEMENTED",
+      "long_name": "tdata2 CSR is implemented",
+      "description": "Specifies if the tdata2 CSR is implemented. Debug spec 1.0, tdata2: \"This register is optional if no implemented triggers use it.\"",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sdtrig"
+        }
+      },
+      "requirements": {
+        "idl()": "(\n  $array_includes?(SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS, true) ||\n  $array_includes?(SDTRIG_ITRIGGER_SUPPORTED_TRIGGERS, true) ||\n  $array_includes?(SDTRIG_ETRIGGER_SUPPORTED_TRIGGERS, true)\n) -> TDATA2_IMPLEMENTED;\n",
+        "reason": "These trigger types require the tdata2 CSR."
+      },
+      "src": "TDATA2_IMPLEMENTED.yaml"
+    },
+    "TDATA3_IMPLEMENTED": {
+      "name": "TDATA3_IMPLEMENTED",
+      "long_name": "tdata3 CSR is implemented",
+      "description": "Specifies if the tdata3 CSR is implemented. Debug spec 1.0, tdata3: \"This register is optional if no implemented triggers use it.\" Must be true if any trigger supports type 2-6 (mcontrol, icount, itrigger, etrigger, mcontrol6).",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Sdtrig"
+        }
+      },
+      "requirements": {
+        "idl()": "(\n  $array_includes?(SDTRIG_MCONTROL6_SUPPORTED_TRIGGERS, true) ||\n  $array_includes?(SDTRIG_ICOUNT_SUPPORTED_TRIGGERS, true) ||\n  $array_includes?(SDTRIG_ITRIGGER_SUPPORTED_TRIGGERS, true) ||\n  $array_includes?(SDTRIG_ETRIGGER_SUPPORTED_TRIGGERS, true)\n) -> TDATA3_IMPLEMENTED;\n",
+        "reason": "Trigger types 2-6 (mcontrol, icount, itrigger, etrigger, mcontrol6) use tdata3."
+      },
+      "src": "TDATA3_IMPLEMENTED.yaml"
     },
     "TIME_CSR_IMPLEMENTED": {
       "name": "TIME_CSR_IMPLEMENTED",
@@ -6210,31 +7933,6 @@
         }
       },
       "src": "VSSTATUS_VS_EXISTS.yaml"
-    },
-    "VSTI_INTR_IMPL": {
-      "name": "VSTI_INTR_IMPL",
-      "long_name": "Virtual supervisor-level timer interrupts are implemented.",
-      "description": "Whether or not virtual supervisor-level timer interrupts are implemented. If Sstc is implemented, then VSTI_INTR_IMPL must be true. Possible values: true:: Virtual supervisor-level timer interrupts are implemented. `mie.VSTIE` and `mdeleg.VSTI` are writable. false:: Virtual supervisor-level timer interrupts are not implemented. `mie.VSTIE`, `mip.VSTIP`, and and `mdeleg.VSTI` are read-only zero.",
-      "schema": {
-        "type": "boolean"
-      },
-      "definedBy": {
-        "extension": {
-          "allOf": [
-            {
-              "name": "Zicsr"
-            },
-            {
-              "name": "H"
-            }
-          ]
-        }
-      },
-      "requirements": {
-        "idl()": "implemented?(ExtensionName::Sstc) -> VSTI_INTR_IMPL;\n",
-        "reason": "When the Sstc extension is implemented, VSTIP reflects the timer interrupt signal resulting from `vstimecmp`."
-      },
-      "src": "VSTI_INTR_IMPL.yaml"
     },
     "VSTVEC_MODES": {
       "name": "VSTVEC_MODES",

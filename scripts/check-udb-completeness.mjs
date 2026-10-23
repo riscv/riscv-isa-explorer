@@ -376,12 +376,7 @@ export const EXTENSION_ALIASES = { I: ['RV32I', 'RV64I', 'RV32E', 'RV64E'] };
  * own, and tests/sync-tooling.test.mjs fails once upstream drops one, so an
  * entry cannot outlive the error it excuses.
  */
-export const UPSTREAM_ERRATA = {
-  'VABS.V':
-    'Zvabd v0.9 (riscv-isa-manual#3279) makes vabs.v an assembler alias for ' +
-    'vabd.vx vd, vs2, x0; unified-db still gives it an encoding of its own ' +
-    '(riscv-unified-db#2731, fix in #2732)',
-};
+export const UPSTREAM_ERRATA = {};
 
 /*
  * Exit codes match check-opcodes-drift.mjs, which the reporting workflow keys
