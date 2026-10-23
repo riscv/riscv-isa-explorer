@@ -13,6 +13,34 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.12.1] - 2026-10-22
+
+Catalogue: 211 entries, unchanged from 1.12.0; none added or removed.
+Exported output is unchanged.
+
+### Fixed
+
+- **Search respects a highlighted profile or volume.** With RVA23
+  highlighted, searching "Sspmp" lit the tile up and selected it, as if it
+  belonged to the profile. Matches outside the highlighted profile or volume
+  now stay dimmed (#458), and search only selects and counts that filter's
+  members. When nothing inside it matches, the message names the filter and
+  says to clear the highlight to search the whole catalogue (#459).
+
+### Added
+
+- **UDB instruction ownership report.** `node scripts/report-instruction-owners.mjs
+  <path-to-udb>` reads each instruction's `definedBy` in riscv-unified-db and
+  reports which owners match a catalogue id and which do not. It is
+  read-only and the baseline for sourcing instructions from UDB (part of
+  #205) (#456). The mnemonic suffix rule it uses is now shared with the
+  completeness checker (#457).
+
+### Changed
+
+- **CONTRIBUTING.md credits the original concept and implementation**, and
+  introduces Aryan Patel and Rohit Sharma as mentees who helped it grow (#460).
+
 ## [1.12.0] - 2026-10-19
 
 Catalogue: 211 entries, unchanged from 1.11.1; none added or removed. Zvabd's
