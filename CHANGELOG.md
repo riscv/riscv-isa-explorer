@@ -13,6 +13,43 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.12.2] - 2026-10-23
+
+Catalogue: 211 entries, unchanged from 1.12.1; none added or removed. The data
+is synced from riscv-unified-db 71ad457. No `-march` string changes. Exported
+output changes in one place: a selection containing Smmpm, Smnpm or Ssnpm
+now also resolves the privileged modes they require (Sm, U, or S with Sm and
+U), so a YAML export of it lists them, and Smmpm carries an MXLEN=64 constraint.
+
+### Added
+
+- **CSR details expand to a full-width view.** An Expand button next to the
+  CSR's close button opens the register in the same full-width dialog the
+  instruction details use. The RV32/RV64 choice carries over, and field names
+  are set vertically only when they do not fit: MSTATUS goes from 20 vertical
+  names in the side panel to 2 on a desktop, while on a phone the dialog falls
+  back to the panel's rule rather than cutting names off (#462, #463).
+
+### Fixed
+
+- **The weekly UDB sync no longer fails whenever upstream moves.** It
+  regenerated three of the five UDB-derived files, so the test requiring one
+  UDB commit across all of them failed in every week UDB changed. It now
+  regenerates `instruction-metadata.json` and `profile-optional.json` too (#450,
+  #464).
+
+### Changed
+
+- **Synced from riscv-unified-db 71ad457.** Smmpm requires Sm (and MXLEN=64),
+  Smnpm requires U, and Ssnpm requires S (and UXLEN 64), per upstream #2752.
+  `mie.VSTIE` is RW and `mip.VSTIP` RO-H rather than "dynamic" (#2759). The
+  c.bnez and fcvt.q.d descriptions are corrected (#2758), and new parameter
+  definitions arrive for the stateen bits and Sdtrig. UDB no longer lists
+  VABS.V (Zvabd 0.9, #2732), so it comes off the known-errata list (#464).
+- **The specification button reads "Read Online".** It no longer names the
+  site; the tooltip still shows the full URL, and GitHub sources keep their own
+  labels (#465).
+
 ## [1.12.1] - 2026-10-22
 
 Catalogue: 211 entries, unchanged from 1.12.0; none added or removed.
