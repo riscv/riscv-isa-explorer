@@ -20,7 +20,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { tilePropsAreEqual } from '../src/tileMemo.js';
+import { tilePropsAreEqual, tileEmphasis } from '../src/tileMemo.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const srcDir = path.join(here, '..', 'src');
@@ -239,4 +239,30 @@ test('an unstable onToggleCompare re-renders, which is why it must be memoised',
   const prev = baseProps();
   const next = baseProps({ ...prev, onToggleCompare: () => {} });
   assert.equal(tilePropsAreEqual(prev, next), false);
+});
+
+test('a search match highlights only within the active profile or volume filter', () => {
+  const tile = (over) =>
+    tileEmphasis({
+      highlighted: false,
+      dimmed: false,
+      matchesSearch: false,
+      isSelected: false,
+      ...over,
+    });
+  // RVA23 highlighted, search "pmp": Sspmp is outside the profile. It used to
+  // light up like a mandatory member; it must stay dimmed and unhighlighted.
+  assert.deepEqual(tile({ dimmed: true, matchesSearch: true }), {
+    highlighted: false,
+    dimmed: true,
+  });
+  // A match inside the filter, or with no filter at all, is still highlighted.
+  assert.deepEqual(tile({ matchesSearch: true }), { highlighted: true, dimmed: false });
+  assert.deepEqual(tile({ highlighted: true }), { highlighted: true, dimmed: false });
+  assert.deepEqual(tile({ dimmed: true }), { highlighted: false, dimmed: true });
+  // The selected tile is never greyed out, so the details panel has a target.
+  assert.deepEqual(tile({ dimmed: true, isSelected: true }), {
+    highlighted: true,
+    dimmed: false,
+  });
 });
