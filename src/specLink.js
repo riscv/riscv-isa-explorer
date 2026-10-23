@@ -22,5 +22,6 @@ export function specificationLink(url) {
       label: repoRoot ? 'ISA manual source on GitHub' : 'Specification source on GitHub',
     };
   }
-  return { url: target, label: `Read Online at ${parsed.hostname}` };
+  // The tooltip shows the full URL, so the label need not name the site.
+  return { url: target, label: 'Read Online' };
 }

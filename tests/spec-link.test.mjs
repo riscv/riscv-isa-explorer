@@ -1,6 +1,6 @@
 /**
  * The details panel's specification button (src/specLink.js). Its label has
- * to say where the link goes, because the catalogue mixes published chapters
+ * to say what the link is, because the catalogue mixes published chapters
  * with GitHub sources.
  */
 import { test } from 'node:test';
@@ -12,9 +12,9 @@ import { specificationLink } from '../src/specLink.js';
 const require = createRequire(import.meta.url);
 const catalog = require('../src/riscv_extensions.json');
 
-test('a docs.riscv.org chapter reads as the specification and names the site', () => {
+test('a published chapter reads as Read Online', () => {
   const link = specificationLink('https://docs.riscv.org/reference/isa/unpriv/b-st-ext.html');
-  assert.equal(link.label, 'Read Online at docs.riscv.org');
+  assert.equal(link.label, 'Read Online');
 });
 
 test('a GitHub link says it is the source, and whether it is only the repository', () => {
