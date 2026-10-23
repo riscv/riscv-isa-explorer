@@ -2988,6 +2988,11 @@ pre,
   padding: 12px;
   color: var(--riscv-text);
 }
+.riscv-csr.is-expanded {
+  border: 0;
+  border-radius: 0;
+  padding: 20px;
+}
 .riscv-csr-title {
   display: flex;
   flex-wrap: wrap;

@@ -158,6 +158,44 @@ test('a CSR chip opens its details', async () => {
   noErrors(errors);
 });
 
+test('a CSR expands to a full-width dialog and Escape closes it', async () => {
+  const { window, document, errors } = await mount('https://example.test/?ext=Sm');
+  const chip = await waitFor(() => button(document.querySelector('#detail-panel'), 'MSTATUS'));
+  assert.ok(chip, 'MSTATUS chip missing');
+  chip.click();
+  const expand = await waitFor(() => byLabel(document, 'Expand MSTATUS details to full view'));
+  assert.ok(expand, 'Expand button missing');
+  // The width chosen in the panel carries over to the expanded view.
+  button(document.querySelector('[aria-label="mstatus CSR details"]'), 'RV32').click();
+  expand.click();
+  const dialog = await waitFor(() =>
+    document.querySelector('[aria-labelledby="csr-expand-title"]'),
+  );
+  assert.ok(dialog, 'expanded dialog did not open');
+  assert.equal(dialog.getAttribute('role'), 'dialog');
+  assert.equal(document.activeElement, dialog, 'focus did not move into the dialog');
+  assert.match(document.getElementById('csr-expand-title').textContent, /MSTATUS/);
+  assert.ok(dialog.querySelector('.riscv-csr-diagram'), 'register diagram missing');
+  assert.equal(
+    button(dialog, 'RV32').getAttribute('aria-pressed'),
+    'true',
+    'the expanded view lost the RV32 choice',
+  );
+  assert.equal(
+    byLabel(dialog, 'Expand MSTATUS details to full view'),
+    null,
+    'the expanded view offers Expand again',
+  );
+  window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape' }));
+  await waitFor(() => !document.querySelector('[aria-labelledby="csr-expand-title"]'));
+  assert.equal(document.querySelector('[aria-labelledby="csr-expand-title"]'), null);
+  assert.ok(
+    document.querySelector('[aria-label="mstatus CSR details"]'),
+    'closing the dialog closed the CSR too',
+  );
+  noErrors(errors);
+});
+
 test('the Evolution dialog draws the ratification chart and the toolchain timeline', async () => {
   const { document, errors } = await mount('https://example.test/');
   button(document, 'Evolution').click();

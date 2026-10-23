@@ -1,5 +1,5 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { X } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Maximize2, X } from 'lucide-react';
 import {
   accessInfo,
   conditionTerms,
@@ -13,8 +13,17 @@ import {
 } from './csrLayout.js';
 
 // Names longer than this many characters per bit are set vertically, the way
-// the ISA manual's register diagrams label one-bit fields.
+// the ISA manual's register diagrams label one-bit fields. That suits the side
+// panel; the expanded view measures its diagram instead (expandedCharsPerBit),
+// since it is three times as wide on a desktop and no wider on a phone.
 const CHARS_PER_BIT = 1.6;
+// A field name is 10px bold monospace, about 6px a character, plus padding.
+const PX_PER_CHAR = 7;
+const BITS_PER_ROW = 32;
+
+function expandedCharsPerBit(diagramWidth) {
+  return Math.max(CHARS_PER_BIT, diagramWidth / BITS_PER_ROW / PX_PER_CHAR);
+}
 
 const KIND_LEGEND = [
   { kind: 'rw', label: 'Software writable' },
@@ -23,12 +32,12 @@ const KIND_LEGEND = [
   { kind: 'cfg', label: 'Depends on configuration' },
 ];
 
-function isVertical(segment) {
-  return segment.field && segment.field.name.length > segment.width * CHARS_PER_BIT;
+function isVertical(segment, charsPerBit) {
+  return segment.field && segment.field.name.length > segment.width * charsPerBit;
 }
 
-function DiagramRow({ row, active, onHover, onPick }) {
-  const tall = row.segments.some(isVertical);
+function DiagramRow({ row, active, onHover, onPick, charsPerBit }) {
+  const tall = row.segments.some((segment) => isVertical(segment, charsPerBit));
   return (
     <div
       className="riscv-csr-row"
@@ -39,7 +48,7 @@ function DiagramRow({ row, active, onHover, onPick }) {
         const span =
           segment.high === segment.low ? `${segment.high}` : `${segment.high}:${segment.low}`;
         const kind = field ? accessInfo(field.type).kind : 'gap';
-        const vertical = isVertical(segment);
+        const vertical = isVertical(segment, charsPerBit);
         return (
           <div
             key={`${segment.high}-${segment.low}`}
@@ -150,10 +159,38 @@ export function CsrChipList({ csrs, selected, onSelect }) {
   );
 }
 
-export default function CsrDetails({ name, csr, owners = [], onClose }) {
-  const [xlen, setXlen] = useState(64);
+/*
+ * `xlen` and `onXlenChange` are optional: given them, the caller owns the
+ * RV32/RV64 choice, so the panel and its expanded view show the same width.
+ * `onExpand` adds an Expand button; `expanded` marks the copy inside the
+ * full-width dialog, which has no Expand of its own.
+ */
+export default function CsrDetails({
+  name,
+  csr,
+  owners = [],
+  onClose,
+  onExpand,
+  expanded = false,
+  headingId,
+  xlen: xlenProp,
+  onXlenChange,
+}) {
+  const [xlenOwn, setXlenOwn] = useState(64);
+  const xlen = xlenProp ?? xlenOwn;
+  const setXlen = onXlenChange ?? setXlenOwn;
   const [active, setActive] = useState(null);
   const rowRefs = useRef(new Map());
+  const diagramRef = useRef(null);
+  const [diagramWidth, setDiagramWidth] = useState(0);
+  useEffect(() => {
+    const node = diagramRef.current;
+    if (!expanded || !node || typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(([entry]) => setDiagramWidth(entry.contentRect.width));
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [expanded]);
+  const charsPerBit = expanded ? expandedCharsPerBit(diagramWidth) : CHARS_PER_BIT;
   const width = csrWidth(csr, xlen);
   const { fields, otherXlen } = useMemo(() => csrFields(csr, xlen), [csr, xlen]);
   const rows = useMemo(() => csrRows(fields, width), [fields, width]);
@@ -168,10 +205,13 @@ export default function CsrDetails({ name, csr, owners = [], onClose }) {
   };
 
   return (
-    <section aria-label={`${name} CSR details`} className="riscv-csr mt-3">
+    <section
+      aria-label={`${name} CSR details`}
+      className={`riscv-csr${expanded ? ' is-expanded' : ' mt-3'}`}
+    >
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h4 className="riscv-csr-title">
+          <h4 id={headingId} className="riscv-csr-title">
             <span className="font-mono">{name.toUpperCase()}</span>
             {csr?.desc && <span className="riscv-csr-desc">{csr.desc}</span>}
           </h4>
@@ -198,15 +238,33 @@ export default function CsrDetails({ name, csr, owners = [], onClose }) {
             )}
           </dl>
         </div>
-        <button
-          type="button"
-          className="riscv-btn p-1"
-          onClick={onClose}
-          aria-label={`Close ${name.toUpperCase()} details`}
-          title="Close"
-        >
-          <X size={14} />
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          {onExpand && !expanded && (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1 px-2 py-1 riscv-btn riscv-btn-violet"
+              onClick={onExpand}
+              aria-label={`Expand ${name.toUpperCase()} details to full view`}
+              title="Expand to full view"
+            >
+              <Maximize2 size={12} aria-hidden="true" />
+              Expand
+            </button>
+          )}
+          <button
+            type="button"
+            className="riscv-btn p-1"
+            onClick={onClose}
+            aria-label={
+              expanded
+                ? `Close expanded ${name.toUpperCase()} view`
+                : `Close ${name.toUpperCase()} details`
+            }
+            title={expanded ? 'Close expanded view (Esc)' : 'Close'}
+          >
+            <X size={14} />
+          </button>
+        </div>
       </header>
 
       {csrDependsOnXlen(csr) && (
@@ -230,6 +288,7 @@ export default function CsrDetails({ name, csr, owners = [], onClose }) {
       {placed.length > 0 && (
         <>
           <div
+            ref={diagramRef}
             className="riscv-csr-diagram"
             role="img"
             aria-label={`${name.toUpperCase()} bit layout, ${width} bits: ${placed
@@ -246,6 +305,7 @@ export default function CsrDetails({ name, csr, owners = [], onClose }) {
                 active={active}
                 onHover={setActive}
                 onPick={pick}
+                charsPerBit={charsPerBit}
               />
             ))}
           </div>

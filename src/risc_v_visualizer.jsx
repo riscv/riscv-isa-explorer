@@ -762,6 +762,14 @@ const RISCVExplorer = () => {
   const restoreModalFocusRef = React.useRef(null);
   const onCloseExpandedModalRef = React.useRef(() => setInstructionExpandOpen(false));
   onCloseExpandedModalRef.current = () => setInstructionExpandOpen(false);
+  // ── CSR Expand Modal ───────────────────────────────────────────────────────
+  // The register diagram is what the side panel cramps most: MSTATUS's one-bit
+  // fields end up set vertically. The expanded view gives each bit more room.
+  const [csrExpandOpen, setCsrExpandOpen] = useState(false);
+  // Shared by the panel and the expanded view, so both show the same width.
+  const [csrXlen, setCsrXlen] = useState(64);
+  const csrExpandedRef = React.useRef(null);
+  const restoreCsrFocusRef = React.useRef(null);
 
   // About dialog: seed and trap focus, close on Escape, then restore focus.
   React.useEffect(() => {
@@ -899,6 +907,43 @@ const RISCVExplorer = () => {
       }
     };
   }, [instructionExpandOpen]);
+
+  // Another CSR, or none, closes the expanded view rather than retargeting it.
+  React.useEffect(() => {
+    setCsrExpandOpen(false);
+  }, [selectedCsrName]);
+
+  // Expanded CSR view: the same focus trap and Escape as the instruction one.
+  React.useEffect(() => {
+    if (!csrExpandOpen) return undefined;
+    restoreCsrFocusRef.current = document.activeElement;
+    csrExpandedRef.current?.focus();
+
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        setCsrExpandOpen(false);
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const target = nextFocus(
+        focusableWithin(csrExpandedRef.current),
+        document.activeElement,
+        e.shiftKey,
+      );
+      if (target) {
+        e.preventDefault();
+        target.focus();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      const restore = restoreCsrFocusRef.current;
+      if (restore && typeof restore.focus === 'function' && restore.isConnected) {
+        restore.focus();
+      }
+    };
+  }, [csrExpandOpen]);
   /*
    * A ?cfg= link (#407) and the configuration this visitor already saved can
    * disagree. Silently replacing theirs would lose work they never chose to
@@ -4768,6 +4813,9 @@ const RISCVExplorer = () => {
                                 ]
                               }
                               onClose={() => setSelectedCsrName(null)}
+                              onExpand={() => setCsrExpandOpen(true)}
+                              xlen={csrXlen}
+                              onXlenChange={setCsrXlen}
                             />
                           )}
                         </div>
@@ -5821,6 +5869,41 @@ const RISCVExplorer = () => {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── CSR Details Expand Modal ─────────────────────────────────────── */}
+      {csrExpandOpen && selectedCsrName && selectedExt?.csrs?.[selectedCsrName] && (
+        <div className="fixed inset-0 z-50" role="presentation">
+          <div
+            className="absolute inset-0"
+            style={{ background: 'rgba(7,7,14,0.92)', backdropFilter: 'blur(6px)' }}
+            onClick={() => setCsrExpandOpen(false)}
+            role="presentation"
+          />
+          <div className="absolute inset-0 p-3 md:p-8 flex items-start justify-center overflow-y-auto">
+            <div
+              ref={csrExpandedRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="csr-expand-title"
+              tabIndex={-1}
+              className="animate-scale-in w-full max-w-5xl riscv-card overflow-hidden mb-8 outline-hidden"
+              style={{ boxShadow: '0 0 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(245,197,66,0.12)' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <CsrDetails
+                name={selectedCsrName}
+                csr={selectedExt.csrs[selectedCsrName]}
+                owners={csrOwnersByName.get(selectedCsrName.toLowerCase()) || [selectedExt.id]}
+                onClose={() => setCsrExpandOpen(false)}
+                expanded
+                headingId="csr-expand-title"
+                xlen={csrXlen}
+                onXlenChange={setCsrXlen}
+              />
             </div>
           </div>
         </div>
