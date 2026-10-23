@@ -183,7 +183,9 @@ by our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Contributors
 
-The first contributors to this project:
+The original concept and implementation of the RISC-V ISA Explorer are by
+**Rafael Sene** ([@rpsene](https://github.com/rpsene)). Aryan Patel and Rohit
+Sharma, mentees on the project, helped it grow:
 
 - **Aryan Patel** ([@ARYANPATEL-BIT](https://github.com/ARYANPATEL-BIT)) -
   automated the sync of extension metadata from riscv-unified-db, including the
