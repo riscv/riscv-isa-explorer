@@ -19,6 +19,7 @@ import {
   BASE_ISA_PREFIX_MAP,
   absorbedByShorthand,
   COMPILER_COMPAT_NOTES,
+  SINGLE_LETTER_CANONICAL_ORDER,
 } from './marchUtils.js';
 import { buildCombinedCatalog } from './marchUtils.js';
 import { resolveParams } from './isaGraph.js';
@@ -194,26 +195,13 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     }
   }
 
-  // 3. Sort single letters canonically (RISC-V Unprivileged ISA §27)
-  const CANONICAL_ORDER = [
-    'I',
-    'E',
-    'M',
-    'A',
-    'F',
-    'D',
-    'Q',
-    'L',
-    'C',
-    'J',
-    'T',
-    'V',
-    'N',
-    'H',
-    'S',
-    'U',
-  ];
-  const canonMap = Object.fromEntries(CANONICAL_ORDER.map((c, i) => [c, i]));
+  // 3. Sort single letters canonically (RISC-V Unprivileged ISA §27.11).
+  // Reuses marchUtils.js's SINGLE_LETTER_CANONICAL_ORDER rather than keeping a
+  // second copy of the spec order here — a second copy is how this list
+  // drifted and silently lost B and P (see #467).
+  const canonMap = Object.fromEntries(
+    SINGLE_LETTER_CANONICAL_ORDER.map((c, i) => [c.toUpperCase(), i]),
+  );
   singleLetters.sort((a, b) => {
     const ia = canonMap[a] ?? 999,
       ib = canonMap[b] ?? 999;
