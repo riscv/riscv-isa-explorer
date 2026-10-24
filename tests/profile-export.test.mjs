@@ -238,6 +238,12 @@ test('cell text is escaped and characters XML forbids are dropped', () => {
   assert.match(files.get('xl/workbook.xml'), /name="a b c"/);
 });
 
+test('non-BMP characters (e.g. emoji) survive xlsx XML escaping', () => {
+  const files = readZip(buildXlsx([{ name: 'Sheet1', rows: [['h'], ['😀 test ✓']] }]));
+  const sheet = files.get('xl/worksheets/sheet1.xml');
+  assert.ok(sheet.includes('<t xml:space="preserve">😀 test ✓</t>'));
+});
+
 test('column names run A..Z then AA', () => {
   assert.deepEqual([0, 1, 25, 26, 27, 51, 52].map(columnName), [
     'A',
