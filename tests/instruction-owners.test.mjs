@@ -1,9 +1,10 @@
 /**
- * Test the instruction owner report without downloading a UDB checkout.
+ * Test the shared instruction reader and ownership report with local fixtures.
  *
  * Small examples check how definedBy conditions produce owner names and how
- * those names match a catalogue. Temporary YAML files test directory scanning,
- * parsing errors and command-line output.
+ * those names match a catalogue. Temporary YAML files check that both scripts
+ * preserve conditions and reject invalid input. Report tests also cover directory
+ * scanning and command-line output.
  *
  * The command-line tests use the project's catalogue and check that running the
  * report leaves the YAML inputs, instruction data and sync script unchanged.
@@ -16,8 +17,9 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
+import { instructionOwners, readInstruction } from '../scripts/udb-instruction-reader.mjs';
+import { parseUpstream } from '../scripts/check-udb-completeness.mjs';
 import {
-  instructionOwners,
   readInstructions,
   ownershipReport,
   formatReport,
@@ -69,7 +71,7 @@ test('anyOf and oneOf collect every candidate once, at either nesting level', ()
     instructionOwners({
       extension: { anyOf: [{ name: 'Ssctr' }, { name: 'Smctr' }, { name: 'Smctr' }] },
     }),
-    ['Smctr', 'Ssctr'],
+    ['Ssctr', 'Smctr'],
   );
   assert.deepEqual(instructionOwners({ anyOf: [ext('Smctr'), ext('Ssctr')] }), ['Smctr', 'Ssctr']);
   assert.deepEqual(
@@ -261,6 +263,38 @@ test('recursive YAML reading supports flow style, CRLF, and retains relative sou
   assert.equal(rows[1].source, 'spec/std/isa/inst/Smctr/nested/sctrclr.yaml');
 });
 
+test('both scripts read inline YAML, quoted names and negation with the same conditions', (t) => {
+  const source =
+    'kind: instruction\nname: "zext.h"\n' +
+    'definedBy: {allOf: [{xlen: 32}, {extension: {allOf: [{name: Zbb}, {not: {name: Zbkb}}]}}]}\n' +
+    'encoding:\n  match: 000010000000-----100-----00110011\n';
+  const dir = checkout(t, { 'Zbb/zext.h.yaml': source });
+  fs.mkdirSync(path.join(dir, 'spec/std/isa/ext'));
+  const [report] = readInstructions(dir);
+  const [checker] = parseUpstream(path.join(dir, 'spec/std/isa')).instructions;
+  const predicate = {
+    allOf: [{ xlen: 32 }, { extension: { allOf: [{ name: 'Zbb' }, { not: { name: 'Zbkb' } }] } }],
+  };
+  assert.equal(report.name, 'ZEXT.H');
+  assert.equal(checker.mnemonic, 'ZEXT.H');
+  assert.deepEqual(report.owners, ['Zbb']);
+  assert.deepEqual(checker.definedBy, ['Zbb']);
+  assert.deepEqual(report.definedBy, predicate);
+  assert.deepEqual(checker.definedByPredicate, predicate);
+  assert.equal(checker.ownerXlen, 32);
+});
+
+test('the shared reader rejects invalid instruction headers and missing ownership', () => {
+  for (const [source, error] of [
+    ['kind: extension\nname: Zbb\n', /expected kind: instruction/],
+    ['kind: instruction\nname: [add]\n', /invalid instruction name/],
+    ['kind: instruction\nname: add\n', /expected a definedBy condition object/],
+    ['kind: instruction\nname: add\nname: sub\n', /Map keys must be unique/],
+  ]) {
+    assert.throws(() => readInstruction(source), error);
+  }
+});
+
 test('duplicate mnemonics and malformed files identify the source; no directory owner fallback', (t) => {
   for (const [files, error] of [
     [
@@ -366,5 +400,30 @@ test('CLI uses nonzero exit for bad input, without emitting a misleading partial
     assert.equal(result.status, 2);
     assert.equal(result.stdout, '');
     assert.match(result.stderr, /usage:|Instruction owner report failed:/);
+  }
+});
+
+test('both CLIs reject missing or unsupported conditions with a source path and no report', (t) => {
+  for (const definedBy of [undefined, { unknown: true }]) {
+    const dir = checkout(t, {
+      'Zfix/bad.yaml': { kind: 'instruction', name: 'bad', definedBy },
+    });
+    fs.mkdirSync(path.join(dir, 'spec/std/isa/ext'));
+    const checker = spawnSync(
+      process.execPath,
+      [
+        '--disable-warning=MODULE_TYPELESS_PACKAGE_JSON',
+        path.join(root, 'scripts/check-udb-completeness.mjs'),
+        dir,
+        '--published',
+      ],
+      { encoding: 'utf8' },
+    );
+    assert.ifError(checker.error);
+    for (const result of [run(dir), checker]) {
+      assert.equal(result.status, 2, result.stderr);
+      assert.equal(result.stdout, '');
+      assert.match(result.stderr, /Zfix[/\\]bad.yaml:.*definedBy condition/);
+    }
   }
 });

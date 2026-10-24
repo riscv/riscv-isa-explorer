@@ -22,63 +22,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import YAML from 'yaml';
+import { readInstruction } from './udb-instruction-reader.mjs';
 import { variantBase } from '../src/completeness.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const compare = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
-const object = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
 const normalizeMnemonic = (name) => variantBase(name.toUpperCase());
-
-/**
- * Collect extension names from definedBy, counting each name once.
- * For example, A AND B lists both names, but neither alone is enough to provide
- * the instruction. A AND NOT B lists only A. The reader keeps the full condition
- * for the report. Stop on unknown condition types so nothing is silently missed.
- */
-export function instructionOwners(predicate) {
-  const owners = new Set();
-  const visit = (node, extension = false, negative = false) => {
-    if (!object(node)) throw new Error('expected a definedBy condition object');
-    const keys = Object.keys(node);
-    if (extension && Object.hasOwn(node, 'name')) {
-      if (
-        typeof node.name !== 'string' ||
-        !node.name ||
-        /\s/.test(node.name) ||
-        keys.some((key) => !['name', 'version'].includes(key)) ||
-        (Object.hasOwn(node, 'version') &&
-          typeof node.version !== 'string' &&
-          !(Array.isArray(node.version) && node.version.every((v) => typeof v === 'string')))
-      ) {
-        throw new Error('unsupported extension requirement');
-      }
-      if (!negative) owners.add(node.name);
-      return;
-    }
-    if (keys.length !== 1) throw new Error('expected exactly one condition operator');
-    const key = keys[0];
-    const value = node[key];
-    if (['anyOf', 'allOf', 'oneOf', 'noneOf'].includes(key)) {
-      if (!Array.isArray(value) || value.length < 2) {
-        throw new Error(`${key} requires at least two conditions`);
-      }
-      for (const child of value) {
-        visit(child, extension, key === 'noneOf' ? !negative : negative);
-      }
-    } else if (key === 'not') {
-      visit(value, extension, !negative);
-    } else if (key === 'extension' && !extension) {
-      visit(value, true, negative);
-    } else if (key === 'xlen' && !extension && [32, 64].includes(value)) {
-      // XLEN is the CPU's register width. Keep this condition, but collect no owner.
-    } else {
-      throw new Error(`unsupported definedBy condition: ${key}`);
-    }
-  };
-  visit(predicate);
-  return [...owners].sort(compare);
-}
 
 function yamlFiles(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -100,27 +49,10 @@ export function readInstructions(udbRoot) {
   for (const file of files) {
     const source = path.relative(udbRoot, file).split(path.sep).join('/');
     try {
-      const document = YAML.parseDocument(fs.readFileSync(file, 'utf8'));
-      // YAML can warn about an unknown tag and still return a value.
-      // Stop on warnings too, since that value may have been read incorrectly.
-      const issue = document.errors[0] ?? document.warnings[0];
-      if (issue) throw issue;
-      const instruction = document.toJS();
-      if (!object(instruction) || instruction.kind !== 'instruction') {
-        throw new Error('expected kind: instruction');
-      }
-      if (
-        typeof instruction.name !== 'string' ||
-        !instruction.name ||
-        /\s/.test(instruction.name)
-      ) {
-        throw new Error('missing or invalid instruction name');
-      }
-      const name = instruction.name.toUpperCase();
+      const { name, owners, predicate } = readInstruction(fs.readFileSync(file, 'utf8'));
       if (seen.has(name)) throw new Error(`duplicate instruction name: ${name}`);
-      const owners = instructionOwners(instruction.definedBy);
       seen.add(name);
-      instructions.push({ name, owners, source, definedBy: instruction.definedBy });
+      instructions.push({ name, owners, source, definedBy: predicate });
     } catch (error) {
       throw new Error(`${source}: ${error.message}`);
     }

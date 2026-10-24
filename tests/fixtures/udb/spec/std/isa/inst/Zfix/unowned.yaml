@@ -1,6 +1,8 @@
-# Fixture: no definedBy at all. Ownership falls back to the directory name.
+# Fixture: a width condition names no extension; the directory is not an owner.
 $schema: "inst_schema.json#"
 kind: instruction
 name: unowned
+definedBy:
+  xlen: 32
 encoding:
   match: 0000010----------010-----0001011
