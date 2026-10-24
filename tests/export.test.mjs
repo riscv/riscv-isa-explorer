@@ -69,6 +69,15 @@ test('isa_string holds everything march does', () => {
   assert.deepEqual(missing, [], 'isa_string must not omit extensions march carries');
 });
 
+test('isa_string orders single letters per RISC-V Spec §27.11, B and P included', () => {
+  // exportUtils.js used to keep its own copy of the canonical order, and that
+  // copy silently lost B and P (#467): a missing letter fell back to sort
+  // weight 999, so B and P landed after every letter that should follow them.
+  const { yaml } = buildIsaConfigYaml(['RV64I', 'V', 'B', 'H', 'ZICSR'], ALL);
+  const isaString = yaml.match(/^isa_string: (\S+)/m)[1];
+  assert.match(isaString, /^RV64IBVH(_|$)/, `expected B before V and H, got ${isaString}`);
+});
+
 test('the file says where its facts came from', () => {
   const { yaml } = buildIsaConfigYaml(RVA23, ALL);
   assert.match(yaml, /riscv-unified-db [0-9a-f]{7,}/, 'no UDB commit recorded');
