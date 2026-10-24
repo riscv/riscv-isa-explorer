@@ -8,10 +8,13 @@ import {
   parseVariables,
   applyNotConstraints,
   parseEncodings,
-  parseDefinedBy,
   predicateXlen,
   EXTENSION_ALIASES,
 } from '../scripts/check-udb-completeness.mjs';
+import { readInstruction } from '../scripts/udb-instruction-reader.mjs';
+
+const parseDefinedBy = (condition) =>
+  readInstruction(`kind: instruction\nname: test\ndefinedBy:\n${condition}`);
 
 /*
  * The parser, against committed fixtures.
@@ -71,10 +74,10 @@ test('the anyOf definedBy shape yields every owner', () => {
   assert.deepEqual(inst('SHARED').definedBy, ['Zfix', 'Zwasfrozen']);
 });
 
-test('an instruction with no definedBy falls back to its directory', () => {
-  // The `|| [dir]` bug: an empty array is truthy, so the fallback never fired
-  // and the instruction was left unowned.
-  assert.deepEqual(inst('UNOWNED').definedBy, ['Zfix']);
+test('a width-only condition does not invent an owner from the directory', () => {
+  assert.deepEqual(inst('UNOWNED').definedBy, []);
+  assert.deepEqual(inst('UNOWNED').definedByPredicate, { xlen: 32 });
+  assert.equal(inst('UNOWNED').ownerXlen, 32);
 });
 
 test('an instruction with no encoding is skipped, not crashed on', () => {
@@ -113,12 +116,6 @@ test('a dash in the encoding leaves that bit free in the mask', () => {
 test('match never sets a bit its own mask leaves free', () => {
   for (const i of upstream.instructions) {
     assert.equal((i.match & ~i.mask) === 0n, true, `${i.mnemonic} has a dead match bit`);
-  }
-});
-
-test('every parsed instruction names at least one owner', () => {
-  for (const i of upstream.instructions) {
-    assert.ok(i.definedBy.length > 0, `${i.mnemonic} has no owner`);
   }
 });
 
@@ -318,6 +315,27 @@ test('an xlen condition survives, nested or not', () => {
   });
 });
 
+test('alternative owners retain their separate XLEN conditions', () => {
+  // LD uses I in RV64 and Zilsd in RV32; neither width applies to both owners.
+  const { owners, predicate } = parseDefinedBy(`  anyOf:
+    - allOf:
+        - xlen: 64
+        - extension:
+            name: I
+    - allOf:
+        - xlen: 32
+        - extension:
+            name: Zilsd`);
+  assert.deepEqual(owners, ['I', 'Zilsd']);
+  assert.deepEqual(predicate, {
+    anyOf: [
+      { allOf: [{ xlen: 64 }, { extension: { name: 'I' } }] },
+      { allOf: [{ xlen: 32 }, { extension: { name: 'Zilsd' } }] },
+    ],
+  });
+  assert.equal(predicateXlen(predicate), null);
+});
+
 test('a negation is not mistaken for a requirement', () => {
   // Zbb/zext.h.yaml: Zbb AND NOT Zbkb. The flat reading gave [Zbb, Zbkb],
   // which states the opposite of what the file says about Zbkb.
@@ -326,7 +344,7 @@ test('a negation is not mistaken for a requirement', () => {
       - name: Zbb
       - not:
           name: Zbkb`);
-  assert.deepEqual(owners, ['Zbb', 'Zbkb'], 'the flat list still names both');
+  assert.deepEqual(owners, ['Zbb']);
   assert.deepEqual(predicate, {
     extension: { allOf: [{ name: 'Zbb' }, { not: { name: 'Zbkb' } }] },
   });
@@ -349,24 +367,19 @@ test('comments inside the block are ignored', () => {
   assert.deepEqual(owners, ['Zbb']);
 });
 
-test('an unrecognised shape yields no predicate rather than a wrong one', () => {
-  const { owners, predicate } = parseDefinedBy(`  extension:
-    ????`);
-  assert.equal(predicate, null, 'degrade to the flat list rather than invent a condition');
-  assert.deepEqual(owners, []);
+test('an unrecognised shape throws instead of returning a partial owner list', () => {
+  assert.throws(
+    () =>
+      parseDefinedBy(`  extension:
+    ????`),
+    /expected a definedBy condition object/,
+  );
 });
 
-test('CRLF line endings: blockUnder body lines have \\r stripped so parseDefinedBy works', () => {
-  /*
-   * blockUnder joins body lines with '\n'. On CRLF checkouts each body line
-   * ends with '\r', so the joined output contains trailing \r characters.
-   * parseDefinedBy splits on '\n' again, giving lines like '  extension:\r'
-   * which parseMapping cannot match. Body lines must have \r stripped.
-   */
-  // Construct the block as blockUnder would return it from a CRLF checkout
-  const crlfBlock = '  extension:\r\n    name: Zbb\r\n';
-  const { owners } = parseDefinedBy(crlfBlock);
-  assert.deepEqual(owners, ['Zbb'], 'CRLF body: \\r must be stripped before parseDefinedBy sees the lines');
+test('CRLF line endings preserve the ownership condition', () => {
+  const { owners, predicate } = parseDefinedBy('  extension:\r\n    name: Zbb\r\n');
+  assert.deepEqual(owners, ['Zbb']);
+  assert.deepEqual(predicate, { extension: { name: 'Zbb' } });
 });
 
 test('CRLF line endings: parseVariables returns all fields on Windows checkouts', () => {

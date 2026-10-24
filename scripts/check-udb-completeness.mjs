@@ -25,6 +25,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { compareAgainstUpstream } from '../src/completeness.js';
+import { readInstruction } from './udb-instruction-reader.mjs';
 
 /**
  * Read an unified-db checkout into the shape completeness.js compares against.
@@ -210,87 +211,6 @@ export function parseEncodings(text) {
   return out;
 }
 
-/**
- * definedBy, as the predicate tree it actually is.
- *
- * Scraping `name:` out of the block gives the owner list and throws away the
- * shape around it, which is not a detail: 132 instruction files carry an
- * `xlen:` inside definedBy, so MULW's "RV64 AND (M OR Zmmul)" flattens to
- * "[M, Zmmul]" and the RV64 half is gone. That is the same information a
- * reader needs to tell an RV32-only pairing (Zilsd's LD) from the RV64 one
- * (I's LD) — the two share a mnemonic and differ only in the condition.
- *
- * The grammar unified-db uses here is small and closed. Every shape in the
- * corpus is one of:
- *
- *   extension: <node>        allOf: [<node>…]        name: <id>
- *   not: <node>              anyOf: [<node>…]        xlen: 32 | 64
- *                            oneOf: [<node>…]
- *
- * so this parses that subset by indentation rather than pulling in a YAML
- * dependency. Anything it does not recognise yields a null predicate, and the
- * caller falls back to the flat owner list — degrading to today's behaviour
- * rather than inventing a condition.
- */
-export function parseDefinedBy(block) {
-  if (!block) return { owners: [], predicate: null };
-
-  const lines = block
-    .split('\n')
-    .filter((l) => l.trim() !== '' && !/^\s*#/.test(l))
-    .map((l) => ({ indent: l.match(/^\s*/)[0].length, text: l.trim() }));
-
-  let failed = false;
-
-  // Parses the run of lines at `indent` starting at `i`; returns [value, next].
-  const parseBlock = (i, indent) => {
-    if (i >= lines.length) return [null, i];
-
-    if (lines[i].text.startsWith('- ')) {
-      const items = [];
-      while (i < lines.length && lines[i].indent === indent && lines[i].text.startsWith('- ')) {
-        // A sequence item is itself a mapping: `- name: Zbb`, or `- extension:`
-        // with its own indented body on the lines that follow.
-        const [value, next] = parseMapping(lines[i].text.slice(2), i, indent + 2);
-        items.push(value);
-        i = next;
-      }
-      return [items, i];
-    }
-
-    const out = {};
-    while (i < lines.length && lines[i].indent === indent) {
-      const [value, next] = parseMapping(lines[i].text, i, indent);
-      Object.assign(out, value);
-      i = next;
-    }
-    return [out, i];
-  };
-
-  // `text` is one `key:` or `key: value`; `i` is its line, `indent` its column.
-  const parseMapping = (text, i, indent) => {
-    const m = text.match(/^([A-Za-z_][A-Za-z0-9_]*):\s*(.*)$/);
-    if (!m) {
-      failed = true;
-      return [{}, i + 1];
-    }
-    const [, key, scalar] = m;
-    if (scalar !== '') return [{ [key]: /^\d+$/.test(scalar) ? Number(scalar) : scalar }, i + 1];
-    // Nested: the body is whatever follows at a deeper indent.
-    const bodyIndent = lines[i + 1]?.indent;
-    if (bodyIndent == null || bodyIndent <= indent) {
-      failed = true;
-      return [{ [key]: null }, i + 1];
-    }
-    const [value, next] = parseBlock(i + 1, bodyIndent);
-    return [{ [key]: value }, next];
-  };
-
-  const [tree] = parseBlock(0, lines[0]?.indent ?? 0);
-  const owners = [...block.matchAll(/name:\s*([A-Za-z0-9_.]+)/g)].map((x) => x[1]);
-  return { owners, predicate: failed ? null : tree };
-}
-
 /** The XLEN a predicate pins, or null where it applies to both. */
 export function predicateXlen(predicate) {
   if (!predicate || typeof predicate !== 'object') return null;
@@ -308,8 +228,6 @@ export function predicateXlen(predicate) {
 }
 
 export function parseUpstream(specDir) {
-  const readDefinedBy = (text) => parseDefinedBy(blockUnder(text, 'definedBy'));
-
   const extDir = path.join(specDir, 'ext');
   const extensions = [];
   const ratifiedExtensions = [];
@@ -330,10 +248,15 @@ export function parseUpstream(specDir) {
     const sub = path.join(instRoot, dir);
     if (!fs.statSync(sub).isDirectory()) continue;
     for (const file of fs.readdirSync(sub).filter((f) => f.endsWith('.yaml'))) {
-      const text = fs.readFileSync(path.join(sub, file), 'utf8');
-      const name = text.match(/^name:\s*(.+?)\s*$/m);
-      const mnemonic = (name ? name[1] : file.replace(/\.yaml$/, '')).toUpperCase();
-      const { owners, predicate } = readDefinedBy(text);
+      const source = path.join(sub, file);
+      const text = fs.readFileSync(source, 'utf8');
+      let instruction;
+      try {
+        instruction = readInstruction(text);
+      } catch (error) {
+        throw new Error(`${source}: ${error.message}`);
+      }
+      const { name: mnemonic, owners, predicate } = instruction;
 
       // One entry per declared encoding: two where the file is XLEN-keyed.
       for (const enc of parseEncodings(text)) {
@@ -348,12 +271,7 @@ export function parseUpstream(specDir) {
           match: enc.match,
           mask: enc.mask,
           narrowedFields: enc.narrowed,
-          // Fall back to the directory only when the file names no owner. An
-          // empty array is truthy, so `|| [dir]` silently kept the empty list.
-          definedBy: owners.length ? owners : [dir],
-          // The unflattened predicate, kept so a report can say WHY an
-          // instruction belongs where it does. null where the shape was not
-          // recognised, in which case only `definedBy` is trustworthy.
+          definedBy: owners,
           definedByPredicate: predicate,
         });
       }
@@ -544,5 +462,10 @@ function main(argv) {
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   // Let stdout drain before Node exits. The JSON report is larger than the
   // common 64 KiB pipe buffer; process.exit() truncated it mid-string.
-  process.exitCode = main(process.argv);
+  try {
+    process.exitCode = main(process.argv);
+  } catch (error) {
+    console.error(`UDB completeness check failed: ${error.message}`);
+    process.exitCode = 2;
+  }
 }
