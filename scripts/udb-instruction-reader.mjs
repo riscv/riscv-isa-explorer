@@ -72,9 +72,11 @@ export function readInstruction(text) {
     throw new Error('missing or invalid instruction name');
   }
   const predicate = instruction.definedBy;
+  const owners = instructionOwners(predicate);
+  if (owners.length === 0) throw new Error('definedBy names no extension');
   return {
     name: instruction.name.toUpperCase(),
-    owners: instructionOwners(predicate),
+    owners,
     predicate,
   };
 }

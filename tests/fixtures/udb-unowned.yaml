@@ -1,4 +1,4 @@
-# Fixture: a width condition names no extension; the directory is not an owner.
+# Fixture: a width-only condition must fail rather than silently omit the instruction.
 $schema: "inst_schema.json#"
 kind: instruction
 name: unowned

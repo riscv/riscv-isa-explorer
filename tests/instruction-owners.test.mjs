@@ -357,7 +357,6 @@ test('CLI reports findings successfully and changes neither source nor project i
       name: 'known',
       definedBy: { extension: { allOf: [{ name: owner }, { not: { name: excluded } }] } },
     },
-    'Test/condition.yaml': { kind: 'instruction', name: 'condition', definedBy: { xlen: 32 } },
   });
   const files = [
     'src/instr_dict.json',
@@ -376,7 +375,6 @@ test('CLI reports findings successfully and changes neither source nor project i
   assert.ok(result.stdout.includes(`Unresolved owners (1):\n  ${unknown}: 1 instruction\n`));
   assert.match(result.stdout, /spec\/std\/isa\/inst\/Test\/future.yaml/);
   assert.match(result.stdout, /Catalogue entries with direct-matching differences/);
-  assert.match(result.stdout, /Instructions without positive owner references \(1\)/);
   assert.match(result.stdout, /not encoding coverage defects/);
   files.forEach((file, index) => {
     assert.ok(fs.readFileSync(path.resolve(root, file)).equals(before[index]), `${file} changed`);
@@ -403,8 +401,8 @@ test('CLI uses nonzero exit for bad input, without emitting a misleading partial
   }
 });
 
-test('both CLIs reject missing or unsupported conditions with a source path and no report', (t) => {
-  for (const definedBy of [undefined, { unknown: true }]) {
+test('both CLIs reject invalid or ownerless conditions with a source path and no report', (t) => {
+  for (const definedBy of [undefined, { unknown: true }, { xlen: 32 }, { not: ext('Zbb') }]) {
     const dir = checkout(t, {
       'Zfix/bad.yaml': { kind: 'instruction', name: 'bad', definedBy },
     });
@@ -423,7 +421,7 @@ test('both CLIs reject missing or unsupported conditions with a source path and 
     for (const result of [run(dir), checker]) {
       assert.equal(result.status, 2, result.stderr);
       assert.equal(result.stdout, '');
-      assert.match(result.stderr, /Zfix[/\\]bad.yaml:.*definedBy condition/);
+      assert.match(result.stderr, /Zfix[/\\]bad.yaml:.*definedBy (condition|names no extension)/);
     }
   }
 });

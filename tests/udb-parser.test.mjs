@@ -1,5 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -74,10 +75,9 @@ test('the anyOf definedBy shape yields every owner', () => {
   assert.deepEqual(inst('SHARED').definedBy, ['Zfix', 'Zwasfrozen']);
 });
 
-test('a width-only condition does not invent an owner from the directory', () => {
-  assert.deepEqual(inst('UNOWNED').definedBy, []);
-  assert.deepEqual(inst('UNOWNED').definedByPredicate, { xlen: 32 });
-  assert.equal(inst('UNOWNED').ownerXlen, 32);
+test('a width-only condition is rejected instead of leaving an instruction unowned', () => {
+  const source = fs.readFileSync(path.join(here, 'fixtures', 'udb-unowned.yaml'), 'utf8');
+  assert.throws(() => readInstruction(source), /definedBy names no extension/);
 });
 
 test('an instruction with no encoding is skipped, not crashed on', () => {
