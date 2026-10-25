@@ -27,7 +27,10 @@ The name and email must match the commit author. By signing off you certify the
 statements in the [DCO](DCO): in short, that you wrote the contribution or
 otherwise have the right to submit it under this project's licence.
 
-CI checks this on every pull request. If you forget:
+CI checks this on every pull request. The one exception is a commit Dependabot
+writes on a pull request it opened: a generated version bump has no author to
+certify it. A commit a person adds to such a pull request is still checked. If
+you forget:
 
 ```bash
 git commit --amend -s              # the most recent commit

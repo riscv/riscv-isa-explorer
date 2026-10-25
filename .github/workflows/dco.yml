@@ -33,6 +33,7 @@ jobs:
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
           set -uo pipefail
 
@@ -45,10 +46,25 @@ jobs:
             exit 0
           fi
 
+          # Dependabot cannot sign off, and the DCO certifies a person's right to
+          # contribute, which a version bump it generated does not need. Both
+          # conditions are required: the commit author is free text anyone can
+          # set, but the pull request's opener is not. A commit a person pushes
+          # onto a Dependabot pull request is still checked.
+          dependabot='dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>'
+
           fail=0
+          skipped=0
           for sha in "${commits[@]}"; do
             subject=$(git log -1 --format=%s "$sha")
             author=$(git log -1 --format='%an <%ae>' "$sha")
+
+            if [ "$PR_AUTHOR" = 'dependabot[bot]' ] && [ "$author" = "$dependabot" ]; then
+              echo "skip  ${sha:0:8}  $subject"
+              echo "        written by Dependabot"
+              skipped=$((skipped + 1))
+              continue
+            fi
 
             mapfile -t signoffs < <(
               git log -1 --format=%B "$sha" \
@@ -97,4 +113,4 @@ jobs:
             exit 1
           fi
 
-          echo "all ${#commits[@]} commit(s) signed off"
+          echo "all $((${#commits[@]} - skipped)) commit(s) signed off, ${skipped} written by Dependabot"
