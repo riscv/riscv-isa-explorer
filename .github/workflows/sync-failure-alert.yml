@@ -2,11 +2,13 @@ name: Sync failure alert
 
 # The scheduled syncs open a pull request when they succeed and nothing at all
 # when they fail. On 2026-10-12 the UDB sync failed and nobody knew for two
-# days. This watches every scheduled sync and keeps one issue per workflow:
-# opened (or updated) when a run fails, closed when a later run succeeds.
+# days. The scheduled checks are the same: they file a report issue when they
+# find gaps, and nothing when they cannot run. This watches every scheduled
+# workflow and keeps one issue per workflow: opened (or updated) when a run
+# fails, closed when a later run succeeds.
 #
-# tests/sync-tooling.test.mjs checks that every workflow with a schedule that
-# opens pull requests is listed here, so a new sync cannot be left out.
+# tests/sync-tooling.test.mjs checks that every workflow with a schedule is
+# listed here, so a new sync or check cannot be left out.
 on:
   workflow_run:
     workflows:
@@ -14,6 +16,8 @@ on:
       - Sync Sail, Spike and ACT links
       - Sync toolchain support
       - Sync ISA manual status
+      - Check UDB Completeness
+      - Check riscv-opcodes Drift
     types: [completed]
 
 permissions:
@@ -52,7 +56,7 @@ jobs:
             --jq '[.jobs[] | .name as $j | .steps[] | select(.conclusion == "failure") | "\($j): \(.name)"] | join(", ")')
           {
             echo "${marker}"
-            echo "The **${NAME}** workflow failed, so this run opened no pull request."
+            echo "The **${NAME}** workflow failed, so this run opened no pull request or report."
             echo
             echo "| | |"
             echo "|---|---|"

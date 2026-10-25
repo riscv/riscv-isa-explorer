@@ -336,11 +336,12 @@ test('every workflow that runs the tests builds first', () => {
   }
 });
 
-test('every scheduled sync is watched by the failure alert', () => {
+test('every scheduled sync and check is watched by the failure alert', () => {
   // A scheduled sync that fails opens nothing, so without the alert a broken
   // week is invisible: the UDB sync failed on 2026-10-12 and was noticed two
-  // days later. Every workflow that runs on a schedule and opens a pull
-  // request must be named in sync-failure-alert.yml.
+  // days later. The scheduled checks fail as quietly: their report issue is
+  // filed only when they run. Every workflow that runs on a schedule must be
+  // named in sync-failure-alert.yml.
   const dir = path.join(root, '.github', 'workflows');
   const alert = fs.readFileSync(path.join(dir, 'sync-failure-alert.yml'), 'utf8');
   const watched = (alert.match(/workflows:\n((?:\s+- .+\n)+)/)?.[1] ?? '')
@@ -351,11 +352,9 @@ test('every scheduled sync is watched by the failure alert', () => {
   const syncs = fs
     .readdirSync(dir)
     .map((file) => fs.readFileSync(path.join(dir, file), 'utf8'))
-    .filter(
-      (text) => /\n\s+schedule:/.test(text) && text.includes('peter-evans/create-pull-request'),
-    )
+    .filter((text) => /\n\s+schedule:/.test(text))
     .map((text) => text.match(/^name:\s*(.+)$/m)[1].trim());
-  assert.ok(syncs.length >= 3, `expected the scheduled syncs, found ${syncs}`);
+  assert.ok(syncs.length >= 6, `expected the scheduled syncs and checks, found ${syncs}`);
   for (const name of syncs)
     assert.ok(watched.includes(name), `${name} is not watched by the alert`);
 });
