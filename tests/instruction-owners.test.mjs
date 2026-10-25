@@ -141,18 +141,6 @@ test('unknown or malformed predicates fail explicitly instead of returning parti
   }
 });
 
-test('instructions without positive owners have deterministic report ordering', () => {
-  const rows = [instruction('B', { xlen: 32 }), instruction('A', { xlen: 64 })];
-  assert.deepEqual(
-    ownershipReport({}, rows).ownerless.map((row) => row.name),
-    ['A', 'B'],
-  );
-  assert.equal(
-    formatReport(ownershipReport({}, rows), 'pin'),
-    formatReport(ownershipReport({}, [...rows].reverse()), 'pin'),
-  );
-});
-
 test('direct comparison uses exact owner IDs, shows partial losses, and applies no migration rules', () => {
   const catalog = {
     group: [

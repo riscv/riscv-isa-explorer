@@ -100,9 +100,6 @@ export function ownershipReport(catalog, instructions) {
     resolved: owners.filter((owner) => ids.has(owner.id)),
     unresolved: owners.filter((owner) => !ids.has(owner.id)),
     differences,
-    ownerless: instructions
-      .filter((instruction) => !instruction.owners.length)
-      .sort((a, b) => compare(a.name, b.name)),
   };
 }
 
@@ -156,14 +153,6 @@ export function formatReport(report, revision) {
       `  ${entry.id}: current=${entry.current}, matched_by_name=${entry.matched}, not_matched_by_name=${entry.missing.length}`,
       `    ${entry.missing.join(', ')}`,
     );
-  }
-  if (report.ownerless.length) {
-    lines.push('', `Instructions without positive owner references (${report.ownerless.length}):`);
-    for (const instruction of report.ownerless) {
-      lines.push(
-        `  ${instruction.name}: ${instruction.source}; ${JSON.stringify(instruction.definedBy)}`,
-      );
-    }
   }
   return `${lines.join('\n')}\n`;
 }
