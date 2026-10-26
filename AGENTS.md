@@ -191,10 +191,12 @@ Then `npm run sync` and `npm test && npm run build`.
   All 15 are defined by `Sm` upstream, but no graph node requires `Sm`, so a
   selection-derived list is empty for a bare RV32I and the export would silently
   drop every param riscv-arch-test needs. `tests/export.test.mjs` guards this.
-- **The "Ask AI" assistant is switched off in `feature-flags.cjs`.**
-  `AI_ASSISTANT_ENABLED: false` keeps both halves out: the launcher chip does
-  not render and the kapa.ai widget is left out of the emitted `index.html`.
-  Set it to true and rebuild to bring it back; nothing else needs editing. The
+- **The "Ask AI" assistant is behind a switch in `feature-flags.cjs`.**
+  `AI_ASSISTANT_ENABLED` (on since 2026-10-26) gates both halves: set to false,
+  the launcher chip does not render and the kapa.ai widget is left out of the
+  emitted `index.html`. Flip it and rebuild; nothing else needs editing. kapa
+  accepts questions only from domains on its dashboard allowlist, so a new
+  host (tech.riscv.org, riscv.github.io) must be listed there. The
   guard in `public/index.html` is html-webpack-plugin's lodash syntax, so
   nothing inside it may write a closing `head` tag even in prose — the plugin
   injects `bundle.js` before the first one it finds by regex, and a mention in

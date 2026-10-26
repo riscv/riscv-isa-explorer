@@ -250,13 +250,24 @@ test('the builder opens from a configuration link and shows what accepts the -ma
   noErrors(errors);
 });
 
-test('the Ask AI launcher stays out while its feature flag is off', async () => {
-  const { document } = await mount('https://example.test/');
+test('the Ask AI launcher follows its feature flag', async () => {
+  const { window, document } = await mount('https://example.test/');
   const flags = await import('../feature-flags.cjs');
-  if ((flags.default ?? flags).AI_ASSISTANT_ENABLED) return;
-  assert.equal(
-    [...document.querySelectorAll('button')].some((b) => /Ask AI/i.test(b.textContent)),
-    false,
-  );
-  assert.equal(document.querySelector('script[src*="kapa"]'), null);
+  const launcher = () =>
+    [...document.querySelectorAll('button')].find((b) => /Ask AI/i.test(b.textContent));
+  if (!(flags.default ?? flags).AI_ASSISTANT_ENABLED) {
+    assert.equal(launcher(), undefined);
+    assert.equal(document.querySelector('script[src*="kapa"]'), null);
+    return;
+  }
+  assert.ok(document.querySelector('script[src*="widget.kapa.ai"]'), 'kapa widget script missing');
+  // jsdom never fetches the widget, so stand in for the method the launcher
+  // waits for. It renders nothing until window.Kapa.open exists.
+  const opened = [];
+  window.Kapa = { open: (args) => opened.push(args) };
+  const chip = await waitFor(launcher);
+  assert.ok(chip, 'launcher did not render once kapa was ready');
+  assert.ok(chip.querySelector('svg.ask-ai-btn__icon'), 'launcher glyph missing');
+  chip.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+  assert.equal(opened.length, 1, 'Enter on the launcher did not open kapa');
 });

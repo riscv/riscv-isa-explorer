@@ -2250,13 +2250,13 @@ pre,
   0%,
   100% {
     box-shadow:
-      0 0 0 0 rgba(139, 124, 248, 0),
+      0 0 0 0 rgba(246, 135, 40, 0),
       0 4px 16px rgba(0, 0, 0, 0.4);
   }
   50% {
     box-shadow:
-      0 0 0 4px rgba(139, 124, 248, 0.2),
-      0 0 16px rgba(139, 124, 248, 0.25),
+      0 0 0 4px rgba(246, 135, 40, 0.2),
+      0 0 16px rgba(246, 135, 40, 0.25),
       0 6px 20px rgba(0, 0, 0, 0.5);
   }
 }
@@ -2313,8 +2313,10 @@ pre,
   min-height: 62px;
   padding: 6px 10px 5px;
   border-radius: 15px;
-  border: 1px solid rgba(139, 124, 248, 0.4);
-  background: #1e1b3a;
+  /* The navy tile and orange sparkles of the Ask AI artwork. The light border
+     keeps the navy chip distinct from the dark theme's background. */
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: #0e3061;
   box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.4),
     0 1px 3px rgba(0, 0, 0, 0.3);
@@ -2330,11 +2332,11 @@ pre,
 }
 
 .ask-ai-btn:hover {
-  border-color: rgba(245, 197, 66, 0.85);
-  background: #28244c;
+  border-color: rgba(246, 135, 40, 0.9);
+  background: #143a72;
   box-shadow:
     0 6px 22px rgba(0, 0, 0, 0.5),
-    0 0 16px rgba(245, 197, 66, 0.3);
+    0 0 16px rgba(246, 135, 40, 0.35);
   transform: scale(1.06);
   animation: none;
 }
@@ -2349,16 +2351,16 @@ pre,
 
 .ask-ai-btn__icon {
   display: block;
-  width: 30px;
-  height: 30px;
+  width: 38px;
+  height: 33px;
   object-fit: contain;
   pointer-events: none;
   user-select: none;
 }
 
 .ask-ai-btn__label {
-  font-size: 11.5px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
   line-height: 1.15;
   color: #ffffff;
   letter-spacing: 0.02em;
@@ -2405,9 +2407,9 @@ pre,
 
 .ask-ai-btn.ask-ai-btn--buzz {
   animation: ask-ai-buzz 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
-  border-color: rgba(244, 176, 27, 0.85);
+  border-color: rgba(246, 135, 40, 0.9);
   box-shadow:
-    0 4px 20px rgba(244, 176, 27, 0.35),
+    0 4px 20px rgba(246, 135, 40, 0.35),
     0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
@@ -2417,8 +2419,8 @@ pre,
   width: 66px;
   height: 62px;
   border-radius: 15px;
-  border: 1.5px dashed rgba(139, 124, 248, 0.35);
-  background: rgba(139, 124, 248, 0.06);
+  border: 1.5px dashed rgba(246, 135, 40, 0.45);
+  background: rgba(246, 135, 40, 0.06);
   transition:
     border-color 0.15s ease,
     background 0.15s ease,
@@ -2426,8 +2428,8 @@ pre,
 }
 
 .ask-ai-snap-hint--active {
-  border-color: rgba(245, 197, 66, 0.85);
-  background: rgba(245, 197, 66, 0.15);
+  border-color: rgba(246, 135, 40, 0.9);
+  background: rgba(246, 135, 40, 0.15);
   transform: scale(1.08);
 }
 

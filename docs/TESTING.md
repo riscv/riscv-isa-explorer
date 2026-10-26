@@ -31,7 +31,7 @@ a row here and a test behind it.
 | Specification link | `src/specLink.js` | `spec-link`, `render-views` |
 | Main view, tiles and entry point | `src/risc_v_visualizer.jsx`, `src/ExtensionTile.jsx`, `src/tileMemo.js`, `src/main.jsx`, `src/RiscvLogo.jsx` | `render-smoke`, `render-views`, `extension-tile` |
 | Focus handling in dialogs | `src/focusTrap.js` | `focus-trap` |
-| Ask AI (feature-flagged off) | `src/AskAiLauncher.jsx`, `feature-flags.cjs` | `render-views` |
+| Ask AI (behind a feature flag) | `src/AskAiLauncher.jsx`, `feature-flags.cjs` | `render-views` |
 | Ratified list from the ISA manual (catches UDB lagging the manual) | `src/isa-manual-status.json`, `scripts/manual-status.mjs`, `scripts/sync_manual_status.mjs` | `manual-status`, `pipeline` |
 | Completeness against UDB | `src/completeness.js`, `scripts/check-udb-completeness.mjs` | `completeness`, `udb-parser`, `sync-tooling` |
 | UDB instruction ownership migration report | `scripts/report-instruction-owners.mjs` | `instruction-owners` |
