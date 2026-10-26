@@ -22,6 +22,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import { isBuiltin } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -357,6 +358,50 @@ test('every scheduled sync and check is watched by the failure alert', () => {
   assert.ok(syncs.length >= 6, `expected the scheduled syncs and checks, found ${syncs}`);
   for (const name of syncs)
     assert.ok(watched.includes(name), `${name} is not watched by the alert`);
+});
+
+test('a workflow that runs a script importing a package installs dependencies first', () => {
+  // #469 made the completeness checker import `yaml`, and its workflow never ran
+  // npm ci. The import failed with exit 1, which the workflow reads as "gaps
+  // found", so it filed the crash as a report (#480) and the run stayed green.
+  const dir = path.join(root, '.github', 'workflows');
+  const scripts = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')).scripts;
+  const packagesOf = (file, seen = new Set()) => {
+    if (seen.has(file)) return [];
+    seen.add(file);
+    const text = fs.readFileSync(file, 'utf8');
+    const specifiers = [
+      ...text.matchAll(/(?:^import\s[^;]*?from\s|^import\s|require\()\s*'([^']+)'/gm),
+    ].map((match) => match[1]);
+    return specifiers.flatMap((specifier) => {
+      // Data files (.json) import nothing, and are left to the scripts' own tests.
+      if (specifier.startsWith('.'))
+        return /\.[cm]?js$/.test(specifier)
+          ? packagesOf(path.resolve(path.dirname(file), specifier), seen)
+          : [];
+      return isBuiltin(specifier) ? [] : [specifier];
+    });
+  };
+  let checked = 0;
+  for (const name of fs.readdirSync(dir)) {
+    const text = fs.readFileSync(path.join(dir, name), 'utf8');
+    const run = [
+      ...[...text.matchAll(/\bnode (scripts\/[\w./-]+)/g)].map((match) => match[1]),
+      ...[...text.matchAll(/\bnpm run ([\w:-]+)/g)]
+        .map((match) => scripts[match[1]]?.match(/^node (scripts\/[\w./-]+)/)?.[1])
+        .filter(Boolean),
+    ];
+    for (const script of new Set(run)) {
+      checked += 1;
+      const packages = packagesOf(path.join(root, script));
+      if (packages.length)
+        assert.ok(
+          /\bnpm ci\b/.test(text),
+          `${name} runs ${script}, which imports ${packages[0]}, without npm ci`,
+        );
+    }
+  }
+  assert.ok(checked >= 5, `expected workflow scripts to check, found ${checked}`);
 });
 
 test('the pre-push hook runs what CI runs, and npm install sets it up', () => {

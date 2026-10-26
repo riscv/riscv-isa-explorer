@@ -58,6 +58,9 @@ jobs:
         with:
           node-version: '24'
 
+      - name: Install dependencies
+        run: npm ci
+
       - name: Compare the catalogue against unified-db
         id: check
         run: |
@@ -69,10 +72,13 @@ jobs:
 
           # Exit codes are a contract with the script: 0 complete, 1 gaps found,
           # 2 the checkout could not be read. Conflating the last two would let a
-          # broken clone report a perfect catalogue.
+          # broken clone report a perfect catalogue. Node also exits 1 when a
+          # module fails to load, before the script runs at all, so a 1 counts
+          # as gaps only alongside the result line the script prints last. A
+          # missing package was once filed as a completeness report this way.
           if [ "${status}" -eq 0 ]; then
             echo "complete=true" >> "$GITHUB_OUTPUT"
-          elif [ "${status}" -eq 1 ]; then
+          elif [ "${status}" -eq 1 ] && grep -q '^complete: false' report.txt; then
             echo "complete=false" >> "$GITHUB_OUTPUT"
           else
             echo "check-udb-completeness failed with status ${status}"
