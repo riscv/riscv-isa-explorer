@@ -56,9 +56,11 @@ function isPrivilegeTag(id) {
  *
  * Embedding a list from another tool is a maintenance cost, and it is taken
  * knowingly: riscv-config's ISA regex rejects the ENTIRE string when it meets a
- * name it does not know, so emitting Zaamo or Sv39 makes the file unloadable
- * rather than partially useful. Names outside this list are dropped and
- * reported in the file, so the omission is visible instead of silent.
+ * Z or S name it does not know, so emitting Zaamo or Sv39 makes the file
+ * unloadable rather than partially useful. Such names are dropped and reported
+ * in the file, so the omission is visible instead of silent. X names are the
+ * exception: custom extensions are legal in any spelling, so they are kept,
+ * not dropped (see the riscv-config block in buildIsaConfigYaml).
  *
  * It knows 74 sub-extensions against our 227, so expect omissions.
  */
@@ -457,14 +459,30 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       if (shorthandAbsorbed.has(z)) return false;
       return true;
     });
+    // X extensions: a single-letter X is a custom-extension marker, and X…
+    // names are custom extensions. Both are legal to riscv-config — its
+    // isa_regex ends with (X[a-z0-9]*)*(_X[a-z0-9]*)*, so they are accepted
+    // where Z and S names are not — but only AFTER the Z/S group, separated
+    // by underscores: RV64IXZca is rejected, RV64IZca_X is accepted.
+    const rcX = filteredSingles
+      .filter((l) => l === 'X')
+      .concat(rcCandidates.filter((z) => /^X/i.test(z)))
+      .sort();
+    const rcSinglesNoX = filteredSingles.filter((l) => l !== 'X');
     const rcKnown = rcCandidates
-      .filter((z) => RISCV_CONFIG_SUB_EXTENSIONS.has(z))
+      .filter((z) => !/^X/i.test(z) && RISCV_CONFIG_SUB_EXTENSIONS.has(z))
       .sort(riscvConfigSort);
-    const rcDropped = rcCandidates.filter((z) => !RISCV_CONFIG_SUB_EXTENSIONS.has(z)).sort();
+    const rcDropped = rcCandidates
+      .filter((z) => !/^X/i.test(z) && !RISCV_CONFIG_SUB_EXTENSIONS.has(z))
+      .sort();
     const rcAbsorbed = vPresent ? zExts.filter((z) => /^Zv(e|l)/i.test(z)).sort() : [];
+    // The X group sorts after every Z and S extension, but it is still part of
+    // the attach sequence: if an X name is the FIRST sub-extension, it attaches
+    // directly like any other (RV64IXfoo), it does not open with an underscore.
+    const rcExtSeq = [...rcKnown, ...rcX];
     const rcIsa =
-      `${basePrefix}${rcSingles}${rcKnown.length ? rcKnown[0] : ''}` +
-      rcKnown
+      `${basePrefix}${rcSinglesNoX.join('')}${rcExtSeq.length ? rcExtSeq[0] : ''}` +
+      rcExtSeq
         .slice(1)
         .map((z) => `_${z}`)
         .join('');
@@ -511,7 +529,7 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       rc.push(``);
       rc.push(`# ${rcDropped.length} extension(s) are omitted from the ISA string above.`);
       rc.push(`# riscv-config 3.18.3 knows 74 sub-extensions and rejects the whole string`);
-      rc.push(`# on meeting one it does not, so these are dropped to keep the file`);
+      rc.push(`# on meeting a Z or S name it does not, so these are dropped to keep the`);
       rc.push(`# loadable. They ARE part of your configuration — see the landscape export.`);
       for (const d of rcDropped) rc.push(`#   ${d}`);
     }

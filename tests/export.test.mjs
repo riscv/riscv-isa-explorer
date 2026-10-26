@@ -438,7 +438,34 @@ test('a UDB export keeps the oneOf value the user picked', () => {
 test('unrecognised single-letter extensions sort after recognised ones in riscv-config format', () => {
   // Array.prototype.indexOf returns -1 for unrecognised letters; clamping to a high rank
   // prevents an unrecognised single-letter extension from sorting ahead of standard letters (#311).
+  // X here is a custom-extension marker: with no Z/S extensions selected it attaches
+  // directly, which riscv-config 3.18.3 accepts (RV64IMCX). The ordering rule it
+  // enforces only bites when Z/S extensions are present — see the X tests below (#487).
   const { yaml } = buildIsaConfigYaml(['RV64I', 'M', 'C', 'X'], ALL, { format: 'riscv-config' });
   const isa = yaml.match(/^ {2}ISA: (\S+)/m)[1];
-  assert.match(isa, /^RV64IMCX/, `standard extensions must lead before unrecognised single letters: ${isa}`);
+  assert.match(isa, /^RV64IMCX$/, `standard extensions must lead: ${isa}`);
+});
+
+test('custom X extensions follow the Z/S group in the riscv-config format', () => {
+  // riscv-config's isa_regex only accepts X names AFTER the Z/S group, separated by
+  // underscores: RV64IXZca is rejected, RV64IZca_X is accepted (both checked against
+  // riscv-config 3.18.3). The old code put a single-letter X in the single-letter
+  // block, ahead of the Z/S extensions.
+  const { yaml } = buildIsaConfigYaml(['RV64I', 'X', 'Zca'], ALL, { format: 'riscv-config' });
+  const isa = yaml.match(/^ {2}ISA: (\S+)/m)[1];
+  assert.equal(isa, 'RV64IZca_X');
+});
+
+test('multi-letter custom extensions are kept, not dropped, in the riscv-config format', () => {
+  // riscv-config accepts X… names in any spelling (its regex: (X[a-z0-9]*)*), so
+  // dropping them from the ISA string lost part of the configuration while the
+  // file claimed to be loadable. They are kept; only unknown Z and S names drop.
+  const { yaml } = buildIsaConfigYaml(['RV64I', 'Xfoo'], ALL, { format: 'riscv-config' });
+  const isa = yaml.match(/^ {2}ISA: (\S+)/m)[1];
+  assert.equal(isa, 'RV64IXfoo');
+  assert.ok(!/omitted from the ISA string/.test(yaml), 'a kept extension must not be reported as omitted');
+
+  const mixed = buildIsaConfigYaml(['RV64I', 'X', 'Xfoo', 'Zca'], ALL, { format: 'riscv-config' });
+  const mixedIsa = mixed.yaml.match(/^ {2}ISA: (\S+)/m)[1];
+  assert.equal(mixedIsa, 'RV64IZca_X_Xfoo');
 });
