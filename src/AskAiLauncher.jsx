@@ -8,8 +8,8 @@ import React from 'react';
  *
  * Inline SVG rather than the supplied PNG: it stays sharp at any zoom, adds no
  * request, and the build has no copy plugin for a file in public/ anyway.
- * The kapa modal header keeps the RISC-V mark (data-project-logo in
- * public/index.html): that names the product, this names the action.
+ * The kapa modal header shows the same glyph on a navy tile
+ * (data-project-logo in public/index.html); change both together.
  */
 const SPARKLE = (cx, cy, r) => {
   const k = r * 0.2;

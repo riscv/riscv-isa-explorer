@@ -260,7 +260,14 @@ test('the Ask AI launcher follows its feature flag', async () => {
     assert.equal(document.querySelector('script[src*="kapa"]'), null);
     return;
   }
-  assert.ok(document.querySelector('script[src*="widget.kapa.ai"]'), 'kapa widget script missing');
+  const widget = document.querySelector('script[src*="widget.kapa.ai"]');
+  assert.ok(widget, 'kapa widget script missing');
+  // The modal header carries the launcher's artwork: navy tile, orange sparkles.
+  const logo = decodeURIComponent(widget.dataset.projectLogo ?? '');
+  assert.ok(
+    logo.includes('#0E3061') && logo.includes('#F68728'),
+    'modal logo is not the Ask AI tile',
+  );
   // jsdom never fetches the widget, so stand in for the method the launcher
   // waits for. It renders nothing until window.Kapa.open exists.
   const opened = [];
