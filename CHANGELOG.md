@@ -13,6 +13,63 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.12.3] - 2026-10-27
+
+Catalogue: 211 entries, unchanged from 1.12.2; none added or removed. The data
+is synced from riscv-unified-db 84a4104. No profile's `-march` string changes.
+Three extensions now resolve more of what they require: Ziccamoa adds Zaamo,
+Ziccamoc adds Zaamo and Zacas, and Shvsatpa adds H (with S, Sm and U), so a
+selection holding one of them gets a longer `-march` string and export.
+Exported output also changes in the ISA strings, as listed under Fixed.
+
+### Added
+
+- **Ask AI is back, with a new icon.** The assistant is switched on again,
+  and its launcher is now a navy tile with a speech bubble and orange
+  sparkles. The assistant's own window shows the same tile (#490, #491).
+
+### Fixed
+
+- **The builder no longer marks tiles it cannot unmark.** With ISA Builder
+  off, tiles in a saved configuration kept the amber ring, but the button
+  that removes them only shows in builder mode. RV64I and the rest of a
+  saved configuration looked selected with no way to deselect them (#495).
+- **The riscv-config export loads in riscv-config.**
+  - B is written as its parts, `Zba_Zbb_Zbs`, with a note in the file:
+    riscv-config has no letter B and rejected any string carrying it (#492,
+    #500).
+  - Custom X extensions are kept and listed after every Z and S extension:
+    `RV64IZca_X`, not `RV64IXZca`, and `Xfoo` is no longer dropped. A name
+    riscv-config cannot parse, such as `Xfoo_bar`, is listed in the file
+    instead of breaking it (#487, #501).
+- **The landscape `isa_string` follows the ISA manual's naming order.**
+  Standard Z names come first, then S names by privilege level (Su, Ss and
+  Sv, Sh, Sm, then Sd), then custom X names: `RV64IM_Zca_Smdbltrp`, not
+  `RV64IM_Smdbltrp_Zca` (#493, #494, #496, #499). B sorts before V and H
+  again (#467, #468).
+- **No extension is listed twice in an export.** Privileged extensions
+  appeared twice under the landscape `extensions:` and the UDB
+  `implemented_extensions:` (#485, #486). Two sandbox extensions whose names
+  differ only in case, such as Xfoo and XFOO, are now one extension in every
+  export, and the sandbox flags the second name (#497, #498).
+- **.xlsx exports keep characters outside the Basic Multilingual Plane**,
+  such as emoji, instead of dropping them (#448, #449).
+- **The weekly UDB completeness check no longer files a false report.** It
+  read a missing npm dependency as gaps in the catalogue (#480, #481).
+
+### Changed
+
+- **Synced from riscv-unified-db 84a4104** (#479) and the ISA manual's
+  ratified list (#482). Besides the three new requirements above, every CSR
+  now links to its definition at that commit.
+- **UDB instruction reading is shared** between the completeness check and
+  the ownership report, and fails loudly on a condition it cannot read
+  (#469, #477). A scheduled check that fails to run now raises the same
+  alert as a failed sync (#470).
+- **Development dependencies updated** to clear every open security
+  advisory; none of them ship in the published site (#472). Dependabot's own
+  commits pass the sign-off check (#476).
+
 ## [1.12.2] - 2026-10-23
 
 Catalogue: 211 entries, unchanged from 1.12.1; none added or removed. The data
