@@ -88,6 +88,9 @@ const RISCV_CONFIG_SUB_EXTENSIONS = new Set(["Sddbltrp", "Sdext", "Smdbltrp", "S
  * alphabetically produces "Z extension Zca must occur after Zicsr".
  */
 const RC_LETTER_ORDER = 'IEMAFDQLCBJKTPVNSHU';
+
+/** B is defined as exactly these three (bitmanip spec, "B" chapter). */
+const B_PARTS = ['Zba', 'Zbb', 'Zbs'];
 function riscvConfigSort(a, b) {
   const rank = (x) => {
     const i = RC_LETTER_ORDER.indexOf(x.charAt(1).toUpperCase());
@@ -483,12 +486,19 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       const i = RC_LETTER_ORDER.indexOf(x);
       return i === -1 ? 99 : i;
     };
-    const rcSingles = [...filteredSingles]
+    // riscv-config has no letter B: its isa_regex allows only
+    // [ACDFGHJLMNPQSTUV], so any string carrying B fails to load (#492). B is
+    // defined as exactly Zba, Zbb and Zbs, so it is written as those, merged
+    // with any of them selected directly so none appears twice.
+    const bExpanded = filteredSingles.includes('B');
+    const rcSingles = filteredSingles
+      .filter((l) => l !== 'B')
       .sort((a, b) => singleRank(a) - singleRank(b) || a.localeCompare(b))
       .join('');
     const vPresent = rcSingles.includes('V');
     const shorthandAbsorbed = absorbedByShorthand(selectedIds);
-    const rcCandidates = zExts.filter((z) => {
+    const rcZExts = bExpanded ? [...new Set([...zExts, ...B_PARTS])] : zExts;
+    const rcCandidates = rcZExts.filter((z) => {
       if (vPresent && /^Zv(e|l)/i.test(z)) return false;
       if (shorthandAbsorbed.has(z)) return false;
       return true;
@@ -515,6 +525,12 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     rc.push(`  User_Spec_Version: "${userSpecVersion}"        # inferred from the selection`);
     rc.push(`  Privilege_Spec_Version: "${privSpecVersion}"   # inferred from the selection`);
     rc.push(`  supported_xlen: [${baseInfo.xlen}]`);
+
+    if (bExpanded) {
+      rc.push(``);
+      rc.push(`# B is written as its parts, ${B_PARTS.join('_')}: riscv-config has no letter B`);
+      rc.push(`# and rejects any ISA string that carries it.`);
+    }
 
     if (rcAbsorbed.length) {
       rc.push(``);
