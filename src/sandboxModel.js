@@ -433,10 +433,16 @@ export function enforcePrefix(id, isOfficial, isAddition = false) {
 /**
  * Validate an extension ID.
  * Returns null if valid, or a diagnostic string if not.
+ *
+ * `otherIds` are the ids of the other sandbox extensions. ISA strings are
+ * case-insensitive, so Xfoo and XFOO name the same extension, and an export
+ * holding both would list it twice (#497).
  */
-export function validateExtensionId(id, isOfficial, isAddition = false) {
+export function validateExtensionId(id, isOfficial, isAddition = false, otherIds = []) {
   if (!id || !id.trim()) return 'Extension ID is required.';
   if (isAddition) return null;
+  const clash = otherIds.find((other) => other && other.toLowerCase() === id.toLowerCase());
+  if (clash) return `"${clash}" already names this extension: IDs are not case-sensitive.`;
   if (id.length < 2) return 'Extension ID needs at least one character after the prefix.';
   if (isOfficial) {
     if (!/^[ZS]/i.test(id)) return 'Official standard extensions usually start with "Z" or "S".';

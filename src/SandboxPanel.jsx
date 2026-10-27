@@ -527,7 +527,12 @@ export default function SandboxPanel({
   if (!open) return null;
 
   const extIdError = ext
-    ? validateExtensionId(ext.id, ext.isOfficial, ext.mode === 'addition')
+    ? validateExtensionId(
+        ext.id,
+        ext.isOfficial,
+        ext.mode === 'addition',
+        extensions.filter((_, i) => i !== selectedExtIdx).map((e) => e.id),
+      )
     : null;
 
   return (
