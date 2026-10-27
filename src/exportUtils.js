@@ -72,9 +72,11 @@ function sExtensionLevelSort(a, b) {
  *
  * Embedding a list from another tool is a maintenance cost, and it is taken
  * knowingly: riscv-config's ISA regex rejects the ENTIRE string when it meets a
- * name it does not know, so emitting Zaamo or Sv39 makes the file unloadable
- * rather than partially useful. Names outside this list are dropped and
- * reported in the file, so the omission is visible instead of silent.
+ * Z or S name it does not know, so emitting Zaamo or Sv39 makes the file
+ * unloadable rather than partially useful. Such names are dropped and reported
+ * in the file, so the omission is visible instead of silent. Custom X names
+ * are not looked up here: the regex accepts any X[a-z0-9]* (see the
+ * riscv-config block in buildIsaConfigYaml).
  *
  * It knows 74 sub-extensions against our 227, so expect omissions.
  */
@@ -492,7 +494,7 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     // with any of them selected directly so none appears twice.
     const bExpanded = filteredSingles.includes('B');
     const rcSingles = filteredSingles
-      .filter((l) => l !== 'B')
+      .filter((l) => l !== 'B' && l !== 'X')
       .sort((a, b) => singleRank(a) - singleRank(b) || a.localeCompare(b))
       .join('');
     const vPresent = rcSingles.includes('V');
@@ -503,14 +505,29 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       if (shorthandAbsorbed.has(z)) return false;
       return true;
     });
+    // Custom extensions, a bare X and X… names, are legal in any name the
+    // regex allows: its isa_regex ends (X[a-z0-9]*)*(_X[a-z0-9]*)*, after the
+    // Z/S group. So they are kept, not dropped, and come last: RV64IXZca is
+    // rejected, RV64IZca_X accepted (#487). A name the regex cannot match
+    // (Xfoo_bar) would still sink the whole string, so it is reported instead.
+    const isCustom = (z) => /^X/i.test(z);
+    const rcCustomAll = [
+      ...filteredSingles.filter((l) => l === 'X'),
+      ...rcCandidates.filter(isCustom),
+    ].sort();
+    const rcCustom = rcCustomAll.filter((z) => /^X[a-z0-9]*$/.test(z));
+    const rcCustomDropped = rcCustomAll.filter((z) => !rcCustom.includes(z));
     const rcKnown = rcCandidates
-      .filter((z) => RISCV_CONFIG_SUB_EXTENSIONS.has(z))
+      .filter((z) => !isCustom(z) && RISCV_CONFIG_SUB_EXTENSIONS.has(z))
       .sort(riscvConfigSort);
-    const rcDropped = rcCandidates.filter((z) => !RISCV_CONFIG_SUB_EXTENSIONS.has(z)).sort();
+    const rcDropped = rcCandidates
+      .filter((z) => !isCustom(z) && !RISCV_CONFIG_SUB_EXTENSIONS.has(z))
+      .sort();
     const rcAbsorbed = vPresent ? zExts.filter((z) => /^Zv(e|l)/i.test(z)).sort() : [];
+    const rcSequence = [...rcKnown, ...rcCustom];
     const rcIsa =
-      `${basePrefix}${rcSingles}${rcKnown.length ? rcKnown[0] : ''}` +
-      rcKnown
+      `${basePrefix}${rcSingles}${rcSequence[0] ?? ''}` +
+      rcSequence
         .slice(1)
         .map((z) => `_${z}`)
         .join('');
@@ -557,6 +574,17 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       );
       rc.push(`# for its member subsets. riscv-config rejects a string`);
       rc.push(`# carrying both: ${covered.join(', ')}`);
+    }
+
+    if (rcCustomDropped.length) {
+      rc.push(``);
+      rc.push(
+        `# ${rcCustomDropped.length} custom extension(s) are omitted from the ISA string above.`,
+      );
+      rc.push(`# riscv-config accepts an X name only as X followed by lowercase letters`);
+      rc.push(`# and digits, and rejects the whole string otherwise. Rename them to keep`);
+      rc.push(`# them here; they ARE part of your configuration — see the landscape export.`);
+      for (const d of rcCustomDropped) rc.push(`#   ${d}`);
     }
 
     if (rcDropped.length) {
