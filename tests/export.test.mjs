@@ -555,3 +555,29 @@ test('riscv-config writes B as Zba_Zbb_Zbs', () => {
   // The landscape export keeps B.
   assert.match(buildIsaConfigYaml(['RV64I', 'B'], ALL).yaml, /^isa_string: RV64IB\s/m);
 });
+
+test('riscv-config keeps custom X extensions, after the Z and S group', () => {
+  // riscv-config's isa_regex takes X names last, underscore-separated. A bare X
+  // used to sort with the letters (RV64IXZca, rejected) and X… names were
+  // dropped as unknown sub-extensions (#487).
+  const sandbox = ['X', 'Xfoo', 'Xbar', 'Xfoo_bar'].map((id) => ({
+    id,
+    name: id,
+    isSandbox: true,
+    instructions: {},
+  }));
+  const list = [...ALL, ...sandbox];
+  const rc = (ids) => buildIsaConfigYaml(ids, list, { format: 'riscv-config' }).yaml;
+  const rcIsa = (ids) => rc(ids).match(/^ {2}ISA: (\S+)/m)[1];
+  assert.equal(rcIsa(['RV64I', 'X', 'Zca']), 'RV64IZca_X');
+  assert.equal(rcIsa(['RV64I', 'Xfoo']), 'RV64IXfoo');
+  assert.equal(rcIsa(['RV64I', 'M', 'Xfoo', 'Zca', 'Zicsr']), 'RV64IMZicsr_Zca_Xfoo');
+  assert.equal(rcIsa(['RV64I', 'M', 'X', 'Xbar']), 'RV64IMX_Xbar');
+
+  // A name the regex cannot match would make the whole file unloadable, so it
+  // is left out of the string and named in the file instead.
+  const withUnderscore = rc(['RV64I', 'Xbar', 'Xfoo_bar']);
+  assert.match(withUnderscore, /^ {2}ISA: RV64IXbar$/m);
+  assert.match(withUnderscore, /^# 1 custom extension\(s\) are omitted/m);
+  assert.match(withUnderscore, /^# {3}Xfoo_bar$/m);
+});
