@@ -78,6 +78,19 @@ test('isa_string orders B per the canonical single-letter order', () => {
   assert.match(isaString, /^RV64IBVH(_|$)/, `expected B before V and H, got ${isaString}`);
 });
 
+test('isa_string lists custom X extensions after every standard extension', () => {
+  // The ISA manual's naming chapter: "Non-standard extensions must be listed
+  // after all standard extensions" (RV64IZifencei_Xargle_Xbargle). A bare X
+  // used to sort with the single letters and Xfoo among the Z names (#493).
+  const isaStringFor = (ids) => buildIsaConfigYaml(ids, ALL).yaml.match(/^isa_string: (\S+)/m)[1];
+  assert.equal(isaStringFor(['RV64I', 'X', 'Zca']), 'RV64IZca_X');
+  assert.equal(isaStringFor(['RV64I', 'Xfoo', 'Zca']), 'RV64IZca_Xfoo');
+  assert.equal(
+    isaStringFor(['RV64I', 'M', 'Xbar', 'X', 'Zicsr', 'Zca']),
+    'RV64IM_Zca_Zicsr_X_Xbar',
+  );
+});
+
 test('the file says where its facts came from', () => {
   const { yaml } = buildIsaConfigYaml(RVA23, ALL);
   assert.match(yaml, /riscv-unified-db [0-9a-f]{7,}/, 'no UDB commit recorded');

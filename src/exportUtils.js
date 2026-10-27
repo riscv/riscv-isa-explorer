@@ -208,10 +208,16 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
   // 4. Sort Z-extensions alphabetically
   zExts.sort((a, b) => a.localeCompare(b));
 
-  // 5. Build the ISA march-like string
+  // 5. Build the ISA march-like string. Custom X names (a bare X and X…) go
+  // after every standard extension, as the ISA manual's naming chapter
+  // requires: "Non-standard extensions must be listed after all standard
+  // extensions" (RV64IZifencei_Xargle_Xbargle).
+  const isCustom = (name) => /^X/i.test(name);
   const basePrefix = `RV${baseInfo.xlen}${baseInfo.base.toUpperCase()}`;
-  const singlesStr = filteredSingles.join('');
-  const zStr = zExts.length > 0 ? zExts.join('_') : '';
+  const singlesStr = filteredSingles.filter((l) => l !== 'X').join('');
+  const customExts = [...filteredSingles.filter(isCustom), ...zExts.filter(isCustom)].sort();
+  const multiLetter = [...zExts.filter((z) => !isCustom(z)), ...customExts];
+  const zStr = multiLetter.join('_');
   const isaString = `${basePrefix}${singlesStr}${zStr ? (singlesStr ? '_' : '') + zStr : ''}`;
 
   // 6. Infer spec-version annotations
