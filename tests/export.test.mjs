@@ -525,3 +525,33 @@ test('extensions differing only in case are listed once', () => {
     `no warning: ${warnings.join(' | ')}`,
   );
 });
+
+test('riscv-config writes B as Zba_Zbb_Zbs', () => {
+  // riscv-config has no letter B, so RV64IB failed to load at all (#492). B is
+  // exactly its three parts, which must appear once each, in riscv-config's
+  // Z order, even when some are also selected directly.
+  const rcIsa = (ids) =>
+    buildIsaConfigYaml(ids, ALL, { format: 'riscv-config' }).yaml.match(/^ {2}ISA: (\S+)/m)[1];
+  assert.equal(rcIsa(['RV64I', 'B']), 'RV64IZba_Zbb_Zbs');
+  assert.equal(rcIsa(['RV64I', 'B', 'Zba']), 'RV64IZba_Zbb_Zbs');
+  assert.equal(rcIsa(['RV64I', 'M', 'B', 'Zicsr']), 'RV64IMZicsr_Zba_Zbb_Zbs');
+  const { yaml } = buildIsaConfigYaml(['RV64I', 'B'], ALL, { format: 'riscv-config' });
+  assert.match(yaml, /^# B is written as its parts, Zba_Zbb_Zbs/m, 'no note about B');
+
+  // The parts are UDB's definition of B, not a list kept here by hand.
+  const graph = JSON.parse(
+    fs.readFileSync(
+      path.join(
+        path.dirname(fileURLToPath(import.meta.url)),
+        '..',
+        'src',
+        'isa-dependency-graph.json',
+      ),
+      'utf8',
+    ),
+  );
+  assert.deepEqual(graph.nodes.B.requires.map((r) => r.ext).sort(), ['Zba', 'Zbb', 'Zbs']);
+
+  // The landscape export keeps B.
+  assert.match(buildIsaConfigYaml(['RV64I', 'B'], ALL).yaml, /^isa_string: RV64IB\s/m);
+});
