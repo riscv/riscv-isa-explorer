@@ -91,6 +91,30 @@ test('isa_string lists custom X extensions after every standard extension', () =
   );
 });
 
+test('isa_string lists S-extensions after Z-extensions, by privilege level', () => {
+  // The ISA manual's naming chapter: standard Z names first, then S names by
+  // level (Su, Ss/Sv, Sh, Sm), alphabetical within a level. S used to sort
+  // among the Z names, ahead of them (#496). Sd* has no position in the
+  // manual and goes after Sm*.
+  const isaStringFor = (ids) => buildIsaConfigYaml(ids, ALL).yaml.match(/^isa_string: (\S+)/m)[1];
+  assert.equal(isaStringFor(['RV64I', 'M', 'Zca', 'Smdbltrp']), 'RV64IM_Zca_Smdbltrp');
+  assert.equal(isaStringFor(['RV64I', 'Zicsr', 'Svadu', 'Sdext']), 'RV64IZicsr_Svadu_Sdext');
+  assert.equal(
+    isaStringFor([
+      'RV64I',
+      'H',
+      'Zicsr',
+      'Sdext',
+      'Smrnmi',
+      'Shgatpa',
+      'Svnapot',
+      'Ssdbltrp',
+      'Supm',
+    ]),
+    'RV64IH_Zicsr_Supm_Ssdbltrp_Svnapot_Shgatpa_Smrnmi_Sdext',
+  );
+});
+
 test('the file says where its facts came from', () => {
   const { yaml } = buildIsaConfigYaml(RVA23, ALL);
   assert.match(yaml, /riscv-unified-db [0-9a-f]{7,}/, 'no UDB commit recorded');
