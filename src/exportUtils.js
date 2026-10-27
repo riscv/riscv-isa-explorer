@@ -35,6 +35,22 @@ function isPrivilegeTag(id) {
 }
 
 /**
+ * The ISA manual's order for S-extensions (src/unpriv/naming.adoc): by
+ * privilege level, alphabetically within a level. Su* (user), then Ss* and Sv*
+ * together (supervisor), then Sh* (hypervisor), then Sm* (machine). The manual
+ * gives no position for Sd* (debug), so they come after Sm*.
+ */
+const S_LEVEL_ORDER = ['su', 'ss', 'sh', 'sm', 'sd'];
+function sExtensionLevelSort(a, b) {
+  const level = (x) => {
+    const prefix = x.slice(0, 2).toLowerCase();
+    const i = S_LEVEL_ORDER.indexOf(prefix === 'sv' ? 'ss' : prefix);
+    return i === -1 ? S_LEVEL_ORDER.length : i;
+  };
+  return level(a) - level(b) || a.localeCompare(b);
+}
+
+/**
  * Generates a complete, self-describing ISA configuration YAML for the
  * selected extensions.
  *
@@ -208,15 +224,21 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
   // 4. Sort Z-extensions alphabetically
   zExts.sort((a, b) => a.localeCompare(b));
 
-  // 5. Build the ISA march-like string. Custom X names (a bare X and X…) go
-  // after every standard extension, as the ISA manual's naming chapter
-  // requires: "Non-standard extensions must be listed after all standard
-  // extensions" (RV64IZifencei_Xargle_Xbargle).
+  // 5. Build the ISA march-like string, in the ISA manual's naming order:
+  // standard Z names, then S names by privilege level (sExtensionLevelSort),
+  // then custom X names (a bare X and X…), since "Non-standard extensions must
+  // be listed after all standard extensions" (RV64IZifencei_Xargle_Xbargle).
+  // S used to sort among the Z names alphabetically, ahead of them (#496).
   const isCustom = (name) => /^X/i.test(name);
   const basePrefix = `RV${baseInfo.xlen}${baseInfo.base.toUpperCase()}`;
   const singlesStr = filteredSingles.filter((l) => l !== 'X').join('');
   const customExts = [...filteredSingles.filter(isCustom), ...zExts.filter(isCustom)].sort();
-  const multiLetter = [...zExts.filter((z) => !isCustom(z)), ...customExts];
+  const sExts = zExts.filter(isPrivilegeTag).sort(sExtensionLevelSort);
+  const multiLetter = [
+    ...zExts.filter((z) => !isCustom(z) && !isPrivilegeTag(z)),
+    ...sExts,
+    ...customExts,
+  ];
   const zStr = multiLetter.join('_');
   const isaString = `${basePrefix}${singlesStr}${zStr ? (singlesStr ? '_' : '') + zStr : ''}`;
 
