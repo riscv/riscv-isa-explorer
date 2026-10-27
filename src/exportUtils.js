@@ -170,11 +170,23 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
 
   let hasZicsrOrZifencei = false;
   let hasSupervisor = false;
+  // ISA strings are case-insensitive, so two sandbox extensions named Xfoo and
+  // XFOO are one extension and must be listed once (#497).
+  const seen = new Map();
 
   for (const id of selectedIds) {
     if (BASE_ISA_IDS.has(id)) continue;
 
     const idUpper = id.toUpperCase();
+    if (seen.has(idUpper)) {
+      if (seen.get(idUpper) !== id) {
+        warnings.push(
+          `"${id}" was dropped: it names the same extension as "${seen.get(idUpper)}".`,
+        );
+      }
+      continue;
+    }
+    seen.set(idUpper, id);
 
     if (idUpper === 'ZICSR' || idUpper === 'ZIFENCEI') hasZicsrOrZifencei = true;
     if (idUpper === 'S' || isPrivilegeTag(id)) hasSupervisor = true;

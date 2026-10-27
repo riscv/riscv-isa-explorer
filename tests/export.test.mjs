@@ -507,3 +507,21 @@ test('landscape and UDB exports do not duplicate privileged extensions', () => {
     );
   }
 });
+
+test('extensions differing only in case are listed once', () => {
+  // ISA strings are case-insensitive, so two sandbox extensions named Xfoo and
+  // XFOO are one extension. Listing it twice made isa_string invalid (#497).
+  const sandbox = ['Xfoo', 'XFOO'].map((id) => ({
+    id,
+    name: id,
+    isSandbox: true,
+    instructions: {},
+  }));
+  const { yaml, warnings } = buildIsaConfigYaml(['RV64I', 'Xfoo', 'XFOO'], [...ALL, ...sandbox]);
+  assert.equal(yaml.match(/^isa_string: (\S+)/m)[1], 'RV64IXfoo');
+  assert.equal(yaml.match(/^ {2}- Xfoo$/gm)?.length, 1, 'extensions: lists Xfoo twice');
+  assert.ok(
+    warnings.some((w) => w.includes('"XFOO" was dropped')),
+    `no warning: ${warnings.join(' | ')}`,
+  );
+});

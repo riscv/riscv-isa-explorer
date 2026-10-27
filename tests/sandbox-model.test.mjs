@@ -145,6 +145,10 @@ test('enforcePrefix and validateExtensionId follow RISC-V naming conventions', (
   assert.ok(validateExtensionId('myaccel', false)?.includes('must start with "X"'));
   assert.ok(validateExtensionId('X', false)?.includes('at least one character'));
   assert.ok(validateExtensionId('X invalid', false)?.includes('only contain letters, digits'));
+
+  // ISA names are case-insensitive: XFOO beside Xfoo is the same extension (#497).
+  assert.ok(validateExtensionId('XFOO', false, false, ['Xfoo'])?.includes('"Xfoo" already names'));
+  assert.equal(validateExtensionId('Xfoo2', false, false, ['Xfoo']), null);
 });
 
 test('validateMnemonic enforces valid instruction mnemonic syntax', () => {
