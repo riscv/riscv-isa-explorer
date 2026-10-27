@@ -85,8 +85,10 @@ function ExtensionTile({
       ].join(' ')}
       style={{
         padding: '10px',
-        // Amber glow ring when in the builder
-        ...(inWorkspace && !isDiscontinued
+        // Amber glow ring when in the builder. Only while builder mode is on:
+        // with it off the +/- button is hidden, so a ring there marks tiles as
+        // selected with no way to deselect them from the grid.
+        ...(builderMode && inWorkspace && !isDiscontinued
           ? {
               borderColor: 'rgba(245,197,66,0.55)',
               boxShadow: '0 0 0 1px rgba(245,197,66,0.2), inset 0 0 12px rgba(245,197,66,0.04)',
