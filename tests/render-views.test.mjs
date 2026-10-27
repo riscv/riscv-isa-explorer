@@ -250,6 +250,23 @@ test('the builder opens from a configuration link and shows what accepts the -ma
   noErrors(errors);
 });
 
+test('the builder ring shows only while builder mode is on', async () => {
+  // With builder mode off the tile's +/- button is hidden, so a ring left on
+  // the tiles read as a selection nobody could undo from the grid.
+  const { document, errors } = await mount('https://example.test/');
+  const mode = document.querySelector('[aria-label="ISA Configuration Builder mode"]');
+  const tile = () => document.getElementById('ext-RV64I');
+  mode.click();
+  const add = await waitFor(() => tile().querySelector('.workspace-tile-btn'));
+  add.click();
+  await waitFor(() => tile().style.borderColor);
+  assert.ok(tile().style.borderColor, 'no ring while building');
+  mode.click();
+  await waitFor(() => !tile().querySelector('.workspace-tile-btn'));
+  assert.equal(tile().style.borderColor, '', 'ring left on with builder mode off');
+  noErrors(errors);
+});
+
 test('the Ask AI launcher follows its feature flag', async () => {
   const { window, document } = await mount('https://example.test/');
   const flags = await import('../feature-flags.cjs');
