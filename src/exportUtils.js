@@ -517,9 +517,15 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     ].sort();
     const rcCustom = rcCustomAll.filter((z) => /^X[a-z0-9]*$/.test(z));
     const rcCustomDropped = rcCustomAll.filter((z) => !rcCustom.includes(z));
-    const rcKnown = rcCandidates
-      .filter((z) => !isCustom(z) && RISCV_CONFIG_SUB_EXTENSIONS.has(z))
-      .sort(riscvConfigSort);
+    // Z names first, by riscv-config's letter order; then S names by privilege
+    // level, the order the landscape isa_string uses (#478).
+    const rcKnownAll = rcCandidates.filter(
+      (z) => !isCustom(z) && RISCV_CONFIG_SUB_EXTENSIONS.has(z),
+    );
+    const rcKnown = [
+      ...rcKnownAll.filter((z) => /^Z/i.test(z)).sort(riscvConfigSort),
+      ...rcKnownAll.filter((z) => !/^Z/i.test(z)).sort(sExtensionLevelSort),
+    ];
     const rcDropped = rcCandidates
       .filter((z) => !isCustom(z) && !RISCV_CONFIG_SUB_EXTENSIONS.has(z))
       .sort();
@@ -533,8 +539,9 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
         .join('');
 
     rc.push(`  # riscv-config Capitalises sub-extensions, attaches the first directly to`);
-    rc.push(`  # the base letters, and orders them by the canonical letter of the second`);
-    rc.push(`  # character — Zicsr before Zca — none of which matches -march.`);
+    rc.push(`  # the base letters, and orders Z names by the canonical letter of the second`);
+    rc.push(`  # character — Zicsr before Zca — none of which matches -march. S names follow,`);
+    rc.push(`  # by privilege level (Su, Ss/Sv, Sh, Sm, Sd), then custom X names.`);
     rc.push(`  ISA: ${rcIsa}`);
     rc.push(
       `  physical_addr_sz: 32          # TODO physical address width for your implementation`,

@@ -581,3 +581,19 @@ test('riscv-config keeps custom X extensions, after the Z and S group', () => {
   assert.match(withUnderscore, /^# 1 custom extension\(s\) are omitted/m);
   assert.match(withUnderscore, /^# {3}Xfoo_bar$/m);
 });
+
+test('riscv-config lists S-extensions after Z-extensions, by privilege level', () => {
+  // #478: riscvConfigSort ranks by the second letter, which put Smdbltrp ahead
+  // of Zca. riscv-config accepts either order; the manual's is Z, then S by
+  // privilege level, then X, as in the landscape isa_string.
+  const rc = (ids) =>
+    buildIsaConfigYaml(ids, ALL, { format: 'riscv-config' }).yaml.match(/^ {2}ISA: (\S+)/m)[1];
+  assert.equal(rc(['RV64I', 'Zca', 'Smdbltrp']), 'RV64IZca_Smdbltrp');
+  assert.equal(rc(['RV64I', 'Smdbltrp']), 'RV64ISmdbltrp');
+  assert.equal(rc(['RV64I', 'M', 'Svnapot', 'Svadu']), 'RV64IMSvadu_Svnapot');
+  assert.equal(
+    rc(['RV64I', 'Zca', 'Sdext', 'Smrnmi', 'Smdbltrp', 'Svnapot', 'Svadu', 'Ssdbltrp', 'Sddbltrp']),
+    'RV64IZca_Ssdbltrp_Svadu_Svnapot_Smdbltrp_Smrnmi_Sddbltrp_Sdext',
+  );
+  assert.equal(rc(['RV64I', 'Zca', 'Ssdbltrp', 'Xfoo']), 'RV64IZca_Ssdbltrp_Xfoo');
+});
