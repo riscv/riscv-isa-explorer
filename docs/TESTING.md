@@ -30,6 +30,7 @@ a row here and a test behind it.
 | Evolution | `src/evolutionModel.js`, `src/ExtensionEvolution.jsx` | `profile-export`, `copy-counts`, `render-views` |
 | Specification link | `src/specLink.js` | `spec-link`, `render-views` |
 | Main view, tiles and entry point | `src/risc_v_visualizer.jsx`, `src/ExtensionTile.jsx`, `src/tileMemo.js`, `src/main.jsx`, `src/RiscvLogo.jsx` | `render-smoke`, `render-views`, `extension-tile` |
+| Empty-state instruction explanation | `src/extensionNotes.js` | `no-instruction-message` |
 | Focus handling in dialogs | `src/focusTrap.js` | `focus-trap` |
 | Ask AI (behind a feature flag) | `src/AskAiLauncher.jsx`, `feature-flags.cjs` | `render-views` |
 | Ratified list from the ISA manual (catches UDB lagging the manual) | `src/isa-manual-status.json`, `scripts/manual-status.mjs`, `scripts/sync_manual_status.mjs` | `manual-status`, `pipeline` |

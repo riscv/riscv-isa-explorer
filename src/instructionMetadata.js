@@ -15,15 +15,26 @@ export function instructionSynopsis(description) {
 
   if (!lead) return '';
 
-  return lead
-    // Correct this confirmed upstream grammar typo in the user-facing synopsis.
-    .replace(/^Can causes\b/, 'Can cause')
-    .split(/\s+\[(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/i)[0]
-    .replace(/<%[\s\S]*?%>/g, '')
+  return stripInlineFormatting(
+    lead
+      // Correct this confirmed upstream grammar typo in the user-facing synopsis.
+      .replace(/^Can causes\b/, 'Can cause')
+      .split(/\s+\[(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/i)[0]
+      .replace(/<%[\s\S]*?%>/g, ''),
+  )
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Removes AsciiDoc's inline formatting (`code`, **strong**, *strong*,
+ * _emphasis_), keeping the text it marks. Shared with the extension notes,
+ * which show UDB's behavior text.
+ */
+export function stripInlineFormatting(text) {
+  return text
     .replace(/`([^`]+)`/g, '$1')
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/\*([^*]+)\*/g, '$1')
-    .replace(/_([^_]+)_/g, '$1')
-    .replace(/\s+/g, ' ')
-    .trim();
+    .replace(/_([^_]+)_/g, '$1');
 }

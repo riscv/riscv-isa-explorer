@@ -55,6 +55,7 @@ import EncodingDiagram from './EncodingDiagram.jsx';
 import InstructionUsage from './InstructionUsage.jsx';
 import DetailSection from './DetailSection.jsx';
 import { specificationLink } from './specLink.js';
+import { noInstructionReason, cleanBehaviorText } from './extensionNotes.js';
 import { ExtensionToolchains } from './ToolchainSupport.jsx';
 import CsrDetails, { CsrChipList } from './CsrDetails.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
@@ -4689,6 +4690,42 @@ const RISCVExplorer = () => {
                             </div>
                           </div>
                         )}
+
+                      {(() => {
+                        // null when the extension has instructions: the
+                        // populated snapshot below renders instead.
+                        const reason = noInstructionReason(selectedExt);
+                        if (!reason) return null;
+                        const behavior = cleanBehaviorText(selectedExt.behavior);
+                        const showBehavior =
+                          behavior.length > 0 &&
+                          behavior !== selectedExt.desc?.trim() &&
+                          behavior !== selectedExt.use?.trim();
+                        return (
+                          <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
+                            <h3
+                              className="text-[11px] uppercase tracking-wider font-bold mb-1.5 flex items-center gap-1"
+                              style={{ color: 'var(--riscv-text-3)' }}
+                            >
+                              <Info size={10} /> Instruction Set Snapshot
+                            </h3>
+                            <p
+                              className="text-sm leading-relaxed"
+                              style={{ color: 'var(--riscv-text-2)' }}
+                            >
+                              {reason}
+                            </p>
+                            {showBehavior && (
+                              <p
+                                className="text-xs leading-relaxed mt-2 whitespace-pre-line"
+                                style={{ color: 'var(--riscv-text-2)' }}
+                              >
+                                {behavior}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })()}
 
                       {Object.keys(selectedExt.instructions || {}).length > 0 && (
                         <div className="bg-slate-900 p-3 rounded-sm border border-slate-700">
