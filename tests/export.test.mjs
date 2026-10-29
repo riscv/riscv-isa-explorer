@@ -87,7 +87,7 @@ test('isa_string lists custom X extensions after every standard extension', () =
   assert.equal(isaStringFor(['RV64I', 'Xfoo', 'Zca']), 'RV64IZca_Xfoo');
   assert.equal(
     isaStringFor(['RV64I', 'M', 'Xbar', 'X', 'Zicsr', 'Zca']),
-    'RV64IM_Zca_Zicsr_X_Xbar',
+    'RV64IM_Zicsr_Zca_X_Xbar',
   );
 });
 
@@ -112,6 +112,20 @@ test('isa_string lists S-extensions after Z-extensions, by privilege level', () 
       'Supm',
     ]),
     'RV64IH_Zicsr_Supm_Ssdbltrp_Svnapot_Shgatpa_Smrnmi_Sdext',
+  );
+});
+
+test('isa_string orders Z-extensions by category, then alphabetically', () => {
+  // The ISA manual's naming chapter: Z names are "ordered first by category,
+  // then alphabetically within a category -- for example, Zicsr_Zifencei_Ztso",
+  // the category being the letter after the Z, from IMAFDQLCBKJTVPH. They used
+  // to sort alphabetically, putting Zaamo ahead of Zicsr (#504).
+  const isaStringFor = (ids) => buildIsaConfigYaml(ids, ALL).yaml.match(/^isa_string: (\S+)/m)[1];
+  assert.equal(isaStringFor(['RV64I', 'Ztso', 'Zifencei', 'Zicsr']), 'RV64IZicsr_Zifencei_Ztso');
+  assert.equal(isaStringFor(['RV64I', 'Zaamo', 'Zicsr', 'Zifencei']), 'RV64IZicsr_Zifencei_Zaamo');
+  assert.equal(
+    isaStringFor(['RV64I', 'M', 'Zvl128b', 'Zkn', 'Zba', 'Zfh', 'Zca', 'Zicsr']),
+    'RV64IM_Zicsr_Zfh_Zca_Zba_Zkn_Zvl128b',
   );
 });
 
