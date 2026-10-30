@@ -91,15 +91,22 @@ const RISCV_CONFIG_SUB_EXTENSIONS = new Set(["Sddbltrp", "Sdext", "Smdbltrp", "S
  */
 const RC_LETTER_ORDER = 'IEMAFDQLCBJKTPVNSHU';
 
-/** B is defined as exactly these three (bitmanip spec, "B" chapter). */
-const B_PARTS = ['Zba', 'Zbb', 'Zbs'];
-function riscvConfigSort(a, b) {
+/**
+ * Sorts Z names by the rank of their second letter in `order`, then
+ * alphabetically. A letter missing from `order` sorts last. riscv-config and
+ * the ISA manual rank the letters differently, so each passes its own order.
+ */
+function byCategory(order) {
   const rank = (x) => {
-    const i = RC_LETTER_ORDER.indexOf(x.charAt(1).toUpperCase());
+    const i = order.indexOf(x.charAt(1).toUpperCase());
     return i === -1 ? 99 : i;
   };
-  return rank(a) - rank(b) || a.localeCompare(b);
+  return (a, b) => rank(a) - rank(b) || a.localeCompare(b);
 }
+const riscvConfigSort = byCategory(RC_LETTER_ORDER);
+
+/** B is defined as exactly these three (bitmanip spec, "B" chapter). */
+const B_PARTS = ['Zba', 'Zbb', 'Zbs'];
 
 /**
  * The ISA manual's order for Z names in isa_string, which is not riscv-config's.
@@ -110,13 +117,7 @@ function riscvConfigSort(a, b) {
  * IMAFDQLCBKJTVPH. Sorting alphabetically put Zaamo ahead of Zicsr (#504).
  */
 const Z_CATEGORY_ORDER = 'IMAFDQLCBKJTVPH';
-function zCategorySort(a, b) {
-  const rank = (x) => {
-    const i = Z_CATEGORY_ORDER.indexOf(x.charAt(1).toUpperCase());
-    return i === -1 ? 99 : i;
-  };
-  return rank(a) - rank(b) || a.localeCompare(b);
-}
+const zCategorySort = byCategory(Z_CATEGORY_ORDER);
 
 /**
  * The params a UDB architecture configuration needs that no extension selection
