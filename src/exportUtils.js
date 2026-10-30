@@ -102,6 +102,23 @@ function riscvConfigSort(a, b) {
 }
 
 /**
+ * The ISA manual's order for Z names in isa_string, which is not riscv-config's.
+ *
+ * The naming chapter: "If multiple Z extensions are named, they should be
+ * ordered first by category, then alphabetically within a category -- for
+ * example, Zicsr_Zifencei_Ztso." The category is the letter after the Z, from
+ * IMAFDQLCBKJTVPH. Sorting alphabetically put Zaamo ahead of Zicsr (#504).
+ */
+const Z_CATEGORY_ORDER = 'IMAFDQLCBKJTVPH';
+function zCategorySort(a, b) {
+  const rank = (x) => {
+    const i = Z_CATEGORY_ORDER.indexOf(x.charAt(1).toUpperCase());
+    return i === -1 ? 99 : i;
+  };
+  return rank(a) - rank(b) || a.localeCompare(b);
+}
+
+/**
  * The params a UDB architecture configuration needs that no extension selection
  * implies. Transcribed from the configs riscv-arch-test ships, which are the
  * working examples of what a complete one looks like.
@@ -242,17 +259,18 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
   zExts.sort((a, b) => a.localeCompare(b));
 
   // 5. Build the ISA march-like string, in the ISA manual's naming order:
-  // standard Z names, then S names by privilege level (sExtensionLevelSort),
-  // then custom X names (a bare X and X…), since "Non-standard extensions must
-  // be listed after all standard extensions" (RV64IZifencei_Xargle_Xbargle).
-  // S used to sort among the Z names alphabetically, ahead of them (#496).
+  // standard Z names by category (zCategorySort), then S names by privilege
+  // level (sExtensionLevelSort), then custom X names (a bare X and X…), since
+  // "Non-standard extensions must be listed after all standard extensions"
+  // (RV64IZifencei_Xargle_Xbargle). S used to sort among the Z names
+  // alphabetically, ahead of them (#496).
   const isCustom = (name) => /^X/i.test(name);
   const basePrefix = `RV${baseInfo.xlen}${baseInfo.base.toUpperCase()}`;
   const singlesStr = filteredSingles.filter((l) => l !== 'X').join('');
   const customExts = [...filteredSingles.filter(isCustom), ...zExts.filter(isCustom)].sort();
   const sExts = zExts.filter(isPrivilegeTag).sort(sExtensionLevelSort);
   const multiLetter = [
-    ...zExts.filter((z) => !isCustom(z) && !isPrivilegeTag(z)),
+    ...zExts.filter((z) => !isCustom(z) && !isPrivilegeTag(z)).sort(zCategorySort),
     ...sExts,
     ...customExts,
   ];
