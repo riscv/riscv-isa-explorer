@@ -337,7 +337,20 @@ const CONFLICTS = {
 // omissions. Zve32x is the weakest valid default.
 const VECTOR_PROVIDERS = ['V', 'Zve32x', 'Zve32f', 'Zve64x', 'Zve64f', 'Zve64d'];
 const LOCAL_CHOICES = Object.fromEntries(
-  ['Zvl32b', 'Zvl64b', 'Zvl128b', 'Zvl256b', 'Zvl512b', 'Zvl1024b'].map((id) => [
+  [
+    'Zvl32b',
+    'Zvl64b',
+    'Zvl128b',
+    'Zvl256b',
+    'Zvl512b',
+    'Zvl1024b',
+    'Zvl2048b',
+    'Zvl4096b',
+    'Zvl8192b',
+    'Zvl16384b',
+    'Zvl32768b',
+    'Zvl65536b',
+  ].map((id) => [
     id,
     [
       {

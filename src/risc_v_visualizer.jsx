@@ -2192,7 +2192,7 @@ const RISCVExplorer = () => {
   // because Zve64x requires Zvl64b. The panel then shows the real floor rather
   // than the one that was asked for.
   const handleSetVlen = React.useCallback((bits) => {
-    const WIDTHS = [32, 64, 128, 256, 512, 1024];
+    const WIDTHS = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536];
     setWorkspaceIds((prev) => {
       const desired = new Set(prev);
       for (const w of WIDTHS) {

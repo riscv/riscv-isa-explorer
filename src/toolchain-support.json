@@ -3048,6 +3048,28 @@
         "impliedBy": "V"
       }
     },
+    "zvl16384b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      },
+      "binutils": {
+        "supported": "2.38"
+      }
+    },
+    "zvl2048b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      },
+      "binutils": {
+        "supported": "2.38"
+      }
+    },
     "zvl256b": {
       "llvm": {
         "supported": "14"
@@ -3063,6 +3085,17 @@
         "impliedBy": "V"
       }
     },
+    "zvl32768b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      },
+      "binutils": {
+        "supported": "2.38"
+      }
+    },
     "zvl32b": {
       "llvm": {
         "supported": "14"
@@ -3076,6 +3109,17 @@
       "qemu": {
         "supported": "7.0",
         "impliedBy": "V"
+      }
+    },
+    "zvl4096b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      },
+      "binutils": {
+        "supported": "2.38"
       }
     },
     "zvl512b": {
@@ -3106,6 +3150,28 @@
       "qemu": {
         "supported": "7.0",
         "impliedBy": "V"
+      }
+    },
+    "zvl65536b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      },
+      "binutils": {
+        "supported": "2.38"
+      }
+    },
+    "zvl8192b": {
+      "llvm": {
+        "supported": "14"
+      },
+      "gcc": {
+        "supported": "12"
+      },
+      "binutils": {
+        "supported": "2.38"
       }
     }
   }

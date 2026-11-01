@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "84a4104655fed806b791348fb30c9e7249483223",
+      "commit": "cadd46e22487a2002cead3883b34e72766103cdf",
       "branch": "main",
       "path": "spec/std/isa/param"
     }
@@ -465,6 +465,27 @@
         "reason": "Counters 0-2 are defined by Zicntr\nCounters 3..31 are defined by Zihpm\n"
       },
       "src": "HCOUNTENABLE_EN.yaml"
+    },
+    "HEDELEG_IAM_WRITABLE": {
+      "name": "HEDELEG_IAM_WRITABLE",
+      "long_name": "Whether `hedeleg.IAM` is writable when IALIGN is 16",
+      "description": "Indicates whether the `hedeleg.IAM` field (instruction address misaligned) is writable when instruction address misaligned exceptions cannot occur, i.e., when IALIGN=16 (`Zca` is implemented or `C` is implemented and a mutable `misa.C` is set). The privileged specification only requires `hedeleg.IAM` to be writable when IALIGN=32, but an implementation may still make it writable when IALIGN is 16. Options: true:: `hedeleg.IAM` is writable. false:: `hedeleg.IAM` is read-only zero. This parameter has no effect when IALIGN is 32 (`Zca` is not implemented or mutable `misa.C` is cleared); `hedeleg.IAM` is always writable in that case.",
+      "schema": {
+        "type": "boolean"
+      },
+      "definedBy": {
+        "extension": {
+          "allOf": [
+            {
+              "name": "H"
+            },
+            {
+              "name": "Zca"
+            }
+          ]
+        }
+      },
+      "src": "HEDELEG_IAM_WRITABLE.yaml"
     },
     "HPM_COUNTER10_WIDTH": {
       "name": "HPM_COUNTER10_WIDTH",
@@ -7980,8 +8001,8 @@
         }
       },
       "requirements": {
-        "idl()": "!$array_includes?(SXLEN, 64) -> !$array_includes?(VSXLEN, 64);\n",
-        "reason": "XLEN in VS-mode can never be larger than XLEN in S-mode\n(and, transitively, cannot be larger than XLEN in M-mode).\n"
+        "idl()": "!$array_includes?(SXLEN, 64) -> !$array_includes?(VSXLEN, 64);\n\n# When HSXLEN=32, hstatus.VSXL does not exist and VSXLEN=32, so a hart\n# able to run HS-mode in RV32 must support VSXLEN=32.\n$array_includes?(SXLEN, 32) -> $array_includes?(VSXLEN, 32);\n",
+        "reason": "XLEN in VS-mode can never be larger than XLEN in S-mode\n(and, transitively, cannot be larger than XLEN in M-mode), and must be\nable to equal it whenever HS-mode can run in RV32.\n"
       },
       "src": "VSXLEN.yaml"
     },
@@ -8026,8 +8047,8 @@
         }
       },
       "requirements": {
-        "idl()": "!$array_includes?(VSXLEN, 64) -> !$array_includes?(VUXLEN, 64);\n",
-        "reason": "XLEN in VU-mode can never be larger than XLEN in VS-mode\n(and, transitively, cannot be larger than XLEN in S-mode or M-mode).\n"
+        "idl()": "!$array_includes?(VSXLEN, 64) -> !$array_includes?(VUXLEN, 64);\n\n# When VSXLEN=32, vsstatus.UXL does not exist and VU-mode XLEN=32, so a\n# hart able to run VS-mode in RV32 must support VUXLEN=32.\n$array_includes?(VSXLEN, 32) -> $array_includes?(VUXLEN, 32);\n",
+        "reason": "XLEN in VU-mode can never be larger than XLEN in VS-mode\n(and, transitively, cannot be larger than XLEN in S-mode or M-mode), and\nmust be able to equal it whenever VS-mode can run in RV32.\n"
       },
       "src": "VUXLEN.yaml"
     },

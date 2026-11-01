@@ -1895,7 +1895,7 @@ export default function WorkspacePanel({
                 const ids = Array.from(workspaceIds);
                 const params = resolveParams(ids);
                 const vlen = impliedVlen(ids);
-                const VLEN_CHOICES = [32, 64, 128, 256, 512, 1024];
+                const VLEN_CHOICES = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536];
                 return (
                   <StudioCard
                     title="Implementation Parameters"
