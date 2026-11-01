@@ -13,6 +13,42 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-11-01
+
+Catalogue: 217 entries, up from 211: Zvl2048b, Zvl4096b, Zvl8192b, Zvl16384b,
+Zvl32768b and Zvl65536b were added; none removed. The data is synced from
+riscv-unified-db cadd46e. No profile's `-march` string changes, and no
+existing extension's requirements change. Exported ISA strings change order,
+as listed under Fixed.
+
+### Added
+
+- **Zvl2048b through Zvl65536b.** The six minimum-VLEN extensions the ISA
+  manual now lists in its Zvl table are in the catalogue and the dependency
+  graph. Each requires the next smaller Zvl and, like the smaller ones, needs
+  V or a Zve\* profile beside it. The builder's VLEN picker goes up to 65536
+  bits. Clang, GCC and binutils accept all six; QEMU and Linux do not
+  (#508, #509).
+- **Extensions without instruction encodings say why.** The detail panel no
+  longer leaves the instruction section silently empty. It says whether the
+  extension sets a VLEN parameter, touches CSRs, or describes behaviour only;
+  drafts say no encodings are listed yet (#367).
+
+### Changed
+
+- **Instruction descriptions name operands as UDB now does:** `xs1` and `xd`
+  rather than `rs1` and `rd`, from the riscv-unified-db sync (#509).
+
+### Fixed
+
+- **The landscape `isa_string` orders Z-extensions by category**, in the ISA
+  manual's order IMAFDQLCBKJTVPH, then alphabetically:
+  `RV64IZicsr_Zifencei_Zaamo`, not `RV64IZaamo_Zicsr_Zifencei` (#504, #505,
+  #506, #507).
+- **The riscv-config export lists S-extensions after Z-extensions**, by
+  privilege level, with custom X names still last: `RV64IZca_Smdbltrp`, not
+  `RV64ISmdbltrp_Zca` (#503).
+
 ## [1.12.3] - 2026-10-27
 
 Catalogue: 211 entries, unchanged from 1.12.2; none added or removed. The data
