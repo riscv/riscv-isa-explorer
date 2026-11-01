@@ -473,7 +473,7 @@ export function parseMarchString(marchStr, allExts) {
       const version = versionMatch[2];
       const isBitwidthOrUmbrella =
         UMBRELLA_PREFIX_IDS.has(stripped) ||
-        (!version.includes('p') && [32, 64, 128, 256, 512, 1024].includes(parseInt(version, 10)));
+        (!version.includes('p') && [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536].includes(parseInt(version, 10)));
 
       if (!isBitwidthOrUmbrella && lookup.has(stripped)) {
         const resolved = lookup.get(stripped);

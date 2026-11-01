@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "84a4104655fed806b791348fb30c9e7249483223",
+      "commit": "cadd46e22487a2002cead3883b34e72766103cdf",
       "branch": "main",
       "path": "spec/std/isa/ext"
     },
@@ -2066,6 +2066,74 @@
         }
       ]
     },
+    "Zvl16384b": {
+      "requires": [
+        {
+          "ext": "Zvl8192b",
+          "src": "udb",
+          "ref": "Zvl16384b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 16384,
+          "src": "udb",
+          "ref": "Zvl16384b.yaml requirements … param"
+        }
+      ]
+    },
+    "Zvl2048b": {
+      "requires": [
+        {
+          "ext": "Zvl1024b",
+          "src": "udb",
+          "ref": "Zvl2048b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 2048,
+          "src": "udb",
+          "ref": "Zvl2048b.yaml requirements … param"
+        }
+      ]
+    },
     "Zvl256b": {
       "requires": [
         {
@@ -2100,6 +2168,40 @@
         }
       ]
     },
+    "Zvl32768b": {
+      "requires": [
+        {
+          "ext": "Zvl16384b",
+          "src": "udb",
+          "ref": "Zvl32768b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 32768,
+          "src": "udb",
+          "ref": "Zvl32768b.yaml requirements … param"
+        }
+      ]
+    },
     "Zvl32b": {
       "requires": [],
       "requiresOneOf": [
@@ -2125,6 +2227,40 @@
           "value": 32,
           "src": "udb",
           "ref": "Zvl32b.yaml requirements … param"
+        }
+      ]
+    },
+    "Zvl4096b": {
+      "requires": [
+        {
+          "ext": "Zvl2048b",
+          "src": "udb",
+          "ref": "Zvl4096b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 4096,
+          "src": "udb",
+          "ref": "Zvl4096b.yaml requirements … param"
         }
       ]
     },
@@ -2193,6 +2329,74 @@
           "value": 64,
           "src": "udb",
           "ref": "Zvl64b.yaml requirements … param"
+        }
+      ]
+    },
+    "Zvl65536b": {
+      "requires": [
+        {
+          "ext": "Zvl32768b",
+          "src": "udb",
+          "ref": "Zvl65536b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 65536,
+          "src": "udb",
+          "ref": "Zvl65536b.yaml requirements … param"
+        }
+      ]
+    },
+    "Zvl8192b": {
+      "requires": [
+        {
+          "ext": "Zvl4096b",
+          "src": "udb",
+          "ref": "Zvl8192b.yaml requirements.extension"
+        }
+      ],
+      "requiresOneOf": [
+        {
+          "options": [
+            "V",
+            "Zve32f",
+            "Zve32x",
+            "Zve64d",
+            "Zve64f",
+            "Zve64x"
+          ],
+          "default": "Zve32x",
+          "auto": false,
+          "src": "isa-manual",
+          "ref": "Vol.I V §18.4 — Zvl*b minimum-VLEN extensions accompany V or a Zve* profile"
+        }
+      ],
+      "params": [
+        {
+          "name": "VLEN",
+          "kind": "greaterThanOrEqual",
+          "value": 8192,
+          "src": "udb",
+          "ref": "Zvl8192b.yaml requirements … param"
         }
       ]
     }

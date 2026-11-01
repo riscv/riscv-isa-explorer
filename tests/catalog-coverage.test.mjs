@@ -3,7 +3,7 @@
  *
  * Context, because the raw numbers mislead: 125 of 227 entries have neither
  * instructions nor CSRs, and that is mostly correct. Umbrellas and aliases
- * (K, N, P, Zve, Zvf), VLEN parameter entries (Zvl32b ... Zvl1024b) and
+ * (K, N, P, Zve, Zvf), VLEN parameter entries (Zvl32b ... Zvl65536b) and
  * behavioural guarantees (Zkt, which promises data-independent timing and
  * defines nothing) all legitimately carry no encodings.
  *

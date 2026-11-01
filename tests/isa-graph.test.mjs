@@ -116,6 +116,7 @@ test('requirements nested under allOf are read, not skipped', () => {
   assert.deepEqual(SMART_DEPENDENCIES.Zvl64b, ['Zvl32b']);
   assert.deepEqual(SMART_DEPENDENCIES.Zvl128b, ['Zvl64b']);
   assert.ok(closure('Zvl1024b').has('Zvl32b'), 'the VLEN chain should be transitive');
+  assert.ok(closure('Zvl65536b').has('Zvl1024b'), 'the chain continues past 1024 bits');
   assert.deepEqual(SMART_DEPENDENCIES.Sv39, ['S']);
   assert.deepEqual(SMART_DEPENDENCIES.Za64rs, ['Za128rs']);
 });
@@ -176,7 +177,20 @@ test('the Zvl divergence against clang is closed in the graph', () => {
 });
 
 test('a standalone Zvl floor reports that a concrete vector ISA provider is required', () => {
-  for (const id of ['Zvl32b', 'Zvl64b', 'Zvl128b', 'Zvl256b', 'Zvl512b', 'Zvl1024b']) {
+  for (const id of [
+    'Zvl32b',
+    'Zvl64b',
+    'Zvl128b',
+    'Zvl256b',
+    'Zvl512b',
+    'Zvl1024b',
+    'Zvl2048b',
+    'Zvl4096b',
+    'Zvl8192b',
+    'Zvl16384b',
+    'Zvl32768b',
+    'Zvl65536b',
+  ]) {
     const result = resolveSelection({ selected: [id] });
     assert.ok(
       result.choices.some(
@@ -457,6 +471,7 @@ test('includes constraints union, because each is a separate demand', () => {
 test('vlenExtension maps a width back to the extension that sets it', () => {
   assert.equal(vlenExtension(128), 'Zvl128b');
   assert.equal(vlenExtension(1024), 'Zvl1024b');
+  assert.equal(vlenExtension(65536), 'Zvl65536b', 'the table goes up to 65536 bits');
   assert.equal(vlenExtension(48), null, 'there is no Zvl48b');
 });
 
