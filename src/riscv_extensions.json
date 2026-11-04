@@ -82406,6 +82406,7 @@
       "desc": "Debug Trigger EPM",
       "use": "Trigger matching for external PM",
       "url": "https://docs.riscv.org/reference/debug/index.html",
+      "state": "development",
       "instructions": {}
     },
     {
@@ -82416,6 +82417,7 @@
       "desc": "Debug Trigger Pending",
       "use": "Pending trigger cause reporting",
       "url": "https://docs.riscv.org/reference/debug/index.html",
+      "state": "development",
       "instructions": {}
     },
     {
@@ -83902,7 +83904,7 @@
       "tags": [],
       "desc": "Debug Double Trap",
       "use": "Debug-level nested traps",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://docs.riscv.org/reference/debug/Sdext.html#dcsr-cetrig",
       "instructions": {}
     },
     {
