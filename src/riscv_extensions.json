@@ -6406,10 +6406,12 @@
       "name": "N",
       "short": "User-Level Interrupts",
       "tags": [],
-      "desc": "Delivers traps directly to user mode so a handler can run without entering supervisor or machine mode.",
+      "state": "withdrawn",
+      "version": "1.1",
+      "desc": "Delivers traps directly to user mode so a handler can run without entering supervisor or machine mode. This extension was withdrawn before ratification.",
       "use": "User-mode interrupt handling",
       "discontinued": 1,
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/Ratified-IMFDQC-and-Priv-v1.11/src/n.tex",
       "instructions": {}
     },
     {
