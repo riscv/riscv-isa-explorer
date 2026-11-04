@@ -1798,7 +1798,8 @@
         }
       },
       "url": "https://docs.riscv.org/reference/isa/unpriv/rv32e.html",
-      "state": "ratified"
+      "state": "ratified",
+      "version": "2.0.0"
     },
     {
       "id": "RV64E",
@@ -2502,7 +2503,8 @@
         }
       },
       "url": "https://docs.riscv.org/reference/isa/unpriv/rv32e.html",
-      "state": "ratified"
+      "state": "ratified",
+      "version": "2.0.0"
     },
     {
       "id": "RV128I",
