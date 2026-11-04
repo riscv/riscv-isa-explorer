@@ -16,7 +16,6 @@ const encoder = new TextEncoder();
 
 // XML 1.0 forbids most control characters outright, and an .xlsx with one in
 // it is reported as corrupt rather than shown with the character dropped.
-// eslint-disable-next-line no-control-regex
 const INVALID_XML = /[^\x09\x0A\x0D\x20-퟿-�]/g;
 const xmlText = (value) =>
   String(value ?? '')
