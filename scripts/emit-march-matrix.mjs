@@ -80,6 +80,7 @@ const CLANG21_UNSUPPORTED = new Set([
   'Zicfilp',
   'Zicfiss',
   'Ziccid',
+  'Zjpm',
   'Svrsw60t59b',
   'Sspmp',
   'Sspmpen',
