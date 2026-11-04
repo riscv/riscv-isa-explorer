@@ -232,7 +232,7 @@ function ExtensionTile({
                 }
               >
                 {inWorkspace ? (
-                  <svg width="12" height="12" viewBox="0 0 9 9" fill="none">
+                  <svg width="12" height="12" viewBox="0 0 9 9" fill="none" aria-hidden="true">
                     <path
                       d="M1.5 4.5L3.5 6.5L7.5 2.5"
                       stroke="currentColor"

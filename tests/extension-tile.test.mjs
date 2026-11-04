@@ -266,3 +266,11 @@ test('a search match highlights only within the active profile or volume filter'
     dimmed: false,
   });
 });
+
+test('checkmark icon on workspace-tile-btn is hidden from screen readers', () => {
+  const tileSrc = fs.readFileSync(path.join(srcDir, 'ExtensionTile.jsx'), 'utf8');
+  assert.match(
+    tileSrc,
+    /<svg[^>]*aria-hidden="true"[^>]*>[\s\S]*?<path[^>]*d="M1\.5 4\.5L3\.5 6\.5L7\.5 2\.5"/,
+  );
+});
