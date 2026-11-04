@@ -114,6 +114,17 @@ Each of these exists because it was once broken:
 - Verify in a browser, not only in the test suite. Nothing renders in the unit
   tests except the smoke test, and that one is deliberately shallow.
 
+## Picking up an issue
+
+- Comment on the issue and wait to be assigned before you start. Assignment is
+  how two people avoid doing the same work.
+- Look for an open pull request first. If one exists, review it rather than
+  opening another.
+- Keep at most one open pull request on a `good first issue` at a time. Those
+  issues are there to bring new people in; once yours merges, pick the next.
+- When two pull requests make the same change, the earlier one is kept.
+- An assignment with no activity for 14 days is released for someone else.
+
 ## Pull requests
 
 - Keep them focused. One concern per PR reviews far faster than five.
