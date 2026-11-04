@@ -1798,7 +1798,8 @@
         }
       },
       "url": "https://docs.riscv.org/reference/isa/unpriv/rv32e.html",
-      "state": "ratified"
+      "state": "ratified",
+      "version": "2.0.0"
     },
     {
       "id": "RV64E",
@@ -2502,7 +2503,8 @@
         }
       },
       "url": "https://docs.riscv.org/reference/isa/unpriv/rv32e.html",
-      "state": "ratified"
+      "state": "ratified",
+      "version": "2.0.0"
     },
     {
       "id": "RV128I",
@@ -6404,10 +6406,12 @@
       "name": "N",
       "short": "User-Level Interrupts",
       "tags": [],
-      "desc": "Delivers traps directly to user mode so a handler can run without entering supervisor or machine mode.",
+      "state": "withdrawn",
+      "version": "1.1",
+      "desc": "Delivers traps directly to user mode so a handler can run without entering supervisor or machine mode. This extension was withdrawn before ratification.",
       "use": "User-mode interrupt handling",
       "discontinued": 1,
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/Ratified-IMFDQC-and-Priv-v1.11/src/n.tex",
       "instructions": {}
     },
     {
@@ -71004,7 +71008,7 @@
       "tags": [],
       "desc": "Extends vector floating-point arithmetic to work on BF16 elements directly, beyond conversion and widening multiply-add.",
       "use": "BF16 arithmetic in vectors",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/ffb72fa3cf791d04e40a781f0f3eec5fc320cafb/src/unpriv/zvfbfa.adoc",
       "instructions": {},
       "version": "0.8.0",
       "state": "development"
@@ -71062,7 +71066,7 @@
       ],
       "desc": "Basic vector conversions for the 8-bit OFP8 E4M3 and E5M2 float formats used in low-precision machine learning.",
       "use": "Minimal FP8 vector support",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/aa2b94fa272b2cab2e6cb3ba434d81707c6e2be7/src/unpriv/zvfofp8min.adoc",
       "instructions": {
         "VFNCVT.F.F.Q": {
           "encoding": "010010------11001001-----1010111",
@@ -71116,7 +71120,7 @@
       ],
       "desc": "Element-wise absolute difference on integer vectors, with widening accumulate forms for video and imaging.",
       "use": "Absolute-difference kernels such as SAD",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/integer-vector-absolute-difference/blob/4bd946ecf8a12cf3a6099915b381f2b628548cdb/src/unpriv/zvabd.adoc",
       "instructions": {
         "VABD.VV": {
           "encoding": "010101-----------010-----1010111",
@@ -71566,7 +71570,7 @@
       "tags": [],
       "desc": "Batched dot products of one vector against eight others, accumulating eight results for tiled matrix multiply.",
       "use": "BF16 dot-product accumulate",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/570e32e43ecc2a9ffe2e6d7cb2888841d0d877de/src/zvdota.adoc?plain=1#L151",
       "instructions": {}
     },
     {
@@ -71576,7 +71580,7 @@
       "tags": [],
       "desc": "Reduces two vector register groups to one accumulated dot-product scalar, over integer, BF16, or FP8 data.",
       "use": "Generic FP dot-product accumulate",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/570e32e43ecc2a9ffe2e6d7cb2888841d0d877de/src/zvdota.adoc?plain=1#L21",
       "instructions": {}
     },
     {
@@ -71586,7 +71590,7 @@
       "tags": [],
       "desc": "Four-way dot product of the packed 8-bit integers inside each 32-bit vector element, accumulated in place.",
       "use": "4-way dot-product accumulate",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/df736009d09ccf8f7dfebf8eabefa7de9261efdf/src/unpriv/vector-dot.adoc?plain=1#L28",
       "instructions": {}
     }
   ],
@@ -74680,7 +74684,7 @@
       "tags": [],
       "desc": "Carryless multiply on 32-bit vector elements, bringing GCM and CRC acceleration to ELEN=32 embedded cores.",
       "use": "Carry-less multiply on 32-bit elements",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/7cb19f057163c5d4b46c1dc9e905c2294517da7f/src/vector-crypto.adoc?plain=1#L545",
       "instructions": {}
     },
     {
@@ -74888,7 +74892,7 @@
       "tags": [],
       "desc": "Vector-scalar forms of the GHASH instructions, letting one hash key drive many blocks of GCM at once.",
       "use": "Profile-specific GCM subset",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/7cb19f057163c5d4b46c1dc9e905c2294517da7f/src/vector-crypto.adoc?plain=1#L604",
       "instructions": {}
     },
     {
@@ -78940,7 +78944,7 @@
       "tags": [],
       "desc": "Draft J-extension mechanism for instruction and data synchronization, offered as an alternative to Zifencei's FENCE.I.",
       "use": "Alternative to Zifencei for I-cache coherence",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-j-extension/blob/master/zjid/header.adoc",
       "instructions": {}
     },
     {
@@ -78950,7 +78954,7 @@
       "tags": [],
       "desc": "Pointer masking lets a hart ignore upper address bits so software can keep tags there, as HWASAN-style checkers do.",
       "use": "Auxiliary pointer-masking semantics",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-j-extension/blob/master/zjpm/header.adoc",
       "instructions": {}
     },
     {
@@ -82406,6 +82410,7 @@
       "desc": "Debug Trigger EPM",
       "use": "Trigger matching for external PM",
       "url": "https://docs.riscv.org/reference/debug/index.html",
+      "state": "development",
       "instructions": {}
     },
     {
@@ -82416,6 +82421,7 @@
       "desc": "Debug Trigger Pending",
       "use": "Pending trigger cause reporting",
       "url": "https://docs.riscv.org/reference/debug/index.html",
+      "state": "development",
       "instructions": {}
     },
     {
@@ -83902,7 +83908,7 @@
       "tags": [],
       "desc": "Debug Double Trap",
       "use": "Debug-level nested traps",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://docs.riscv.org/reference/debug/Sdext.html#dcsr-cetrig",
       "instructions": {}
     },
     {
