@@ -71599,7 +71599,9 @@
       "desc": "Enables Zicfiss shadow stacks in machine mode through mseccfg.MSSE, protecting firmware return addresses.",
       "use": "Machine-level shadow stack config",
       "url": "https://github.com/riscv/riscv-isa-manual",
-      "instructions": {}
+      "instructions": {},
+      "state": "draft",
+      "version": "0.7.0"
     },
     {
       "id": "Zicfilp",
@@ -75816,7 +75818,8 @@
       "desc": "Proposed full-round AES-128 and AES-256 encrypt, decrypt, and key-schedule vector instructions.",
       "use": "Vector AES finite-field helpers",
       "url": "https://github.com/riscv/riscv-crypto/blob/main/doc/vector-allrounds/riscv-crypto-vector-zvknf.adoc",
-      "instructions": {}
+      "instructions": {},
+      "state": "development"
     },
     {
       "id": "Zvkng",
@@ -78941,7 +78944,9 @@
       "desc": "Draft J-extension mechanism for instruction and data synchronization, offered as an alternative to Zifencei's FENCE.I.",
       "use": "Alternative to Zifencei for I-cache coherence",
       "url": "https://github.com/riscv/riscv-isa-manual",
-      "instructions": {}
+      "instructions": {},
+      "state": "development",
+      "version": "0.0.0"
     },
     {
       "id": "Zjpm",
@@ -78951,7 +78956,10 @@
       "desc": "Pointer masking lets a hart ignore upper address bits so software can keep tags there, as HWASAN-style checkers do.",
       "use": "Auxiliary pointer-masking semantics",
       "url": "https://github.com/riscv/riscv-isa-manual",
-      "instructions": {}
+      "instructions": {},
+      "state": "ratified",
+      "ratification_date": "2024-10",
+      "version": "1.0.0"
     },
     {
       "id": "Ztso",
@@ -79701,7 +79709,9 @@
       "desc": "Holds memory-tagging tags in a virtually indexed table, with supervisor CSRs giving that table's base address.",
       "use": "Address-tagged translation behavior",
       "url": "https://github.com/riscv/riscv-memory-tagging/blob/main/src/mte_tag.adoc",
-      "instructions": {}
+      "instructions": {},
+      "state": "development",
+      "version": "0.51.0"
     },
     {
       "id": "Svukte",
@@ -79937,7 +79947,9 @@
       "desc": "Holds M-mode memory-tagging tags in a virtually indexed table located by the new mvitt base register.",
       "use": "Machine-level virtual-address tagging",
       "url": "https://github.com/riscv/riscv-memory-tagging/blob/main/src/mte_tag.adoc",
-      "instructions": {}
+      "instructions": {},
+      "state": "development",
+      "version": "0.51.0"
     },
     {
       "id": "Smepmp",
@@ -81134,7 +81146,8 @@
       "desc": "Assigns IMSIC interrupt files and APLIC domains to individual supervisor domains for isolated delivery.",
       "use": "Soft-debug / diagnostics assist",
       "url": "https://github.com/riscv/riscv-smmtt/blob/main/chapter7.adoc",
-      "instructions": {}
+      "instructions": {},
+      "state": "development"
     }
   ],
   "s_counters": [
@@ -85522,7 +85535,9 @@
       "desc": "Lets supervisor software switch a hart between the RVWMO and TSO memory models at run time, per process.",
       "use": "Supervisors opt into TSO behavior",
       "url": "https://github.com/riscv/riscv-ssdtso/blob/main/ssdtso.adoc",
-      "instructions": {}
+      "instructions": {},
+      "state": "development",
+      "version": "1.0.0"
     },
     {
       "id": "Sstcfg",
@@ -85606,7 +85621,9 @@
       "desc": "Delegates Sdtrig debug triggers to S-mode and VS-mode through indirect CSRs, avoiding traps into M-mode.",
       "use": "Fine-grain trap delegation controls",
       "url": "https://github.com/riscv/riscv-isa-manual",
-      "instructions": {}
+      "instructions": {},
+      "state": "development",
+      "version": "0.7.7"
     },
     {
       "id": "RERI",
