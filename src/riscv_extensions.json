@@ -78944,7 +78944,7 @@
       "tags": [],
       "desc": "Draft J-extension mechanism for instruction and data synchronization, offered as an alternative to Zifencei's FENCE.I.",
       "use": "Alternative to Zifencei for I-cache coherence",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-j-extension/blob/master/zjid/header.adoc",
       "instructions": {}
     },
     {
@@ -78954,7 +78954,7 @@
       "tags": [],
       "desc": "Pointer masking lets a hart ignore upper address bits so software can keep tags there, as HWASAN-style checkers do.",
       "use": "Auxiliary pointer-masking semantics",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-j-extension/blob/master/zjpm/header.adoc",
       "instructions": {}
     },
     {
