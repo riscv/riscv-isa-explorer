@@ -80569,7 +80569,8 @@
       "tags": [],
       "desc": "Machine-mode core-local interrupt controller giving each interrupt its own level, priority and preemption.",
       "use": "Low-latency vectored interrupt handling",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-fast-interrupt/blob/v0.10/src/clic.adoc#smclic-m-mode-clic-extension",
+      "state": "development",
       "instructions": {}
     },
     {
@@ -80579,7 +80580,8 @@
       "tags": [],
       "desc": "Makes the CLIC's split between interrupt level and priority bits programmable rather than fixed in hardware.",
       "use": "MCLIC configuration CSRs",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-fast-interrupt/blob/v0.10/src/clic.adoc#smclicconfig-clic-configuration-extension",
+      "state": "development",
       "instructions": {}
     },
     {
@@ -80589,7 +80591,8 @@
       "tags": [],
       "desc": "Lets each CLIC interrupt pick hardware vectoring for lower latency or software vectoring for smaller code.",
       "use": "Selective hardware vectored interrupts",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-fast-interrupt/blob/v0.10/src/clic.adoc#smclicshv-clic-selective-hardware-vectoring-extension",
+      "state": "development",
       "instructions": {}
     },
     {
@@ -80599,7 +80602,8 @@
       "tags": [],
       "desc": "Extends the core-local interrupt controller to S-mode, so supervisor interrupts are taken without M-mode.",
       "use": "Supervisor-level CLIC interface",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-fast-interrupt/blob/v0.10/src/clic.adoc#ssclic-s-mode-clic-extension",
+      "state": "development",
       "instructions": {}
     },
     {
@@ -80609,7 +80613,7 @@
       "tags": [],
       "desc": "User CLIC",
       "use": "User-level CLIC interface",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-fast-interrupt/blob/v0.9/src/clic.adoc#suclic-u-mode-clic-extension",
       "instructions": {}
     },
     {
