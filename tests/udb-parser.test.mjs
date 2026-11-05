@@ -1,14 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
   parseUpstream,
-  parseVariables,
   applyNotConstraints,
-  parseEncodings,
   predicateXlen,
   EXTENSION_ALIASES,
 } from '../scripts/check-udb-completeness.mjs';
@@ -16,22 +15,13 @@ import { readInstruction } from '../scripts/udb-instruction-reader.mjs';
 
 const parseDefinedBy = (condition) =>
   readInstruction(`kind: instruction\nname: test\ndefinedBy:\n${condition}`);
+const parseEncoding = (encoding) =>
+  readInstruction(
+    `kind: instruction\nname: test\ndefinedBy:\n  extension:\n    name: Zfix\nencoding:\n${encoding}`,
+    { includeEncodings: true },
+  ).encodings;
 
-/*
- * The parser, against committed fixtures.
- *
- * Every defect this file has had lived in the parsing, and real data found all
- * of them because there was nothing importable to test:
- *
- *   - a definedBy regex terminating on /$/m, which in multiline mode is the end
- *     of the FIRST line, so it captured nothing and every instruction came back
- *     unowned;
- *   - `owners || [dir]`, which never fell back because an empty array is truthy;
- *   - no `state` read at all, so draft extensions were reported as ratified gaps.
- *
- * The fixtures below carry one case per shape, so a regression fails here
- * rather than in a weekly cron nobody is watching.
- */
+// Small UDB fixtures cover the instruction shapes used by the checker.
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const specDir = path.join(here, 'fixtures', 'udb', 'spec', 'std', 'isa');
@@ -58,12 +48,7 @@ test('"ever ratified" counts an extension whose later version is frozen', () => 
 });
 
 test('"ever ratified" counts an extension ratified after a draft version', () => {
-  /*
-   * Zlateratified is development at 0.5.0 and ratified at 1.0.0, so the
-   * ratified state is not the first one in the file. Mutation testing put this
-   * here: substituting "read only the first state" failed nothing, because
-   * every other fixture happened to list ratified first.
-   */
+  // Zlateratified is development at 0.5.0 and ratified at 1.0.0.
   assert.ok(upstream.ratifiedExtensions.includes('Zlateratified'));
 });
 
@@ -85,24 +70,17 @@ test('an instruction with no encoding is skipped, not crashed on', () => {
 });
 
 test('the 0/1/- encoding string becomes the right match and mask', () => {
-  // match: 0000000----------000-----0001011
   const s = inst('SIMPLE');
-  let match = 0n;
-  let mask = 0n;
-  for (const ch of '0000000----------000-----0001011') {
-    match <<= 1n;
-    mask <<= 1n;
-    if (ch === '1') {
-      match |= 1n;
-      mask |= 1n;
-    } else if (ch === '0') {
-      mask |= 1n;
-    }
-  }
-  assert.equal(s.match, match);
-  assert.equal(s.mask, mask);
+  assert.equal(s.match, 0x0000000bn);
+  assert.equal(s.mask, 0xfe00707fn);
   assert.equal(s.mask & 0x7fn, 0x7fn, 'the opcode field is fully fixed');
   assert.equal(s.match & 0x7fn, 0x0bn, 'opcode 0x0b, custom-0');
+});
+
+test('a quoted YAML match is read as a bit pattern', () => {
+  const [encoding] = parseEncoding('  match: "0000000----------000-----0010011"');
+  assert.equal(encoding.match, 0x00000013n);
+  assert.equal(encoding.mask, 0xfe00707fn);
 });
 
 test('a dash in the encoding leaves that bit free in the mask', () => {
@@ -129,16 +107,30 @@ test('parseUpstream throws on a directory that is not a checkout', () => {
   assert.throws(() => parseUpstream(path.join(here, 'fixtures', 'nope')));
 });
 
+test('invalid not: constraints report the instruction source path', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'udb-invalid-constraint-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const spec = path.join(root, 'ext');
+  const inst = path.join(root, 'inst', 'Zfix');
+  fs.mkdirSync(spec, { recursive: true });
+  fs.mkdirSync(inst, { recursive: true });
+  fs.writeFileSync(path.join(spec, 'Zfix.yaml'), 'state: ratified\n');
+  const source = path.join(inst, 'bad.yaml');
+  fs.writeFileSync(
+    source,
+    'kind: instruction\nname: bad\ndefinedBy: {extension: {name: Zfix}}\n' +
+      'encoding:\n  match: "--------------10"\n  variables:\n' +
+      '    - name: first\n      location: 0\n      not: [0]\n' +
+      '    - name: second\n      location: 0\n      not: [0]\n',
+  );
+
+  assert.throws(() => parseUpstream(root), new RegExp(`${source}: overlapping fields with not`));
+});
+
 // ── `not:` constraints ─────────────────────────────────────────────────────
 
 test('a not: list leaving one legal value pins the field', () => {
-  /*
-   * The bug this fixes. unified-db can constrain a field by exclusion rather
-   * than by fixing bits in the match string: fcvtmod.w.d shows rm as dashes and
-   * carries not: [0,2,3,4,5,6,7], which leaves only 1 (RTZ). Reading the match
-   * string alone reported it as free, and this catalogue -- which pins it
-   * correctly -- was flagged as disagreeing with upstream.
-   */
+  // FCVTMOD.W.D excludes every rm value except 1 (RTZ).
   const p = inst('PINNEDBYNOT');
   assert.ok(p, 'the fixture must parse');
   const RM = 0x7n << 12n;
@@ -159,37 +151,36 @@ test('an instruction with no not: constraints reports none narrowed', () => {
   assert.deepEqual(inst('SIMPLE').narrowedFields, []);
 });
 
-test('applyNotConstraints is a pure function over match and mask', () => {
+test('applyNotConstraints folds exclusions into contiguous and split fields', () => {
   const base = { match: 0n, mask: 0n };
   const pinned = applyNotConstraints(base, [
-    { name: 'f', hi: 14, lo: 12, not: [0, 2, 3, 4, 5, 6, 7] },
+    { name: 'f', positions: [14, 13, 12], not: [0, 2, 3, 4, 5, 6, 7] },
   ]);
   assert.equal(pinned.mask, 0x7n << 12n);
   assert.equal(pinned.match, 1n << 12n);
   assert.deepEqual(pinned.narrowed, []);
 
-  const untouched = applyNotConstraints(base, [{ name: 'f', hi: 14, lo: 12, not: [] }]);
+  const untouched = applyNotConstraints(base, [{ name: 'f', positions: [14, 13, 12], not: [] }]);
   assert.equal(untouched.mask, 0n, 'an empty not: changes nothing');
 
-  const narrowed = applyNotConstraints(base, [{ name: 'f', hi: 14, lo: 12, not: [0, 1] }]);
+  const narrowed = applyNotConstraints(base, [{ name: 'f', positions: [14, 13, 12], not: [0, 1] }]);
   assert.equal(narrowed.mask, 0n, 'six values remain, so nothing can be pinned');
   assert.deepEqual(narrowed.narrowed, [{ field: 'f', remaining: 6 }]);
 });
 
-test('parseVariables reads a multi-line not: list', () => {
+test('the shared reader reads variables and a multi-line not: list', () => {
   // cm.jalt's exclusion list wraps across lines upstream.
-  const vars = parseVariables(`
-encoding:
-  match: 0000000----------000-----0001011
+  const [encoding] = parseEncoding(`  match: 0000000----------000-----0001011
   variables:
     - name: index
       location: 19-15
       not: [ 0, 1, 2, 3,
              4, 5 ]
     - name: xd
-      location: 11-7
-`);
+      location: 11-7`);
+  const vars = encoding.variables;
   assert.equal(vars.length, 2);
+  assert.deepEqual(vars[0].positions, [19, 18, 17, 16, 15]);
   assert.deepEqual(vars[0].not, [0, 1, 2, 3, 4, 5]);
   assert.deepEqual(vars[1].not, []);
 });
@@ -204,9 +195,7 @@ test('an XLEN-keyed encoding yields one entry per XLEN', () => {
    * ld/sd, the Zbs single-bit ops -- so the gate compared half the data for the
    * cases most likely to disagree.
    */
-  const encs = parseEncodings(`
-encoding:
-  RV32:
+  const encs = parseEncoding(`  RV32:
     match: 011010011000-----101-----0010011
     variables:
       - name: xs1
@@ -216,8 +205,6 @@ encoding:
     variables:
       - name: xs1
         location: 19-15
-access:
-  s: always
 `);
   assert.equal(encs.length, 2);
   assert.deepEqual(
@@ -229,21 +216,16 @@ access:
 });
 
 test('a plain encoding yields exactly one entry, with no xlen', () => {
-  const encs = parseEncodings(`
-encoding:
-  match: 0000000----------000-----0110011
+  const encs = parseEncoding(`  match: 0000000----------000-----0110011
   variables:
     - name: xs2
-      location: 24-20
-`);
+      location: 24-20`);
   assert.equal(encs.length, 1);
   assert.equal(encs[0].xlen, null);
 });
 
 test('not: constraints are folded per XLEN block, not across them', () => {
-  const encs = parseEncodings(`
-encoding:
-  RV32:
+  const encs = parseEncoding(`  RV32:
     match: 0000000------------------0110011
     variables:
       - name: tt
@@ -257,8 +239,157 @@ encoding:
 `);
   assert.equal(encs.length, 2);
   const RM = 0x7n << 12n;
-  assert.equal(encs[0].mask & RM, RM, 'RV32 pins tt via not:');
-  assert.equal(encs[1].mask & RM, 0n, 'RV64 leaves it free');
+  const rv32 = applyNotConstraints(encs[0], encs[0].variables);
+  const rv64 = applyNotConstraints(encs[1], encs[1].variables);
+  assert.equal(rv32.mask & RM, RM, 'RV32 pins tt via not:');
+  assert.equal(rv64.mask & RM, 0n, 'RV64 leaves it free');
+});
+
+test('non-contiguous variable locations preserve bit order when folding not:', () => {
+  const [encoding] = parseEncoding(`  match: ${'-'.repeat(43)}11111
+  variables:
+    - name: split
+      location: 10|7
+      not: [0, 2, 3]`);
+  const result = applyNotConstraints(encoding, encoding.variables);
+  const positions = [10, 7];
+  const mask = positions.reduce((value, bit) => value | (1n << BigInt(bit)), 0n);
+  assert.equal(result.mask & mask, mask);
+  assert.equal(result.match & mask, 1n << 7n, 'remaining value 1 maps to the last listed bit');
+});
+
+test('the shared reader rejects unknown encoding shapes and malformed fields', () => {
+  assert.throws(() => parseEncoding('  RV128:\n    match: 0000'), /unsupported encoding shape/);
+  assert.throws(() => parseEncoding('  match: 001x'), /encoding match/);
+  assert.throws(
+    () =>
+      parseEncoding(
+        '  match: -------------------------0010011\n  variables: [{name: bad, location: 3-0, not: [16]}]',
+      ),
+    /not value out of range/,
+  );
+  assert.throws(
+    () =>
+      parseEncoding(
+        '  match: -------------------------0010011\n  variables: [{name: bad, location: 3-2, not: [0, 1, 2, 3]}]',
+      ),
+    /not excludes every value/,
+  );
+  assert.throws(
+    () =>
+      parseEncoding(
+        '  match: -------------------------0010011\n  variables: [{name: bad, location: 3-0, not: null}]',
+      ),
+    /invalid not list/,
+  );
+  assert.throws(
+    () =>
+      parseEncoding(
+        '  match: -------------------------0010011\n  variables: [{name: bad, location: 999999999-0}]',
+      ),
+    /exceeds match width/,
+  );
+  assert.throws(
+    () =>
+      parseEncoding(
+        '  match: -------------------------0010011\n  variables: [{name: bad, $inherits: common/foo}]',
+      ),
+    /unresolved inherited encoding variable.*resolve UDB metadata/,
+  );
+  assert.throws(
+    () =>
+      parseEncoding(
+        '  match: -------------------------0010011\n  variables: [{name: bad, location: 3-0, typo: true}]',
+      ),
+    /unsupported encoding variable shape/,
+  );
+});
+
+test('encoding parsing accepts schema-defined locations and scalar not values', () => {
+  const [encoding] = parseEncoding(`  match: -------------------------0010011
+  variables:
+    - name: bit
+      location: 10
+      not: 0`);
+  assert.deepEqual(encoding.variables[0], { name: 'bit', positions: [10], not: [0] });
+  const result = applyNotConstraints(encoding, encoding.variables);
+  assert.equal(result.mask & (1n << 10n), 1n << 10n, 'excluding zero pins the field to one');
+  assert.equal(result.match & (1n << 10n), 1n << 10n);
+});
+
+test('not: values are counted only when compatible with bits fixed by match', () => {
+  const [narrowed] = parseEncoding(`  match: ${'0'.repeat(26)}0---11
+  variables:
+    - name: field
+      location: 5-4
+      not: [2]`);
+  const partial = applyNotConstraints(narrowed, narrowed.variables);
+  assert.deepEqual(partial.narrowed, [{ field: 'field', remaining: 2 }]);
+
+  const [encoding] = parseEncoding(`  match: ${'0'.repeat(26)}0---11
+  variables:
+    - name: field
+      location: 5-4
+      not: [0]`);
+  const result = applyNotConstraints(encoding, encoding.variables);
+  assert.equal(result.mask & (0x3n << 4n), 0x3n << 4n);
+  assert.equal(result.match & (0x3n << 4n), 1n << 4n, 'the only legal value is 01');
+  assert.deepEqual(result.narrowed, []);
+
+  const [impossible] = parseEncoding(`  match: ${'0'.repeat(26)}0---11
+  variables:
+    - name: field
+      location: 5-4
+      not: [0, 1]`);
+  assert.throws(
+    () => applyNotConstraints(impossible, impossible.variables),
+    /not constraints exclude every value compatible with match/,
+  );
+});
+
+test('overlapping fields with not: constraints fail instead of being folded independently', () => {
+  assert.throws(
+    () =>
+      applyNotConstraints({ match: 0n, mask: 0n }, [
+        { name: 'first', positions: [2, 1], not: [0, 1] },
+        { name: 'second', positions: [1, 0], not: [0, 2] },
+      ]),
+    /overlapping fields with not constraints are unsupported/,
+  );
+});
+
+test('XLEN-keyed encoding requires both schema-defined forms', () => {
+  assert.throws(
+    () => parseEncoding('  RV32:\n    match: 00000000000000000000000000010011'),
+    /unsupported encoding shape/,
+  );
+});
+
+test('encoding match accepts only UDB schema widths and opcode suffixes', () => {
+  assert.throws(
+    () => parseEncoding('  match: 00000000000000000000000000000000'),
+    /valid 16-, 32- or 48-bit pattern/,
+  );
+  assert.throws(
+    () => parseEncoding('  match: 00000000000000000000000000000010'),
+    /valid 16-, 32- or 48-bit pattern/,
+  );
+});
+
+test('encoding match accepts all three UDB schema widths', () => {
+  const encodings = [
+    ...parseEncoding(`  match: ${'-'.repeat(14)}10`),
+    ...parseEncoding(`  match: ${'-'.repeat(30)}11`),
+    ...parseEncoding(`  match: ${'-'.repeat(43)}11111`),
+  ];
+  assert.deepEqual(
+    encodings.map(({ match, mask }) => [match, mask]),
+    [
+      [0b10n, 0b11n],
+      [0b11n, 0b11n],
+      [0b11111n, 0b11111n],
+    ],
+  );
 });
 
 // ── definedBy as a predicate, not a flat owner list ────────────────────────
@@ -382,20 +513,15 @@ test('CRLF line endings preserve the ownership condition', () => {
   assert.deepEqual(predicate, { extension: { name: 'Zbb' } });
 });
 
-test('CRLF line endings: parseVariables returns all fields on Windows checkouts', () => {
-  /*
-   * parseVariables used `variables:\n` in its regex. On CRLF files the text is
-   * `variables:\r\n`, so the match fails and returns []. This silently drops
-   * every not: constraint that #303 added, mis-reporting pinned fields as free bits.
-   */
+test('CRLF line endings preserve encoding variables and not: values', () => {
   const crlfText =
+    'kind: instruction\r\nname: test\r\ndefinedBy:\r\n  extension:\r\n    name: Zfix\r\n' +
     'encoding:\r\n  match: 0000011------------------0001011\r\n' +
     '  variables:\r\n    - name: rs1\r\n      location: 19-15\r\n' +
     '    - name: tt\r\n      location: 14-12\r\n      not: [0, 2, 3, 4, 5, 6, 7]\r\n';
-  const vars = parseVariables(crlfText);
-  assert.equal(vars.length, 2, 'CRLF: parseVariables must find both variable fields');
-  assert.equal(vars[0].name, 'rs1');
-  assert.equal(vars[1].name, 'tt');
-  assert.deepEqual(vars[1].not, [0, 2, 3, 4, 5, 6, 7], 'CRLF: not: list must be parsed from CRLF file');
+  const { encodings } = readInstruction(crlfText, { includeEncodings: true });
+  assert.equal(encodings[0].variables.length, 2);
+  assert.equal(encodings[0].variables[0].name, 'rs1');
+  assert.equal(encodings[0].variables[1].name, 'tt');
+  assert.deepEqual(encodings[0].variables[1].not, [0, 2, 3, 4, 5, 6, 7]);
 });
-
