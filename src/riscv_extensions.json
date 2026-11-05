@@ -80610,7 +80610,6 @@
       "desc": "User CLIC",
       "use": "User-level CLIC interface",
       "url": "https://github.com/riscv/riscv-fast-interrupt/blob/v0.9/src/clic.adoc#suclic-u-mode-clic-extension",
-      "state": "development",
       "instructions": {}
     },
     {
