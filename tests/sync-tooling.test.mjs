@@ -57,7 +57,7 @@ function udbNotAtPin() {
 
 const hashCatalog = () => createHash('sha256').update(fs.readFileSync(CATALOG)).digest('hex');
 
-/** Run a script, returning { status, stdout }. Never throws on a non-zero exit. */
+/** Run a script and keep stdout separate from diagnostics, even on failure. */
 function run(script, args = []) {
   try {
     const stdout = execFileSync('node', [path.join(root, 'scripts', script), ...args], {
@@ -65,9 +65,16 @@ function run(script, args = []) {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     });
-    return { status: 0, stdout };
+    return { status: 0, stdout, stderr: '', output: stdout };
   } catch (err) {
-    return { status: err.status ?? 1, stdout: `${err.stdout ?? ''}${err.stderr ?? ''}` };
+    const stdout = String(err.stdout ?? '');
+    const stderr = String(err.stderr ?? '');
+    return {
+      status: err.status ?? 1,
+      stdout,
+      stderr,
+      output: stdout + stderr,
+    };
   }
 }
 
@@ -75,8 +82,8 @@ test('the committed catalogue is what the instruction sync produces', () => {
   // --strict fails when a mapped tag yields no instructions, so a clean exit
   // means every routing rule still resolves against the current instr_dict.
   // If someone hand-edits an extension's instructions, this is what notices.
-  const { status, stdout } = run('sync_instructions.mjs', ['--dry-run', '--strict']);
-  assert.equal(status, 0, `sync reported a problem:\n${stdout}`);
+  const { status, stdout, output } = run('sync_instructions.mjs', ['--dry-run', '--strict']);
+  assert.equal(status, 0, `sync reported a problem:\n${output}`);
   assert.match(stdout, /Instructions written:\s+\d+/, 'expected a summary line');
 });
 
@@ -121,9 +128,9 @@ test('every routed tag resolves to a catalogue entry', () => {
 test('the UDB sync fails loudly when pointed somewhere wrong', () => {
   // It used to be possible for a sync to report an error and still exit 0,
   // which lets a scheduled job look successful while having done nothing.
-  const { status, stdout } = run('sync_udb_extensions.cjs', ['/nonexistent-udb-path']);
+  const { status, stdout, stderr } = run('sync_udb_extensions.cjs', ['/nonexistent-udb-path']);
   assert.equal(status, 1, 'a missing UDB checkout must be a failure, not a warning');
-  assert.match(stdout, /not found/i, 'it should say what it could not find');
+  assert.match(stdout + stderr, /not found/i, 'it should say what it could not find');
 });
 
 test('the UDB sync captures the extension version, when a UDB checkout is available', (t) => {
@@ -140,8 +147,8 @@ test('the UDB sync captures the extension version, when a UDB checkout is availa
   // and the number beside them went nowhere. Anything that has to pin an
   // extension — an ACT4 DUB config, a profile, a report — had to re-derive it.
   const before = hashCatalog();
-  const { status, stdout } = run('sync_udb_extensions.cjs', [udb, '--dry-run']);
-  assert.equal(status, 0, stdout);
+  const { status, stdout, output } = run('sync_udb_extensions.cjs', [udb, '--dry-run']);
+  assert.equal(status, 0, output);
   assert.match(stdout, /--dry-run: catalogue not written/, 'dry-run should say so');
   assert.equal(hashCatalog(), before, '--dry-run must not touch the catalogue');
 
@@ -193,8 +200,8 @@ test('extensions UDB does not carry stay on the watchlist, and leave it once UDB
   ].map((m) => m[1]);
   const inUdb = (id) => fs.existsSync(path.join(udb, 'spec', 'std', 'isa', 'ext', `${id}.yaml`));
 
-  const { status, stdout } = run('sync_udb_extensions.cjs', [udb, '--dry-run']);
-  assert.equal(status, 0, stdout);
+  const { status, stdout, output } = run('sync_udb_extensions.cjs', [udb, '--dry-run']);
+  assert.equal(status, 0, output);
   const missing = (id) => new RegExp(`^\\s+- ${id}$`, 'm').test(stdout);
   for (const id of watched) {
     assert.equal(
@@ -226,25 +233,27 @@ test('the graph matches upstream, when a UDB checkout is available', (t) => {
     t.skip('no riscv-unified-db checkout beside this repo');
     return;
   }
-  const { status, stdout } = run('seed-dependency-graph.mjs', ['--check', '--udb', udb]);
+  const { status, stdout, stderr } = run('seed-dependency-graph.mjs', ['--check', '--udb', udb]);
   // Drift against a non-trunk branch says more about the branch than about us,
   // and the seeder now names the branch precisely so this stays diagnosable.
-  if (status !== 0 && /not main/i.test(stdout)) {
-    t.skip(`UDB checkout is on a feature branch:\n${stdout.split('\n').slice(-6).join('\n')}`);
+  if (status !== 0 && /not main/i.test(stdout + stderr)) {
+    t.skip(
+      `UDB checkout is on a feature branch:\n${(stdout + stderr).split('\n').slice(-6).join('\n')}`,
+    );
     return;
   }
-  assert.equal(status, 0, stdout);
+  assert.equal(status, 0, stdout + stderr);
 });
 
-test('the UDB completeness JSON is complete and parseable', (t) => {
+test('the UDB completeness JSON is parseable', (t) => {
   const udb = UDB;
   if (!fs.existsSync(path.join(udb, 'spec', 'std', 'isa', 'ext'))) {
     t.skip('no riscv-unified-db checkout available (set UDB_DIR)');
     return;
   }
 
-  const { status, stdout } = run('check-udb-completeness.mjs', [udb, '--json']);
-  assert.ok(status === 0 || status === 1, `unexpected checker status ${status}:\n${stdout}`);
+  const { status, stdout, output } = run('check-udb-completeness.mjs', [udb, '--json']);
+  assert.ok(status === 0 || status === 1, `unexpected checker status ${status}:\n${output}`);
   const report = JSON.parse(stdout);
   assert.equal(typeof report.complete, 'boolean');
   assert.ok(report.coverage?.global, 'JSON report should contain global coverage');
@@ -258,8 +267,12 @@ test('every encoding the catalogue publishes agrees with UDB, drafts included', 
   const skip = udbNotAtPin();
   if (skip) return t.skip(skip);
 
-  const { status, stdout } = run('check-udb-completeness.mjs', [udb, '--published', '--json']);
-  assert.ok(status === 0 || status === 1, `unexpected checker status ${status}:\n${stdout}`);
+  const { status, stdout, output } = run('check-udb-completeness.mjs', [
+    udb,
+    '--published',
+    '--json',
+  ]);
+  assert.ok(status === 0 || status === 1, `unexpected checker status ${status}:\n${output}`);
   const report = JSON.parse(stdout);
   assert.deepEqual(
     report.encodingMismatches.map(

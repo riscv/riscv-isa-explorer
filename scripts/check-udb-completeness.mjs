@@ -27,188 +27,82 @@ import { fileURLToPath } from 'node:url';
 import { compareAgainstUpstream } from '../src/completeness.js';
 import { readInstruction } from './udb-instruction-reader.mjs';
 
-/**
- * Read an unified-db checkout into the shape completeness.js compares against.
- *
- * Exported and given a directory rather than reading argv, because every bug
- * this file has had was in the parsing: a regex that terminated on /$/m and so
- * captured nothing, an `|| [dir]` fallback that never fired because an empty
- * array is truthy, and a missing `state` read that reported draft extensions as
- * ratified gaps. Real data found all three; tests found none, because there was
- * nothing importable to test. Now there is.
- */
-/**
- * Fold unified-db `not:` constraints into a match/mask pair.
- *
- * A variable field can be narrowed by excluding values rather than by fixing
- * bits in the match string:
- *
- *   - name: rm
- *     location: 14-12
- *     not: [0, 2, 3, 4, 5, 6, 7]
- *
- * That leaves exactly one legal value, so `rm` is pinned as surely as if the
- * match string had spelled it out. Reading only the match string missed this
- * and reported FCVTMOD.W.D as an encoding upstream leaves free, when upstream
- * constrains it precisely and this catalogue agrees.
- *
- * Only a field left with ONE legal value can be folded in. The other twelve
- * uses upstream merely narrow a field -- `ld` and `sd` excluding odd registers,
- * `cm.pop` excluding low counts -- and "any value except these four" cannot be
- * said with a match and a mask. Those are returned as `narrowed` so a caller
- * can report the limit rather than pretend it does not exist.
- */
+/** Fold exclusions into match/mask only when one legal field value remains. */
 export function applyNotConstraints({ match, mask }, variables) {
   let m = match;
   let k = mask;
   const narrowed = [];
 
+  // Separate folding is incomplete when two exclusion rules share bits.
+  const constrained = variables.filter((v) => v.not?.length);
+  for (let i = 0; i < constrained.length; i += 1) {
+    const positions = new Set(constrained[i].positions);
+    if (
+      constrained.slice(i + 1).some((v) => v.positions.some((position) => positions.has(position)))
+    ) {
+      throw new Error('overlapping fields with not constraints are unsupported');
+    }
+  }
+
   for (const v of variables) {
     if (!v.not || v.not.length === 0) continue;
-    const width = v.hi - v.lo + 1;
-    const total = 1 << width;
+    const width = v.positions.length;
     const excluded = new Set(v.not);
-    if (excluded.size !== total - 1) {
-      narrowed.push({ field: v.name, remaining: total - excluded.size });
+    const fieldMask = v.positions.reduce((bits, position) => bits | (1n << BigInt(position)), 0n);
+    const fixedMask = k & fieldMask;
+    const fixedValue = m & fixedMask;
+    const freePositions = v.positions.filter((position) => !(fixedMask & (1n << BigInt(position))));
+    const compatibleCount = 2 ** freePositions.length;
+    const compatibleExcluded = new Set(
+      [...excluded].filter((candidate) => {
+        const value = BigInt(candidate);
+        return v.positions.every((position, index) => {
+          const bit = 1n << BigInt(position);
+          return (
+            !(fixedMask & bit) ||
+            Boolean((value >> BigInt(width - index - 1)) & 1n) === Boolean(fixedValue & bit)
+          );
+        });
+      }),
+    );
+    const remaining = compatibleCount - compatibleExcluded.size;
+    if (remaining === 0) {
+      throw new Error(
+        `not constraints exclude every value compatible with match for field ${v.name}`,
+      );
+    }
+    if (remaining > 1) {
+      narrowed.push({ field: v.name, remaining });
       continue;
     }
+    if (freePositions.length === 0) continue;
+
     let only = null;
-    for (let candidate = 0; candidate < total; candidate += 1) {
-      if (!excluded.has(candidate)) only = candidate;
+    for (let candidate = 0; candidate < compatibleCount; candidate += 1) {
+      let value = fixedValue;
+      for (let i = 0; i < freePositions.length; i += 1) {
+        if ((BigInt(candidate) >> BigInt(freePositions.length - i - 1)) & 1n) {
+          value |= 1n << BigInt(freePositions[i]);
+        }
+      }
+      const fieldValue = v.positions.reduce(
+        (result, position, index) =>
+          result | (((value >> BigInt(position)) & 1n) << BigInt(width - index - 1)),
+        0n,
+      );
+      if (!excluded.has(Number(fieldValue))) {
+        only = value;
+        break;
+      }
     }
-    if (only === null) continue;
-    const fieldMask = ((1n << BigInt(width)) - 1n) << BigInt(v.lo);
+    if (only === null) {
+      throw new Error(`could not resolve remaining value for field ${v.name}`);
+    }
     k |= fieldMask;
-    m = (m & ~fieldMask) | (BigInt(only) << BigInt(v.lo));
+    m = (m & ~fieldMask) | only;
   }
 
   return { match: m, mask: k, narrowed };
-}
-
-/** The `variables:` block of an encoding: name, bit range, and any `not:` list. */
-export function parseVariables(text) {
-  /*
-   * Capture everything after `variables:` and let the item pattern below decide
-   * what counts, rather than trying to find where the block ends.
-   *
-   * The tempting lookahead is /(?=^\S|$)/m, and it is wrong for the second time
-   * today: in multiline mode `$` is the end of the FIRST line, so the group
-   * captures nothing. definedBy had the identical bug. An item only matches
-   * when `name:` is followed by `location:`, which no later key in these files
-   * produces, so the loose capture is safe.
-   */
-  const block = text.match(/^\s*variables:\r?\n([\s\S]*)/m);
-  if (!block) return [];
-  const out = [];
-  const re =
-    /-\s*name:\s*(\w+)\s*\r?\n\s*location:\s*(\d+)-(\d+)([\s\S]*?)(?=\r?\n\s*-\s*name:|$)/g;
-  for (const m of block[1].matchAll(re)) {
-    const notList = m[4].match(/not:\s*\[([\s\S]*?)\]/);
-    out.push({
-      name: m[1],
-      hi: Number(m[2]),
-      lo: Number(m[3]),
-      not: notList
-        ? notList[1]
-            .split(',')
-            .map((x) => x.trim())
-            .filter((x) => /^\d+$/.test(x))
-            .map(Number)
-        : [],
-    });
-  }
-  return out;
-}
-
-/**
- * The indented body of a top-level YAML key, by scanning lines.
- *
- * Deliberately not a regex. Three separate bugs today came from trying to
- * express "up to the next line at column zero" as a lookahead: /$/m is the end
- * of the FIRST line, so the capture came back empty, and /(?=^\S)/m silently
- * matches nothing when the block runs to the end of the file. Scanning lines
- * has neither failure mode.
- */
-function blockUnder(text, key) {
-  const lines = text.split('\n');
-  // Trim trailing \r so CRLF checkouts (Windows, core.autocrlf=true) match the same
-  // way as LF checkouts. Without this, "definedBy:\r" !== "definedBy:" and every
-  // instruction falls back to its directory name — silently corrupting the report.
-  const start = lines.findIndex((l) => l.trimEnd() === `${key}:`);
-  if (start === -1) return null;
-  const body = [];
-  for (let i = start + 1; i < lines.length; i += 1) {
-    const line = lines[i];
-    if (line.trim() !== '' && !/^\s/.test(line)) break;
-    body.push(line.replace(/\r$/, ''));
-  }
-  return body.join('\n');
-}
-
-/**
- * The encodings an instruction file declares, one per XLEN where it has two.
- *
- * unified-db writes most instructions with a single `encoding.match`, but 19 of
- * them differ by XLEN and are keyed instead:
- *
- *   encoding:
- *     RV32:
- *       match: 011010011000-----101-----0010011
- *     RV64:
- *       match: 011010111000-----101-----0010011
- *
- * Taking the first `match:` in the file silently read one of the two. That
- * covered exactly the instructions where RV32 and RV64 diverge -- rev8, rori,
- * ld, sd, the shift-immediates, the Zbs single-bit ops -- so the gate compared
- * against half the data for the cases most likely to disagree, and reported
- * rev8 as an encoding this catalogue got wrong when it carries both.
- */
-export function parseEncodings(text) {
-  const bitsToPair = (bits) => {
-    let match = 0n;
-    let mask = 0n;
-    for (const ch of bits) {
-      match <<= 1n;
-      mask <<= 1n;
-      if (ch === '1') {
-        match |= 1n;
-        mask |= 1n;
-      } else if (ch === '0') {
-        mask |= 1n;
-      }
-    }
-    return { match, mask };
-  };
-
-  const body = blockUnder(text, 'encoding');
-  if (body === null) return [];
-
-  // Scanned, not matched, for the same reason blockUnder exists: a lookahead
-  // for "the next XLEN key or the end" needs an end assertion that /$/m does
-  // not provide, and gets it silently wrong rather than loudly.
-  const lines = body.split('\n');
-  const keyed = [];
-  for (let i = 0; i < lines.length; i += 1) {
-    const head = lines[i].match(/^\s{2}(RV32|RV64):\s*$/);
-    if (!head) continue;
-    const collected = [];
-    for (let j = i + 1; j < lines.length; j += 1) {
-      if (/^\s{2}(RV32|RV64):\s*$/.test(lines[j])) break;
-      collected.push(lines[j]);
-    }
-    keyed.push({ xlen: head[1], text: collected.join('\n') });
-  }
-  const blocks = keyed.length ? keyed : [{ xlen: null, text: body }];
-
-  const out = [];
-  for (const block of blocks) {
-    const bits = block.text.match(/^\s*match:\s*([01-]+)\s*$/m);
-    if (!bits) continue;
-    const pair = bitsToPair(bits[1]);
-    const folded = applyNotConstraints(pair, parseVariables(block.text));
-    out.push({ xlen: block.xlen, ...folded });
-  }
-  return out;
 }
 
 /** The XLEN a predicate pins, or null where it applies to both. */
@@ -227,6 +121,7 @@ export function predicateXlen(predicate) {
   return predicateXlen(predicate.allOf ?? null);
 }
 
+/** Read extension and instruction records from a UDB ISA directory. */
 export function parseUpstream(specDir) {
   const extDir = path.join(specDir, 'ext');
   const extensions = [];
@@ -252,14 +147,20 @@ export function parseUpstream(specDir) {
       const text = fs.readFileSync(source, 'utf8');
       let instruction;
       try {
-        instruction = readInstruction(text);
+        instruction = readInstruction(text, { includeEncodings: true });
       } catch (error) {
         throw new Error(`${source}: ${error.message}`);
       }
-      const { name: mnemonic, owners, predicate } = instruction;
+      const { name: mnemonic, owners, predicate, encodings } = instruction;
 
       // One entry per declared encoding: two where the file is XLEN-keyed.
-      for (const enc of parseEncodings(text)) {
+      for (const enc of encodings) {
+        let folded;
+        try {
+          folded = applyNotConstraints(enc, enc.variables);
+        } catch (error) {
+          throw new Error(`${source}: ${error.message}`);
+        }
         instructions.push({
           mnemonic,
           // An encoding may be XLEN-keyed (`encoding: RV32: …`), and ownership
@@ -268,9 +169,9 @@ export function parseUpstream(specDir) {
           // both are carried rather than merged into one field.
           xlen: enc.xlen,
           ownerXlen: predicateXlen(predicate),
-          match: enc.match,
-          mask: enc.mask,
-          narrowedFields: enc.narrowed,
+          match: folded.match,
+          mask: folded.mask,
+          narrowedFields: folded.narrowed,
           definedBy: owners,
           definedByPredicate: predicate,
         });
