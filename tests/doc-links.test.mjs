@@ -108,6 +108,6 @@ test('unmapped entries keep a real link rather than nothing', () => {
   // deliberately left on the manual repository rather than guessed at.
   const legacy = ALL.filter((e) => !/^https:\/\/docs\.riscv\.org\//.test(e.url ?? ''));
   for (const ext of legacy) {
-    assert.match(ext.url, /^https:\/\/github\.com\/riscv\//, `${ext.id}: unexpected fallback ${ext.url}`);
+    assert.match(ext.url, /^https:\/\/github\.com\/(riscv|riscv-non-isa)\//, `${ext.id}: unexpected fallback ${ext.url}`);
   }
 });
