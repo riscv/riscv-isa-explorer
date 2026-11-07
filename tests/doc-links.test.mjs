@@ -17,8 +17,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ALL = (() => {
-  const file = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'riscv_extensions.json');
-  return Object.values(JSON.parse(fs.readFileSync(file, 'utf8'))).flat().filter(Boolean);
+  const file = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '..',
+    'src',
+    'riscv_extensions.json',
+  );
+  return Object.values(JSON.parse(fs.readFileSync(file, 'utf8')))
+    .flat()
+    .filter(Boolean);
 })();
 
 const docLinked = ALL.filter((e) => /^https:\/\/docs\.riscv\.org\//.test(e.url ?? ''));
@@ -64,8 +71,14 @@ test('single-letter extensions point at their own chapter', () => {
   // "a", so word-matching sent A to priv-rationale, D to supervisor and V to
   // priv-csrs. All three looked plausible in the UI and were wrong.
   const expected = {
-    A: 'a-st-ext', B: 'b-st-ext', C: 'c-st-ext', D: 'd-st-ext',
-    F: 'f-st-ext', M: 'm-st-ext', Q: 'q-st-ext', V: 'v-st-ext',
+    A: 'a-st-ext',
+    B: 'b-st-ext',
+    C: 'c-st-ext',
+    D: 'd-st-ext',
+    F: 'f-st-ext',
+    M: 'm-st-ext',
+    Q: 'q-st-ext',
+    V: 'v-st-ext',
   };
   for (const [id, chapter] of Object.entries(expected)) {
     const ext = ALL.find((e) => e.id === id);
@@ -104,10 +117,15 @@ test('a few well-known extensions land on the right chapter', () => {
 
 test('unmapped entries keep a real link rather than nothing', () => {
   // Roughly a third of the catalog has no chapter in either ISA volume —
-  // profile mandate tags, privileged version tags, unratified drafts. They are
-  // deliberately left on the manual repository rather than guessed at.
+  // profile mandate tags, privileged version tags, unratified drafts. They link
+  // to the repository that defines them, in riscv or riscv-non-isa, or to the
+  // manual repository when nothing more specific exists, never to a guess.
   const legacy = ALL.filter((e) => !/^https:\/\/docs\.riscv\.org\//.test(e.url ?? ''));
   for (const ext of legacy) {
-    assert.match(ext.url, /^https:\/\/github\.com\/(riscv|riscv-non-isa)\//, `${ext.id}: unexpected fallback ${ext.url}`);
+    assert.match(
+      ext.url,
+      /^https:\/\/github\.com\/(riscv|riscv-non-isa)\//,
+      `${ext.id}: unexpected fallback ${ext.url}`,
+    );
   }
 });
