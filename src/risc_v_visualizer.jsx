@@ -872,6 +872,24 @@ const RISCVExplorer = () => {
     };
   }, [detailModalOpen, closeDetails]);
 
+  // Esc closes the panel on desktop too; capture runs first, so an open dialog or menu
+  // is still in the DOM to defer to. Compact mode leaves Esc to the effect above.
+  React.useEffect(() => {
+    if (isCompactLayout || !selectedExt) return undefined;
+
+    const onKeyDown = (e) => {
+      if (e.key !== 'Escape') return;
+      const t = e.target;
+      if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) return;
+      if (document.querySelector('[aria-modal="true"], [role="menu"]')) return;
+      e.preventDefault();
+      closeDetails();
+    };
+
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
+  }, [isCompactLayout, selectedExt, closeDetails]);
+
   // Expanded instruction modal: focus trap and Escape, in one listener.
   //
   // Both live here rather than in separate effects — an earlier pass had a
