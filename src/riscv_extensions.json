@@ -31966,7 +31966,7 @@
       ],
       "desc": "Conditional branches that compare a register against a small constant, avoiding a separate load of that constant.",
       "use": "Loops and comparisons against small constants",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/zibi/blob/main/src/unpriv/zibi.adoc",
       "instructions": {
         "BEQI": {
           "encoding": "-----------------010-----1100011",
@@ -79714,7 +79714,7 @@
       "tags": [],
       "desc": "Makes user-mode faults on supervisor addresses take constant time, hiding the kernel's address-space layout.",
       "use": "Address-independent fault latency",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/822a262392c61d689df21c8dfac32b0f47efa327/src/priv/svukte.adoc",
       "instructions": {},
       "long_name": "Address-Independent Latency of User-Mode Faults to Supervisor Addresses",
       "type": "privileged",
@@ -80102,7 +80102,7 @@
       "tags": [],
       "desc": "A memory-type field in each PMP entry overrides the physical memory attributes for accesses that match it.",
       "use": "Overriding memory attributes per PMP region",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/8cacad662eea860f5c7d6d7844d6c4dd20c24ecb/src/priv/smpmpmt.adoc",
       "instructions": {},
       "long_name": "PMP-based Memory Types Extension",
       "type": "privileged",
@@ -85515,7 +85515,7 @@
       "tags": [],
       "desc": "Guarantees stvec supports Vectored mode, so each interrupt cause can dispatch to its own entry point.",
       "use": "Vectored trap routing",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-profiles/releases/tag/v1.0",
       "instructions": {},
       "long_name": "Vectored exception handling",
       "type": "privileged",
@@ -85541,7 +85541,7 @@
       "tags": [],
       "desc": "Supervisor-side half of trigger delegation, giving S-mode and VS-mode debuggers direct access to Sdtrig triggers.",
       "use": "Per-trap configuration controls",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv-non-isa/riscv-external-debug-security/blob/main/smtdeleg.adoc",
       "instructions": {}
     },
     {
@@ -85615,7 +85615,7 @@
       "tags": [],
       "desc": "Delegates Sdtrig debug triggers to S-mode and VS-mode through indirect CSRs, avoiding traps into M-mode.",
       "use": "Fine-grain trap delegation controls",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv-non-isa/riscv-external-debug-security/blob/main/smtdeleg.adoc",
       "instructions": {}
     },
     {
