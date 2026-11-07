@@ -250,6 +250,27 @@ test('the UDB completeness JSON is complete and parseable', (t) => {
   assert.ok(report.coverage?.global, 'JSON report should contain global coverage');
 });
 
+test('the catalogue covers every encoding UDB defines, at the pinned commit', (t) => {
+  // Global coverage is the number the weekly report gates on, yet nothing here
+  // asserted it: a reader change that surfaced eight unlisted instructions
+  // (C.NTL.*, SSPUSH, SSPOPCHK and their compressed forms) passed CI while
+  // flipping `complete` to false. Only meaningful at the pin, since a newer UDB
+  // can add instructions the catalogue has not caught up with yet.
+  const udb = UDB;
+  const skip = udbNotAtPin();
+  if (skip) return t.skip(skip);
+
+  const { status, stdout } = run('check-udb-completeness.mjs', [udb, '--published', '--json']);
+  assert.ok(status === 0 || status === 1, `unexpected checker status ${status}:\n${stdout}`);
+  const report = JSON.parse(stdout);
+  assert.deepEqual(
+    report.missingInstructions.map((i) => i.name ?? i),
+    [],
+    'instructions UDB defines that the catalogue lacks',
+  );
+  assert.equal(report.complete, true, 'udb:check --published must report complete');
+});
+
 test('every encoding the catalogue publishes agrees with UDB, drafts included', (t) => {
   // Ratified-only scope never looked at Zvabd, so when ARC reassigned its
   // opcodes the catalogue kept the old ones with every check green. The
