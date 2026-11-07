@@ -630,6 +630,9 @@ const extensionCsrLabels = {
   U: 'User CSRs',
 };
 
+// Instruction chip lists longer than this collapse behind "Show all"; a search lifts the cap so hits show.
+const CHIP_LIMIT = 30;
+
 const RISCVExplorer = () => {
   // Lazy, like selectedExt below, so ?profile=RVA23.1 highlights on first paint.
   const [activeProfile, setActiveProfile] = useState(profileFromUrl);
@@ -651,6 +654,9 @@ const RISCVExplorer = () => {
   const detailOpenerRef = React.useRef(null);
   const [permalinkCopied, setPermalinkCopied] = useState(false);
   const [selectedInstruction, setSelectedInstruction] = useState(null);
+  const [showAllInstructions, setShowAllInstructions] = useState(false);
+  // Another extension starts with its instruction chips collapsed again.
+  React.useEffect(() => setShowAllInstructions(false), [selectedExt]);
   /* Scrolls the details panel (not the page) so `el` sits near its top. */
   const scrollPanelTo = React.useCallback((el) => {
     const panel = el?.closest('.overflow-y-auto');
@@ -4734,7 +4740,9 @@ const RISCVExplorer = () => {
                             {Object.keys(selectedExt.instructions || {}).length})
                           </h3>
                           <div className="flex flex-wrap gap-1">
-                            {Object.keys(selectedExt.instructions || {}).map((mnemonic) => {
+                            {Object.keys(selectedExt.instructions || {}).map((mnemonic, i) => {
+                              if (i >= CHIP_LIMIT && !showAllInstructions && !searchQuery.trim())
+                                return null;
                               const q = searchQuery.trim().toLowerCase();
                               const instructionDetails = selectedExt.instructions?.[mnemonic];
                               const isHit =
@@ -4823,6 +4831,19 @@ const RISCVExplorer = () => {
                               );
                             })}
                           </div>
+                          {Object.keys(selectedExt.instructions).length > CHIP_LIMIT &&
+                            !searchQuery.trim() && (
+                              <button
+                                type="button"
+                                className="riscv-chip-toggle"
+                                aria-expanded={showAllInstructions}
+                                onClick={() => setShowAllInstructions(!showAllInstructions)}
+                              >
+                                {showAllInstructions
+                                  ? 'Show less'
+                                  : `Show all (${Object.keys(selectedExt.instructions).length})`}
+                              </button>
+                            )}
                         </div>
                       )}
 
