@@ -223,11 +223,12 @@ test('Zcmt separates CM.JT from CM.JALT', () => {
 test('extensions that define no new opcodes carry their pseudo-instructions', () => {
   // Zihintpause, Zihintntl, Zicntr, Zicfilp and Zicbop introduce no encodings of
   // their own; they name specific encodings of existing instructions. They read
-  // as empty extensions unless those aliases are carried explicitly.
+  // as empty extensions unless those aliases are carried explicitly. Zihintntl's
+  // compressed forms (C.NTL.*, from UDB) are encodings of C.ADD, not ADD.
   const byId = new Map(entries.map((e) => [e.id, e]));
   const expected = {
     Zihintpause: { count: 1, alias: 'FENCE' },
-    Zihintntl: { count: 4, alias: 'ADD' },
+    Zihintntl: { count: 8, alias: (m) => (m.startsWith('C.') ? 'C.ADD' : 'ADD') },
     Zicntr: { count: 6, alias: 'CSRRS' },
     Zicfilp: { count: 1, alias: 'AUIPC' },
     Zicbop: { count: 3, alias: 'ORI' },
@@ -243,10 +244,11 @@ test('extensions that define no new opcodes carry their pseudo-instructions', ()
     // since PAUSE decodes as a FENCE, and the validator's overlap against the
     // base instruction reads as a data error rather than as a fact.
     for (const [mnemonic, details] of instructions) {
+      const want = typeof alias === 'function' ? alias(mnemonic) : alias;
       assert.equal(
         details.alias_of,
-        alias,
-        `${id}.${mnemonic} should record alias_of ${alias}, got ${details.alias_of ?? 'nothing'}`,
+        want,
+        `${id}.${mnemonic} should record alias_of ${want}, got ${details.alias_of ?? 'nothing'}`,
       );
     }
   }

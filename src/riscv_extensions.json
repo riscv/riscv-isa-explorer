@@ -71691,7 +71691,8 @@
       "name": "Zicfiss",
       "short": "CFI Shadow Stacks",
       "tags": [
-        "rv_zicfiss"
+        "rv_zicfiss",
+        "rv_c_zicfiss"
       ],
       "desc": "Keeps return addresses on a protected shadow stack and checks them on return, blocking stack-smashing ROP.",
       "use": "Backward-edge CFI (returns)",
@@ -71737,6 +71738,50 @@
           ],
           "match": "0x4800202f",
           "mask": "0xf800707f"
+        },
+        "SSPUSH": {
+          "encoding": "1100111-----00000100000001110011",
+          "variable_fields": [
+            "rs2"
+          ],
+          "extension": [
+            "rv_zicfiss"
+          ],
+          "match": "0xce004073",
+          "mask": "0xfe0fffff",
+          "alias_of": "MOP.RR.7"
+        },
+        "SSPOPCHK": {
+          "encoding": "110011011100-----100000001110011",
+          "variable_fields": [
+            "rs1"
+          ],
+          "extension": [
+            "rv_zicfiss"
+          ],
+          "match": "0xcdc04073",
+          "mask": "0xfff07fff",
+          "alias_of": "MOP.R.28"
+        },
+        "C.SSPUSH": {
+          "encoding": "----------------0110000010000001",
+          "variable_fields": [],
+          "extension": [
+            "rv_c_zicfiss"
+          ],
+          "match": "0x6081",
+          "mask": "0xffff",
+          "alias_of": "C.MOP.1"
+        },
+        "C.SSPOPCHK": {
+          "encoding": "----------------0110001010000001",
+          "variable_fields": [],
+          "extension": [
+            "rv_c_zicfiss"
+          ],
+          "match": "0x6281",
+          "mask": "0xffff",
+          "alias_of": "C.MOP.5"
         }
       },
       "csrs": {
@@ -77518,7 +77563,8 @@
       "name": "Zihintntl",
       "short": "Non-Temporal Locality Hints",
       "tags": [
-        "rv_zihintntl"
+        "rv_zihintntl",
+        "rv_c_zihintntl"
       ],
       "desc": "Hints marking the next memory access as having poor temporal locality, so caches need not retain the data.",
       "use": "NT load/store hints",
@@ -77563,6 +77609,46 @@
           "match": "0x00500033",
           "mask": "0xffffffff",
           "alias_of": "ADD"
+        },
+        "C.NTL.P1": {
+          "encoding": "----------------1001000000001010",
+          "variable_fields": [],
+          "extension": [
+            "rv_c_zihintntl"
+          ],
+          "match": "0x900a",
+          "mask": "0xffff",
+          "alias_of": "C.ADD"
+        },
+        "C.NTL.PALL": {
+          "encoding": "----------------1001000000001110",
+          "variable_fields": [],
+          "extension": [
+            "rv_c_zihintntl"
+          ],
+          "match": "0x900e",
+          "mask": "0xffff",
+          "alias_of": "C.ADD"
+        },
+        "C.NTL.S1": {
+          "encoding": "----------------1001000000010010",
+          "variable_fields": [],
+          "extension": [
+            "rv_c_zihintntl"
+          ],
+          "match": "0x9012",
+          "mask": "0xffff",
+          "alias_of": "C.ADD"
+        },
+        "C.NTL.ALL": {
+          "encoding": "----------------1001000000010110",
+          "variable_fields": [],
+          "extension": [
+            "rv_c_zihintntl"
+          ],
+          "match": "0x9016",
+          "mask": "0xffff",
+          "alias_of": "C.ADD"
         }
       },
       "state": "ratified",

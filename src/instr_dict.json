@@ -16819,5 +16819,89 @@
     "match": "0x00306013",
     "mask": "0x01f07fff",
     "alias_of": "ORI"
+  },
+  "c_ntl_p1": {
+    "encoding": "----------------1001000000001010",
+    "variable_fields": [],
+    "extension": [
+      "rv_c_zihintntl"
+    ],
+    "match": "0x900a",
+    "mask": "0xffff",
+    "alias_of": "C.ADD"
+  },
+  "c_ntl_pall": {
+    "encoding": "----------------1001000000001110",
+    "variable_fields": [],
+    "extension": [
+      "rv_c_zihintntl"
+    ],
+    "match": "0x900e",
+    "mask": "0xffff",
+    "alias_of": "C.ADD"
+  },
+  "c_ntl_s1": {
+    "encoding": "----------------1001000000010010",
+    "variable_fields": [],
+    "extension": [
+      "rv_c_zihintntl"
+    ],
+    "match": "0x9012",
+    "mask": "0xffff",
+    "alias_of": "C.ADD"
+  },
+  "c_ntl_all": {
+    "encoding": "----------------1001000000010110",
+    "variable_fields": [],
+    "extension": [
+      "rv_c_zihintntl"
+    ],
+    "match": "0x9016",
+    "mask": "0xffff",
+    "alias_of": "C.ADD"
+  },
+  "c_sspush": {
+    "encoding": "----------------0110000010000001",
+    "variable_fields": [],
+    "extension": [
+      "rv_c_zicfiss"
+    ],
+    "match": "0x6081",
+    "mask": "0xffff",
+    "alias_of": "C.MOP.1"
+  },
+  "c_sspopchk": {
+    "encoding": "----------------0110001010000001",
+    "variable_fields": [],
+    "extension": [
+      "rv_c_zicfiss"
+    ],
+    "match": "0x6281",
+    "mask": "0xffff",
+    "alias_of": "C.MOP.5"
+  },
+  "sspush": {
+    "encoding": "1100111-----00000100000001110011",
+    "variable_fields": [
+      "rs2"
+    ],
+    "extension": [
+      "rv_zicfiss"
+    ],
+    "match": "0xce004073",
+    "mask": "0xfe0fffff",
+    "alias_of": "MOP.RR.7"
+  },
+  "sspopchk": {
+    "encoding": "110011011100-----100000001110011",
+    "variable_fields": [
+      "rs1"
+    ],
+    "extension": [
+      "rv_zicfiss"
+    ],
+    "match": "0xcdc04073",
+    "mask": "0xfff07fff",
+    "alias_of": "MOP.R.28"
   }
 }

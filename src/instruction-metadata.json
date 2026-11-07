@@ -1750,6 +1750,82 @@
     "source": "https://github.com/riscv/riscv-unified-db/blob/cadd46e22487a2002cead3883b34e72766103cdf/spec/std/isa/inst/Zcb/c.not.yaml",
     "source_revision": "cadd46e22487a2002cead3883b34e72766103cdf"
   },
+  "c.ntl.all": {
+    "long_name": "Compressed non-temporal locality hint, all",
+    "description": "The C.NTL.ALL instruction indicates that the immediately subsequent instruction\ndoes not exhibit temporal locality within the capacity of any level of cache in\nthe memory hierarchy. C.NTL.ALL is encoded as C.ADD x0, x5.",
+    "defined_by": {
+      "extension": {
+        "allOf": [
+          {
+            "name": "Zca"
+          },
+          {
+            "name": "Zihintntl"
+          }
+        ]
+      }
+    },
+    "assembly": "",
+    "source": "https://github.com/riscv/riscv-unified-db/blob/cadd46e22487a2002cead3883b34e72766103cdf/spec/std/isa/inst/Zihintntl/c.ntl.all.yaml",
+    "source_revision": "cadd46e22487a2002cead3883b34e72766103cdf"
+  },
+  "c.ntl.p1": {
+    "long_name": "Compressed non-temporal locality hint, innermost private",
+    "description": "The C.NTL.P1 instruction indicates that the immediately subsequent instruction\ndoes not exhibit temporal locality within the capacity of the innermost level\nof private cache in the memory hierarchy. C.NTL.P1 is encoded as C.ADD x0, x2.",
+    "defined_by": {
+      "extension": {
+        "allOf": [
+          {
+            "name": "Zca"
+          },
+          {
+            "name": "Zihintntl"
+          }
+        ]
+      }
+    },
+    "assembly": "",
+    "source": "https://github.com/riscv/riscv-unified-db/blob/cadd46e22487a2002cead3883b34e72766103cdf/spec/std/isa/inst/Zihintntl/c.ntl.p1.yaml",
+    "source_revision": "cadd46e22487a2002cead3883b34e72766103cdf"
+  },
+  "c.ntl.pall": {
+    "long_name": "Compressed non-temporal locality hint, all private",
+    "description": "The C.NTL.PALL instruction indicates that the immediately subsequent instruction\ndoes not exhibit temporal locality within the capacity of any level of private\ncache in the memory hierarchy. C.NTL.PALL is encoded as C.ADD x0, x3.",
+    "defined_by": {
+      "extension": {
+        "allOf": [
+          {
+            "name": "Zca"
+          },
+          {
+            "name": "Zihintntl"
+          }
+        ]
+      }
+    },
+    "assembly": "",
+    "source": "https://github.com/riscv/riscv-unified-db/blob/cadd46e22487a2002cead3883b34e72766103cdf/spec/std/isa/inst/Zihintntl/c.ntl.pall.yaml",
+    "source_revision": "cadd46e22487a2002cead3883b34e72766103cdf"
+  },
+  "c.ntl.s1": {
+    "long_name": "Compressed non-temporal locality hint, innermost shared",
+    "description": "The C.NTL.S1 instruction indicates that the immediately subsequent instruction\ndoes not exhibit temporal locality within the capacity of the innermost level\nof shared cache in the memory hierarchy. C.NTL.S1 is encoded as C.ADD x0, x4.",
+    "defined_by": {
+      "extension": {
+        "allOf": [
+          {
+            "name": "Zca"
+          },
+          {
+            "name": "Zihintntl"
+          }
+        ]
+      }
+    },
+    "assembly": "",
+    "source": "https://github.com/riscv/riscv-unified-db/blob/cadd46e22487a2002cead3883b34e72766103cdf/spec/std/isa/inst/Zihintntl/c.ntl.s1.yaml",
+    "source_revision": "cadd46e22487a2002cead3883b34e72766103cdf"
+  },
   "c.or": {
     "long_name": "Or",
     "description": "Or xd with xs2, and store the result in xd\nThe xd and xs2 register indexes should be used as xd+8 and xs2+8 (registers x8-x15).\nC.OR expands into `or xd, xd, xs2`.",
@@ -1918,6 +1994,44 @@
     "assembly": "xd, shamt",
     "data_independent_timing": true,
     "source": "https://github.com/riscv/riscv-unified-db/blob/cadd46e22487a2002cead3883b34e72766103cdf/spec/std/isa/inst/C/c.srli.yaml",
+    "source_revision": "cadd46e22487a2002cead3883b34e72766103cdf"
+  },
+  "c.sspopchk": {
+    "long_name": "Compressed Shadow Stack Pop and Check",
+    "description": "C.SSPOPCHK pops a value from the shadow stack and checks it against link\nregister `x5`.\n\nThis instruction uses the `c.mop.5` codepoint provided by Zcmop and expands\nto `sspopchk x5`.",
+    "defined_by": {
+      "extension": {
+        "allOf": [
+          {
+            "name": "Zicfiss"
+          },
+          {
+            "name": "Zcmop"
+          }
+        ]
+      }
+    },
+    "assembly": "x5",
+    "source": "https://github.com/riscv/riscv-unified-db/blob/cadd46e22487a2002cead3883b34e72766103cdf/spec/std/isa/inst/Zicfiss/c.sspopchk.yaml",
+    "source_revision": "cadd46e22487a2002cead3883b34e72766103cdf"
+  },
+  "c.sspush": {
+    "long_name": "Compressed Shadow Stack Push",
+    "description": "C.SSPUSH pushes link register `x1` to the shadow stack.\n\nThis instruction uses the `c.mop.1` codepoint provided by Zcmop and expands\nto `sspush x1`.",
+    "defined_by": {
+      "extension": {
+        "allOf": [
+          {
+            "name": "Zicfiss"
+          },
+          {
+            "name": "Zcmop"
+          }
+        ]
+      }
+    },
+    "assembly": "x1",
+    "source": "https://github.com/riscv/riscv-unified-db/blob/cadd46e22487a2002cead3883b34e72766103cdf/spec/std/isa/inst/Zicfiss/c.sspush.yaml",
     "source_revision": "cadd46e22487a2002cead3883b34e72766103cdf"
   },
   "c.sub": {
@@ -7792,6 +7906,30 @@
     },
     "assembly": "xd, xs2, (xs1)",
     "source": "https://github.com/riscv/riscv-unified-db/blob/cadd46e22487a2002cead3883b34e72766103cdf/spec/std/isa/inst/Zicfiss/ssamoswap.w.yaml",
+    "source_revision": "cadd46e22487a2002cead3883b34e72766103cdf"
+  },
+  "sspopchk": {
+    "long_name": "Shadow Stack Pop and Check",
+    "description": "SSPOPCHK pops a value from the shadow stack and checks it against link\nregister `xs1`. The encoding restricts `xs1` to `x1` or `x5`.\n\nThis instruction uses the `mop.r.28` codepoint provided by Zimop.",
+    "defined_by": {
+      "extension": {
+        "name": "Zicfiss"
+      }
+    },
+    "assembly": "xs1",
+    "source": "https://github.com/riscv/riscv-unified-db/blob/cadd46e22487a2002cead3883b34e72766103cdf/spec/std/isa/inst/Zicfiss/sspopchk.yaml",
+    "source_revision": "cadd46e22487a2002cead3883b34e72766103cdf"
+  },
+  "sspush": {
+    "long_name": "Shadow Stack Push",
+    "description": "SSPUSH pushes the value of link register `xs2` to the shadow stack.\nThe encoding restricts `xs2` to `x1` or `x5`.\n\nThis instruction uses the `mop.rr.7` codepoint provided by Zimop.",
+    "defined_by": {
+      "extension": {
+        "name": "Zicfiss"
+      }
+    },
+    "assembly": "xs2",
+    "source": "https://github.com/riscv/riscv-unified-db/blob/cadd46e22487a2002cead3883b34e72766103cdf/spec/std/isa/inst/Zicfiss/sspush.yaml",
     "source_revision": "cadd46e22487a2002cead3883b34e72766103cdf"
   },
   "ssrdp": {
