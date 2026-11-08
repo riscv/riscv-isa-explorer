@@ -380,6 +380,33 @@ test('clicking pins, opening Compare, and unpinning drives the whole tray/dialog
   );
 });
 
+// The details panel's Compare button: pins the open extension and turns Compare mode on.
+test('the details panel Compare button pins the extension and shows it in the tray', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?ext=Zba');
+  const doc = d.window.document;
+  const modeToggle = doc.querySelector('.compare-mode-toggle');
+  const pin = doc.querySelector('#detail-panel button[aria-label="Pin Zba to comparison"]');
+  assert.ok(pin, 'no Compare button in the details panel');
+  assert.equal(pin.textContent.trim(), 'Compare');
+  assert.equal(modeToggle.getAttribute('aria-pressed'), 'false', 'mode should start off');
+
+  pin.dispatchEvent(new d.window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await waitFor(() => doc.querySelector('[aria-label="Comparison tray"]'));
+
+  assert.equal(modeToggle.getAttribute('aria-pressed'), 'true', 'Compare mode did not switch on');
+  const tray = doc.querySelector('[aria-label="Comparison tray"]');
+  assert.ok(tray, 'the tray did not appear');
+  assert.ok(
+    tray.querySelector('button[aria-label="Remove Zba from the comparison"]'),
+    'the tray does not list Zba',
+  );
+  const pinned = doc.querySelector('#detail-panel button[aria-label="Remove Zba from comparison"]');
+  assert.ok(pinned, 'the button did not switch to its pinned state');
+  assert.equal(pinned.textContent.trim(), 'Pinned (1/6)');
+  assert.equal(pinned.getAttribute('aria-pressed'), 'true');
+  assert.deepEqual(realErrors(errors), [], 'console errors while pinning from the panel');
+});
+
 test('compare mode is off by default, so no pins clutter the grid', () => {
   const tiles = dom.window.document.querySelectorAll('.ext-tile').length;
   assert.ok(tiles > 200, 'expected the catalogue to render');

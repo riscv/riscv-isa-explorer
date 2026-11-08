@@ -2401,6 +2401,13 @@ const RISCVExplorer = () => {
   );
 
   const comparePinnedTotal = compareExtIds.size + compareInstrKeys.size + compareProfileNames.size;
+  // The details panel's Compare button: whether the open extension is pinned, and its label.
+  const extPinned = selectedExt ? compareExtIds.has(selectedExt.id) : false;
+  const extPinLabel = !selectedExt
+    ? ''
+    : extPinned
+      ? `Remove ${selectedExt.name} from comparison`
+      : `Pin ${selectedExt.name} to comparison`;
 
   const compareKeys = React.useMemo(() => {
     if (compareKind === 'instr') return [...compareInstrKeys];
@@ -4579,6 +4586,33 @@ const RISCVExplorer = () => {
                         >
                           <Share2 size={11} />
                           {permalinkCopied ? 'Copied' : 'Share'}
+                        </button>
+                        {/* Pins like the tile pin (which toasts at the cap) and turns Compare
+                            mode on so the tray shows the pin. */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            toggleCompareExt(selectedExt.id);
+                            if (!extPinned && compareExtIds.size < COMPARE_MAX) {
+                              setCompareMode(true);
+                            }
+                          }}
+                          aria-pressed={extPinned}
+                          aria-label={extPinLabel}
+                          title={extPinLabel}
+                          className="riscv-btn inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px]"
+                          style={
+                            extPinned
+                              ? {
+                                  background: 'var(--riscv-violet-dim)',
+                                  color: 'var(--riscv-text)',
+                                  borderColor: 'rgba(139, 124, 248, 0.4)',
+                                }
+                              : undefined
+                          }
+                        >
+                          <GitCompare size={11} />
+                          {extPinned ? `Pinned (${compareExtIds.size}/${COMPARE_MAX})` : 'Compare'}
                         </button>
                         {selectedExt.isSandbox && (
                           <button
