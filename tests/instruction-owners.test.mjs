@@ -255,7 +255,7 @@ test('both scripts read inline YAML, quoted names and negation with the same con
   const source =
     'kind: instruction\nname: "zext.h"\n' +
     'definedBy: {allOf: [{xlen: 32}, {extension: {allOf: [{name: Zbb}, {not: {name: Zbkb}}]}}]}\n' +
-    'encoding:\n  match: 000010000000-----100-----00110011\n';
+    'encoding:\n  match: 000010000000-----100-----0110011\n';
   const dir = checkout(t, { 'Zbb/zext.h.yaml': source });
   fs.mkdirSync(path.join(dir, 'spec/std/isa/ext'));
   const [report] = readInstructions(dir);
@@ -276,6 +276,7 @@ test('the shared reader rejects invalid instruction headers and missing ownershi
   for (const [source, error] of [
     ['kind: extension\nname: Zbb\n', /expected kind: instruction/],
     ['kind: instruction\nname: [add]\n', /invalid instruction name/],
+    ['kind: instruction\nname: add-extra\n', /invalid instruction name/],
     ['kind: instruction\nname: add\n', /expected a definedBy condition object/],
     ['kind: instruction\nname: add\nname: sub\n', /Map keys must be unique/],
   ]) {
@@ -288,7 +289,7 @@ test('duplicate mnemonics and malformed files identify the source; no directory 
     [
       {
         'I/a.yaml': { kind: 'instruction', name: 'add', definedBy: ext('I') },
-        'I/b.yaml': { kind: 'instruction', name: 'ADD', definedBy: ext('I') },
+        'I/b.yaml': { kind: 'instruction', name: 'add', definedBy: ext('I') },
       },
       /I\/b.yaml: duplicate/,
     ],
