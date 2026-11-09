@@ -1,7 +1,7 @@
 {
   "sail": {
     "repo": "riscv/sail-riscv",
-    "commit": "cd3f185e3a40cd402632d78a2bc213d62ae6f753",
+    "commit": "8118453168a11439fd88318e7e1192eb938efcd1",
     "files": [
       "model/extensions/I/base_insts.sail",
       "model/extensions/B/zba_insts.sail",
@@ -16,6 +16,8 @@
       "model/extensions/FD/zcf_insts.sail",
       "model/extensions/C/zcb_insts.sail",
       "model/mops/Zcmop/zcmop_insts.sail",
+      "model/extensions/Zihintntl/zihintntl_insts.sail",
+      "model/extensions/cfi/zicfiss_insts.sail",
       "model/extensions/Zicbom/zicbom_insts.sail",
       "model/extensions/Zicboz/zicboz_insts.sail",
       "model/extensions/B/zbc_insts.sail",
@@ -34,11 +36,9 @@
       "model/extensions/cfi/zicfilp_insts.sail",
       "model/extensions/A/zalrsc_insts.sail",
       "model/mops/Zimop/zimop_insts.sail",
-      "model/extensions/Zihintntl/zihintntl_insts.sail",
       "model/extensions/Zihintpause/zihintpause_insts.sail",
       "model/extensions/Zicbop/zicbop_insts.sail",
       "model/extensions/K/zks_insts.sail",
-      "model/extensions/cfi/zicfiss_insts.sail",
       "model/extensions/V/vext_arith_insts.sail",
       "model/extensions/Zvabd/zvabd_insts.sail",
       "model/extensions/V/vext_vm_insts.sail",
@@ -64,11 +64,11 @@
   },
   "spike": {
     "repo": "riscv-software-src/riscv-isa-sim",
-    "commit": "5a760667bf0d0ab893173b9eeff9c109c8d7dd9a"
+    "commit": "c20813c1d696e843ff1b7667413f98d1397d85ea"
   },
   "act": {
     "repo": "riscv/riscv-arch-test",
-    "commit": "51c0ed49294c5797a59d0203517b14e1f5fe9656"
+    "commit": "7dcf5fc0623a8dbf23938b0d735a31b74874a0be"
   },
   "instructions": {
     "add": {
@@ -1415,6 +1415,46 @@
         1
       ]
     },
+    "c.ntl.all": {
+      "sail": [
+        13,
+        35
+      ],
+      "act": [
+        "rv64i/Zihintntl/ZihintntlZca-c.ntl.all-00.S",
+        1
+      ]
+    },
+    "c.ntl.p1": {
+      "sail": [
+        13,
+        35
+      ],
+      "act": [
+        "rv64i/Zihintntl/ZihintntlZca-c.ntl.p1-00.S",
+        1
+      ]
+    },
+    "c.ntl.pall": {
+      "sail": [
+        13,
+        35
+      ],
+      "act": [
+        "rv64i/Zihintntl/ZihintntlZca-c.ntl.pall-00.S",
+        1
+      ]
+    },
+    "c.ntl.s1": {
+      "sail": [
+        13,
+        35
+      ],
+      "act": [
+        "rv64i/Zihintntl/ZihintntlZca-c.ntl.s1-00.S",
+        1
+      ]
+    },
     "c.or": {
       "sail": [
         8,
@@ -1531,6 +1571,18 @@
         1
       ]
     },
+    "c.sspopchk": {
+      "sail": [
+        14,
+        123
+      ]
+    },
+    "c.sspush": {
+      "sail": [
+        14,
+        66
+      ]
+    },
     "c.sub": {
       "sail": [
         8,
@@ -1621,7 +1673,7 @@
     },
     "cbo.clean": {
       "sail": [
-        13,
+        15,
         125
       ],
       "spike": "cbo_clean",
@@ -1632,7 +1684,7 @@
     },
     "cbo.flush": {
       "sail": [
-        13,
+        15,
         132
       ],
       "spike": "cbo_flush",
@@ -1643,7 +1695,7 @@
     },
     "cbo.inval": {
       "sail": [
-        13,
+        15,
         139
       ],
       "spike": "cbo_inval",
@@ -1654,7 +1706,7 @@
     },
     "cbo.zero": {
       "sail": [
-        14,
+        16,
         24
       ],
       "spike": "cbo_zero",
@@ -1665,7 +1717,7 @@
     },
     "clmul": {
       "sail": [
-        15,
+        17,
         23
       ],
       "spike": "clmul",
@@ -1676,7 +1728,7 @@
     },
     "clmulh": {
       "sail": [
-        15,
+        17,
         40
       ],
       "spike": "clmulh",
@@ -1687,7 +1739,7 @@
     },
     "clmulr": {
       "sail": [
-        15,
+        17,
         57
       ],
       "spike": "clmulr",
@@ -1766,7 +1818,7 @@
     },
     "csrrc": {
       "sail": [
-        16,
+        18,
         99
       ],
       "spike": "csrrc",
@@ -1777,7 +1829,7 @@
     },
     "csrrci": {
       "sail": [
-        16,
+        18,
         104
       ],
       "spike": "csrrci",
@@ -1788,7 +1840,7 @@
     },
     "csrrs": {
       "sail": [
-        16,
+        18,
         99
       ],
       "spike": "csrrs",
@@ -1799,7 +1851,7 @@
     },
     "csrrsi": {
       "sail": [
-        16,
+        18,
         104
       ],
       "spike": "csrrsi",
@@ -1810,7 +1862,7 @@
     },
     "csrrw": {
       "sail": [
-        16,
+        18,
         99
       ],
       "spike": "csrrw",
@@ -1821,7 +1873,7 @@
     },
     "csrrwi": {
       "sail": [
-        16,
+        18,
         104
       ],
       "spike": "csrrwi",
@@ -1854,7 +1906,7 @@
     },
     "czero.eqz": {
       "sail": [
-        17,
+        19,
         34
       ],
       "spike": "czero_eqz",
@@ -1865,7 +1917,7 @@
     },
     "czero.nez": {
       "sail": [
-        17,
+        19,
         35
       ],
       "spike": "czero_nez",
@@ -1876,7 +1928,7 @@
     },
     "div": {
       "sail": [
-        18,
+        20,
         53
       ],
       "spike": "div",
@@ -1887,7 +1939,7 @@
     },
     "divu": {
       "sail": [
-        18,
+        20,
         53
       ],
       "spike": "divu",
@@ -1898,7 +1950,7 @@
     },
     "divuw": {
       "sail": [
-        18,
+        20,
         120
       ],
       "spike": "divuw",
@@ -1909,7 +1961,7 @@
     },
     "divw": {
       "sail": [
-        18,
+        20,
         120
       ],
       "spike": "divw",
@@ -1924,7 +1976,7 @@
     "ebreak": {
       "sail": [
         0,
-        736
+        740
       ],
       "spike": "ebreak"
     },
@@ -1937,7 +1989,7 @@
     },
     "fadd.d": {
       "sail": [
-        19,
+        21,
         344
       ],
       "spike": "fadd_d",
@@ -1948,7 +2000,7 @@
     },
     "fadd.h": {
       "sail": [
-        20,
+        22,
         203
       ],
       "spike": "fadd_h",
@@ -1962,7 +2014,7 @@
     },
     "fadd.s": {
       "sail": [
-        21,
+        23,
         440
       ],
       "spike": "fadd_s",
@@ -1973,7 +2025,7 @@
     },
     "fclass.d": {
       "sail": [
-        19,
+        21,
         846
       ],
       "spike": "fclass_d",
@@ -1984,7 +2036,7 @@
     },
     "fclass.h": {
       "sail": [
-        20,
+        22,
         812
       ],
       "spike": "fclass_h",
@@ -1998,7 +2050,7 @@
     },
     "fclass.s": {
       "sail": [
-        21,
+        23,
         896
       ],
       "spike": "fclass_s",
@@ -2009,7 +2061,7 @@
     },
     "fcvt.bf16.s": {
       "sail": [
-        22,
+        24,
         20
       ],
       "spike": "fcvt_bf16_s",
@@ -2020,7 +2072,7 @@
     },
     "fcvt.d.h": {
       "sail": [
-        20,
+        22,
         669
       ],
       "spike": "fcvt_d_h",
@@ -2031,7 +2083,7 @@
     },
     "fcvt.d.l": {
       "sail": [
-        19,
+        21,
         568
       ],
       "spike": "fcvt_d_l",
@@ -2042,7 +2094,7 @@
     },
     "fcvt.d.lu": {
       "sail": [
-        19,
+        21,
         584
       ],
       "spike": "fcvt_d_lu",
@@ -2056,7 +2108,7 @@
     },
     "fcvt.d.s": {
       "sail": [
-        19,
+        21,
         521
       ],
       "spike": "fcvt_d_s",
@@ -2067,7 +2119,7 @@
     },
     "fcvt.d.w": {
       "sail": [
-        19,
+        21,
         476
       ],
       "spike": "fcvt_d_w",
@@ -2078,7 +2130,7 @@
     },
     "fcvt.d.wu": {
       "sail": [
-        19,
+        21,
         491
       ],
       "spike": "fcvt_d_wu",
@@ -2089,7 +2141,7 @@
     },
     "fcvt.h.d": {
       "sail": [
-        20,
+        22,
         639
       ],
       "spike": "fcvt_h_d",
@@ -2100,7 +2152,7 @@
     },
     "fcvt.h.l": {
       "sail": [
-        20,
+        22,
         716
       ],
       "spike": "fcvt_h_l",
@@ -2111,7 +2163,7 @@
     },
     "fcvt.h.lu": {
       "sail": [
-        20,
+        22,
         732
       ],
       "spike": "fcvt_h_lu",
@@ -2125,7 +2177,7 @@
     },
     "fcvt.h.s": {
       "sail": [
-        20,
+        22,
         624
       ],
       "spike": "fcvt_h_s",
@@ -2136,7 +2188,7 @@
     },
     "fcvt.h.w": {
       "sail": [
-        20,
+        22,
         594
       ],
       "spike": "fcvt_h_w",
@@ -2147,7 +2199,7 @@
     },
     "fcvt.h.wu": {
       "sail": [
-        20,
+        22,
         609
       ],
       "spike": "fcvt_h_wu",
@@ -2158,7 +2210,7 @@
     },
     "fcvt.l.d": {
       "sail": [
-        19,
+        21,
         536
       ],
       "spike": "fcvt_l_d",
@@ -2169,7 +2221,7 @@
     },
     "fcvt.l.h": {
       "sail": [
-        20,
+        22,
         684
       ],
       "spike": "fcvt_l_h",
@@ -2183,7 +2235,7 @@
     },
     "fcvt.l.s": {
       "sail": [
-        21,
+        23,
         594
       ],
       "spike": "fcvt_l_s",
@@ -2194,7 +2246,7 @@
     },
     "fcvt.lu.d": {
       "sail": [
-        19,
+        21,
         552
       ],
       "spike": "fcvt_lu_d",
@@ -2205,7 +2257,7 @@
     },
     "fcvt.lu.h": {
       "sail": [
-        20,
+        22,
         700
       ],
       "spike": "fcvt_lu_h",
@@ -2219,7 +2271,7 @@
     },
     "fcvt.lu.s": {
       "sail": [
-        21,
+        23,
         610
       ],
       "spike": "fcvt_lu_s",
@@ -2251,7 +2303,7 @@
     },
     "fcvt.s.bf16": {
       "sail": [
-        22,
+        24,
         45
       ],
       "spike": "fcvt_s_bf16",
@@ -2262,7 +2314,7 @@
     },
     "fcvt.s.d": {
       "sail": [
-        19,
+        21,
         506
       ],
       "spike": "fcvt_s_d",
@@ -2273,7 +2325,7 @@
     },
     "fcvt.s.h": {
       "sail": [
-        20,
+        22,
         654
       ],
       "spike": "fcvt_s_h",
@@ -2284,7 +2336,7 @@
     },
     "fcvt.s.l": {
       "sail": [
-        21,
+        23,
         626
       ],
       "spike": "fcvt_s_l",
@@ -2295,7 +2347,7 @@
     },
     "fcvt.s.lu": {
       "sail": [
-        21,
+        23,
         642
       ],
       "spike": "fcvt_s_lu",
@@ -2309,7 +2361,7 @@
     },
     "fcvt.s.w": {
       "sail": [
-        21,
+        23,
         564
       ],
       "spike": "fcvt_s_w",
@@ -2320,7 +2372,7 @@
     },
     "fcvt.s.wu": {
       "sail": [
-        21,
+        23,
         579
       ],
       "spike": "fcvt_s_wu",
@@ -2331,7 +2383,7 @@
     },
     "fcvt.w.d": {
       "sail": [
-        19,
+        21,
         446
       ],
       "spike": "fcvt_w_d",
@@ -2342,7 +2394,7 @@
     },
     "fcvt.w.h": {
       "sail": [
-        20,
+        22,
         564
       ],
       "spike": "fcvt_w_h",
@@ -2356,7 +2408,7 @@
     },
     "fcvt.w.s": {
       "sail": [
-        21,
+        23,
         534
       ],
       "spike": "fcvt_w_s",
@@ -2367,7 +2419,7 @@
     },
     "fcvt.wu.d": {
       "sail": [
-        19,
+        21,
         461
       ],
       "spike": "fcvt_wu_d",
@@ -2378,7 +2430,7 @@
     },
     "fcvt.wu.h": {
       "sail": [
-        20,
+        22,
         579
       ],
       "spike": "fcvt_wu_h",
@@ -2392,7 +2444,7 @@
     },
     "fcvt.wu.s": {
       "sail": [
-        21,
+        23,
         549
       ],
       "spike": "fcvt_wu_s",
@@ -2403,7 +2455,7 @@
     },
     "fcvtmod.w.d": {
       "sail": [
-        23,
+        25,
         788
       ],
       "spike": "fcvtmod_w_d",
@@ -2414,7 +2466,7 @@
     },
     "fdiv.d": {
       "sail": [
-        19,
+        21,
         347
       ],
       "spike": "fdiv_d",
@@ -2425,7 +2477,7 @@
     },
     "fdiv.h": {
       "sail": [
-        20,
+        22,
         206
       ],
       "spike": "fdiv_h",
@@ -2439,7 +2491,7 @@
     },
     "fdiv.s": {
       "sail": [
-        21,
+        23,
         443
       ],
       "spike": "fdiv_s",
@@ -2461,7 +2513,7 @@
     },
     "fence.i": {
       "sail": [
-        24,
+        26,
         24
       ],
       "spike": "fence_i",
@@ -2483,7 +2535,7 @@
     },
     "feq.d": {
       "sail": [
-        19,
+        21,
         758
       ],
       "spike": "feq_d",
@@ -2494,7 +2546,7 @@
     },
     "feq.h": {
       "sail": [
-        20,
+        22,
         415
       ],
       "spike": "feq_h",
@@ -2508,7 +2560,7 @@
     },
     "feq.s": {
       "sail": [
-        21,
+        23,
         810
       ],
       "spike": "feq_s",
@@ -2519,7 +2571,7 @@
     },
     "fld": {
       "sail": [
-        21,
+        23,
         280
       ],
       "spike": "fld",
@@ -2530,7 +2582,7 @@
     },
     "fle.d": {
       "sail": [
-        19,
+        21,
         782
       ],
       "spike": "fle_d",
@@ -2541,7 +2593,7 @@
     },
     "fle.h": {
       "sail": [
-        20,
+        22,
         439
       ],
       "spike": "fle_h",
@@ -2555,7 +2607,7 @@
     },
     "fle.s": {
       "sail": [
-        21,
+        23,
         834
       ],
       "spike": "fle_s",
@@ -2566,7 +2618,7 @@
     },
     "fleq.d": {
       "sail": [
-        23,
+        25,
         682
       ],
       "spike": "fleq_d",
@@ -2577,7 +2629,7 @@
     },
     "fleq.h": {
       "sail": [
-        23,
+        25,
         581
       ],
       "spike": "fleq_h",
@@ -2591,7 +2643,7 @@
     },
     "fleq.s": {
       "sail": [
-        23,
+        25,
         631
       ],
       "spike": "fleq_s",
@@ -2602,7 +2654,7 @@
     },
     "flh": {
       "sail": [
-        21,
+        23,
         280
       ],
       "spike": "flh",
@@ -2613,7 +2665,7 @@
     },
     "fli.d": {
       "sail": [
-        23,
+        25,
         122
       ],
       "spike": "fli_d",
@@ -2624,7 +2676,7 @@
     },
     "fli.h": {
       "sail": [
-        23,
+        25,
         22
       ],
       "spike": "fli_h",
@@ -2638,7 +2690,7 @@
     },
     "fli.s": {
       "sail": [
-        23,
+        25,
         72
       ],
       "spike": "fli_s",
@@ -2652,7 +2704,7 @@
     },
     "flt.d": {
       "sail": [
-        19,
+        21,
         770
       ],
       "spike": "flt_d",
@@ -2663,7 +2715,7 @@
     },
     "flt.h": {
       "sail": [
-        20,
+        22,
         427
       ],
       "spike": "flt_h",
@@ -2677,7 +2729,7 @@
     },
     "flt.s": {
       "sail": [
-        21,
+        23,
         822
       ],
       "spike": "flt_s",
@@ -2688,7 +2740,7 @@
     },
     "fltq.d": {
       "sail": [
-        23,
+        25,
         707
       ],
       "spike": "fltq_d",
@@ -2699,7 +2751,7 @@
     },
     "fltq.h": {
       "sail": [
-        23,
+        25,
         606
       ],
       "spike": "fltq_h",
@@ -2713,7 +2765,7 @@
     },
     "fltq.s": {
       "sail": [
-        23,
+        25,
         656
       ],
       "spike": "fltq_s",
@@ -2724,7 +2776,7 @@
     },
     "flw": {
       "sail": [
-        21,
+        23,
         280
       ],
       "spike": "flw",
@@ -2735,7 +2787,7 @@
     },
     "fmadd.d": {
       "sail": [
-        19,
+        21,
         279
       ],
       "spike": "fmadd_d",
@@ -2746,7 +2798,7 @@
     },
     "fmadd.h": {
       "sail": [
-        20,
+        22,
         269
       ],
       "spike": "fmadd_h",
@@ -2760,7 +2812,7 @@
     },
     "fmadd.s": {
       "sail": [
-        21,
+        23,
         375
       ],
       "spike": "fmadd_s",
@@ -2771,7 +2823,7 @@
     },
     "fmax.d": {
       "sail": [
-        19,
+        21,
         738
       ],
       "spike": "fmax_d",
@@ -2782,7 +2834,7 @@
     },
     "fmax.h": {
       "sail": [
-        20,
+        22,
         395
       ],
       "spike": "fmax_h",
@@ -2796,7 +2848,7 @@
     },
     "fmax.s": {
       "sail": [
-        21,
+        23,
         790
       ],
       "spike": "fmax_s",
@@ -2807,7 +2859,7 @@
     },
     "fmaxm.d": {
       "sail": [
-        23,
+        25,
         329
       ],
       "spike": "fmaxm_d",
@@ -2818,7 +2870,7 @@
     },
     "fmaxm.h": {
       "sail": [
-        23,
+        25,
         205
       ],
       "spike": "fmaxm_h",
@@ -2832,7 +2884,7 @@
     },
     "fmaxm.s": {
       "sail": [
-        23,
+        25,
         267
       ],
       "spike": "fmaxm_s",
@@ -2843,7 +2895,7 @@
     },
     "fmin.d": {
       "sail": [
-        19,
+        21,
         718
       ],
       "spike": "fmin_d",
@@ -2854,7 +2906,7 @@
     },
     "fmin.h": {
       "sail": [
-        20,
+        22,
         375
       ],
       "spike": "fmin_h",
@@ -2868,7 +2920,7 @@
     },
     "fmin.s": {
       "sail": [
-        21,
+        23,
         770
       ],
       "spike": "fmin_s",
@@ -2879,7 +2931,7 @@
     },
     "fminm.d": {
       "sail": [
-        23,
+        25,
         298
       ],
       "spike": "fminm_d",
@@ -2890,7 +2942,7 @@
     },
     "fminm.h": {
       "sail": [
-        23,
+        25,
         174
       ],
       "spike": "fminm_h",
@@ -2904,7 +2956,7 @@
     },
     "fminm.s": {
       "sail": [
-        23,
+        25,
         236
       ],
       "spike": "fminm_s",
@@ -2915,7 +2967,7 @@
     },
     "fmsub.d": {
       "sail": [
-        19,
+        21,
         280
       ],
       "spike": "fmsub_d",
@@ -2926,7 +2978,7 @@
     },
     "fmsub.h": {
       "sail": [
-        20,
+        22,
         270
       ],
       "spike": "fmsub_h",
@@ -2940,7 +2992,7 @@
     },
     "fmsub.s": {
       "sail": [
-        21,
+        23,
         376
       ],
       "spike": "fmsub_s",
@@ -2951,7 +3003,7 @@
     },
     "fmul.d": {
       "sail": [
-        19,
+        21,
         346
       ],
       "spike": "fmul_d",
@@ -2962,7 +3014,7 @@
     },
     "fmul.h": {
       "sail": [
-        20,
+        22,
         205
       ],
       "spike": "fmul_h",
@@ -2976,7 +3028,7 @@
     },
     "fmul.s": {
       "sail": [
-        21,
+        23,
         442
       ],
       "spike": "fmul_s",
@@ -2987,7 +3039,7 @@
     },
     "fmv.d.x": {
       "sail": [
-        19,
+        21,
         858
       ],
       "spike": "fmv_d_x",
@@ -2998,7 +3050,7 @@
     },
     "fmv.h.x": {
       "sail": [
-        20,
+        22,
         825
       ],
       "spike": "fmv_h_x",
@@ -3009,7 +3061,7 @@
     },
     "fmv.w.x": {
       "sail": [
-        21,
+        23,
         907
       ],
       "spike": "fmv_w_x",
@@ -3020,7 +3072,7 @@
     },
     "fmv.x.d": {
       "sail": [
-        19,
+        21,
         852
       ],
       "spike": "fmv_x_d",
@@ -3031,7 +3083,7 @@
     },
     "fmv.x.h": {
       "sail": [
-        20,
+        22,
         818
       ],
       "spike": "fmv_x_h",
@@ -3042,7 +3094,7 @@
     },
     "fmv.x.w": {
       "sail": [
-        21,
+        23,
         902
       ],
       "spike": "fmv_x_w",
@@ -3053,7 +3105,7 @@
     },
     "fmvh.x.d": {
       "sail": [
-        23,
+        25,
         533
       ],
       "spike": "fmvh_x_d",
@@ -3067,7 +3119,7 @@
     },
     "fmvp.d.x": {
       "sail": [
-        23,
+        25,
         553
       ],
       "spike": "fmvp_d_x",
@@ -3081,7 +3133,7 @@
     },
     "fnmadd.d": {
       "sail": [
-        19,
+        21,
         282
       ],
       "spike": "fnmadd_d",
@@ -3092,7 +3144,7 @@
     },
     "fnmadd.h": {
       "sail": [
-        20,
+        22,
         272
       ],
       "spike": "fnmadd_h",
@@ -3106,7 +3158,7 @@
     },
     "fnmadd.s": {
       "sail": [
-        21,
+        23,
         378
       ],
       "spike": "fnmadd_s",
@@ -3117,7 +3169,7 @@
     },
     "fnmsub.d": {
       "sail": [
-        19,
+        21,
         281
       ],
       "spike": "fnmsub_d",
@@ -3128,7 +3180,7 @@
     },
     "fnmsub.h": {
       "sail": [
-        20,
+        22,
         271
       ],
       "spike": "fnmsub_h",
@@ -3142,7 +3194,7 @@
     },
     "fnmsub.s": {
       "sail": [
-        21,
+        23,
         377
       ],
       "spike": "fnmsub_s",
@@ -3153,7 +3205,7 @@
     },
     "fround.d": {
       "sail": [
-        23,
+        25,
         476
       ],
       "spike": "fround_d",
@@ -3164,7 +3216,7 @@
     },
     "fround.h": {
       "sail": [
-        23,
+        25,
         360
       ],
       "spike": "fround_h",
@@ -3178,7 +3230,7 @@
     },
     "fround.s": {
       "sail": [
-        23,
+        25,
         418
       ],
       "spike": "fround_s",
@@ -3189,7 +3241,7 @@
     },
     "froundnx.d": {
       "sail": [
-        23,
+        25,
         505
       ],
       "spike": "froundnx_d",
@@ -3200,7 +3252,7 @@
     },
     "froundnx.h": {
       "sail": [
-        23,
+        25,
         389
       ],
       "spike": "froundnx_h",
@@ -3214,7 +3266,7 @@
     },
     "froundnx.s": {
       "sail": [
-        23,
+        25,
         447
       ],
       "spike": "froundnx_s",
@@ -3225,7 +3277,7 @@
     },
     "fsd": {
       "sail": [
-        21,
+        23,
         316
       ],
       "spike": "fsd",
@@ -3236,7 +3288,7 @@
     },
     "fsgnj.d": {
       "sail": [
-        19,
+        21,
         684
       ],
       "spike": "fsgnj_d",
@@ -3247,7 +3299,7 @@
     },
     "fsgnj.h": {
       "sail": [
-        20,
+        22,
         342
       ],
       "spike": "fsgnj_h",
@@ -3261,7 +3313,7 @@
     },
     "fsgnj.s": {
       "sail": [
-        21,
+        23,
         737
       ],
       "spike": "fsgnj_s",
@@ -3272,7 +3324,7 @@
     },
     "fsgnjn.d": {
       "sail": [
-        19,
+        21,
         696
       ],
       "spike": "fsgnjn_d",
@@ -3283,7 +3335,7 @@
     },
     "fsgnjn.h": {
       "sail": [
-        20,
+        22,
         353
       ],
       "spike": "fsgnjn_h",
@@ -3297,7 +3349,7 @@
     },
     "fsgnjn.s": {
       "sail": [
-        21,
+        23,
         748
       ],
       "spike": "fsgnjn_s",
@@ -3308,7 +3360,7 @@
     },
     "fsgnjx.d": {
       "sail": [
-        19,
+        21,
         707
       ],
       "spike": "fsgnjx_d",
@@ -3319,7 +3371,7 @@
     },
     "fsgnjx.h": {
       "sail": [
-        20,
+        22,
         364
       ],
       "spike": "fsgnjx_h",
@@ -3333,7 +3385,7 @@
     },
     "fsgnjx.s": {
       "sail": [
-        21,
+        23,
         759
       ],
       "spike": "fsgnjx_s",
@@ -3344,7 +3396,7 @@
     },
     "fsh": {
       "sail": [
-        21,
+        23,
         316
       ],
       "spike": "fsh",
@@ -3358,7 +3410,7 @@
     },
     "fsqrt.d": {
       "sail": [
-        19,
+        21,
         431
       ],
       "spike": "fsqrt_d",
@@ -3369,7 +3421,7 @@
     },
     "fsqrt.h": {
       "sail": [
-        20,
+        22,
         549
       ],
       "spike": "fsqrt_h",
@@ -3383,7 +3435,7 @@
     },
     "fsqrt.s": {
       "sail": [
-        21,
+        23,
         519
       ],
       "spike": "fsqrt_s",
@@ -3394,7 +3446,7 @@
     },
     "fsub.d": {
       "sail": [
-        19,
+        21,
         345
       ],
       "spike": "fsub_d",
@@ -3405,7 +3457,7 @@
     },
     "fsub.h": {
       "sail": [
-        20,
+        22,
         204
       ],
       "spike": "fsub_h",
@@ -3419,7 +3471,7 @@
     },
     "fsub.s": {
       "sail": [
-        21,
+        23,
         441
       ],
       "spike": "fsub_s",
@@ -3430,7 +3482,7 @@
     },
     "fsw": {
       "sail": [
-        21,
+        23,
         316
       ],
       "spike": "fsw",
@@ -3441,119 +3493,119 @@
     },
     "hfence.gvma": {
       "sail": [
-        25,
+        27,
         132
       ],
       "spike": "hfence_gvma"
     },
     "hfence.vvma": {
       "sail": [
-        25,
+        27,
         109
       ],
       "spike": "hfence_vvma"
     },
     "hinval.gvma": {
       "sail": [
-        26,
+        28,
         83
       ],
       "spike": "hinval_gvma"
     },
     "hinval.vvma": {
       "sail": [
-        26,
+        28,
         68
       ],
       "spike": "hinval_vvma"
     },
     "hlv.b": {
       "sail": [
-        25,
+        27,
         38
       ],
       "spike": "hlv_b"
     },
     "hlv.bu": {
       "sail": [
-        25,
+        27,
         38
       ],
       "spike": "hlv_bu"
     },
     "hlv.d": {
       "sail": [
-        25,
+        27,
         38
       ],
       "spike": "hlv_d"
     },
     "hlv.h": {
       "sail": [
-        25,
+        27,
         38
       ],
       "spike": "hlv_h"
     },
     "hlv.hu": {
       "sail": [
-        25,
+        27,
         38
       ],
       "spike": "hlv_hu"
     },
     "hlv.w": {
       "sail": [
-        25,
+        27,
         38
       ],
       "spike": "hlv_w"
     },
     "hlv.wu": {
       "sail": [
-        25,
+        27,
         38
       ],
       "spike": "hlv_wu"
     },
     "hlvx.hu": {
       "sail": [
-        25,
+        27,
         39
       ],
       "spike": "hlvx_hu"
     },
     "hlvx.wu": {
       "sail": [
-        25,
+        27,
         39
       ],
       "spike": "hlvx_wu"
     },
     "hsv.b": {
       "sail": [
-        25,
+        27,
         74
       ],
       "spike": "hsv_b"
     },
     "hsv.d": {
       "sail": [
-        25,
+        27,
         74
       ],
       "spike": "hsv_d"
     },
     "hsv.h": {
       "sail": [
-        25,
+        27,
         74
       ],
       "spike": "hsv_h"
     },
     "hsv.w": {
       "sail": [
-        25,
+        27,
         74
       ],
       "spike": "hsv_w"
@@ -3571,7 +3623,7 @@
     },
     "jalr": {
       "sail": [
-        27,
+        29,
         11
       ],
       "spike": "jalr",
@@ -3649,14 +3701,14 @@
     },
     "lpad": {
       "sail": [
-        28,
+        30,
         22
       ],
       "spike": "lpad"
     },
     "lr.d": {
       "sail": [
-        29,
+        31,
         41
       ],
       "spike": "lr_d",
@@ -3667,7 +3719,7 @@
     },
     "lr.w": {
       "sail": [
-        29,
+        31,
         41
       ],
       "spike": "lr_w",
@@ -3761,7 +3813,7 @@
     },
     "mop.r.0": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3772,7 +3824,7 @@
     },
     "mop.r.1": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3783,7 +3835,7 @@
     },
     "mop.r.10": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3794,7 +3846,7 @@
     },
     "mop.r.11": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3805,7 +3857,7 @@
     },
     "mop.r.12": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3816,7 +3868,7 @@
     },
     "mop.r.13": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3827,7 +3879,7 @@
     },
     "mop.r.14": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3838,7 +3890,7 @@
     },
     "mop.r.15": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3849,7 +3901,7 @@
     },
     "mop.r.16": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3860,7 +3912,7 @@
     },
     "mop.r.17": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3871,7 +3923,7 @@
     },
     "mop.r.18": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3882,7 +3934,7 @@
     },
     "mop.r.19": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3893,7 +3945,7 @@
     },
     "mop.r.2": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3904,7 +3956,7 @@
     },
     "mop.r.20": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3915,7 +3967,7 @@
     },
     "mop.r.21": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3926,7 +3978,7 @@
     },
     "mop.r.22": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3937,7 +3989,7 @@
     },
     "mop.r.23": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3948,7 +4000,7 @@
     },
     "mop.r.24": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3959,7 +4011,7 @@
     },
     "mop.r.25": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3970,7 +4022,7 @@
     },
     "mop.r.26": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3981,7 +4033,7 @@
     },
     "mop.r.27": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -3992,7 +4044,7 @@
     },
     "mop.r.28": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -4003,7 +4055,7 @@
     },
     "mop.r.29": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -4014,7 +4066,7 @@
     },
     "mop.r.3": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -4025,7 +4077,7 @@
     },
     "mop.r.30": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -4036,7 +4088,7 @@
     },
     "mop.r.31": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -4047,7 +4099,7 @@
     },
     "mop.r.4": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -4058,7 +4110,7 @@
     },
     "mop.r.5": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -4069,7 +4121,7 @@
     },
     "mop.r.6": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -4080,7 +4132,7 @@
     },
     "mop.r.7": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -4091,7 +4143,7 @@
     },
     "mop.r.8": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -4102,7 +4154,7 @@
     },
     "mop.r.9": {
       "sail": [
-        30,
+        32,
         30
       ],
       "spike": "mop_r_N",
@@ -4113,7 +4165,7 @@
     },
     "mop.rr.0": {
       "sail": [
-        30,
+        32,
         35
       ],
       "spike": "mop_rr_N",
@@ -4124,7 +4176,7 @@
     },
     "mop.rr.1": {
       "sail": [
-        30,
+        32,
         35
       ],
       "spike": "mop_rr_N",
@@ -4135,7 +4187,7 @@
     },
     "mop.rr.2": {
       "sail": [
-        30,
+        32,
         35
       ],
       "spike": "mop_rr_N",
@@ -4146,7 +4198,7 @@
     },
     "mop.rr.3": {
       "sail": [
-        30,
+        32,
         35
       ],
       "spike": "mop_rr_N",
@@ -4157,7 +4209,7 @@
     },
     "mop.rr.4": {
       "sail": [
-        30,
+        32,
         35
       ],
       "spike": "mop_rr_N",
@@ -4168,7 +4220,7 @@
     },
     "mop.rr.5": {
       "sail": [
-        30,
+        32,
         35
       ],
       "spike": "mop_rr_N",
@@ -4179,7 +4231,7 @@
     },
     "mop.rr.6": {
       "sail": [
-        30,
+        32,
         35
       ],
       "spike": "mop_rr_N",
@@ -4190,7 +4242,7 @@
     },
     "mop.rr.7": {
       "sail": [
-        30,
+        32,
         35
       ],
       "spike": "mop_rr_N",
@@ -4208,7 +4260,7 @@
     },
     "mul": {
       "sail": [
-        18,
+        20,
         29
       ],
       "spike": "mul",
@@ -4219,7 +4271,7 @@
     },
     "mulh": {
       "sail": [
-        18,
+        20,
         29
       ],
       "spike": "mulh",
@@ -4230,7 +4282,7 @@
     },
     "mulhsu": {
       "sail": [
-        18,
+        20,
         29
       ],
       "spike": "mulhsu",
@@ -4241,7 +4293,7 @@
     },
     "mulhu": {
       "sail": [
-        18,
+        20,
         29
       ],
       "spike": "mulhu",
@@ -4252,7 +4304,7 @@
     },
     "mulw": {
       "sail": [
-        18,
+        20,
         98
       ],
       "spike": "mulw",
@@ -4263,7 +4315,7 @@
     },
     "ntl.all": {
       "sail": [
-        31,
+        13,
         21
       ],
       "spike": "add",
@@ -4274,7 +4326,7 @@
     },
     "ntl.p1": {
       "sail": [
-        31,
+        13,
         21
       ],
       "spike": "add",
@@ -4285,7 +4337,7 @@
     },
     "ntl.pall": {
       "sail": [
-        31,
+        13,
         21
       ],
       "spike": "add",
@@ -4296,7 +4348,7 @@
     },
     "ntl.s1": {
       "sail": [
-        31,
+        13,
         21
       ],
       "spike": "add",
@@ -4384,7 +4436,7 @@
     },
     "pause": {
       "sail": [
-        32,
+        33,
         19
       ],
       "spike": "fence",
@@ -4395,7 +4447,7 @@
     },
     "prefetch.i": {
       "sail": [
-        33,
+        34,
         36
       ],
       "spike": "ori",
@@ -4406,7 +4458,7 @@
     },
     "prefetch.r": {
       "sail": [
-        33,
+        34,
         36
       ],
       "spike": "ori",
@@ -4417,7 +4469,7 @@
     },
     "prefetch.w": {
       "sail": [
-        33,
+        34,
         36
       ],
       "spike": "ori",
@@ -4428,7 +4480,7 @@
     },
     "rdcycle": {
       "sail": [
-        16,
+        18,
         99
       ],
       "spike": "csrrs",
@@ -4439,7 +4491,7 @@
     },
     "rdcycleh": {
       "sail": [
-        16,
+        18,
         99
       ],
       "spike": "csrrs",
@@ -4450,7 +4502,7 @@
     },
     "rdinstret": {
       "sail": [
-        16,
+        18,
         99
       ],
       "spike": "csrrs",
@@ -4461,7 +4513,7 @@
     },
     "rdinstreth": {
       "sail": [
-        16,
+        18,
         99
       ],
       "spike": "csrrs",
@@ -4472,7 +4524,7 @@
     },
     "rdtime": {
       "sail": [
-        16,
+        18,
         99
       ],
       "spike": "csrrs",
@@ -4483,7 +4535,7 @@
     },
     "rdtimeh": {
       "sail": [
-        16,
+        18,
         99
       ],
       "spike": "csrrs",
@@ -4494,7 +4546,7 @@
     },
     "rem": {
       "sail": [
-        18,
+        20,
         76
       ],
       "spike": "rem",
@@ -4505,7 +4557,7 @@
     },
     "remu": {
       "sail": [
-        18,
+        20,
         76
       ],
       "spike": "remu",
@@ -4516,7 +4568,7 @@
     },
     "remuw": {
       "sail": [
-        18,
+        20,
         144
       ],
       "spike": "remuw",
@@ -4527,7 +4579,7 @@
     },
     "remw": {
       "sail": [
-        18,
+        20,
         144
       ],
       "spike": "remw",
@@ -4640,7 +4692,7 @@
     },
     "sc.d": {
       "sail": [
-        29,
+        31,
         66
       ],
       "spike": "sc_d",
@@ -4651,7 +4703,7 @@
     },
     "sc.w": {
       "sail": [
-        29,
+        31,
         66
       ],
       "spike": "sc_w",
@@ -4701,7 +4753,7 @@
     },
     "sfence.inval.ir": {
       "sail": [
-        26,
+        28,
         50
       ],
       "spike": "sfence_inval_ir"
@@ -4709,13 +4761,13 @@
     "sfence.vma": {
       "sail": [
         0,
-        774
+        778
       ],
       "spike": "sfence_vma"
     },
     "sfence.w.inval": {
       "sail": [
-        26,
+        28,
         32
       ],
       "spike": "sfence_w_inval"
@@ -4956,7 +5008,7 @@
     },
     "sinval.vma": {
       "sail": [
-        26,
+        28,
         17
       ],
       "spike": "sinval_vma"
@@ -5062,7 +5114,7 @@
     },
     "sm3p0": {
       "sail": [
-        34,
+        35,
         33
       ],
       "spike": "sm3p0",
@@ -5073,7 +5125,7 @@
     },
     "sm3p1": {
       "sail": [
-        34,
+        35,
         40
       ],
       "spike": "sm3p1",
@@ -5084,7 +5136,7 @@
     },
     "sm4ed": {
       "sail": [
-        34,
+        35,
         71
       ],
       "spike": "sm4ed",
@@ -5095,7 +5147,7 @@
     },
     "sm4ks": {
       "sail": [
-        34,
+        35,
         84
       ],
       "spike": "sm4ks",
@@ -5151,7 +5203,7 @@
     "sret": {
       "sail": [
         0,
-        664
+        666
       ],
       "spike": "sret"
     },
@@ -5201,21 +5253,33 @@
     },
     "ssamoswap.d": {
       "sail": [
-        35,
+        14,
         160
       ],
       "spike": "ssamoswap_d"
     },
     "ssamoswap.w": {
       "sail": [
-        35,
+        14,
         160
       ],
       "spike": "ssamoswap_w"
     },
+    "sspopchk": {
+      "sail": [
+        14,
+        83
+      ]
+    },
+    "sspush": {
+      "sail": [
+        14,
+        25
+      ]
+    },
     "ssrdp": {
       "sail": [
-        35,
+        14,
         137
       ],
       "spike": "ssrdp"
@@ -10039,7 +10103,7 @@
     "wfi": {
       "sail": [
         0,
-        747
+        751
       ],
       "spike": "wfi"
     },
