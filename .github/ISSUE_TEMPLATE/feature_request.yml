@@ -1,0 +1,52 @@
+   name: Feature request
+   description: Suggest a new feature or an improvement to the ISA Explorer
+   title: "feat: "
+   labels: ["enhancement"]
+   body:
+     - type: markdown
+       attributes:
+         value: |
+           Thanks for suggesting an improvement! Please fill in the details below.
+           If you are reporting incorrect or missing extension data, use the
+           "Data correction" form instead.
+
+     - type: textarea
+       id: problem
+       attributes:
+         label: Problem or motivation
+         description: What are you trying to do, and what makes it hard or impossible today?
+         placeholder: "When I ..., I can't ..."
+       validations:
+         required: true
+
+     - type: textarea
+       id: proposal
+       attributes:
+         label: Proposed solution
+         description: Describe the feature or change you would like to see.
+       validations:
+         required: true
+
+     - type: textarea
+       id: alternatives
+       attributes:
+         label: Alternatives considered
+         description: Any other approaches or workarounds you have thought about.
+       validations:
+         required: false
+
+     - type: textarea
+       id: context
+       attributes:
+         label: Additional context
+         description: Screenshots, mockups, links to specs, or anything else that helps.
+       validations:
+         required: false
+
+     - type: checkboxes
+       id: duplicates
+       attributes:
+         label: Checks
+         options:
+           - label: I searched existing issues and this has not been requested already.
+             required: true
