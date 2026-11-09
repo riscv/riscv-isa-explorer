@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "cadd46e22487a2002cead3883b34e72766103cdf",
+      "commit": "fbffb11e1aa2e23c0ffdb77e630e5e5e3544c693",
       "branch": "main",
       "path": "spec/std/isa/param"
     }
@@ -226,9 +226,19 @@
         "maximum": 14
       },
       "definedBy": {
-        "extension": {
-          "name": "Sdtrig"
-        }
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "MCONTEXT_IMPLEMENTED",
+              "equal": true
+            }
+          }
+        ]
       },
       "src": "DBG_HCONTEXT_WIDTH.yaml"
     },
@@ -242,9 +252,19 @@
         "maximum": 32
       },
       "definedBy": {
-        "extension": {
-          "name": "Sdtrig"
-        }
+        "allOf": [
+          {
+            "extension": {
+              "name": "Sdtrig"
+            }
+          },
+          {
+            "param": {
+              "name": "SCONTEXT_IMPLEMENTED",
+              "equal": true
+            }
+          }
+        ]
       },
       "src": "DBG_SCONTEXT_WIDTH.yaml"
     },
