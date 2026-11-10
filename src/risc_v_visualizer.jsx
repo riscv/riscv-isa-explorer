@@ -872,16 +872,17 @@ const RISCVExplorer = () => {
     };
   }, [detailModalOpen, closeDetails]);
 
-  // Esc closes the panel on desktop too; capture runs first, so an open dialog or menu
-  // is still in the DOM to defer to. Compact mode leaves Esc to the effect above.
+  // Esc closes the panel on desktop too; capture runs first, so an open dialog, menu or
+  // builder popover (only mounted while open) is still in the DOM to defer to. Compact
+  // mode leaves Esc to the effect above.
   React.useEffect(() => {
     if (isCompactLayout || !selectedExt) return undefined;
 
     const onKeyDown = (e) => {
       if (e.key !== 'Escape') return;
       const t = e.target;
-      if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) return;
-      if (document.querySelector('[aria-modal="true"], [role="menu"]')) return;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName) || t.isContentEditable) return;
+      if (document.querySelector('[aria-modal="true"], [role="menu"], .builder-menu')) return;
       e.preventDefault();
       closeDetails();
     };
