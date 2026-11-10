@@ -144,7 +144,10 @@ test('invalid not: constraints report the instruction source path', (t) => {
       '    - name: second\n      location: 0\n      not: [0]\n',
   );
 
-  assert.throws(() => parseUpstream(root), new RegExp(`${source}: overlapping fields with not`));
+  // Escaped because a Windows path has backslashes, which a RegExp reads as
+  // escapes rather than separators (#537).
+  const escaped = source.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  assert.throws(() => parseUpstream(root), new RegExp(`${escaped}: overlapping fields with not`));
 });
 
 // ── `not:` constraints ─────────────────────────────────────────────────────
