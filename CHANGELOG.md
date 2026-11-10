@@ -13,6 +13,59 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-11-09
+
+Catalogue: 217 entries, unchanged from 1.13.0; none added or removed. Eight
+instructions join Zihintntl and Zicfiss. The data is synced from
+riscv-unified-db fbffb11. No profile's `-march` string changes, and no existing
+extension's requirements change. The UDB export changes for the entries that
+gained a version or a state, as listed under Changed.
+
+### Added
+
+- **Eight instructions from riscv-unified-db.** `C.NTL.P1`, `C.NTL.PALL`,
+  `C.NTL.S1` and `C.NTL.ALL` under Zihintntl; `SSPUSH`, `SSPOPCHK`, `C.SSPUSH`
+  and `C.SSPOPCHK` under Zicfiss. They use UDB's names and encodings. The
+  register field of `SSPUSH` and `SSPOPCHK` stays open, because the catalogue
+  cannot express UDB's restriction to x1 and x5 (#544).
+- **Long instruction lists collapse.** The details panel shows 30 instruction
+  chips with Show all and Show less; a search lifts the cap (#548).
+- **A Compare button in the details panel** pins the extension for comparison
+  without going back to its tile (#549).
+
+### Changed
+
+- **Status and versions filled in.** N is marked withdrawn, at version 1.1
+  (#533). RV32E and RV64E gain version 2.0.0 (#526). Sdtrigepm and Sdtrigpend
+  (#528), Smclic, Smclicconfig, Smclicshv and Ssclic (#527), and Zvknf, Svatag,
+  Smvatag, Ssdtso, Zjid, Smsdia and Smtdeleg (#531) are marked development;
+  Smcfiss is marked draft (#531). Smcfiss 0.7.0, Svatag and Smvatag 0.51.0,
+  Ssdtso 1.0.0 and Smtdeleg 0.7.7 gain versions (#531).
+- **The UDB export follows those fields.** An entry that gained a version is
+  now listed with it, instead of a comment asking for one. A non-ratified entry
+  that gained a state now carries a comment saying its version may still change.
+- **More extensions link to their specification** instead of the
+  riscv-isa-manual front page (#527, #528, #529, #532, #536).
+- **Synced from riscv-unified-db fbffb11** (#550). Thirteen vector instruction
+  descriptions are reworded, `mseccfg` lists its Smepmp fields, and two Sdtrig
+  parameters now exist only when `MCONTEXT_IMPLEMENTED` or
+  `SCONTEXT_IMPLEMENTED` is set. Also synced: the ISA manual's ratified list
+  (#512, #552) and the Sail, Spike and ACT links (#551).
+- **UDB encodings are read by one shared reader**, which also understands
+  quoted `match:` values. That is how the eight instructions above were found
+  (#541).
+
+### Fixed
+
+- **The checkmark on extension tiles is hidden from screen readers**, since its
+  button already carries a label (#523).
+
+### Known issues
+
+- Sandbox extensions pinned to Compare are lost on reload and in shared links.
+  This predates the release, but the new Compare button is one more way to pin
+  them.
+
 ## [1.13.0] - 2026-11-01
 
 Catalogue: 217 entries, up from 211: Zvl2048b, Zvl4096b, Zvl8192b, Zvl16384b,

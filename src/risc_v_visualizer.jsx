@@ -630,6 +630,9 @@ const extensionCsrLabels = {
   U: 'User CSRs',
 };
 
+// Instruction chip lists longer than this collapse behind "Show all"; a search lifts the cap so hits show.
+const CHIP_LIMIT = 30;
+
 const RISCVExplorer = () => {
   // Lazy, like selectedExt below, so ?profile=RVA23.1 highlights on first paint.
   const [activeProfile, setActiveProfile] = useState(profileFromUrl);
@@ -651,6 +654,9 @@ const RISCVExplorer = () => {
   const detailOpenerRef = React.useRef(null);
   const [permalinkCopied, setPermalinkCopied] = useState(false);
   const [selectedInstruction, setSelectedInstruction] = useState(null);
+  const [showAllInstructions, setShowAllInstructions] = useState(false);
+  // Another extension starts with its instruction chips collapsed again.
+  React.useEffect(() => setShowAllInstructions(false), [selectedExt]);
   /* Scrolls the details panel (not the page) so `el` sits near its top. */
   const scrollPanelTo = React.useCallback((el) => {
     const panel = el?.closest('.overflow-y-auto');
@@ -2420,6 +2426,13 @@ const RISCVExplorer = () => {
   );
 
   const comparePinnedTotal = compareExtIds.size + compareInstrKeys.size + compareProfileNames.size;
+  // The details panel's Compare button: whether the open extension is pinned, and its label.
+  const extPinned = selectedExt ? compareExtIds.has(selectedExt.id) : false;
+  const extPinLabel = !selectedExt
+    ? ''
+    : extPinned
+      ? `Remove ${selectedExt.name} from comparison`
+      : `Pin ${selectedExt.name} to comparison`;
 
   const compareKeys = React.useMemo(() => {
     if (compareKind === 'instr') return [...compareInstrKeys];
@@ -4599,6 +4612,33 @@ const RISCVExplorer = () => {
                           <Share2 size={11} />
                           {permalinkCopied ? 'Copied' : 'Share'}
                         </button>
+                        {/* Pins like the tile pin (which toasts at the cap) and turns Compare
+                            mode on so the tray shows the pin. */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            toggleCompareExt(selectedExt.id);
+                            if (!extPinned && compareExtIds.size < COMPARE_MAX) {
+                              setCompareMode(true);
+                            }
+                          }}
+                          aria-pressed={extPinned}
+                          aria-label={extPinLabel}
+                          title={extPinLabel}
+                          className="riscv-btn inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px]"
+                          style={
+                            extPinned
+                              ? {
+                                  background: 'var(--riscv-violet-dim)',
+                                  color: 'var(--riscv-text)',
+                                  borderColor: 'rgba(139, 124, 248, 0.4)',
+                                }
+                              : undefined
+                          }
+                        >
+                          <GitCompare size={11} />
+                          {extPinned ? `Pinned (${compareExtIds.size}/${COMPARE_MAX})` : 'Compare'}
+                        </button>
                         {selectedExt.isSandbox && (
                           <button
                             type="button"
@@ -4753,7 +4793,9 @@ const RISCVExplorer = () => {
                             {Object.keys(selectedExt.instructions || {}).length})
                           </h3>
                           <div className="flex flex-wrap gap-1">
-                            {Object.keys(selectedExt.instructions || {}).map((mnemonic) => {
+                            {Object.keys(selectedExt.instructions || {}).map((mnemonic, i) => {
+                              if (i >= CHIP_LIMIT && !showAllInstructions && !searchQuery.trim())
+                                return null;
                               const q = searchQuery.trim().toLowerCase();
                               const instructionDetails = selectedExt.instructions?.[mnemonic];
                               const isHit =
@@ -4842,6 +4884,19 @@ const RISCVExplorer = () => {
                               );
                             })}
                           </div>
+                          {Object.keys(selectedExt.instructions).length > CHIP_LIMIT &&
+                            !searchQuery.trim() && (
+                              <button
+                                type="button"
+                                className="riscv-chip-toggle"
+                                aria-expanded={showAllInstructions}
+                                onClick={() => setShowAllInstructions(!showAllInstructions)}
+                              >
+                                {showAllInstructions
+                                  ? 'Show less'
+                                  : `Show all (${Object.keys(selectedExt.instructions).length})`}
+                              </button>
+                            )}
                         </div>
                       )}
 
