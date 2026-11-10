@@ -51,12 +51,13 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const args = process.argv.slice(2);
 const asJson = args.includes('--json');
 const opcodesDir = args.find((a) => !a.startsWith('--')) ?? '../riscv-opcodes';
 
-const here = path.dirname(new URL(import.meta.url).pathname);
+const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(here, '..');
 
 /**

@@ -52,9 +52,10 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const REF = 'https://docs.riscv.org/reference';
-const here = path.dirname(new URL(import.meta.url).pathname);
+const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.join(here, '..');
 const CATALOG = path.join(repoRoot, 'src', 'riscv_extensions.json');
 const checkOnly = process.argv.includes('--check');
