@@ -172,7 +172,7 @@ async function waitFor(predicate, timeout = 5000) {
   }
 }
 
-async function mountAt(url, { storage = {} } = {}) {
+async function mountAt(url, { storage = {}, compact = false } = {}) {
   const win = new JSDOM(fs.readFileSync(path.join(dist, 'index.html'), 'utf8'), {
     runScripts: 'outside-only',
     pretendToBeVisual: true,
@@ -182,8 +182,9 @@ async function mountAt(url, { storage = {} } = {}) {
   const errors = [];
   win.window.console.error = (...args) => errors.push(args.join(' '));
   win.window.Element.prototype.scrollIntoView = () => {};
-  win.window.matchMedia ??= () => ({
-    matches: false,
+  // jsdom has no matchMedia; `compact` matches the app's (max-width: 1024px) layout query.
+  win.window.matchMedia ??= (query) => ({
+    matches: compact && query === '(max-width: 1024px)',
     addListener() {},
     removeListener() {},
     addEventListener() {},
@@ -731,4 +732,139 @@ test('the page declares itself a tech preview and offers somewhere to report', (
   assert.equal(link.target, '_blank', 'the issue tracker should open in a new tab');
   assert.match(link.rel, /noreferrer/, 'external link needs rel=noreferrer');
   assert.match(link.rel, /noopener/, 'external link needs rel=noopener');
+});
+
+/*
+ * Desktop Esc closes the details panel from a window capture listener, which runs before
+ * every other key handler, so it has to step aside wherever Esc belongs to something else.
+ */
+const escapeKey = (d, init = {}) =>
+  new d.window.KeyboardEvent('keydown', {
+    key: 'Escape',
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    ...init,
+  });
+const panelOpen = (d) =>
+  d.window.document.getElementById('detail-panel').classList.contains('panel-open');
+const settle = () => new Promise((resolve) => setTimeout(resolve, 100));
+
+test('desktop Esc closes the details panel, whatever the event target', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?ext=Zba');
+  const doc = d.window.document;
+  const tile = doc.querySelector('button[aria-label^="View Zba details"]');
+  const closedHost = doc.createElement('div');
+  closedHost.attachShadow({ mode: 'closed' });
+  const targets = [
+    ['body', () => doc.body],
+    ['window', () => d.window],
+    ['document', () => doc],
+    ['a text node', () => doc.body.appendChild(doc.createTextNode(''))],
+    // A closed shadow root reads as shadowRoot === null, so the kapa check is a no-op.
+    [
+      'body, with a closed kapa root',
+      () => {
+        closedHost.id = 'kapa-widget-container';
+        doc.body.append(closedHost);
+        return doc.body;
+      },
+    ],
+  ];
+  for (const [name, target] of targets) {
+    if (!panelOpen(d)) tile.click();
+    await waitFor(() => panelOpen(d));
+    assert.ok(panelOpen(d), `the panel did not reopen before Esc on ${name}`);
+    target().dispatchEvent(escapeKey(d));
+    await waitFor(() => !panelOpen(d));
+    assert.equal(panelOpen(d), false, `Esc on ${name} left the panel open`);
+  }
+  assert.deepEqual(realErrors(errors), [], 'console errors around desktop Esc');
+});
+
+test('desktop Esc leaves the details panel open while Esc belongs to something else', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?ext=Zba');
+  const doc = d.window.document;
+  const editable = doc.createElement('div');
+  editable.setAttribute('contenteditable', 'true');
+  editable.innerHTML = '<b>text</b>';
+  doc.body.append(editable);
+  // kapa renders Ask AI in an open shadow root on this host. Its modal starts hidden,
+  // the way kapa leaves it, still mounted, once it has been closed.
+  const host = doc.createElement('div');
+  host.id = 'kapa-widget-container';
+  doc.body.append(host);
+  const kapa = host.attachShadow({ mode: 'open' });
+  kapa.innerHTML =
+    '<section role="dialog" aria-modal="true" style="display: none"><textarea></textarea></section>';
+  const kapaModal = kapa.querySelector('section');
+  // Browsers take the checkVisibility() branch; this suite covers the display fallback.
+  assert.equal(kapaModal.checkVisibility, undefined, 'jsdom gained checkVisibility()');
+  // A second, shown modal rather than a style toggle: jsdom caches computed style in shadow trees.
+  const shownModal = kapaModal.cloneNode();
+  shownModal.removeAttribute('style');
+  const builderMenu = doc.createElement('div');
+  builderMenu.className = 'builder-menu';
+
+  const cases = [
+    { name: 'from the search input', target: doc.querySelector('input[type="search"]') },
+    { name: 'from a select', target: doc.querySelector('select[aria-label="Highlight Profile"]') },
+    { name: 'from inside a contenteditable', target: editable.firstChild },
+    { name: 'from the Ask AI textarea', target: kapa.querySelector('textarea') },
+    { name: 'during IME composition', init: { isComposing: true } },
+    { name: 'once another handler took it', cancelled: true },
+    {
+      name: 'with a builder popover open',
+      open: () => doc.body.append(builderMenu),
+      close: () => builderMenu.remove(),
+    },
+    {
+      name: 'with the Ask AI modal open',
+      open: () => kapa.append(shownModal),
+      close: () => shownModal.remove(),
+    },
+  ];
+  for (const { name, target = doc.body, init, cancelled, open, close } of cases) {
+    assert.ok(target, `no element to send Esc ${name}`);
+    open?.();
+    const event = escapeKey(d, init);
+    if (cancelled) event.preventDefault();
+    target.dispatchEvent(event);
+    await settle();
+    assert.ok(panelOpen(d), `Esc ${name} closed the details panel`);
+    close?.();
+  }
+
+  // Control: with all of that closed, and kapa's hidden modal still mounted, Esc closes.
+  doc.body.dispatchEvent(escapeKey(d));
+  await waitFor(() => !panelOpen(d));
+  assert.equal(panelOpen(d), false, 'Esc did not close the panel once nothing else was open');
+  assert.deepEqual(realErrors(errors), [], 'console errors around desktop Esc');
+});
+
+test('compact mode keeps its own Esc handling', async () => {
+  // A tile click opens the sheet as a modal: Esc closes it and focus returns to the tile.
+  const { dom: d, errors } = await mountAt('https://example.test/', { compact: true });
+  const doc = d.window.document;
+  const tile = doc.querySelector('button[aria-label^="View Zba details"]');
+  tile.focus();
+  tile.click();
+  await waitFor(() => doc.querySelector('#detail-panel[aria-modal="true"]'));
+  assert.equal(doc.getElementById('detail-panel').getAttribute('role'), 'dialog');
+  const dismiss = doc.querySelector('#detail-panel button[aria-label="Close details panel"]');
+  dismiss.focus();
+  dismiss.dispatchEvent(escapeKey(d));
+  await waitFor(() => !panelOpen(d));
+  assert.equal(panelOpen(d), false, 'Esc did not close the compact sheet');
+  assert.equal(doc.activeElement, tile, 'focus did not return to the tile that opened the sheet');
+
+  // A link opens it inline, not as a modal, and compact mode has never closed that on Esc.
+  const { dom: linked } = await mountAt('https://example.test/?ext=Zba', { compact: true });
+  const ldoc = linked.window.document;
+  assert.ok(panelOpen(linked), 'the linked extension did not open the panel');
+  assert.notEqual(ldoc.getElementById('detail-panel').getAttribute('aria-modal'), 'true');
+  ldoc.body.dispatchEvent(escapeKey(linked));
+  await settle();
+  assert.ok(panelOpen(linked), 'Esc closed the inline compact panel');
+  assert.deepEqual(realErrors(errors), [], 'console errors in compact mode');
 });
