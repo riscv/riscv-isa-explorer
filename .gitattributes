@@ -1,0 +1,4 @@
+# Keep text files LF on disk on every OS. Without this, Git for Windows
+# (core.autocrlf=true) checks them out as CRLF and the tests that read the
+# workflows or regenerate files byte for byte fail there (#537).
+* text=auto eol=lf

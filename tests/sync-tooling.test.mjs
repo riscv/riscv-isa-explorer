@@ -441,7 +441,11 @@ test('a workflow that runs a script importing a package installs dependencies fi
 test('the pre-push hook runs what CI runs, and npm install sets it up', () => {
   // So a failing build, lint or test is caught before the push, not by CI.
   const hook = path.join(root, '.githooks', 'pre-push');
-  assert.ok(fs.statSync(hook).mode & 0o111, '.githooks/pre-push must be executable');
+  // Windows has no executable bit, so this check only means something on POSIX.
+  // Git for Windows runs the hook anyway (#537).
+  if (process.platform !== 'win32') {
+    assert.ok(fs.statSync(hook).mode & 0o111, '.githooks/pre-push must be executable');
+  }
   const text = fs.readFileSync(hook, 'utf8');
   const ci = fs.readFileSync(path.join(root, '.github', 'workflows', 'ci.yml'), 'utf8');
   for (const step of ['npm run build', 'npm run lint', 'npm run sync:check', 'npm test']) {

@@ -22,6 +22,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { PROFILES } from '../src/profiles.js';
 import { resolveSelection } from '../src/isaGraph.js';
 
@@ -286,7 +287,7 @@ if (failed) {
   process.exit(1);
 }
 
-const outPath = path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'src', 'profile-optional.json');
+const outPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'profile-optional.json');
 const payload = `${JSON.stringify(optionalByFamily, null, 2)}\n`;
 
 if (checkOnly) {
