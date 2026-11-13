@@ -885,10 +885,20 @@ const RISCVExplorer = () => {
     if (isCompactLayout || !selectedExt) return undefined;
 
     const onKeyDown = (e) => {
-      if (e.key !== 'Escape') return;
-      const t = e.target;
-      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName) || t.isContentEditable) return;
+      if (e.key !== 'Escape' || e.defaultPrevented || e.isComposing) return;
+      // composedPath()[0] is the real target inside a shadow root (kapa's Ask AI box);
+      // e.target is only the host. window, document or a text node pass straight through.
+      const t = e.composedPath?.()[0] ?? e.target;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(t?.tagName)) return;
+      if (t?.closest?.('[contenteditable]:not([contenteditable="false"])')) return;
       if (document.querySelector('[aria-modal="true"], [role="menu"], .builder-menu')) return;
+      // kapa's modal is in its shadow root, and stays mounted, hidden, once it has been closed.
+      // checkVisibility() also sees a hidden ancestor; jsdom lacks it, so fall back.
+      const kapa = document.getElementById('kapa-widget-container')?.shadowRoot;
+      const kapaModals = [...(kapa?.querySelectorAll('[aria-modal="true"]') ?? [])];
+      const shown = (m) =>
+        m.checkVisibility ? m.checkVisibility() : window.getComputedStyle(m).display !== 'none';
+      if (kapaModals.some(shown)) return;
       e.preventDefault();
       closeDetails();
     };
