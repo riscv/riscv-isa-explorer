@@ -438,6 +438,39 @@ test('a workflow that runs a script importing a package installs dependencies fi
   assert.ok(checked >= 5, `expected workflow scripts to check, found ${checked}`);
 });
 
+test('every external action a workflow uses is pinned to a commit SHA', () => {
+  // A tag can be moved to other code; a full commit SHA cannot. #321 made SHA
+  // pinning with a `# vN` comment the convention, and ci.yml, changelog.yml and
+  // dco.yml still used floating tags (#556), ci.yml's deploy job among them,
+  // which holds contents: write and force-pushes gh-pages. Local actions
+  // (`uses: ./...`) are part of this repository and are not checked.
+  const dir = path.join(root, '.github', 'workflows');
+  const files = fs.readdirSync(dir).filter((file) => /\.ya?ml$/.test(file));
+  assert.ok(files.length >= 9, `expected the workflows, found ${files}`);
+  const offenders = [];
+  let checked = 0;
+  for (const file of files) {
+    const lines = fs.readFileSync(path.join(dir, file), 'utf8').split(/\r?\n/);
+    lines.forEach((line, index) => {
+      const uses = line.match(/^\s*(?:-\s+)?uses:\s*(.*)$/);
+      if (!uses) return;
+      const ref = uses[1]
+        .replace(/\s+#.*$/, '')
+        .trim()
+        .replace(/^(['"])(.*)\1$/, '$2');
+      if (ref.startsWith('./')) return;
+      checked += 1;
+      if (!/@[0-9a-f]{40}$/.test(ref)) offenders.push(`${file}:${index + 1}: ${ref}`);
+    });
+  }
+  assert.ok(checked >= 20, `expected the workflows' action references, found ${checked}`);
+  assert.equal(
+    offenders.length,
+    0,
+    `pin these to a full commit SHA with a # vN comment:\n${offenders.join('\n')}`,
+  );
+});
+
 test('the pre-push hook runs what CI runs, and npm install sets it up', () => {
   // So a failing build, lint or test is caught before the push, not by CI.
   const hook = path.join(root, '.githooks', 'pre-push');
