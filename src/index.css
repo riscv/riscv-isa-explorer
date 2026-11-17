@@ -1516,6 +1516,14 @@ pre,
     transform: translateY(0);
   }
 
+  /* Fill the sheet, overriding the desktop height limits, so the scrolling body
+     ends inside it rather than below the screen. */
+  #detail-panel > .riscv-card {
+    height: 100%;
+    max-height: none;
+    min-height: 0;
+  }
+
   :root[data-theme='light'] #detail-panel {
     box-shadow: 0 -8px 32px rgba(45, 40, 80, 0.15);
   }
