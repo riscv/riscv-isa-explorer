@@ -621,6 +621,11 @@ test('an extension link brings its tile into view and focuses it, as search does
   // moving to the tile is what this can see.
   const tile = d.window.document.getElementById('ext-RERI');
   assert.ok(tile, 'RERI has no tile');
+  // Focus moves after mount, so wait for it instead of relying on mountAt's
+  // fixed delay, which a slower machine can outrun (#557).
+  await waitFor(
+    () => d.window.document.activeElement?.getAttribute('aria-label') === 'View RERI details',
+  );
   assert.equal(
     d.window.document.activeElement?.getAttribute('aria-label'),
     'View RERI details',
@@ -632,6 +637,10 @@ test('an extension link brings its tile into view and focuses it, as search does
 test('a profile link highlights that profile, whatever its case', async () => {
   const { dom: d, errors } = await mountAt('https://example.test/?profile=rva23.1');
   const doc = d.window.document;
+  // The URL is rewritten to the canonical case after mount; wait for it (#557).
+  await waitFor(
+    () => new d.window.URL(d.window.location.href).searchParams.get('profile') === 'RVA23.1',
+  );
   assert.equal(doc.querySelector('select[aria-label="Highlight Profile"]').value, 'RVA23.1');
   assert.ok(doc.body.textContent.includes('Highlighting RVA23.1'));
   assert.equal(new d.window.URL(d.window.location.href).searchParams.get('profile'), 'RVA23.1');
