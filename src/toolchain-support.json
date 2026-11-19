@@ -899,6 +899,7 @@
         "supported": "11.0"
       }
     },
+    "smqosid": {},
     "smrnmi": {
       "llvm": {
         "supported": "20"

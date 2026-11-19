@@ -81254,6 +81254,17 @@
       "version": "1.0.0"
     },
     {
+      "id": "Smqosid",
+      "name": "Smqosid",
+      "short": "M-Mode QoS Identifiers",
+      "tags": [],
+      "desc": "Adds the mrmcfg CSR, which sets the QoS identifiers on memory requests a hart makes while in M-mode.",
+      "use": "QoS tagging for M-mode traffic",
+      "url": "https://github.com/riscv/riscv-smmtt/blob/main/modules/ROOT/pages/smsdqos.adoc",
+      "instructions": {},
+      "state": "development"
+    },
+    {
       "id": "Smrnmi",
       "name": "Smrnmi",
       "short": "Resumable NMI",
