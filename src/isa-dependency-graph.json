@@ -344,7 +344,7 @@
             "Smcsrind",
             "Sscsrind"
           ],
-          "default": "Smcsrind",
+          "default": "Sscsrind",
           "src": "udb",
           "ref": "Smcdeleg.yaml requirements.extension.anyOf"
         }
@@ -522,7 +522,7 @@
             "Smcsrind",
             "Sscsrind"
           ],
-          "default": "Smcsrind",
+          "default": "Sscsrind",
           "src": "udb",
           "ref": "Ssccfg.yaml requirements.extension.anyOf"
         }
@@ -567,7 +567,7 @@
             "Smcsrind",
             "Sscsrind"
           ],
-          "default": "Smcsrind",
+          "default": "Sscsrind",
           "src": "udb",
           "ref": "Ssctr.yaml requirements.extension.anyOf"
         }

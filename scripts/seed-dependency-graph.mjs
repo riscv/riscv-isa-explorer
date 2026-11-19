@@ -376,8 +376,12 @@ const catalogIds = readCatalogIds();
  * option is the honest default: it is the minimum that satisfies the
  * requirement, so it never silently buys capability the user did not ask for.
  * Ordered weakest-first; the first member present in the group wins.
+ *
+ * Sscsrind comes before Smcsrind because Smcsrind is a superset of it
+ * (riscv-unified-db#2802). Ssccfg, Smcdeleg and Ssctr accept either, and the
+ * alphabetical fallback below would pick the machine-level superset (#566).
  */
-const WEAKEST_FIRST = ['Sv32', 'Sv39', 'Sv48', 'Sv57'];
+const WEAKEST_FIRST = ['Sv32', 'Sv39', 'Sv48', 'Sv57', 'Sscsrind', 'Smcsrind'];
 function pickDefault(options) {
   for (const candidate of WEAKEST_FIRST) if (options.includes(candidate)) return candidate;
   return options.slice().sort()[0];
