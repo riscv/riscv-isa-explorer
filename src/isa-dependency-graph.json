@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "fbffb11e1aa2e23c0ffdb77e630e5e5e3544c693",
+      "commit": "88cf3bfe3f0dc824dfced488a92d0e8b4dce7f2b",
       "branch": "main",
       "path": "spec/std/isa/ext"
     },
@@ -336,11 +336,17 @@
           "src": "udb",
           "ref": "Smcdeleg.yaml requirements.extension",
           "corequisite": true
-        },
+        }
+      ],
+      "requiresOneOf": [
         {
-          "ext": "Sscsrind",
+          "options": [
+            "Smcsrind",
+            "Sscsrind"
+          ],
+          "default": "Smcsrind",
           "src": "udb",
-          "ref": "Smcdeleg.yaml requirements.extension"
+          "ref": "Smcdeleg.yaml requirements.extension.anyOf"
         }
       ]
     },
@@ -367,7 +373,7 @@
     "Smcsrind": {
       "requires": [
         {
-          "ext": "S",
+          "ext": "Sm",
           "src": "udb",
           "ref": "Smcsrind.yaml requirements.extension"
         }
@@ -447,8 +453,13 @@
       "verified": "udb"
     },
     "Smqosid": {
-      "requires": [],
-      "verified": "none"
+      "requires": [
+        {
+          "ext": "Sm",
+          "src": "udb",
+          "ref": "Smqosid.yaml requirements.extension"
+        }
+      ]
     },
     "Smrnmi": {
       "requires": [],
@@ -494,15 +505,26 @@
     "Ssccfg": {
       "requires": [
         {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Ssccfg.yaml requirements.extension"
+        },
+        {
           "ext": "Smcdeleg",
           "src": "udb",
           "ref": "Ssccfg.yaml requirements.extension",
           "corequisite": true
-        },
+        }
+      ],
+      "requiresOneOf": [
         {
-          "ext": "Sscsrind",
+          "options": [
+            "Smcsrind",
+            "Sscsrind"
+          ],
+          "default": "Smcsrind",
           "src": "udb",
-          "ref": "Ssccfg.yaml requirements.extension"
+          "ref": "Ssccfg.yaml requirements.extension.anyOf"
         }
       ]
     },
@@ -528,11 +550,6 @@
           "ext": "S",
           "src": "udb",
           "ref": "Sscsrind.yaml requirements.extension"
-        },
-        {
-          "ext": "Smcsrind",
-          "src": "udb",
-          "ref": "Sscsrind.yaml requirements.extension"
         }
       ]
     },
@@ -542,11 +559,17 @@
           "ext": "S",
           "src": "udb",
           "ref": "Ssctr.yaml requirements.extension"
-        },
+        }
+      ],
+      "requiresOneOf": [
         {
-          "ext": "Sscsrind",
+          "options": [
+            "Smcsrind",
+            "Sscsrind"
+          ],
+          "default": "Smcsrind",
           "src": "udb",
-          "ref": "Ssctr.yaml requirements.extension"
+          "ref": "Ssctr.yaml requirements.extension.anyOf"
         }
       ]
     },
