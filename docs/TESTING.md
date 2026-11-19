@@ -41,7 +41,7 @@ a row here and a test behind it.
 | Opcodes drift report | `scripts/check-opcodes-drift.mjs` | `opcodes-drift` |
 | Documentation links | `scripts/map-doc-links.mjs` | `doc-links` |
 | Crawler pages and sitemap | `scripts/static-pages.mjs` | `static-pages` |
-| Scheduled workflows (bot identity, build before test, failure alert) | `.github/workflows/` | `sync-tooling` |
+| Scheduled workflows (bot identity, build before test, failure alert) and action references pinned to commit SHAs | `.github/workflows/` | `sync-tooling` |
 
 Test names are files in `tests/`, without `.test.mjs`.
 
