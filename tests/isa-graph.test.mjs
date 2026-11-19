@@ -405,6 +405,25 @@ test('a choice between Sscsrind and Smcsrind defaults to the weaker Sscsrind', (
   assert.ok(!result.resolved.includes('Smcsrind'), 'and not the Smcsrind superset');
 });
 
+// Svade and Svadu default to Sv32, the weakest option, but Sv32 carries
+// SXLEN includes 32. On an RV64 base that produced xlen 64 with SXLEN 32 (#563).
+for (const ext of ['Svade', 'Svadu']) {
+  test(`RV64I + ${ext} applies Sv39, not Sv32`, () => {
+    const result = resolveSelection({ selected: ['RV64I', ext], base: 'RV64I' });
+    const choice = result.choices.find((c) => c.node === ext);
+    assert.equal(choice.applied, 'Sv39', 'the default must match the base XLEN');
+    assert.ok(result.resolved.includes('Sv39'));
+    assert.ok(!result.resolved.includes('Sv32'), 'Sv32 is an RV32-only mode');
+  });
+}
+
+test('RV32I + Svade still applies Sv32', () => {
+  const result = resolveSelection({ selected: ['RV32I', 'Svade'], base: 'RV32I' });
+  const choice = result.choices.find((c) => c.node === 'Svade');
+  assert.equal(choice.applied, 'Sv32');
+  assert.ok(!result.resolved.includes('Sv39'));
+});
+
 test('an unknown extension is reported, not thrown', () => {
   const result = resolveSelection({ selected: ['Znotreal', 'D'] });
   assert.ok(result.unknown.some((u) => u.ext === 'Znotreal'));

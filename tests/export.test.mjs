@@ -159,6 +159,17 @@ test('the riscv-config format carries its required fields', () => {
   assert.ok(yaml.includes('hart0:'));
 });
 
+test('an RV64 base does not export an Sv32 default or SXLEN 32 (#563)', () => {
+  const ids = resolve(['RV64I', 'Svade']);
+  for (const format of ['landscape', 'riscv-config']) {
+    const { yaml } = buildIsaConfigYaml(ids, ALL, { format });
+    assert.ok(!/SXLEN:\s*(includes\s+)?32\b/.test(yaml), `${format}: SXLEN 32 on RV64`);
+    assert.ok(!/SXLEN:\s*\n\s*constraint: includes\s*\n\s*value: 32\b/.test(yaml), format);
+    assert.ok(!/\bSv32\b/.test(yaml), `${format}: Sv32 should not be pulled in`);
+    assert.match(yaml, /\bSv39\b/, `${format}: Sv39 is the RV64 default`);
+  }
+});
+
 test('the riscv-config ISA string follows their spelling, not ours', () => {
   const { yaml } = buildIsaConfigYaml(resolve(['RV64I', 'M', 'A', 'F', 'D', 'C']), ALL, {
     format: 'riscv-config',
