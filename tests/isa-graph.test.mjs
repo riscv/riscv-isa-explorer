@@ -388,6 +388,23 @@ test('one-of defaults can be turned off for callers that want to prompt', () => 
   assert.ok(!result.resolved.includes('Sv39'), 'nothing should be auto-added');
 });
 
+test('a choice between Sscsrind and Smcsrind defaults to the weaker Sscsrind', () => {
+  // Smcsrind is a superset of Sscsrind (riscv-unified-db#2802). The seeder's
+  // alphabetical fallback picked Smcsrind, adding a machine-level extension to
+  // three supervisor-level ones that only need the subset (#566).
+  const groups = Object.entries(DEPENDENCY_GRAPH.nodes).flatMap(([id, node]) =>
+    (node.requiresOneOf ?? [])
+      .filter((g) => g.options.includes('Sscsrind') && g.options.includes('Smcsrind'))
+      .map((g) => [id, g.default]),
+  );
+  assert.ok(groups.length >= 3, `expected Ssccfg, Smcdeleg and Ssctr, found ${groups}`);
+  for (const [id, chosen] of groups) assert.equal(chosen, 'Sscsrind', `${id} default`);
+
+  const result = resolveSelection({ selected: ['RV64I', 'Ssccfg'], base: 'RV64I' });
+  assert.ok(result.resolved.includes('Sscsrind'), 'Ssccfg should pull in Sscsrind');
+  assert.ok(!result.resolved.includes('Smcsrind'), 'and not the Smcsrind superset');
+});
+
 test('an unknown extension is reported, not thrown', () => {
   const result = resolveSelection({ selected: ['Znotreal', 'D'] });
   assert.ok(result.unknown.some((u) => u.ext === 'Znotreal'));
