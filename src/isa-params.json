@@ -4,7 +4,7 @@
   "sources": {
     "udb": {
       "repo": "riscv/riscv-unified-db",
-      "commit": "fbffb11e1aa2e23c0ffdb77e630e5e5e3544c693",
+      "commit": "88cf3bfe3f0dc824dfced488a92d0e8b4dce7f2b",
       "branch": "main",
       "path": "spec/std/isa/param"
     }
@@ -282,7 +282,7 @@
       },
       "definedBy": {
         "extension": {
-          "name": "Sdtrig"
+          "name": "Sdext"
         }
       },
       "src": "DCSR_MPRVEN_TYPE.yaml"
@@ -290,18 +290,17 @@
     "DCSR_STEPIE_TYPE": {
       "name": "DCSR_STEPIE_TYPE",
       "long_name": null,
-      "description": "Implementation of dcsr.STEPIE is optional. It may be tied to either 0 or 1. Behavior of the dcsr.STEPIE bit: * 'read-only-0': tied to 0 * 'read-only-1': tied to 1 * 'rw': read-write",
+      "description": "Implementations may hard wire dcsr.STEPIE to 0. Behavior of the dcsr.STEPIE bit: * 'read-only-0': tied to 0 * 'rw': read-write",
       "schema": {
         "type": "string",
         "enum": [
           "read-only-0",
-          "read-only-1",
           "rw"
         ]
       },
       "definedBy": {
         "extension": {
-          "name": "Sdtrig"
+          "name": "Sdext"
         }
       },
       "src": "DCSR_STEPIE_TYPE.yaml"
@@ -320,7 +319,7 @@
       },
       "definedBy": {
         "extension": {
-          "name": "Sdtrig"
+          "name": "Sdext"
         }
       },
       "src": "DCSR_STOPCOUNT_TYPE.yaml"
@@ -339,7 +338,7 @@
       },
       "definedBy": {
         "extension": {
-          "name": "Sdtrig"
+          "name": "Sdext"
         }
       },
       "src": "DCSR_STOPTIME_TYPE.yaml"
@@ -1754,7 +1753,14 @@
         "extension": {
           "allOf": [
             {
-              "name": "Sscsrind"
+              "anyOf": [
+                {
+                  "name": "Smcsrind"
+                },
+                {
+                  "name": "Sscsrind"
+                }
+              ]
             },
             {
               "name": "H"
@@ -2206,7 +2212,14 @@
       },
       "definedBy": {
         "extension": {
-          "name": "Ssqosid"
+          "anyOf": [
+            {
+              "name": "Ssqosid"
+            },
+            {
+              "name": "Smqosid"
+            }
+          ]
         }
       },
       "src": "MCID_WIDTH.yaml"
@@ -3327,10 +3340,10 @@
       },
       "src": "MSTATEEN0_SRMCFG_TYPE.yaml"
     },
-    "MSTATEEN1_SE0_TYPE": {
-      "name": "MSTATEEN1_SE0_TYPE",
-      "long_name": "Behavior of mstateen1.SE0",
-      "description": "Behavior of the `mstateen1.SE0`, which controls access to `hstateen1`, `hstateen1h`, and `sstateen1`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 `mstateen1.SE0` may be read-only zero only if the hypervisor extension is not implemented and `sstateen1` is all read-only zeros. No bits of `sstateen1` are currently defined, so only the hypervisor condition applies.",
+    "MSTATEEN1_SE1_TYPE": {
+      "name": "MSTATEEN1_SE1_TYPE",
+      "long_name": "Behavior of mstateen1.SE1",
+      "description": "Behavior of the `mstateen1.SE1`, which controls access to `hstateen1`, `hstateen1h`, and `sstateen1`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 `mstateen1.SE1` may be read-only zero only if the hypervisor extension is not implemented and `sstateen1` is all read-only zeros. No bits of `sstateen1` are currently defined, so only the hypervisor condition applies.",
       "schema": {
         "type": "string",
         "enum": [
@@ -3352,17 +3365,17 @@
         },
         "then": {
           "param": {
-            "name": "MSTATEEN1_SE0_TYPE",
+            "name": "MSTATEEN1_SE1_TYPE",
             "notEqual": "read-only-0"
           }
         }
       },
-      "src": "MSTATEEN1_SE0_TYPE.yaml"
+      "src": "MSTATEEN1_SE1_TYPE.yaml"
     },
-    "MSTATEEN2_SE0_TYPE": {
-      "name": "MSTATEEN2_SE0_TYPE",
-      "long_name": "Behavior of mstateen2.SE0",
-      "description": "Behavior of the `mstateen2.SE0`, which controls access to `hstateen2`, `hstateen2h`, and `sstateen2`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 `mstateen2.SE0` may be read-only zero only if the hypervisor extension is not implemented and `sstateen2` is all read-only zeros. No bits of `sstateen2` are currently defined, so only the hypervisor condition applies.",
+    "MSTATEEN2_SE2_TYPE": {
+      "name": "MSTATEEN2_SE2_TYPE",
+      "long_name": "Behavior of mstateen2.SE2",
+      "description": "Behavior of the `mstateen2.SE2`, which controls access to `hstateen2`, `hstateen2h`, and `sstateen2`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 `mstateen2.SE2` may be read-only zero only if the hypervisor extension is not implemented and `sstateen2` is all read-only zeros. No bits of `sstateen2` are currently defined, so only the hypervisor condition applies.",
       "schema": {
         "type": "string",
         "enum": [
@@ -3384,17 +3397,17 @@
         },
         "then": {
           "param": {
-            "name": "MSTATEEN2_SE0_TYPE",
+            "name": "MSTATEEN2_SE2_TYPE",
             "notEqual": "read-only-0"
           }
         }
       },
-      "src": "MSTATEEN2_SE0_TYPE.yaml"
+      "src": "MSTATEEN2_SE2_TYPE.yaml"
     },
-    "MSTATEEN3_SE0_TYPE": {
-      "name": "MSTATEEN3_SE0_TYPE",
-      "long_name": "Behavior of mstateen3.SE0",
-      "description": "Behavior of the `mstateen3.SE0`, which controls access to `hstateen3`, `hstateen3h`, and `sstateen3`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 `mstateen3.SE0` may be read-only zero only if the hypervisor extension is not implemented and `sstateen3` is all read-only zeros. No bits of `sstateen3` are currently defined, so only the hypervisor condition applies.",
+    "MSTATEEN3_SE3_TYPE": {
+      "name": "MSTATEEN3_SE3_TYPE",
+      "long_name": "Behavior of mstateen3.SE3",
+      "description": "Behavior of the `mstateen3.SE3`, which controls access to `hstateen3`, `hstateen3h`, and `sstateen3`: * 'rw': read-write * 'read-only-0': read-only, fixed to 0 * 'read-only-1': read-only, fixed to 1 `mstateen3.SE3` may be read-only zero only if the hypervisor extension is not implemented and `sstateen3` is all read-only zeros. No bits of `sstateen3` are currently defined, so only the hypervisor condition applies.",
       "schema": {
         "type": "string",
         "enum": [
@@ -3416,12 +3429,12 @@
         },
         "then": {
           "param": {
-            "name": "MSTATEEN3_SE0_TYPE",
+            "name": "MSTATEEN3_SE3_TYPE",
             "notEqual": "read-only-0"
           }
         }
       },
-      "src": "MSTATEEN3_SE0_TYPE.yaml"
+      "src": "MSTATEEN3_SE3_TYPE.yaml"
     },
     "MSTATEEN_AIA_TYPE": {
       "name": "MSTATEEN_AIA_TYPE",
@@ -3493,7 +3506,14 @@
         "extension": {
           "allOf": [
             {
-              "name": "Sscsrind"
+              "anyOf": [
+                {
+                  "name": "Smcsrind"
+                },
+                {
+                  "name": "Sscsrind"
+                }
+              ]
             },
             {
               "name": "Smstateen"
@@ -4481,6 +4501,22 @@
       },
       "src": "PRECISE_SYNCHRONOUS_EXCEPTIONS.yaml"
     },
+    "QRID_WIDTH": {
+      "name": "QRID_WIDTH",
+      "long_name": "QoS Register Interface ID Width",
+      "description": "Number of bits used for the QoS Register Interface ID field (QRID).",
+      "schema": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4
+      },
+      "definedBy": {
+        "extension": {
+          "name": "Smqosid"
+        }
+      },
+      "src": "QRID_WIDTH.yaml"
+    },
     "RCID_WIDTH": {
       "name": "RCID_WIDTH",
       "long_name": null,
@@ -4492,7 +4528,14 @@
       },
       "definedBy": {
         "extension": {
-          "name": "Ssqosid"
+          "anyOf": [
+            {
+              "name": "Ssqosid"
+            },
+            {
+              "name": "Smqosid"
+            }
+          ]
         }
       },
       "src": "RCID_WIDTH.yaml"
