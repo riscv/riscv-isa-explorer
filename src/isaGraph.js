@@ -292,6 +292,7 @@ export function resolveSelection({
 
   const seed = [...new Set(selected.filter(Boolean))];
   for (const id of seed) if (!nodes[id]) unknown.push({ ext: id, from: null });
+  const baseXlen = Number(/^RV(32|64|128)[IE]$/.exec(base ?? '')?.[1]) || null;
   if (base && !nodes[base]) unknown.push({ ext: base, from: null });
 
   // Breadth-first, so `path` is the shortest explanation rather than an
@@ -336,7 +337,16 @@ export function resolveSelection({
         null;
       let applied = null;
       if (!satisfiedBy && applyChoiceDefaults && choice.auto !== false && nodes[choice.default]) {
-        applied = choice.default;
+        // The weakest satp mode, Sv32, has SXLEN 32 and is wrong on an RV64
+        // base (#563): prefer the first option whose SXLEN matches the base.
+        const fits = (option) =>
+          !baseXlen ||
+          !(nodes[option]?.params ?? []).some(
+            (p) => p.name === 'SXLEN' && p.kind === 'includes' && p.value !== baseXlen,
+          );
+        applied = fits(choice.default)
+          ? choice.default
+          : (choice.options.find((option) => nodes[option] && fits(option)) ?? choice.default);
         const basePath = pathTo.get(id) ?? [id];
         for (const ext of [applied, ...closure(applied, graph)]) {
           if (resolved.has(ext)) continue;
