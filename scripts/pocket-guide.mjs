@@ -20,8 +20,8 @@
  * are, rather than spilling onto a page the numbering does not know about.
  *
  * buildGuide() and buildAllGuides() are pure: they take the parsed data and
- * return strings. loadInputs() reads the data files, so the build and the
- * tests share it. Run directly, the module writes the files to dist/.
+ * return strings. loadInputs() reads the data files and the fonts, so the
+ * build and the tests share it. Run directly, the module writes the files to dist/.
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -61,6 +61,63 @@ export const INPUT_FILES = [
   'toolchain-support.json',
 ].map((f) => join(SRC, f));
 
+/*
+ * The guide's fonts, vendored in scripts/fonts/ (IBM Plex, SIL OFL 1.1; the
+ * README there names the source and version) and embedded in every edition as
+ * data URIs. Without them Chrome sets the PDF in whatever the machine has:
+ * DejaVu Sans on the deploy runner, which is wider than the macOS faces the
+ * layout was checked with, so a name that fits locally is clipped in the
+ * published copy. Embedded, every machine prints the same PDF.
+ */
+export const FONT_DIR = join(here, 'fonts');
+export const FONTS = [
+  { family: 'IBM Plex Sans', file: 'ibm-plex-sans-latin-400-normal.woff2', weight: 400 },
+  {
+    family: 'IBM Plex Sans',
+    file: 'ibm-plex-sans-latin-400-italic.woff2',
+    weight: 400,
+    style: 'italic',
+  },
+  { family: 'IBM Plex Sans', file: 'ibm-plex-sans-latin-600-normal.woff2', weight: 600 },
+  { family: 'IBM Plex Sans', file: 'ibm-plex-sans-latin-700-normal.woff2', weight: 700 },
+  {
+    family: 'IBM Plex Sans Condensed',
+    file: 'ibm-plex-sans-condensed-latin-700-normal.woff2',
+    weight: 700,
+  },
+  { family: 'IBM Plex Mono', file: 'ibm-plex-mono-latin-400-normal.woff2', weight: 400 },
+  { family: 'IBM Plex Mono', file: 'ibm-plex-mono-latin-700-normal.woff2', weight: 700 },
+];
+export const FONT_FILES = FONTS.map((f) => join(FONT_DIR, f.file));
+
+const fontCss = new Map();
+
+/** The @font-face rules for FONTS, each font inlined; throws if a file is missing. */
+export function loadFontFaces(dir = FONT_DIR) {
+  if (fontCss.has(dir)) return fontCss.get(dir);
+  const css = FONTS.map(({ family, file, weight, style = 'normal' }) => {
+    let data;
+    try {
+      data = readFileSync(join(dir, file));
+    } catch (err) {
+      throw new Error(
+        `pocket guide: font ${file} is missing from ${dir} (${err.code ?? err.message}). ` +
+          'The guide embeds its fonts so every machine prints the same PDF; restore the file ' +
+          'from the source named in scripts/fonts/README.md.',
+      );
+    }
+    if (data.subarray(0, 4).toString('latin1') !== 'wOF2') {
+      throw new Error(`pocket guide: ${join(dir, file)} is not a woff2 font.`);
+    }
+    return (
+      `@font-face{font-family:"${family}";font-style:${style};font-weight:${weight};` +
+      `font-display:block;src:url(data:font/woff2;base64,${data.toString('base64')}) format("woff2")}`
+    );
+  }).join('\n');
+  fontCss.set(dir, css);
+  return css;
+}
+
 export function loadInputs({ date = new Date().toISOString().slice(0, 10) } = {}) {
   const [catalog, graph, toolchain] = INPUT_FILES.map((f) => JSON.parse(readFileSync(f, 'utf8')));
   const { version } = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8'));
@@ -73,11 +130,20 @@ export function loadInputs({ date = new Date().toISOString().slice(0, 10) } = {}
     groups: CATALOGUE_GROUPS,
     version,
     date,
+    fonts: loadFontFaces(),
   };
 }
 
+/*
+ * Characters the catalogue uses that the embedded Latin subset has no glyph
+ * for. Left alone, Chrome would set them in a system font, so they are spelt
+ * out instead; the tests fail on any other character outside the subset.
+ */
+const PRINT_SUBSTITUTES = { '≥': '>=', '≤': '<=' };
+
 const esc = (value) =>
   String(value ?? '')
+    .replace(/[≥≤]/g, (ch) => PRINT_SUBSTITUTES[ch])
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -436,6 +502,7 @@ export function buildGuide({
   date = '',
   version = '',
   siteUrl = SITE_URL,
+  fonts = loadFontFaces(),
 }) {
   const full = edition === FULL_EDITION;
   if (!full && !profiles[edition]) throw new Error(`Unknown profile edition: ${edition}`);
@@ -537,7 +604,9 @@ export function buildGuide({
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex">
 <title>${esc(title)}</title>
-<style>${STYLE}</style>
+<style>
+${fonts}
+${STYLE}</style>
 </head>
 <body>
 ${body}
@@ -569,9 +638,10 @@ const STYLE = `
 @page{size:105mm 148mm;margin:0}
 *{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 html,body{margin:0;padding:0;background:#fff}
-body{color:#1a1a24;font:7.4pt/1.35 system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,"Liberation Sans","DejaVu Sans",sans-serif}
+body{color:#1a1a24;font:7.4pt/1.35 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,"Liberation Sans","DejaVu Sans",sans-serif}
 @media screen{body{background:#8a8a96;padding:8mm 0}.page{margin:0 auto 6mm;box-shadow:0 1px 6px rgba(0,0,0,.35)}}
-code,.bits,.mn,.enc-sample{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono",monospace}
+code,.bits,.mn,.enc-sample,.cover-meta dd{font-family:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono","Liberation Mono",monospace}
+h1,h2{font-family:"IBM Plex Sans Condensed","IBM Plex Sans",system-ui,-apple-system,"Segoe UI","Helvetica Neue",Arial,"Liberation Sans","DejaVu Sans",sans-serif}
 a{color:inherit;text-decoration:none}
 .page{position:relative;width:105mm;height:148mm;overflow:hidden;background:#fff;padding:8mm 13mm 11mm 8mm;break-after:page;page-break-after:always}
 .page:last-child{break-after:auto;page-break-after:auto}
@@ -593,14 +663,14 @@ h3{margin:3.2mm 0 1mm;font-size:7.6pt;text-transform:uppercase;letter-spacing:.0
 /* cover */
 .cover{background:#283272;color:#fff;padding:14mm 11mm 10mm}
 .cover-kicker{font-size:6.6pt;letter-spacing:.14em;text-transform:uppercase;color:#f2b632;font-weight:700}
-.cover-title{font-size:25pt;line-height:1.05;margin:6mm 0 0;font-weight:800;color:#fff}
+.cover-title{font-size:25pt;line-height:1.05;margin:6mm 0 0;font-weight:700;color:#fff}
 .cover-rule{width:22mm;height:1.4mm;background:#f2b632;margin:6mm 0 5mm}
 .cover-edition{font-size:12pt;font-weight:700;color:#fff}
 .cover-note{font-size:7.4pt;color:#d9dcf0;margin:2mm 0 0;max-width:72mm}
 .cover-meta{position:absolute;left:11mm;right:11mm;bottom:20mm;margin:0;display:grid;grid-template-columns:1fr;gap:1.4mm}
 .cover-meta div{display:flex;justify-content:space-between;border-bottom:.2mm solid rgba(255,255,255,.25);padding-bottom:.8mm}
 .cover-meta dt{font-size:6.4pt;text-transform:uppercase;letter-spacing:.08em;color:#f2b632;font-weight:700}
-.cover-meta dd{margin:0;font-size:7.6pt;font-family:ui-monospace,"SF Mono",Menlo,"DejaVu Sans Mono",monospace}
+.cover-meta dd{margin:0;font-size:7.6pt}
 .cover-url{position:absolute;left:11mm;bottom:9mm;font-size:7pt;color:#f2b632}
 /* how to */
 .anatomy{margin:0;padding-left:4mm}

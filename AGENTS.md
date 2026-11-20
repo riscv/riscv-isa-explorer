@@ -215,6 +215,9 @@ Then `npm run sync` and `npm test && npm run build`.
   only the HTML (`dist/pocket-guide/*.html`), so PR CI and `npm run dev` have
   no PDFs and the Download menu's guide links 404 there. Locally: `npm run
   build && npm run guide:pdf` with Chrome installed (or `CHROME_BIN` set).
+  Its fonts (IBM Plex, `scripts/fonts/`) are vendored and embedded in the
+  HTML, so a local PDF and the deploy job's match; never let it fall back to
+  system fonts.
   Page numbers are computed by `scripts/pocket-guide.mjs`, not by CSS, so
   nothing on a page may grow with the data: raise a per-page cap
   (`INSTRUCTION_CAP` and friends) only after printing and looking at the

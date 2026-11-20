@@ -63,7 +63,9 @@ class PocketGuidePlugin {
         },
         async () => {
           const mod = await import('./scripts/pocket-guide.mjs');
-          for (const file of mod.INPUT_FILES) compilation.fileDependencies.add(file);
+          for (const file of [...mod.INPUT_FILES, ...mod.FONT_FILES]) {
+            compilation.fileDependencies.add(file);
+          }
           for (const guide of mod.buildAllGuides(mod.loadInputs())) {
             compilation.emitAsset(guide.path, new RawSource(guide.html));
           }
