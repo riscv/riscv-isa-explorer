@@ -405,6 +405,54 @@ test('a choice between Sscsrind and Smcsrind defaults to the weaker Sscsrind', (
   assert.ok(!result.resolved.includes('Smcsrind'), 'and not the Smcsrind superset');
 });
 
+for (const ext of ['Svade', 'Svadu']) {
+  test(`RV64I + ${ext} applies Sv39, not Sv32`, () => {
+    const result = resolveSelection({ selected: ['RV64I', ext], base: 'RV64I' });
+    const choice = result.choices.find((c) => c.node === ext);
+    assert.equal(choice.applied, 'Sv39', 'the default must match the base XLEN');
+    assert.ok(result.resolved.includes('Sv39'));
+    assert.ok(!result.resolved.includes('Sv32'), 'Sv32 is an RV32-only mode');
+  });
+}
+
+test('RV32I + Svade still applies Sv32', () => {
+  const result = resolveSelection({ selected: ['RV32I', 'Svade'], base: 'RV32I' });
+  const choice = result.choices.find((c) => c.node === 'Svade');
+  assert.equal(choice.applied, 'Sv32');
+  assert.ok(!result.resolved.includes('Sv39'));
+});
+
+// Sv48 and Sv57 reach SXLEN 64 only through Sv39, so the check covers the
+// closure. When the base is known and nothing fits, the choice stays open.
+test('RV32I + Svpbmt applies no satp mode', () => {
+  const result = resolveSelection({ selected: ['RV32I', 'Svpbmt'], base: 'RV32I' });
+  const choice = result.choices.find((c) => c.node === 'Svpbmt');
+  assert.equal(choice.applied, null, 'every option needs SXLEN 64');
+  assert.ok(!result.resolved.includes('Sv39'));
+  assert.ok(!result.resolved.includes('Sv48'));
+});
+
+test('RV128I + Svade applies no satp mode', () => {
+  const result = resolveSelection({ selected: ['RV128I', 'Svade'], base: 'RV128I' });
+  const choice = result.choices.find((c) => c.node === 'Svade');
+  assert.equal(choice.applied, null, 'no option has SXLEN 128');
+  assert.ok(!result.resolved.includes('Sv32'));
+});
+
+test('Svade with no base still applies the default Sv32', () => {
+  const result = resolveSelection({ selected: ['Svade'] });
+  const choice = result.choices.find((c) => c.node === 'Svade');
+  assert.equal(choice.applied, 'Sv32');
+});
+
+test('RV64I + Svade keeps Sv32 when it is picked explicitly', () => {
+  const result = resolveSelection({ selected: ['RV64I', 'Svade', 'Sv32'], base: 'RV64I' });
+  const choice = result.choices.find((c) => c.node === 'Svade');
+  assert.equal(choice.satisfiedBy, 'Sv32', 'an explicit pick is respected');
+  assert.equal(choice.applied, null);
+  assert.ok(result.resolved.includes('Sv32'));
+});
+
 test('an unknown extension is reported, not thrown', () => {
   const result = resolveSelection({ selected: ['Znotreal', 'D'] });
   assert.ok(result.unknown.some((u) => u.ext === 'Znotreal'));

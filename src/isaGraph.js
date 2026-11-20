@@ -292,6 +292,7 @@ export function resolveSelection({
 
   const seed = [...new Set(selected.filter(Boolean))];
   for (const id of seed) if (!nodes[id]) unknown.push({ ext: id, from: null });
+  const baseXlen = Number(/^RV(32|64|128)[IE]$/.exec(base ?? '')?.[1]) || null;
   if (base && !nodes[base]) unknown.push({ ext: base, from: null });
 
   // Breadth-first, so `path` is the shortest explanation rather than an
@@ -336,7 +337,22 @@ export function resolveSelection({
         null;
       let applied = null;
       if (!satisfiedBy && applyChoiceDefaults && choice.auto !== false && nodes[choice.default]) {
-        applied = choice.default;
+        // The weakest satp mode, Sv32, has SXLEN 32 and is wrong on an RV64
+        // base (#563). Check SXLEN over the option and its closure, since Sv48
+        // and Sv57 only reach SXLEN 64 through Sv39. With a known base and no
+        // option that fits, apply nothing and leave the choice unresolved.
+        const fits = (option) =>
+          !baseXlen ||
+          ![option, ...closure(option, graph)].some((ext) =>
+            (nodes[ext]?.params ?? []).some(
+              (p) => p.name === 'SXLEN' && p.kind === 'includes' && p.value !== baseXlen,
+            ),
+          );
+        applied = fits(choice.default)
+          ? choice.default
+          : (choice.options.find((option) => nodes[option] && fits(option)) ?? null);
+      }
+      if (applied) {
         const basePath = pathTo.get(id) ?? [id];
         for (const ext of [applied, ...closure(applied, graph)]) {
           if (resolved.has(ext)) continue;
