@@ -17,7 +17,7 @@ a row here and a test behind it.
 | `-march` strings | `src/marchUtils.js`, `scripts/emit-march-matrix.mjs` | `march`, `profiles`, `dependency-closure` |
 | Profiles | `src/profiles.js`, `src/profile-optional.json`, `scripts/sync-profile-optional.mjs` | `profiles`, `compare-model`, `pipeline` |
 | Parameters | `src/isa-params.json`, `src/isaParams.js`, `scripts/sync_udb_params.mjs` | `isa-params`, `pipeline` |
-| Exports (YAML, riscv-config, CSV, XLSX) | `src/exportUtils.js`, `src/profileExport.js`, `src/xlsxWriter.js` | `export`, `profile-export` |
+| Exports (YAML, riscv-config, CSV, XLSX) | `src/exportUtils.js`, `src/profileExport.js`, `src/xlsxWriter.js` | `export`, `profile-export`, `pocket-guide` |
 | Share links and builder state | `src/configPermalink.js`, `src/workspaceLock.js` | `config-permalink`, `workspace-lock`, `render-smoke` |
 | ISA Configuration Builder | `src/WorkspacePanel.jsx`, `src/ProfileDownloadMenu.jsx` | `render-smoke`, `render-views`, `profile-export` |
 | Compare | `src/compareModel.js`, `src/CompareView.jsx`, `src/CompareTray.jsx` | `compare-model`, `render-smoke` |
@@ -41,6 +41,7 @@ a row here and a test behind it.
 | Opcodes drift report | `scripts/check-opcodes-drift.mjs` | `opcodes-drift` |
 | Documentation links | `scripts/map-doc-links.mjs` | `doc-links` |
 | Crawler pages and sitemap | `scripts/static-pages.mjs` | `static-pages` |
+| Printable pocket guide (HTML on every build, PDF in the deploy job) | `scripts/pocket-guide.mjs`, `scripts/pocket-guide-pdf.mjs` | `pocket-guide` |
 | Scheduled workflows (bot identity, build before test, failure alert) and action references pinned to commit SHAs | `.github/workflows/` | `sync-tooling` |
 
 Test names are files in `tests/`, without `.test.mjs`.

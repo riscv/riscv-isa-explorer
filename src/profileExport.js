@@ -221,3 +221,22 @@ export function buildProfileExport(format, { profile, metadata, rows }) {
           : toXlsx(input);
   return { filename: `${profile}-extensions.${spec.extension}`, mime: spec.mime, data };
 }
+
+/*
+ * The printed pocket guides (scripts/pocket-guide.mjs writes the HTML on every
+ * build; the deploy job prints each to a PDF of the same name). Kept here so
+ * the download menu and the script that writes the files cannot disagree on a
+ * path: RVA23.1 is published as rva23-1.pdf.
+ */
+export const POCKET_GUIDE_DIR = 'pocket-guide';
+export const FULL_POCKET_GUIDE = 'riscv-pocket-guide';
+
+export const pocketGuideSlug = (profile) =>
+  String(profile)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+/** Site-relative path of a guide: the full edition without a profile, else that profile's. */
+export const pocketGuidePath = (profile, extension = 'pdf') =>
+  `${POCKET_GUIDE_DIR}/${profile ? pocketGuideSlug(profile) : FULL_POCKET_GUIDE}.${extension}`;
