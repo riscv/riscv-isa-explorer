@@ -10,13 +10,19 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   buildAllGuides,
   buildGuide,
   encodingCells,
+  FONT_DIR,
+  FONT_FILES,
+  FONTS,
   FULL_EDITION,
   INSTRUCTION_CAP,
+  loadFontFaces,
   loadInputs,
 } from '../scripts/pocket-guide.mjs';
 import { pocketGuidePath, pocketGuideSlug } from '../src/profileExport.js';
@@ -207,4 +213,78 @@ test('the PDF printer is the deploy step, and fails loudly', () => {
     'the guide must be printed before dist/ is published',
   );
   assert.ok(!ci.slice(0, ci.indexOf('\n  deploy:')).includes('guide:pdf'));
+});
+
+/*
+ * The fonts are embedded so the deploy runner prints what was checked locally
+ * (#579). A face that falls back to a system font is the silent failure:
+ * the PDF still prints, just wider, and a long name is clipped on paper.
+ */
+test('the vendored fonts exist, are woff2, and carry their licence', () => {
+  assert.ok(FONT_FILES.length >= 5);
+  for (const file of FONT_FILES) {
+    assert.ok(existsSync(file), `${file} is missing`);
+    const data = readFileSync(file);
+    assert.equal(data.subarray(0, 4).toString('latin1'), 'wOF2', `${file} is not woff2`);
+    assert.ok(data.length > 5_000 && data.length < 100_000, `${file} is ${data.length} bytes`);
+  }
+  const licence = readFileSync(join(FONT_DIR, 'OFL.txt'), 'utf8');
+  assert.match(licence, /SIL OPEN FONT LICENSE Version 1\.1/);
+  assert.match(licence, /IBM Corp/);
+  const readme = readFileSync(join(FONT_DIR, 'README.md'), 'utf8');
+  for (const { file } of FONTS) assert.ok(readme.includes(file), `README does not name ${file}`);
+});
+
+test('every edition embeds each font family as a data URI, Plex first in every stack', () => {
+  for (const guide of buildAllGuides(inputs)) {
+    const faces = [...guide.html.matchAll(/@font-face\{([^}]*)\}/g)].map((m) => m[1]);
+    assert.equal(faces.length, FONTS.length, `${guide.path}: wrong number of @font-face rules`);
+    for (const family of ['IBM Plex Sans', 'IBM Plex Sans Condensed', 'IBM Plex Mono']) {
+      const rule = faces.find((f) => f.includes(`font-family:"${family}"`));
+      assert.ok(rule, `${guide.path}: no @font-face for ${family}`);
+      assert.ok(rule.includes('src:url(data:font/woff2;base64,'), `${family} is not inlined`);
+      assert.ok(rule.includes('font-display:block'));
+    }
+    assert.ok(!/url\((?!data:)/.test(guide.html), `${guide.path} loads something by URL`);
+    const stacks = [...guide.html.matchAll(/font(?:-family)?:[^;{}]*?("[^"]+"|[\w-]+),[^;{}]*/g)];
+    assert.ok(stacks.length >= 3, 'no font stacks found');
+    for (const [stack, first] of stacks) {
+      assert.match(first, /^"IBM Plex /, `a font stack does not start with Plex: ${stack}`);
+    }
+  }
+});
+
+test('every character printed is in the embedded Latin subset', () => {
+  // Fontsource's latin unicode-range; anything else falls back to a system font.
+  const covered = (c) =>
+    c <= 0xff ||
+    (c >= 0x2000 && c <= 0x206f) ||
+    [
+      0x131, 0x152, 0x153, 0x2bb, 0x2bc, 0x2c6, 0x2da, 0x2dc, 0x304, 0x308, 0x329, 0x20ac, 0x2122,
+      0x2191, 0x2193, 0x2212, 0x2215, 0xfeff, 0xfffd,
+    ].includes(c);
+  for (const guide of buildAllGuides(inputs)) {
+    // The text between tags, outside the <style> block. Split rather than
+    // replace: this reads the output, it does not sanitise anything.
+    const body = guide.html.slice(guide.html.indexOf('</style>') + '</style>'.length);
+    const text = body
+      .split(/<[^>]*>/)
+      .join('')
+      .split(/&#?\w+;/)
+      .join('');
+    const outside = [...new Set([...text].filter((ch) => !covered(ch.codePointAt(0))))];
+    assert.deepEqual(outside, [], `${guide.path} prints characters Plex Latin lacks`);
+  }
+});
+
+test('a missing font fails the build with a message naming it', () => {
+  const empty = mkdtempSync(join(tmpdir(), 'pocket-guide-fonts-'));
+  try {
+    assert.throws(
+      () => loadFontFaces(empty),
+      /font ibm-plex-sans-latin-400-normal\.woff2 is missing/,
+    );
+  } finally {
+    rmSync(empty, { recursive: true, force: true });
+  }
 });
