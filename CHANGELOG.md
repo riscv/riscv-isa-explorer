@@ -13,6 +13,53 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-11-20
+
+Catalogue: 218 entries, up from 217; Smqosid is added and nothing is removed.
+The data is synced from riscv-unified-db 88cf3bf. No profile's `-march` string
+changes. The requirements of six supervisor-level extensions change, as listed
+under Changed.
+
+### Added
+
+- **A printable PDF pocket guide.** Every deploy publishes an A6 guide in
+  `/pocket-guide/`, with one page per ratified extension (encodings, toolchain
+  support and `-march` token), profile pages, a list of drafts and an index.
+  There is a full edition and one per profile. It is linked from the footer and
+  from the profile Download menu (#573, #574).
+- **Smqosid** (Machine-Mode QoS Identifiers, 0.9.0, development), with the
+  `mrmcfg` CSR and its three parameters (#560, #564, #565).
+- **A feature-request issue template** (#514, #562).
+
+### Changed
+
+- **Synced from riscv-unified-db 88cf3bf** (#565). 38 instructions gain names
+  and descriptions: the half-precision floating-point instructions, the vector
+  add-with-carry and subtract-with-borrow instructions, and `lr.w`/`lr.d`.
+  `QRID_WIDTH` is a new parameter, and `MSTATEEN1/2/3_SE0_TYPE` are renamed
+  `SE1`, `SE2` and `SE3`.
+- **Smcsrind and Sscsrind no longer require each other.** Following
+  riscv-unified-db#2802, Smcsrind is a superset of Sscsrind. Ssccfg, Smcdeleg
+  and Ssctr accept either one, and default to Sscsrind (#565, #566, #567).
+  Smcsrind now requires Sm instead of S.
+- **Synced the ISA manual's ratified list** (#561).
+- **Every GitHub Action is pinned to a commit**, and a test fails on any
+  unpinned one (#556, #558).
+
+### Fixed
+
+- **Esc closes the details panel at desktop widths**, unless you are typing,
+  a menu or dialog is open, or Ask AI is open. In compact mode the panel's card
+  now fits the bottom sheet (#210, #547).
+- **Smsdia** links to its current specification page and is described as
+  Supervisor Domain Interrupt Assignment, not as a debug feature (#570, #571).
+- **The test suite passes on Windows** (#537, #557).
+
+### Removed
+
+- **The stale `mcp/explorer/` copies** of `src/` files, left over from the
+  closed MCP server draft (#555, #572).
+
 ## [1.14.0] - 2026-11-09
 
 Catalogue: 217 entries, unchanged from 1.13.0; none added or removed. Eight
