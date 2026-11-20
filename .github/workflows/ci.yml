@@ -198,6 +198,12 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      # The build writes dist/pocket-guide/*.html; this prints each to a PDF
+      # beside it with the runner's Chrome, so the Download menu's links work.
+      # Here only: a pull request has nothing to publish, and the build must
+      # not depend on a browser. It fails rather than publish a missing PDF.
+      - name: Print the pocket guide to PDF
+        run: npm run guide:pdf
       - name: Publish dist/ to gh-pages
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

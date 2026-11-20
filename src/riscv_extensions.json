@@ -81491,11 +81491,11 @@
     {
       "id": "Smsdia",
       "name": "Smsdia",
-      "short": "Soft Debug/Instr",
+      "short": "SD Interrupt Assignment",
       "tags": [],
       "desc": "Assigns IMSIC interrupt files and APLIC domains to individual supervisor domains for isolated delivery.",
-      "use": "Soft-debug / diagnostics assist",
-      "url": "https://github.com/riscv/riscv-smmtt/blob/main/chapter7.adoc",
+      "use": "Direct interrupt delivery to supervisor domains",
+      "url": "https://github.com/riscv/riscv-smmtt/blob/main/modules/ROOT/pages/smsdia.adoc",
       "instructions": {},
       "state": "development"
     }

@@ -177,6 +177,23 @@ gh release create vX.Y.Z --verify-tag --title "vX.Y.Z" --notes-file <notes>
 Use the changelog section as the release notes, so the tag and the file cannot
 disagree.
 
+### Crediting contributors
+
+End every release section with a `### Contributors` list, alphabetical by
+GitHub login: everyone whose pull request was merged since the last release,
+bots excluded, and everyone who reported an issue the release fixes. Build the
+first half from the merged pull requests rather than from memory:
+
+```bash
+git log --format=%s vPREV..HEAD | grep -oE '\(#[0-9]+\)$' | tr -d '(#)' |
+  while read -r n; do
+    gh pr view "$n" --json author -q 'select(.author.is_bot | not) | .author.login'
+  done | sort -fu
+```
+
+Then add the reporters of the issues the section cites. Write each login as
+`@login`, so GitHub links it and lists the contributors on the release page.
+
 ### What a release entry carries
 
 - The catalogue size, as `before -> after`, whenever it moved

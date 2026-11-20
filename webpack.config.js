@@ -48,6 +48,34 @@ class StaticPagesPlugin {
 }
 
 /**
+ * Emits the printable pocket guides (scripts/pocket-guide.mjs) as HTML under
+ * pocket-guide/. The deploy job prints each to PDF with Chrome afterwards
+ * (npm run guide:pdf); the build itself never needs a browser.
+ */
+class PocketGuidePlugin {
+  apply(compiler) {
+    const { RawSource } = compiler.webpack.sources;
+    compiler.hooks.thisCompilation.tap('PocketGuidePlugin', (compilation) => {
+      compilation.hooks.processAssets.tapPromise(
+        {
+          name: 'PocketGuidePlugin',
+          stage: compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+        },
+        async () => {
+          const mod = await import('./scripts/pocket-guide.mjs');
+          for (const file of [...mod.INPUT_FILES, ...mod.FONT_FILES]) {
+            compilation.fileDependencies.add(file);
+          }
+          for (const guide of mod.buildAllGuides(mod.loadInputs())) {
+            compilation.emitAsset(guide.path, new RawSource(guide.html));
+          }
+        },
+      );
+    });
+  }
+}
+
+/**
  * Exported as a function so one config serves both jobs. `npm run build` passes
  * no --mode and falls through to production, producing exactly the bundle it
  * produced before. `npm run dev` passes --mode development and additionally
@@ -133,6 +161,7 @@ module.exports = (env, argv = {}) => {
         }),
       }),
       new StaticPagesPlugin(),
+      new PocketGuidePlugin(),
       // The release the footer names; `npm version` in a release PR updates it.
       new DefinePlugin({ __APP_VERSION__: JSON.stringify(version) }),
     ],

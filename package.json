@@ -1,6 +1,6 @@
 {
   "name": "riscv-isa-explorer",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "description": "Interactive reference for RISC-V extensions, profiles and per-instruction encodings",
   "homepage": "https://tech.riscv.org/isa-explorer/",
   "scripts": {
@@ -24,6 +24,7 @@
     "sync:params": "node scripts/sync_udb_params.mjs",
     "test": "node --test tests/*.test.mjs",
     "dev": "webpack serve --mode development",
+    "guide:pdf": "node scripts/pocket-guide-pdf.mjs",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{js,jsx,css}\"",
     "profiles:optional": "node scripts/sync-profile-optional.mjs",
