@@ -264,10 +264,14 @@ test('every character printed is in the embedded Latin subset', () => {
       0x2191, 0x2193, 0x2212, 0x2215, 0xfeff, 0xfffd,
     ].includes(c);
   for (const guide of buildAllGuides(inputs)) {
-    const text = guide.html
-      .replace(/<style>[\s\S]*?<\/style>/, '')
-      .replace(/<[^>]+>/g, '')
-      .replace(/&#?\w+;/g, '');
+    // The text between tags, outside the <style> block. Split rather than
+    // replace: this reads the output, it does not sanitise anything.
+    const body = guide.html.slice(guide.html.indexOf('</style>') + '</style>'.length);
+    const text = body
+      .split(/<[^>]*>/)
+      .join('')
+      .split(/&#?\w+;/)
+      .join('');
     const outside = [...new Set([...text].filter((ch) => !covered(ch.codePointAt(0))))];
     assert.deepEqual(outside, [], `${guide.path} prints characters Plex Latin lacks`);
   }
