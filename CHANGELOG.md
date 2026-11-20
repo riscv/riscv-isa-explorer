@@ -60,6 +60,17 @@ under Changed.
 - **The stale `mcp/explorer/` copies** of `src/` files, left over from the
   closed MCP server draft (#555, #572).
 
+### Contributors
+
+Thanks to everyone who wrote code or reported an issue for this release:
+
+- @AdityasagarR123: feature-request template (#562); reported #555
+- @ARYANPATEL-BIT: Esc closes the details panel (#547)
+- @jjscheel: reported #210
+- @LUPASOS: Windows test fixes (#557)
+- @NeoSamyak: GitHub Actions pinned to commits (#558); reported #556
+- @rpsene: pocket guide, Smqosid, Smsdia and indirect-CSR fixes, release
+
 ## [1.14.0] - 2026-11-09
 
 Catalogue: 217 entries, unchanged from 1.13.0; none added or removed. Eight
