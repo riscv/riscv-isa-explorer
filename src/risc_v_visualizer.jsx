@@ -94,7 +94,12 @@ import {
   buildCombinedCatalog,
 } from './marchUtils.js';
 import { resolveSelection, closure } from './isaGraph.js';
-import { profileMembership, profileExtensionRows, buildProfileExport } from './profileExport.js';
+import {
+  profileMembership,
+  profileExtensionRows,
+  buildProfileExport,
+  pocketGuidePath,
+} from './profileExport.js';
 import { CATALOGUE_GROUPS } from './evolutionModel.js';
 import ProfileDownloadMenu from './ProfileDownloadMenu.jsx';
 import RiscvLogo from './RiscvLogo.jsx';
@@ -5433,6 +5438,16 @@ const RISCVExplorer = () => {
                 riscv/riscv-unified-db
               </a>
             </span>
+            <span style={{ color: 'var(--riscv-border-2)' }}>·</span>
+            <a
+              href={pocketGuidePath(null)}
+              download
+              className="hover:underline"
+              style={{ color: 'var(--riscv-violet)' }}
+              data-tooltip="Every ratified extension, one A6 page each"
+            >
+              Pocket guide (PDF)
+            </a>
           </div>
           <div className="flex items-center gap-3">
             <a

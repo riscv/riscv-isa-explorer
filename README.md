@@ -81,6 +81,14 @@ get a dependency-resolved configuration with a valid `-march` string.
 - **Link out to the specification.** Each extension's **Read Online** button
   opens the page that defines it: docs.riscv.org when it is published there,
   otherwise the specification's source repository, and the button says which.
+- **Carry it on paper.** The **Pocket guide (PDF)** gives every ratified
+  extension one A6 page: what it does, what it needs, up to ten instruction
+  encodings and the first toolchain releases that take it, with a page per
+  profile and an index. Each profile also has its own edition, offered in the
+  Download menu while that profile is highlighted. Every build writes the
+  guides as HTML, and the deploy job prints them to PDF at
+  `pocket-guide/riscv-pocket-guide.pdf` and `pocket-guide/<profile>.pdf` on the
+  published site.
 
 ## Something look wrong?
 
@@ -173,6 +181,7 @@ hand-written link to their specification's repository.
 | extension metadata, CSRs, ratification state | the `sync-udb-extensions` workflow, Mondays at 06:00 UTC, opens or updates a PR when a file changes |
 | the published site | any push to `main` rebuilds and publishes to `gh-pages` |
 | static extension pages and `sitemap.xml` | generated from the catalogue on every build, for search engines and AI crawlers; nothing to run by hand |
+| pocket guide PDFs | HTML generated on every build; printed to PDF by the deploy job with the runner's Chrome; nothing to run by hand |
 | toolchain support | the `sync-toolchain-support` workflow, the 1st of each month at 10:00 UTC, opens or updates a PR when a new Clang, GCC, binutils, QEMU or Linux release ships or an extension's standing changes |
 | Sail, Spike and ACT links | the `sync-reference-impls` workflow, Mondays at 08:00 UTC, opens or updates a PR when an instruction gains or loses a link; new upstream commits alone do not, since the links are pinned |
 | instruction encodings | **by hand.** The `check-opcodes-drift` workflow, Mondays at 07:00 UTC, files an issue when upstream is ahead, or carries different bits under a name we list (drafts included) |
@@ -205,6 +214,7 @@ gaps to fill.
 | `src/EncodingMap.jsx`, `src/encodingMap.js` | the opcode-space map |
 | `src/SandboxPanel.jsx`, `src/sandboxModel.js` | the Custom Extension Sandbox |
 | `scripts/static-pages.mjs` | the per-extension static pages and sitemap, run by the build |
+| `scripts/pocket-guide.mjs`, `scripts/pocket-guide-pdf.mjs` | the printable pocket guide: HTML by the build, PDF by the deploy job |
 
 [AGENTS.md](AGENTS.md) has the full map and the gotchas.
 

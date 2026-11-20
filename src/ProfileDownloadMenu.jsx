@@ -3,7 +3,8 @@
  * Profile picker while a profile is highlighted, and its list of formats.
  *
  * It knows nothing about profiles or files: it reports which format was
- * chosen, and the caller builds the file (profileExport.js). Kept in its own
+ * chosen, and the caller builds the file (profileExport.js). The two pocket
+ * guide entries are plain links to the PDFs the deploy job prints. Kept in its own
  * module so the main view's render body never declares a component.
  *
  * The menu is portalled to <body> at fixed coordinates under the button. The
@@ -14,7 +15,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { Download } from 'lucide-react';
-import { EXPORT_FORMATS } from './profileExport.js';
+import { EXPORT_FORMATS, pocketGuidePath } from './profileExport.js';
 
 export default function ProfileDownloadMenu({ profile, onDownload }) {
   const [open, setOpen] = React.useState(false);
@@ -128,6 +129,34 @@ export default function ProfileDownloadMenu({ profile, onDownload }) {
                   .{format.extension}
                 </span>
               </button>
+            ))}
+            {/* Printed by the deploy job (scripts/pocket-guide-pdf.mjs), so they
+                exist on the published site only, not under npm run dev. */}
+            <div
+              role="separator"
+              className="my-1 border-t"
+              style={{ borderColor: 'var(--riscv-border-2)' }}
+            />
+            {[
+              { href: pocketGuidePath(profile), label: `${profile} pocket guide` },
+              { href: pocketGuidePath(null), label: 'Full pocket guide' },
+            ].map((guide) => (
+              <a
+                key={guide.href}
+                href={guide.href}
+                download
+                role="menuitem"
+                // Close after the click: removing the link while its click is
+                // still being handled would cancel the download.
+                onClick={() => setTimeout(() => close(true), 0)}
+                className="riscv-menu-item w-full text-left px-2.5 py-1.5 rounded-md text-[12px] flex items-center justify-between gap-3"
+                style={{ color: 'var(--riscv-text)' }}
+              >
+                <span>{guide.label}</span>
+                <span className="font-mono text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
+                  .pdf
+                </span>
+              </a>
             ))}
           </div>,
           document.body,

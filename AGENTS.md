@@ -93,6 +93,8 @@ src/
   isa-manual-status.json      # the ISA manual prefaces' ratified list, checked against the catalogue
 scripts/                      # sync/seed/check tooling (.mjs / .cjs)
   static-pages.mjs            # crawler-readable page per extension + sitemap, run by the build
+  pocket-guide.mjs            # printable A6 pocket guide HTML (full + per profile), run by the build
+  pocket-guide-pdf.mjs        # prints dist/pocket-guide/*.html to PDF with headless Chrome (deploy only)
 tests/                        # node:test suites (*.test.mjs)
 public/index.html             # webpack HTML template
 feature-flags.cjs             # build-time switches, read by the config AND the bundle
@@ -208,6 +210,15 @@ Then `npm run sync` and `npm test && npm run build`.
   sync step is needed: a new catalogue entry gets its page on the next deploy.
   A new catalogue field shows up there only if the template renders it.
   `tests/static-pages.test.mjs` guards coverage, escaping and the sitemap.
+- **The pocket guide PDFs are printed only in the deploy job**, with the
+  runner's Chrome (`npm run guide:pdf`, after the build). The build writes
+  only the HTML (`dist/pocket-guide/*.html`), so PR CI and `npm run dev` have
+  no PDFs and the Download menu's guide links 404 there. Locally: `npm run
+  build && npm run guide:pdf` with Chrome installed (or `CHROME_BIN` set).
+  Page numbers are computed by `scripts/pocket-guide.mjs`, not by CSS, so
+  nothing on a page may grow with the data: raise a per-page cap
+  (`INSTRUCTION_CAP` and friends) only after printing and looking at the
+  worst-case page.
 - **The instruction examples are generated and checked by assembling them.**
   `src/instructionUsage.js` turns each UDB operand template into a concrete
   line, and `tests/instruction-usage.test.mjs` assembles all of them, and
