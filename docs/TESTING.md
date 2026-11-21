@@ -19,7 +19,7 @@ a row here and a test behind it.
 | Parameters | `src/isa-params.json`, `src/isaParams.js`, `scripts/sync_udb_params.mjs` | `isa-params`, `pipeline` |
 | Exports (YAML, riscv-config, CSV, XLSX) | `src/exportUtils.js`, `src/profileExport.js`, `src/xlsxWriter.js` | `export`, `profile-export`, `pocket-guide` |
 | Share links and builder state | `src/configPermalink.js`, `src/workspaceLock.js` | `config-permalink`, `workspace-lock`, `render-smoke` |
-| ISA Configuration Builder | `src/WorkspacePanel.jsx`, `src/ProfileDownloadMenu.jsx` | `render-smoke`, `render-views`, `profile-export` |
+| ISA Configuration Builder | `src/WorkspacePanel.jsx`, `src/ProfileDownloadMenu.jsx`, `src/builderNotice.js` | `render-smoke`, `render-views`, `profile-export`, `builder-notice` |
 | Compare | `src/compareModel.js`, `src/CompareView.jsx`, `src/CompareTray.jsx` | `compare-model`, `render-smoke` |
 | Encoding tools | `src/encodingUtils.js`, `src/encodingMap.js`, `src/EncodingMap.jsx`, `src/EncodingDiagram.jsx` | `encoding-utils`, `encoding-map`, `render-views` |
 | Extension Sandbox | `src/sandboxModel.js`, `src/SandboxPanel.jsx` | `sandbox-model`, `render-views` |

@@ -19,6 +19,7 @@
  * Pure: no React and no data import. Callers pass the lists, the catalogue and
  * the dependency closure, so tests can drive it with anything.
  */
+import { PROFILE_EXPORT_NOTICE } from './builderNotice.js';
 import { buildXlsx } from './xlsxWriter.js';
 
 export const REQUIREMENTS = ['mandatory', 'implied', 'optional'];
@@ -144,7 +145,10 @@ const yamlScalar = (value) =>
 
 export function toYaml({ profile, metadata = {}, rows }) {
   const header = profileHeader(profile, metadata, rows);
-  const lines = ['# RISC-V profile extension list, exported from the RISC-V ISA Explorer'];
+  const lines = [
+    '# RISC-V profile extension list, exported from the RISC-V ISA Explorer',
+    `# ${PROFILE_EXPORT_NOTICE}`,
+  ];
   for (const [key, value] of Object.entries(header)) {
     if (value && typeof value === 'object') {
       lines.push(`${key}:`);
@@ -191,6 +195,7 @@ function profileHeader(profile, metadata, rows) {
       optional: count('optional'),
     },
     source: 'https://tech.riscv.org/isa-explorer/',
+    notice: PROFILE_EXPORT_NOTICE,
   };
 }
 
