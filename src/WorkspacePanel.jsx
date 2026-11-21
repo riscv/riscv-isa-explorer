@@ -48,6 +48,7 @@ import { buildIsaConfigYaml } from './exportUtils.js';
 import {
   DEPENDENCY_GRAPH,
   closure,
+  conditionallyImplied,
   resolveParams,
   resolveSelection,
   impliedVlen,
@@ -212,6 +213,7 @@ function ProfileGapCard({ workspaceIds, knownIds, defaultProfile, onAddIds }) {
         mandatory: PROFILES[target],
         optional: PROFILE_OPTIONAL[target] ?? [],
         closure,
+        conditional: conditionallyImplied,
         known: knownIds,
         bases: BASE_ISA_IDS,
       }),

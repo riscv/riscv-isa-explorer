@@ -62,7 +62,32 @@
           "ref": "C.yaml requirements.extension"
         }
       ],
-      "conditionalRequirements": true
+      "conditionalRequirements": true,
+      "requiresWhen": [
+        {
+          "ext": "Zcf",
+          "when": {
+            "present": [
+              "F"
+            ],
+            "xlenNot": [
+              64
+            ]
+          },
+          "src": "udb",
+          "ref": "C.yaml requirements (conditional)"
+        },
+        {
+          "ext": "Zcd",
+          "when": {
+            "present": [
+              "D"
+            ]
+          },
+          "src": "udb",
+          "ref": "C.yaml requirements (conditional)"
+        }
+      ]
     },
     "D": {
       "requires": [
@@ -621,7 +646,19 @@
           "ref": "Sspmp.yaml requirements.extension"
         }
       ],
-      "conditionalRequirements": true
+      "conditionalRequirements": true,
+      "requiresWhen": [
+        {
+          "ext": "Smpmpdeleg",
+          "when": {
+            "present": [
+              "Sm"
+            ]
+          },
+          "src": "udb",
+          "ref": "Sspmp.yaml requirements (conditional)"
+        }
+      ]
     },
     "Sspmpen": {
       "requires": [
@@ -759,7 +796,30 @@
           "ref": "Supm.yaml requirements.extension"
         }
       ],
-      "conditionalRequirements": true
+      "conditionalRequirements": true,
+      "requiresWhen": [
+        {
+          "ext": "Ssnpm",
+          "when": {
+            "present": [
+              "S"
+            ]
+          },
+          "src": "udb",
+          "ref": "Supm.yaml requirements (conditional)"
+        },
+        {
+          "ext": "Smnpm",
+          "when": {
+            "present": [],
+            "absent": [
+              "S"
+            ]
+          },
+          "src": "udb",
+          "ref": "Supm.yaml requirements (conditional)"
+        }
+      ]
     },
     "Sv32": {
       "requires": [
@@ -1449,7 +1509,19 @@
           "ref": "Zicfiss.yaml requirements.extension"
         }
       ],
-      "conditionalRequirements": true
+      "conditionalRequirements": true,
+      "requiresWhen": [
+        {
+          "ext": "S",
+          "when": {
+            "present": [
+              "U"
+            ]
+          },
+          "src": "udb",
+          "ref": "Zicfiss.yaml requirements (conditional)"
+        }
+      ]
     },
     "Zicntr": {
       "requires": [

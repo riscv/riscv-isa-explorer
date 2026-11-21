@@ -18,14 +18,24 @@ const byId = (a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' });
  * @param {string[]} p.mandatory the profile's mandatory list
  * @param {string[]} [p.optional] the profile's optional list
  * @param {(id: string) => Iterable<string>} p.closure transitive requirements
+ * @param {Function} [p.conditional] isaGraph's conditionallyImplied, so the
+ *   profile's implied set matches what the builder resolves (#587)
  * @param {Set<string>} [p.known] catalogue ids. An implied id outside the
  *   catalogue can never be in a configuration, so it is left out rather than
  *   reported as permanently missing.
  * @param {Set<string>} [p.bases] base ISA ids, to report a base mismatch
  */
-export function profileGap({ configIds, mandatory, optional = [], closure, known, bases }) {
+export function profileGap({
+  configIds,
+  mandatory,
+  optional = [],
+  closure,
+  conditional = null,
+  known,
+  bases,
+}) {
   const config = new Set(configIds);
-  const membership = profileMembership({ mandatory, optional, closure });
+  const membership = profileMembership({ mandatory, optional, closure, conditional });
   const inScope = (id, entry) => !known || known.has(id) || entry.requirement === 'mandatory';
 
   const missingMandatory = [];

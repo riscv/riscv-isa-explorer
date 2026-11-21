@@ -176,6 +176,69 @@ function extensionRequirements(requirements) {
   return { hard, choices, conditional, excluded, params };
 }
 
+/**
+ * Implications hidden in UDB's conditional requirements (#587): "if these
+ * extensions are present (and these absent, on this width), that one is
+ * required". Two shapes carry them:
+ *
+ *   anyOf / oneOf  every branch but one is a negated extension or an xlen
+ *                  guard, and the remaining branch names one extension.
+ *                  C: oneOf[not D, Zcd] is "D requires Zcd"; anyOf[not F,
+ *                  xlen 64, Zcf] is "F on a width other than 64 requires Zcf".
+ *   if / then      the test names extensions (or their absence) and the
+ *                  consequence names one extension. Zicfiss: if U then S.
+ *
+ * Anything else (a consequence on a parameter, alternative whole
+ * configurations as in Zce) is not an implication between extensions and is
+ * left out; the node keeps conditionalRequirements so that is never hidden.
+ *
+ * @returns {{ext: string, when: {present: string[], absent: string[], xlenNot: number[]}}[]}
+ */
+function extensionImplications(requirements) {
+  const out = [];
+  const plainName = (n) =>
+    n && typeof n === 'object' && n.extension && typeof n.extension.name === 'string'
+      ? n.extension.name
+      : null;
+  // A branch read as a test: an extension, its absence, or a width.
+  const test = (n) => {
+    if (plainName(n)) return { present: [plainName(n)], absent: [] };
+    if (n && typeof n === 'object' && n.not && plainName(n.not)) {
+      return { present: [], absent: [plainName(n.not)] };
+    }
+    return null;
+  };
+  const visit = (node) => {
+    if (Array.isArray(node)) return node.forEach(visit);
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node.allOf)) node.allOf.forEach(visit);
+    for (const key of ['anyOf', 'oneOf']) {
+      const branches = node[key];
+      if (!Array.isArray(branches)) continue;
+      const positive = branches.filter((b) => plainName(b));
+      if (positive.length !== 1) continue;
+      const when = { present: [], absent: [], xlenNot: [] };
+      let ok = true;
+      for (const b of branches) {
+        if (b === positive[0]) continue;
+        if (b && typeof b === 'object' && b.not && plainName(b.not))
+          when.present.push(plainName(b.not));
+        else if (b && typeof b === 'object' && typeof b.xlen === 'number')
+          when.xlenNot.push(b.xlen);
+        else ok = false;
+      }
+      if (ok && when.present.length) out.push({ ext: plainName(positive[0]), when });
+    }
+    if (node.if && node.then) {
+      const cond = test(node.if);
+      const ext = plainName(node.then);
+      if (cond && ext) out.push({ ext, when: { ...cond, xlenNot: [] } });
+    }
+  };
+  visit(requirements);
+  return out;
+}
+
 function readUdb(root) {
   const dir = path.join(root, 'spec', 'std', 'isa', 'ext');
   const graph = {};
@@ -190,9 +253,14 @@ function readUdb(root) {
     const choices = [];
     const excluded = new Set();
     const params = [];
+    const implications = [];
     let skipped = 0;
     for (const req of [doc.requirements, ...(doc.versions ?? []).map((v) => v?.requirements)]) {
       if (!req) continue;
+      for (const imp of extensionImplications(req)) {
+        const key = JSON.stringify(imp);
+        if (!implications.some((i) => JSON.stringify(i) === key)) implications.push(imp);
+      }
       const found = extensionRequirements(req);
       found.hard.forEach((n) => hard.add(n));
       found.excluded.forEach((n) => excluded.add(n));
@@ -218,6 +286,7 @@ function readUdb(root) {
         excluded: [...excluded].sort(),
         conditional: skipped > 0,
         params,
+        implications,
       };
     }
   }
@@ -247,7 +316,18 @@ function readUdb(root) {
         .split('\n')
         .map((l) => l.trim().replace(/^origin\//, ''))
         .filter(Boolean);
-      branch = at.find((b) => b === 'main' || b === 'master') || at[0] || 'detached';
+      branch = at.find((b) => b === 'main' || b === 'master') || null;
+      // A pinned commit main has since moved past points at no branch at all,
+      // and `branch --points-at` then prints "(no branch)". It is still main's
+      // history, which is what the pipeline test asks.
+      if (!branch) {
+        try {
+          execFileSync('git', ['-C', root, 'merge-base', '--is-ancestor', 'HEAD', 'origin/main']);
+          branch = 'main';
+        } catch {
+          branch = at.find((b) => !b.startsWith('(')) || 'detached';
+        }
+      }
     }
   } catch {
     /* not a git checkout — provenance degrades, extraction still works */
@@ -436,6 +516,21 @@ for (const id of catalogIds.slice().sort((a, b) => a.localeCompare(b))) {
   // never read as "UDB says this extension depends on nothing" when what UDB
   // actually says is "it depends, conditionally".
   if (udb[id]?.conditional) node.conditionalRequirements = true;
+  // The conditional requirements that are implications between extensions,
+  // applied by resolveSelection() once it knows what else is present (#587).
+  const when = (udb[id]?.implications ?? []).filter((i) => catalogIds.includes(i.ext));
+  if (when.length) {
+    node.requiresWhen = when.map((i) => ({
+      ext: i.ext,
+      when: {
+        present: i.when.present,
+        ...(i.when.absent?.length ? { absent: i.when.absent } : {}),
+        ...(i.when.xlenNot?.length ? { xlenNot: i.when.xlenNot } : {}),
+      },
+      src: 'udb',
+      ref: `${id}.yaml requirements (conditional)`,
+    }));
+  }
   if (udb[id]?.params?.length) {
     node.params = udb[id].params.map((prm) => ({
       ...prm,

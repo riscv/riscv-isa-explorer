@@ -11,7 +11,7 @@
  * and the name of a renderer. Adding a field to a comparison is a change here,
  * not in the view.
  */
-import { closure } from './isaGraph.js';
+import { closure, conditionallyImplied } from './isaGraph.js';
 import { PROFILES } from './profiles.js';
 import PROFILE_OPTIONAL from './profile-optional.json' with { type: 'json' };
 import { profileMembership, REQUIREMENTS } from './profileExport.js';
@@ -224,6 +224,7 @@ function membershipFor(name, expandDependencies) {
     mandatory: PROFILES[name] || [],
     optional: PROFILE_OPTIONAL[name] || [],
     closure: expandDependencies ? closure : null,
+    conditional: expandDependencies ? conditionallyImplied : null,
   });
 }
 
