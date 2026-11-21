@@ -1310,6 +1310,35 @@ pre,
     0 0 0 1px rgba(45, 40, 80, 0.04) inset;
 }
 
+/* Toolbar primary action: Open builder (#585). Filled so it reads as the main
+   action; explicit colours in both themes rather than Tailwind tints, which
+   the light theme would otherwise have to override one by one. Dark text on
+   gold measures well above 4.5:1 in both. */
+.builder-action-primary {
+  /* A literal, not --riscv-gold: the light theme darkens that token to a
+     brown that dark text cannot sit on. */
+  background: #f5c542;
+  color: #1a1408;
+  border: 1px solid transparent;
+}
+.builder-action-primary:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 0 12px rgba(245, 197, 66, 0.35);
+}
+.builder-action-primary:focus-visible {
+  outline: 2px solid var(--riscv-text);
+  outline-offset: 2px;
+}
+.builder-action-count {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(26, 20, 8, 0.18);
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+
 /* Toolbar Action Button - Amber (Open Panel) */
 :root[data-theme='light'] .builder-action-amber.text-amber-300 {
   color: #d97706 !important;
