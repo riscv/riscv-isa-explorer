@@ -693,3 +693,10 @@ test('the RVA23 UDB export parses as YAML with unique keys', async () => {
   assert.ok(doc.implemented_extensions.some((e) => e.name === 'Sm'));
   assert.ok('VSXLEN' in doc.params, 'H brings VSXLEN');
 });
+
+test('a constraint on MXLEN never writes the key twice (Smmpm requires 64)', () => {
+  const yaml = buildIsaConfigYaml(resolve(['RV64I', 'Smmpm']), ALL, { format: 'udb' }).yaml;
+  assert.equal(udbParamKeys(yaml).filter((k) => k === 'MXLEN').length, 1);
+  const rv32 = buildIsaConfigYaml(['RV32I', 'Smmpm', 'Sm'], ALL, { format: 'udb' });
+  assert.match(rv32.yaml, /# CONFLICT MXLEN: MXLEN must be 64 for Smmpm, but the base is 32-bit/);
+});

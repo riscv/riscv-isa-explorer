@@ -512,6 +512,17 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       u.push(`  # CONSTRAINED — forced by the extensions above. Changing any of these`);
       u.push(`  # contradicts your own extension list and will fail tests.`);
       for (const prm of constrained) {
+        // MXLEN is already written from the base. Smmpm requires MXLEN = 64;
+        // writing it again made the key appear twice, which is invalid YAML
+        // (#589). A clash with the base is a real conflict and says so.
+        if (prm.name === 'MXLEN' && prm.kind === 'equal') {
+          if (prm.value !== baseInfo.xlen) {
+            const msg = `MXLEN must be ${prm.value} for ${prm.from.join(', ')}, but the base is ${baseInfo.xlen}-bit`;
+            warnings.push(`Parameter conflict: ${msg}`);
+            u.push(`  # CONFLICT MXLEN: ${msg}`);
+          }
+          continue;
+        }
         if (prm.conflict) {
           warnings.push(`Parameter conflict: ${prm.conflict}`);
           u.push(`  # CONFLICT ${prm.name}: ${prm.conflict}`);
