@@ -56,6 +56,7 @@ import { describeParameter } from './isaParams.js';
 import { PROFILES, PROFILE_METADATA } from './profiles.js';
 import EncodingDiagram from './EncodingDiagram.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
+import { BUILDER_NOTICE, MARCH_NOTE, NOTICE_STORAGE_KEY, REPORT_URL } from './builderNotice.js';
 
 /**
  * Sort direction indicator for the catalog table header.
@@ -66,6 +67,107 @@ function SortIcon({ col, sort }) {
     <ChevronUp size={11} style={{ color: 'var(--riscv-gold)' }} />
   ) : (
     <ChevronDown size={11} style={{ color: 'var(--riscv-gold)' }} />
+  );
+}
+
+// Storage can throw (blocked cookies, private windows); the notice then just
+// shows every time, which is the safe direction.
+function noticeDismissed() {
+  try {
+    return window.localStorage.getItem(NOTICE_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function rememberNoticeDismissed() {
+  try {
+    window.localStorage.setItem(NOTICE_STORAGE_KEY, '1');
+  } catch {
+    // Not remembered; it shows again next time.
+  }
+}
+
+/**
+ * The caveat shown when the builder opens (#581): the output is resolved
+ * automatically and has to be checked against the specifications.
+ */
+function BuilderNotice({ onDismiss }) {
+  return (
+    <section
+      role="note"
+      aria-labelledby="builder-notice-title"
+      style={{
+        maxWidth: 960,
+        margin: '0 auto 20px',
+        borderRadius: 10,
+        padding: '14px 16px',
+        background: 'var(--riscv-surface)',
+        border: '1px solid rgba(255,160,122,0.35)',
+        borderLeft: '4px solid #ffa07a',
+        color: 'var(--riscv-text-2)',
+        fontSize: 12.5,
+        lineHeight: 1.55,
+      }}
+    >
+      <h2
+        id="builder-notice-title"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          margin: '0 0 6px',
+          fontSize: 14,
+          fontWeight: 700,
+          color: 'var(--riscv-text)',
+        }}
+      >
+        <AlertTriangle size={15} style={{ color: '#ffa07a', flexShrink: 0 }} aria-hidden="true" />
+        {BUILDER_NOTICE.title}
+      </h2>
+      <p style={{ margin: '0 0 6px' }}>{BUILDER_NOTICE.intro}</p>
+      <ul style={{ margin: '0 0 8px', paddingLeft: 20, listStyle: 'disc' }}>
+        {BUILDER_NOTICE.points.map((point) => (
+          <li key={point} style={{ marginBottom: 3 }}>
+            {point}
+          </li>
+        ))}
+      </ul>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          flexWrap: 'wrap',
+        }}
+      >
+        <a
+          href={REPORT_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'var(--riscv-text)', textDecoration: 'underline' }}
+        >
+          {BUILDER_NOTICE.report}
+        </a>
+        <button
+          type="button"
+          onClick={onDismiss}
+          style={{
+            padding: '6px 14px',
+            borderRadius: 8,
+            background: 'var(--riscv-surface-2)',
+            border: '1px solid var(--riscv-border-2)',
+            color: 'var(--riscv-text)',
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          {BUILDER_NOTICE.dismiss}
+        </button>
+      </div>
+    </section>
   );
 }
 
@@ -102,6 +204,12 @@ export default function WorkspacePanel({
   const [includeInstructions, setIncludeInstructions] = useState(true);
   const [extSearchQuery, setExtSearchQuery] = useState('');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [showNotice, setShowNotice] = useState(() => !noticeDismissed());
+
+  function dismissNotice() {
+    rememberNoticeDismissed();
+    setShowNotice(false);
+  }
 
   const marchInputRef = useRef(null);
 
@@ -909,6 +1017,28 @@ export default function WorkspacePanel({
 
           <button
             type="button"
+            onClick={() => setShowNotice((v) => !v)}
+            aria-label="About these results"
+            aria-pressed={showNotice}
+            title="About these results: verify dependencies and ordering"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 32,
+              height: 32,
+              borderRadius: 8,
+              background: 'var(--riscv-surface-2)',
+              border: '1px solid var(--riscv-border-2)',
+              color: showNotice ? 'var(--riscv-gold)' : 'var(--riscv-text-3)',
+              cursor: 'pointer',
+            }}
+          >
+            <Info size={16} />
+          </button>
+
+          <button
+            type="button"
             onClick={onClose}
             aria-label="Close ISA Configuration Builder"
             style={{
@@ -949,6 +1079,8 @@ export default function WorkspacePanel({
           padding: '20px 24px 40px',
         }}
       >
+        {showNotice && <BuilderNotice onDismiss={dismissNotice} />}
+
         {/* --- EMPTY STATE WORKBENCH --- */}
         {isEmpty ? (
           <div
@@ -1603,6 +1735,17 @@ export default function WorkspacePanel({
                           </button>
                         </div>
 
+                        <p
+                          style={{
+                            margin: 0,
+                            fontSize: 11.5,
+                            lineHeight: 1.45,
+                            color: 'var(--riscv-text-2)',
+                          }}
+                        >
+                          {MARCH_NOTE}
+                        </p>
+
                         <MarchToolchains march={encodeResult.march} />
 
                         {unverifiedGraphIds.length > 0 && (
@@ -1895,7 +2038,9 @@ export default function WorkspacePanel({
                 const ids = Array.from(workspaceIds);
                 const params = resolveParams(ids);
                 const vlen = impliedVlen(ids);
-                const VLEN_CHOICES = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536];
+                const VLEN_CHOICES = [
+                  32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
+                ];
                 return (
                   <StudioCard
                     title="Implementation Parameters"
