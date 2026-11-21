@@ -31,9 +31,17 @@ export const REQUIREMENTS = ['mandatory', 'implied', 'optional'];
  * @param {(id: string) => Iterable<string>} [p.closure] transitive requirements
  *   of one extension, excluding itself. Omit it to classify the lists as the
  *   specification writes them, with nothing implied.
+ * @param {(ids: string[]) => {ext: string, impliedBy: string[]}[]} [p.conditional]
+ *   what the mandatory set implies only together (isaGraph's
+ *   conditionallyImplied), used alongside closure.
  * @returns {Map<string, {requirement: string, impliedBy: string[]}>}
  */
-export function profileMembership({ mandatory, optional = [], closure = null }) {
+export function profileMembership({
+  mandatory,
+  optional = [],
+  closure = null,
+  conditional = null,
+}) {
   const out = new Map();
   for (const id of mandatory) out.set(id, { requirement: 'mandatory', impliedBy: [] });
   if (closure) {
@@ -43,6 +51,11 @@ export function profileMembership({ mandatory, optional = [], closure = null }) 
         if (!out.has(id)) out.set(id, { requirement: 'implied', impliedBy: [] });
         out.get(id).impliedBy.push(source);
       }
+    }
+    // What the mandatory set implies only together (Zcd for C with D, #587).
+    for (const { ext, impliedBy } of conditional ? conditional(mandatory) : []) {
+      if (out.has(ext)) continue;
+      out.set(ext, { requirement: 'implied', impliedBy: [...impliedBy] });
     }
     for (const entry of out.values()) entry.impliedBy.sort();
   }

@@ -160,6 +160,16 @@ Then `npm run sync` and `npm test && npm run build`.
   still an error. `closure()` already walks the pair correctly (pick one, get
   both). A hand edge in `LOCAL_EDGES` that reverses a UDB edge makes a real
   cycle: SPMP's Smpmpdeleg -> Sspmp was removed for that reason.
+- **Conditional requirements are `requiresWhen` edges, applied at resolution.**
+  UDB writes some requirements as conditions: C requires Zcd when D is
+  present, and Zcf when F is present below 64 bits; Zicfiss with U requires S;
+  Supm requires Ssnpm or Smnpm depending on S. The seeder turns these into
+  `requiresWhen` edges, and `resolveSelection()` applies them after the plain
+  closure, repeating until nothing changes. `closure()` cannot see them, since
+  a condition depends on the rest of the selection, so profile membership adds
+  them through `conditionallyImplied()`. Conditions on parameter values
+  (Smnpm, Shvsatpa) and Zce's per-version alternatives are not represented;
+  those nodes keep `conditionalRequirements: true` (#587).
 - **The Zve\* instruction sets are DERIVED, not synced.** riscv-opcodes has no
   `rv_zve*` tag and unified-db files all 627 vector instructions under one owner
   (`Zvl32b`), so nothing upstream says what each embedded subset contains. The

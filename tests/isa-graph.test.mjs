@@ -25,6 +25,7 @@ import {
   validateGraph,
   resolveSelection,
   closure,
+  conditionallyImplied,
   explain,
   resolveParams,
   impliedVlen,
@@ -36,7 +37,12 @@ import { buildIsaConfigYaml } from '../src/exportUtils.js';
 import { fileURLToPath } from 'node:url';
 
 const catalogIds = (() => {
-  const file = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'riscv_extensions.json');
+  const file = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '..',
+    'src',
+    'riscv_extensions.json',
+  );
   const catalog = JSON.parse(fs.readFileSync(file, 'utf8'));
   const ids = [];
   for (const group of Object.values(catalog)) {
@@ -63,7 +69,8 @@ test('every edge source is declared in the graph provenance block', () => {
   for (const node of Object.values(DEPENDENCY_GRAPH.nodes ?? {})) {
     for (const e of node.requires ?? []) if (e.src) used.add(e.src);
     for (const e of node.conflicts ?? []) if (e.src) used.add(e.src);
-    for (const c of node.choices ?? []) for (const o of c.options ?? []) if (o?.src) used.add(o.src);
+    for (const c of node.choices ?? [])
+      for (const o of c.options ?? []) if (o?.src) used.add(o.src);
   }
   const declared = new Set(Object.keys(DEPENDENCY_GRAPH.sources ?? {}));
   const undeclared = [...used].filter((s) => !declared.has(s)).sort();
@@ -193,9 +200,7 @@ test('a standalone Zvl floor reports that a concrete vector ISA provider is requ
   ]) {
     const result = resolveSelection({ selected: [id] });
     assert.ok(
-      result.choices.some(
-        (choice) => choice.node === id && !choice.satisfiedBy && !choice.applied,
-      ),
+      result.choices.some((choice) => choice.node === id && !choice.satisfiedBy && !choice.applied),
       `${id} should expose its unsatisfied vector-provider choice`,
     );
   }
@@ -223,20 +228,28 @@ test('RV32-only encodings conflict with wider base ISAs', () => {
 
 test('validation catches a dangling edge', () => {
   const { errors } = validateGraph(fixture({ A: { requires: [cite('Nope')] } }));
-  assert.ok(errors.some((e) => e.includes('dangling edge')), `expected a dangling-edge error, got: ${errors}`);
+  assert.ok(
+    errors.some((e) => e.includes('dangling edge')),
+    `expected a dangling-edge error, got: ${errors}`,
+  );
 });
 
 test('validation catches a self-edge', () => {
   const { errors } = validateGraph(fixture({ A: { requires: [cite('A')] } }));
-  assert.ok(errors.some((e) => e.includes('requires itself')), `got: ${errors}`);
+  assert.ok(
+    errors.some((e) => e.includes('requires itself')),
+    `got: ${errors}`,
+  );
 });
 
 test('validation catches a cycle', () => {
-  const { errors } = validateGraph(fixture({
-    A: { requires: [cite('B')] },
-    B: { requires: [cite('C')] },
-    C: { requires: [cite('A')] },
-  }));
+  const { errors } = validateGraph(
+    fixture({
+      A: { requires: [cite('B')] },
+      B: { requires: [cite('C')] },
+      C: { requires: [cite('A')] },
+    }),
+  );
   const cycles = errors.filter((e) => e.startsWith('dependency cycle'));
   assert.equal(cycles.length, 1, `expected exactly one cycle, got: ${errors}`);
   assert.match(cycles[0], /A -> B -> C -> A/);
@@ -251,8 +264,14 @@ test('a co-requisite pair marked on both sides is not a cycle', () => {
   const oneSided = validateGraph(
     fixture({ A: { requires: [co('B')] }, B: { requires: [cite('A')] } }),
   );
-  assert.ok(oneSided.errors.some((e) => e.startsWith('dependency cycle')), `${oneSided.errors}`);
-  assert.ok(oneSided.errors.some((e) => e.includes('marked corequisite')), `${oneSided.errors}`);
+  assert.ok(
+    oneSided.errors.some((e) => e.startsWith('dependency cycle')),
+    `${oneSided.errors}`,
+  );
+  assert.ok(
+    oneSided.errors.some((e) => e.includes('marked corequisite')),
+    `${oneSided.errors}`,
+  );
   // A real cycle through a marked pair is still caught.
   const through = validateGraph(
     fixture({
@@ -261,47 +280,76 @@ test('a co-requisite pair marked on both sides is not a cycle', () => {
       C: { requires: [cite('B')] },
     }),
   );
-  assert.ok(through.errors.some((e) => /B -> C -> B/.test(e)), `${through.errors}`);
+  assert.ok(
+    through.errors.some((e) => /B -> C -> B/.test(e)),
+    `${through.errors}`,
+  );
 });
 
 test('validation catches an uncited edge', () => {
-  const { errors } = validateGraph(fixture({
-    A: { requires: [{ ext: 'B', src: 'udb' }] },
-    B: { requires: [], verified: 'udb' },
-  }));
-  assert.ok(errors.some((e) => e.includes('missing "ref"')), `got: ${errors}`);
+  const { errors } = validateGraph(
+    fixture({
+      A: { requires: [{ ext: 'B', src: 'udb' }] },
+      B: { requires: [], verified: 'udb' },
+    }),
+  );
+  assert.ok(
+    errors.some((e) => e.includes('missing "ref"')),
+    `got: ${errors}`,
+  );
 });
 
 test('validation catches an unknown provenance value', () => {
-  const { errors } = validateGraph(fixture({
-    A: { requires: [{ ext: 'B', src: 'vibes', ref: 'trust me' }] },
-    B: { requires: [], verified: 'udb' },
-  }));
-  assert.ok(errors.some((e) => e.includes('is not one of')), `got: ${errors}`);
+  const { errors } = validateGraph(
+    fixture({
+      A: { requires: [{ ext: 'B', src: 'vibes', ref: 'trust me' }] },
+      B: { requires: [], verified: 'udb' },
+    }),
+  );
+  assert.ok(
+    errors.some((e) => e.includes('is not one of')),
+    `got: ${errors}`,
+  );
 });
 
 test('validation catches a one-of default outside its own options', () => {
-  const { errors } = validateGraph(fixture({
-    A: { requires: [], requiresOneOf: [{ options: ['B', 'C'], default: 'D', src: 'udb', ref: 'x' }] },
-    B: { requires: [], verified: 'udb' },
-    C: { requires: [], verified: 'udb' },
-    D: { requires: [], verified: 'udb' },
-  }));
-  assert.ok(errors.some((e) => e.includes('is not among its options')), `got: ${errors}`);
+  const { errors } = validateGraph(
+    fixture({
+      A: {
+        requires: [],
+        requiresOneOf: [{ options: ['B', 'C'], default: 'D', src: 'udb', ref: 'x' }],
+      },
+      B: { requires: [], verified: 'udb' },
+      C: { requires: [], verified: 'udb' },
+      D: { requires: [], verified: 'udb' },
+    }),
+  );
+  assert.ok(
+    errors.some((e) => e.includes('is not among its options')),
+    `got: ${errors}`,
+  );
 });
 
 test('validation catches a duplicate edge', () => {
-  const { errors } = validateGraph(fixture({
-    A: { requires: [cite('B'), cite('B')] },
-    B: { requires: [], verified: 'udb' },
-  }));
-  assert.ok(errors.some((e) => e.includes('duplicate edge')), `got: ${errors}`);
+  const { errors } = validateGraph(
+    fixture({
+      A: { requires: [cite('B'), cite('B')] },
+      B: { requires: [], verified: 'udb' },
+    }),
+  );
+  assert.ok(
+    errors.some((e) => e.includes('duplicate edge')),
+    `got: ${errors}`,
+  );
 });
 
 test('a node with no dependencies and no verified marker warns but does not fail', () => {
   const { errors, warnings } = validateGraph(fixture({ A: { requires: [] } }));
   assert.deepEqual(errors, []);
-  assert.ok(warnings.some((w) => w.includes('checked, or assumed')), `got: ${warnings}`);
+  assert.ok(
+    warnings.some((w) => w.includes('checked, or assumed')),
+    `got: ${warnings}`,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -486,7 +534,10 @@ test('the implied path is the shortest one', () => {
 
 test('the graph carries the parameters UDB attaches to extensions', () => {
   const withParams = Object.entries(DEPENDENCY_GRAPH.nodes).filter(([, n]) => n.params?.length);
-  assert.ok(withParams.length >= 20, `expected UDB's parameter constraints, found ${withParams.length}`);
+  assert.ok(
+    withParams.length >= 20,
+    `expected UDB's parameter constraints, found ${withParams.length}`,
+  );
   for (const [id, node] of withParams) {
     for (const prm of node.params) {
       assert.ok(prm.name, `${id}: a parameter with no name`);
@@ -505,8 +556,14 @@ test('VLEN is the maximum floor across the selection, not the last one seen', ()
   const { resolved } = resolveSelection({ selected: ['RV64I', 'V'], base: 'RV64I' });
   assert.equal(impliedVlen(resolved), 128);
 
-  assert.equal(impliedVlen(resolveSelection({ selected: ['RV64I', 'Zve32x'], base: 'RV64I' }).resolved), 32);
-  assert.equal(impliedVlen(resolveSelection({ selected: ['RV64I', 'Zve64d'], base: 'RV64I' }).resolved), 64);
+  assert.equal(
+    impliedVlen(resolveSelection({ selected: ['RV64I', 'Zve32x'], base: 'RV64I' }).resolved),
+    32,
+  );
+  assert.equal(
+    impliedVlen(resolveSelection({ selected: ['RV64I', 'Zve64d'], base: 'RV64I' }).resolved),
+    64,
+  );
 
   // No vector extension means no constraint at all, which is not the same as 0.
   assert.equal(impliedVlen(['RV64I', 'M']), null);
@@ -530,7 +587,10 @@ test('includes constraints union, because each is a separate demand', () => {
   // both, so these accumulate rather than narrow.
   const sxlen = resolveParams(['Sv32', 'Sv39']).find((p) => p.name === 'SXLEN');
   assert.equal(sxlen.kind, 'includes');
-  assert.deepEqual([...sxlen.value].sort((a, b) => a - b), [32, 64]);
+  assert.deepEqual(
+    [...sxlen.value].sort((a, b) => a - b),
+    [32, 64],
+  );
 });
 
 test('vlenExtension maps a width back to the extension that sets it', () => {
@@ -547,7 +607,11 @@ test('a profile reports the parameters it constrains', () => {
   for (const expected of ['VLEN', 'CACHE_BLOCK_SIZE', 'LRSC_RESERVATION_STRATEGY']) {
     assert.ok(names.includes(expected), `RVA23 should constrain ${expected}`);
   }
-  assert.deepEqual(params.filter((p) => p.conflict), [], 'a ratified profile must not self-conflict');
+  assert.deepEqual(
+    params.filter((p) => p.conflict),
+    [],
+    'a ratified profile must not self-conflict',
+  );
 });
 
 test('lowering VLEN means removing the higher Zvl extensions', () => {
@@ -594,7 +658,10 @@ test('a chosen oneOf value reaches the exported configuration', () => {
   const ids = ['RV64I', 'Za64rs', 'Zic64b'];
   const picked = 'reserve naturally-aligned 64-byte region';
   const catalog = JSON.parse(
-    fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'riscv_extensions.json'), 'utf8'),
+    fs.readFileSync(
+      path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'riscv_extensions.json'),
+      'utf8',
+    ),
   );
   const allExts = Object.values(catalog).flat();
 
@@ -610,4 +677,74 @@ test('a chosen oneOf value reaches the exported configuration', () => {
 
   // A parameter with no decision to make never gains one.
   assert.match(bare, /CACHE_BLOCK_SIZE:/);
+});
+
+// ---------------------------------------------------------------------------
+// Conditional requirements (#587). UDB writes some requirements as conditions
+// ("C requires Zcd when D is present"); closure() cannot see them, so
+// resolveSelection() applies them once it knows the rest of the selection.
+// ---------------------------------------------------------------------------
+
+const resolvedFor = (selected, base = null) =>
+  new Set(resolveSelection({ selected, base }).resolved);
+
+test('C brings Zcd only with D', () => {
+  assert.ok(resolvedFor(['RV64I', 'C', 'D'], 'RV64I').has('Zcd'));
+  assert.ok(!resolvedFor(['RV64I', 'C'], 'RV64I').has('Zcd'));
+  assert.ok(!resolvedFor(['RV64I', 'D'], 'RV64I').has('Zcd'), 'D alone does not need Zcd');
+});
+
+test('C brings Zcf only with F on a 32-bit base', () => {
+  assert.ok(resolvedFor(['RV32I', 'C', 'F'], 'RV32I').has('Zcf'));
+  assert.ok(!resolvedFor(['RV64I', 'C', 'F'], 'RV64I').has('Zcf'), 'Zcf is RV32-only');
+  assert.ok(!resolvedFor(['C', 'F']).has('Zcf'), 'an unknown width applies nothing');
+});
+
+test('if/then conditions: Zicfiss with U brings S, Supm follows S', () => {
+  assert.ok(resolvedFor(['RV64I', 'Zicfiss', 'U'], 'RV64I').has('S'));
+  assert.ok(!resolvedFor(['RV64I', 'Zicfiss'], 'RV64I').has('S'));
+  const withS = resolvedFor(['RV64I', 'Supm', 'S'], 'RV64I');
+  assert.ok(withS.has('Ssnpm') && !withS.has('Smnpm'), 'with S, Supm needs Ssnpm');
+  const withoutS = resolvedFor(['RV64I', 'Supm'], 'RV64I');
+  assert.ok(withoutS.has('Smnpm') && !withoutS.has('Ssnpm'), 'without S, Smnpm');
+});
+
+test('a conditional addition says which extension pulled it in', () => {
+  const { implied } = resolveSelection({ selected: ['RV64I', 'C', 'D'], base: 'RV64I' });
+  const zcd = implied.find((i) => i.ext === 'Zcd');
+  assert.deepEqual(zcd.path, ['C', 'Zcd']);
+});
+
+test('every RVA and RVB profile resolves Zcd, and the profile lists it as implied', () => {
+  for (const name of ['RVA20', 'RVA22', 'RVA23', 'RVB23']) {
+    const base = PROFILES[name].find((id) => /^RV(32|64)I$/.test(id));
+    assert.ok(resolvedFor(PROFILES[name], base).has('Zcd'), name);
+    const extra = conditionallyImplied(PROFILES[name]);
+    assert.ok(
+      extra.some((e) => e.ext === 'Zcd' && e.impliedBy.includes('C')),
+      `${name}: ${JSON.stringify(extra)}`,
+    );
+  }
+});
+
+test('validateGraph rejects an uncited or dangling conditional edge', () => {
+  const graph = {
+    nodes: {
+      A: {
+        requires: [],
+        verified: 'udb',
+        requiresWhen: [{ ext: 'B', when: { present: ['C'] }, src: 'udb' }],
+      },
+      B: { requires: [], verified: 'udb' },
+    },
+  };
+  const { errors } = validateGraph(graph);
+  assert.ok(
+    errors.some((e) => /missing "ref"/.test(e)),
+    errors.join('\n'),
+  );
+  assert.ok(
+    errors.some((e) => /unknown C/.test(e)),
+    errors.join('\n'),
+  );
 });

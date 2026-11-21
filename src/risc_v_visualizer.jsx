@@ -93,7 +93,7 @@ import {
   buildMarchString,
   buildCombinedCatalog,
 } from './marchUtils.js';
-import { resolveSelection, closure } from './isaGraph.js';
+import { resolveSelection, closure, conditionallyImplied } from './isaGraph.js';
 import {
   profileMembership,
   profileExtensionRows,
@@ -2074,6 +2074,7 @@ const RISCVExplorer = () => {
       mandatory: profiles[activeProfile],
       optional: PROFILE_OPTIONAL[activeProfile] || [],
       closure,
+      conditional: conditionallyImplied,
     });
     for (const entry of membership.values()) entry.profile = activeProfile;
     return membership;
@@ -2362,6 +2363,7 @@ const RISCVExplorer = () => {
         mandatory: PROFILES[activeProfile] || [],
         optional: PROFILE_OPTIONAL[activeProfile] || [],
         closure,
+        conditional: conditionallyImplied,
       });
       const rows = profileExtensionRows({
         membership,
