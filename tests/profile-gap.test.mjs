@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 import { profileGap } from '../src/profileGap.js';
 import { profileMembership } from '../src/profileExport.js';
 import { PROFILES } from '../src/profiles.js';
-import { closure, resolveSelection } from '../src/isaGraph.js';
+import { closure, conditionallyImplied, resolveSelection } from '../src/isaGraph.js';
 import { BASE_ISA_IDS } from '../src/marchUtils.js';
 
 const read = (p) => JSON.parse(readFileSync(new URL(p, import.meta.url), 'utf8'));
@@ -32,6 +32,7 @@ const gap = (configIds, profile) =>
     mandatory: PROFILES[profile],
     optional: OPTIONAL[profile] ?? [],
     closure,
+    conditional: conditionallyImplied,
     known: KNOWN,
     bases: BASE_ISA_IDS,
   });
@@ -61,7 +62,11 @@ test('RVA22 falls short of RVA23 by exactly the mandatory extensions RVA23 adds'
 
 test('implied extensions are reported with what pulls them in', () => {
   const g = gap(configOf(['RV64I']), 'RVA23');
-  const membership = profileMembership({ mandatory: PROFILES.RVA23, closure });
+  const membership = profileMembership({
+    mandatory: PROFILES.RVA23,
+    closure,
+    conditional: conditionallyImplied,
+  });
   for (const { id, impliedBy } of g.missingImplied) {
     assert.equal(membership.get(id).requirement, 'implied', id);
     assert.deepEqual(impliedBy, membership.get(id).impliedBy, id);

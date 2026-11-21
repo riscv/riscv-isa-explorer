@@ -135,6 +135,21 @@ export function validateGraph(graph = graphData, catalogIds = null) {
       }
     }
 
+    for (const edge of node.requiresWhen ?? []) {
+      const label = `${id} -> ${edge?.ext} (conditional)`;
+      if (!edge || typeof edge.ext !== 'string') {
+        errors.push(`${id}: conditional edge without an "ext"`);
+        continue;
+      }
+      if (!has(edge.ext)) errors.push(`${label}: no such node`);
+      const when = edge.when ?? {};
+      const tested = [...(when.present ?? []), ...(when.absent ?? [])];
+      if (tested.length === 0) errors.push(`${label}: condition names no extension`);
+      for (const t of tested) if (!has(t)) errors.push(`${label}: condition names unknown ${t}`);
+      if (!EDGE_SOURCES.has(edge.src)) errors.push(`${label}: src "${edge.src}" is not known`);
+      if (!edge.ref || !String(edge.ref).trim()) errors.push(`${label}: missing "ref" citation`);
+    }
+
     for (const conflict of node.conflicts ?? []) {
       if (!has(conflict.ext)) errors.push(`${id} conflicts with ${conflict.ext}: no such node`);
       if (conflict.ext === id) errors.push(`${id}: conflicts with itself`);
@@ -366,6 +381,47 @@ export function resolveSelection({
     }
   }
 
+  // Conditional requirements (#587): "C requires Zcd when D is present". They
+  // depend on the rest of the selection, so they run after the closure and the
+  // choices, and repeat until nothing changes, since what they add can satisfy
+  // another condition (or bring dependencies of its own). Conditions that test
+  // for an ABSENT extension run only once the positive ones have settled, so
+  // "Supm without S requires Smnpm" is not applied while S is still on its way.
+  const add = (ext, basePath) => {
+    for (const dep of [ext, ...closure(ext, graph)]) {
+      if (resolved.has(dep) || !nodes[dep]) continue;
+      const next = dep === ext ? [...basePath, ext] : [...basePath, ext, dep];
+      resolved.add(dep);
+      pathTo.set(dep, next);
+      implied.push({ ext: dep, path: next });
+    }
+  };
+  const present = (id) => resolved.has(id) || id === base;
+  const holds = (when, withAbsent) => {
+    if ((when.present ?? []).some((id) => !present(id))) return false;
+    if ((when.xlenNot ?? []).length && (!baseXlen || when.xlenNot.includes(baseXlen))) {
+      return false;
+    }
+    if ((when.absent ?? []).length) {
+      if (!withAbsent) return false;
+      if (when.absent.some((id) => present(id))) return false;
+    }
+    return true;
+  };
+  for (const withAbsent of [false, true]) {
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const id of [...resolved]) {
+        for (const edge of nodes[id]?.requiresWhen ?? []) {
+          if (resolved.has(edge.ext) || !holds(edge.when ?? {}, withAbsent)) continue;
+          add(edge.ext, pathTo.get(id) ?? [id]);
+          changed = true;
+        }
+      }
+    }
+  }
+
   // Conflicts, reported with the path that pulled the offending extension in —
   // "D conflicts with RV32E" is useless when the user never picked D.
   const conflicts = [];
@@ -391,6 +447,26 @@ export function resolveSelection({
   }
 
   return { resolved: [...resolved], implied, redundant, conflicts, choices, unknown };
+}
+
+/**
+ * What a set of extensions implies only through conditional requirements
+ * (#587), e.g. Zcd for C with D. closure() cannot see these: it follows one
+ * extension's edges, and a condition depends on the others. Used where a
+ * profile's implied extensions are listed, so they match what the builder
+ * resolves.
+ *
+ * @param {string[]} ids
+ * @returns {{ext: string, impliedBy: string[]}[]}
+ */
+export function conditionallyImplied(ids, graph = graphData) {
+  const base = ids.find((id) => /^RV(32|64|128)[IE]$/.test(id)) ?? null;
+  const plain = new Set(ids);
+  for (const id of ids) for (const dep of closure(id, graph)) plain.add(dep);
+  const { implied } = resolveSelection({ selected: ids, base, graph, applyChoiceDefaults: false });
+  return implied
+    .filter(({ ext }) => !plain.has(ext))
+    .map(({ ext, path }) => ({ ext, impliedBy: [path[0]] }));
 }
 
 /**
