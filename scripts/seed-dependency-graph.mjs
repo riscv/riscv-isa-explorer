@@ -120,15 +120,22 @@ function extensionRequirements(requirements) {
           if (!negated) hard.push(value);
           else if (!guarded) excluded.push(value);
           break;
-        case 'param':
+        case 'param': {
           // { name: VLEN, greaterThanOrEqual: 128 } and friends. Only taken
           // from unguarded, unnegated positions, same rule as extensions.
-          if (!negated && !guarded && value && typeof value.name === 'string') {
-            const { name, reason, ...rest } = value;
+          // Sstvala groups seven of them under one `param: {allOf: [...]}`;
+          // reading only the single form dropped all seven (#588).
+          if (negated || guarded || !value) break;
+          const one = (p) => {
+            if (!p || typeof p.name !== 'string' || p.index !== undefined) return;
+            const { name, reason, ...rest } = p;
             const [kind, bound] = Object.entries(rest)[0] ?? [];
             if (kind) params.push({ name, kind, value: bound, ...(reason ? { reason } : {}) });
-          }
+          };
+          if (Array.isArray(value.allOf)) value.allOf.forEach(one);
+          else one(value);
           break;
+        }
         case 'allOf':
           walk(value, negated, guarded);
           break;
@@ -164,6 +171,37 @@ function extensionRequirements(requirements) {
           break;
         case 'then':
           break;
+        case 'idl()': {
+          // Requirements written as IDL code (#591). Four extensions do this,
+          // and skipping it left Shgatpa, Shcounterenw and Sscounterenw with
+          // no requirements, marked verified. Only the unconditional forms are
+          // read: `-> implemented?(ExtensionName::H)` (joined with &&) is a
+          // hard edge, `-> PARAM` is PARAM = true. Anything else (implications,
+          // loops, disjunctions) is reported as conditional, never guessed.
+          if (negated || guarded || typeof value !== 'string') {
+            conditional.push('idl');
+            break;
+          }
+          const statements = value
+            .split(/;\s*/)
+            .map((line) => line.replace(/#.*$/gm, '').trim())
+            .filter(Boolean);
+          let skipped = false;
+          for (const statement of statements) {
+            const body = statement.replace(/\s+/g, ' ');
+            const ext = /^-> ((?:implemented\?\(ExtensionName::\w+\)(?: && )?)+)$/.exec(body);
+            const prm = /^-> ([A-Z][A-Z0-9_]*)$/.exec(body);
+            if (ext) {
+              for (const m of ext[1].matchAll(/ExtensionName::(\w+)/g)) hard.push(m[1]);
+            } else if (prm) {
+              params.push({ name: prm[1], kind: 'equal', value: true });
+            } else {
+              skipped = true;
+            }
+          }
+          if (skipped) conditional.push('idl');
+          break;
+        }
         // param / xlen / version are conditions on an implementation, not
         // extension dependencies.
         default:

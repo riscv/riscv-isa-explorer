@@ -263,12 +263,33 @@
       ]
     },
     "Shcounterenw": {
-      "requires": [],
-      "verified": "udb"
+      "requires": [
+        {
+          "ext": "H",
+          "src": "udb",
+          "ref": "Shcounterenw.yaml requirements.extension"
+        }
+      ],
+      "conditionalRequirements": true
     },
     "Shgatpa": {
-      "requires": [],
-      "verified": "udb"
+      "requires": [
+        {
+          "ext": "H",
+          "src": "udb",
+          "ref": "Shgatpa.yaml requirements.extension"
+        }
+      ],
+      "conditionalRequirements": true,
+      "params": [
+        {
+          "name": "GSTAGE_MODE_BARE",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shgatpa.yaml requirements … param"
+        }
+      ]
     },
     "Shlcofideleg": {
       "requires": [
@@ -318,6 +339,92 @@
           "ext": "H",
           "src": "udb",
           "ref": "Shvstvala.yaml requirements.extension"
+        }
+      ],
+      "params": [
+        {
+          "name": "REPORT_VA_IN_VSTVAL_ON_BREAKPOINT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_VSTVAL_ON_LOAD_MISALIGNED",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_VSTVAL_ON_STORE_AMO_MISALIGNED",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_VSTVAL_ON_INSTRUCTION_MISALIGNED",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_VSTVAL_ON_LOAD_ACCESS_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_VSTVAL_ON_STORE_AMO_ACCESS_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_VSTVAL_ON_INSTRUCTION_ACCESS_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_VSTVAL_ON_LOAD_PAGE_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_VSTVAL_ON_STORE_AMO_PAGE_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_VSTVAL_ON_INSTRUCTION_PAGE_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_ENCODING_IN_VSTVAL_ON_VIRTUAL_INSTRUCTION",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_ENCODING_IN_VSTVAL_ON_ILLEGAL_INSTRUCTION",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Shvstvala.yaml requirements … param"
         }
       ]
     },
@@ -563,11 +670,22 @@
     },
     "Sscofpmf": {
       "requires": [],
-      "verified": "udb"
+      "conditionalRequirements": true
     },
     "Sscounterenw": {
-      "requires": [],
-      "verified": "udb"
+      "requires": [
+        {
+          "ext": "S",
+          "src": "udb",
+          "ref": "Sscounterenw.yaml requirements.extension"
+        },
+        {
+          "ext": "Zihpm",
+          "src": "udb",
+          "ref": "Sscounterenw.yaml requirements.extension"
+        }
+      ],
+      "conditionalRequirements": true
     },
     "Sscsrind": {
       "requires": [
@@ -714,6 +832,85 @@
     },
     "Sstvala": {
       "requires": [],
+      "params": [
+        {
+          "name": "REPORT_VA_IN_STVAL_ON_BREAKPOINT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Sstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_STVAL_ON_INSTRUCTION_ACCESS_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Sstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_STVAL_ON_LOAD_ACCESS_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Sstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_STVAL_ON_STORE_AMO_ACCESS_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Sstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_STVAL_ON_INSTRUCTION_PAGE_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Sstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_STVAL_ON_LOAD_PAGE_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Sstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_STVAL_ON_STORE_AMO_PAGE_FAULT",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Sstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_STVAL_ON_INSTRUCTION_MISALIGNED",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Sstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_STVAL_ON_LOAD_MISALIGNED",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Sstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_VA_IN_STVAL_ON_STORE_AMO_MISALIGNED",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Sstvala.yaml requirements … param"
+        },
+        {
+          "name": "REPORT_ENCODING_IN_STVAL_ON_ILLEGAL_INSTRUCTION",
+          "kind": "equal",
+          "value": true,
+          "src": "udb",
+          "ref": "Sstvala.yaml requirements … param"
+        }
+      ],
       "verified": "udb"
     },
     "Sstvecd": {

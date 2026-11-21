@@ -9,6 +9,7 @@ import {
   parameterNames,
   definingExtensions,
   gatingParameters,
+  parameterInScope,
   schemaSummary,
   describeParameter,
 } from '../src/isaParams.js';
@@ -223,4 +224,29 @@ test('no parameter carries a placeholder as its name', () => {
   // something useful about itself.
   assert.equal(params.ASID_WIDTH.long_name, null);
   assert.match(describeParameter('ASID_WIDTH').summary, /integer/);
+});
+
+// parameterInScope (#588): what UDB's validator counts as required.
+test('parameterInScope is three-valued: in, out, or depends on a value', () => {
+  const exts = new Set(['I', 'Sm', 'U']);
+  assert.equal(parameterInScope('UXLEN', { extensions: exts }), true);
+  assert.equal(parameterInScope('SXLEN', { extensions: exts }), false, 'no S');
+  assert.equal(parameterInScope('ARCH_ID_VALUE', { extensions: exts }), null);
+  assert.equal(
+    parameterInScope('ARCH_ID_VALUE', { extensions: exts, params: { MARCHID_IMPLEMENTED: true } }),
+    true,
+  );
+  assert.equal(
+    parameterInScope('ARCH_ID_VALUE', { extensions: exts, params: { MARCHID_IMPLEMENTED: false } }),
+    false,
+  );
+});
+
+test('parameterInScope reads list membership known from a constraint', () => {
+  const exts = new Set(['I', 'Sm', 'S', 'U', 'H']);
+  assert.equal(parameterInScope('SV39X4_TRANSLATION', { extensions: exts }), null);
+  assert.equal(
+    parameterInScope('SV39X4_TRANSLATION', { extensions: exts, includes: { SXLEN: [64] } }),
+    true,
+  );
 });

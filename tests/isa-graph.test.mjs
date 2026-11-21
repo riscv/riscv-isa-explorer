@@ -748,3 +748,23 @@ test('validateGraph rejects an uncited or dangling conditional edge', () => {
     errors.join('\n'),
   );
 });
+
+// Requirements UDB writes as IDL, and grouped parameter constraints (#591).
+test('IDL requirements become edges, and the node is never marked verified', () => {
+  const n = DEPENDENCY_GRAPH.nodes;
+  assert.ok(n.Shgatpa.requires.some((e) => e.ext === 'H'));
+  assert.ok(n.Shcounterenw.requires.some((e) => e.ext === 'H'));
+  const sc = n.Sscounterenw.requires.map((e) => e.ext);
+  assert.ok(sc.includes('S') && sc.includes('Zihpm'), sc.join(','));
+  for (const id of ['Shgatpa', 'Shcounterenw', 'Sscounterenw', 'Sscofpmf']) {
+    assert.equal(n[id].verified, undefined, `${id} still claims verified`);
+    assert.equal(n[id].conditionalRequirements, true, id);
+  }
+  assert.ok(n.Shgatpa.params.some((p) => p.name === 'GSTAGE_MODE_BARE' && p.value === true));
+});
+
+test("grouped parameter constraints are kept (Sstvala's eleven)", () => {
+  const names = (DEPENDENCY_GRAPH.nodes.Sstvala.params ?? []).map((p) => p.name);
+  assert.equal(names.length, 11, names.join(', '));
+  assert.ok(names.includes('REPORT_VA_IN_STVAL_ON_BREAKPOINT'));
+});

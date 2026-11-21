@@ -622,3 +622,74 @@ test('riscv-config lists S-extensions after Z-extensions, by privilege level', (
   );
   assert.equal(rc(['RV64I', 'Zca', 'Ssdbltrp', 'Xfoo']), 'RV64IZca_Ssdbltrp_Xfoo');
 });
+
+// ---------------------------------------------------------------------------
+// The UDB export against UDB's own validator (#588). `udb validate cfg`
+// requires Sm in a full configuration and every parameter whose definedBy the
+// configuration satisfies. These pin what it needs; the CI workflow runs the
+// validator itself.
+// ---------------------------------------------------------------------------
+
+const udbParamKeys = (yaml) => {
+  const out = [];
+  let inParams = false;
+  for (const line of yaml.split('\n')) {
+    if (line === 'params:') inParams = true;
+    else if (/^\S/.test(line)) inParams = false;
+    else if (inParams) {
+      const m = /^ {2}([A-Z][A-Z0-9_]*):/.exec(line);
+      if (m) out.push(m[1]);
+    }
+  }
+  return out;
+};
+
+test('the UDB export always implements Sm, which defines every M-mode parameter', () => {
+  const yaml = buildIsaConfigYaml(['RV64I'], ALL, { format: 'udb' }).yaml;
+  assert.match(yaml, /- \{ name: Sm, version: "= [\d.]+" \}/);
+  assert.match(yaml, /# Sm was added/);
+  const withSm = buildIsaConfigYaml(resolve(['RV64I', 'Sm']), ALL, { format: 'udb' }).yaml;
+  assert.doesNotMatch(withSm, /# Sm was added/, 'no note when the user picked Sm');
+});
+
+test('the UDB export writes every parameter the extensions bring into scope', () => {
+  const yaml = buildIsaConfigYaml(resolve(['RV64I', 'M', 'A', 'C', 'S', 'U', 'Sv39']), ALL, {
+    format: 'udb',
+  }).yaml;
+  const keys = new Set(udbParamKeys(yaml));
+  // UDB rejected the export for lacking these (and crashed without UXLEN).
+  for (const name of ['UXLEN', 'SXLEN', 'ASID_WIDTH', 'MTVEC_MODES', 'NUM_PMP_ENTRIES']) {
+    assert.ok(keys.has(name), `${name} missing`);
+  }
+  assert.equal(keys.size, new Set(udbParamKeys(yaml)).size);
+  assert.equal(udbParamKeys(yaml).length, keys.size, 'a key was written twice');
+});
+
+test('parameters gated on another value are listed commented, with the gate', () => {
+  const yaml = buildIsaConfigYaml(['RV64I'], ALL, { format: 'udb' }).yaml;
+  assert.match(yaml, /# CONDITIONAL/);
+  assert.match(yaml, /^ {2}# ARCH_ID_VALUE: {3}# only if MARCHID_IMPLEMENTED = true;/m);
+  assert.ok(!udbParamKeys(yaml).includes('ARCH_ID_VALUE'), 'a gated parameter is not live');
+});
+
+test("a list constraint brings in parameters gated on it (Sv39's SXLEN includes 64)", () => {
+  const yaml = buildIsaConfigYaml(resolve(['RV64I', 'S', 'U', 'H', 'Sv39']), ALL, {
+    format: 'udb',
+  }).yaml;
+  assert.ok(udbParamKeys(yaml).includes('SV39X4_TRANSLATION'));
+});
+
+test("grouped parameter constraints are fixed by their extension (Sstvala's)", () => {
+  const yaml = buildIsaConfigYaml(resolve(['RV64I', 'S', 'U', 'Sv39', 'Sstvala']), ALL, {
+    format: 'udb',
+  }).yaml;
+  assert.match(yaml, /^ {2}REPORT_VA_IN_STVAL_ON_BREAKPOINT: true {3}# required by Sstvala/m);
+});
+
+test('the RVA23 UDB export parses as YAML with unique keys', async () => {
+  const { default: YAML } = await import('yaml');
+  const yaml = buildIsaConfigYaml(RVA23, ALL, { format: 'udb' }).yaml;
+  const doc = YAML.parse(yaml, { uniqueKeys: true });
+  assert.ok(doc.implemented_extensions.some((e) => e.name === 'Sm'));
+  assert.ok('VSXLEN' in doc.params, 'H brings VSXLEN');
+});

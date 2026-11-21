@@ -85,6 +85,78 @@ export function gatingParameters(nameOrNode) {
   return out;
 }
 
+/**
+ * Whether a parameter exists in a configuration, as UDB decides it: true,
+ * false, or null when the answer depends on a parameter value the caller does
+ * not know (ARCH_ID_VALUE exists only when MARCHID_IMPLEMENTED is true).
+ *
+ * UDB's validator requires every parameter whose definedBy the configuration
+ * satisfies (`CfgArch#full_config_valid?`), so the UDB export uses this to
+ * decide what it must write (#588). Three-valued on purpose: guessing a
+ * gated parameter in or out are both wrong answers.
+ *
+ * Extension versions in a predicate are not compared: the catalogue carries one
+ * version per extension.
+ *
+ * @param {string|object} nameOrNode a parameter name or a definedBy tree
+ * @param {{extensions: Set<string>, params?: Record<string, unknown>,
+ *   includes?: Record<string, unknown[]>}} ctx
+ *   extensions by their UDB names (I, not RV64I), known parameter values, and
+ *   members a list parameter is known to contain even though its full value is
+ *   not chosen (Sv39 forces SXLEN to include 64)
+ * @returns {true|false|null}
+ */
+export function parameterInScope(nameOrNode, { extensions, params = {}, includes = {} }) {
+  const all = (results) => (results.includes(false) ? false : results.includes(null) ? null : true);
+  const any = (results) => (results.includes(true) ? true : results.includes(null) ? null : false);
+  const not = (r) => (r === null ? null : !r);
+
+  const paramTest = (node) => {
+    if (!node || typeof node !== 'object') return null;
+    if (Array.isArray(node)) return all(node.map(paramTest));
+    if (node.allOf) return all(node.allOf.map(paramTest));
+    if (node.anyOf) return any(node.anyOf.map(paramTest));
+    if (node.noneOf) return not(any(node.noneOf.map(paramTest)));
+    if (typeof node.name !== 'string') return null;
+    if (
+      'includes' in node &&
+      node.index === undefined &&
+      !Object.prototype.hasOwnProperty.call(params, node.name) &&
+      (includes[node.name] ?? []).includes(node.includes)
+    ) {
+      return true;
+    }
+    if (!Object.prototype.hasOwnProperty.call(params, node.name)) return null;
+    let value = params[node.name];
+    if (node.index !== undefined) value = Array.isArray(value) ? value[node.index] : undefined;
+    if ('equal' in node) return value === node.equal;
+    if ('includes' in node) return Array.isArray(value) && value.includes(node.includes);
+    if ('greaterThan' in node) return typeof value === 'number' && value > node.greaterThan;
+    return null;
+  };
+  const extTest = (node) => {
+    if (!node || typeof node !== 'object') return false;
+    if (Array.isArray(node)) return all(node.map(extTest));
+    if (node.allOf) return all(node.allOf.map(extTest));
+    if (node.anyOf) return any(node.anyOf.map(extTest));
+    if (node.noneOf) return not(any(node.noneOf.map(extTest)));
+    if (typeof node.name === 'string') return extensions.has(node.name);
+    return false;
+  };
+  const walk = (node) => {
+    if (!node || typeof node !== 'object') return false;
+    if (Array.isArray(node)) return all(node.map(walk));
+    if (node.param) return paramTest(node.param);
+    if (node.extension) return extTest(node.extension);
+    if (node.allOf) return all(node.allOf.map(walk));
+    if (node.anyOf) return any(node.anyOf.map(walk));
+    if (node.noneOf) return not(any(node.noneOf.map(walk)));
+    return false;
+  };
+  const tree = resolveDefinedBy(nameOrNode);
+  return tree ? walk(tree) : false;
+}
+
 // A summary is read at a glance, in a tooltip or a table cell. CACHE_BLOCK_SIZE
 // enumerates 64 powers of two; printing all of them is not a summary, it is the
 // schema again. Long enums are elided with their true count kept, so the reader

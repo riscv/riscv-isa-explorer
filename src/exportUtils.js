@@ -23,8 +23,13 @@ import {
   SINGLE_LETTER_CANONICAL_ORDER,
 } from './marchUtils.js';
 import { buildCombinedCatalog } from './marchUtils.js';
-import { resolveParams } from './isaGraph.js';
-import { parameterDefinition, schemaSummary } from './isaParams.js';
+import { resolveParams, resolveSelection } from './isaGraph.js';
+import {
+  parameterDefinition,
+  parameterInScope,
+  parameterNames,
+  schemaSummary,
+} from './isaParams.js';
 import { DEPENDENCY_GRAPH } from './isaGraph.js';
 
 // Tokens that are not valid ISA string entries (e.g. K, P are retired/placeholder)
@@ -231,6 +236,26 @@ const UDB_REQUIRED_PARAMS = [
   ['REPORT_VA_IN_MTVAL_ON_LOAD_ACCESS_FAULT', 'true | false'],
 ];
 
+// "MARCHID_IMPLEMENTED = true", for the CONDITIONAL block's comments.
+function gatingSummary(definedBy) {
+  const parts = [];
+  const walk = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node)) return node.forEach(walk);
+    if (node.param) {
+      const { name, reason: _reason, index, ...rest } = node.param;
+      const [op, value] = Object.entries(rest)[0] ?? [];
+      const target = index !== undefined ? `${name}[${index}]` : name;
+      const sign = { equal: '=', includes: 'includes', greaterThan: '>' }[op] ?? op;
+      if (name) parts.push(`${target} ${sign} ${JSON.stringify(value)}`);
+      return;
+    }
+    for (const key of ['allOf', 'anyOf']) if (node[key]) walk(node[key]);
+  };
+  walk(definedBy);
+  return parts.join(' and ') || 'another parameter allows it';
+}
+
 export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
   // Historically the third argument was a boolean. Kept working, but the
   // default flipped: the instruction catalogue was 5,781 of 5,974 lines in a
@@ -260,6 +285,22 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
   }
   if (!baseInfo) {
     return { yaml: '', warnings: ['No base ISA selected.'] };
+  }
+
+  // A UDB full configuration always implements Sm. Every hart has M-mode, and
+  // UDB defines MXLEN and every M-mode parameter under Sm, so without it the
+  // validator rejects them all as "not defined by this config" (#588). The
+  // graph has no edge to Sm (bases require nothing), so add it here, resolved,
+  // keeping any ids the graph does not know (sandbox extensions).
+  let addedSm = false;
+  if (format === 'udb' && !selectedIds.includes('Sm') && allExts.some((e) => e.id === 'Sm')) {
+    const known = new Set(allExts.map((e) => e.id));
+    const { resolved } = resolveSelection({
+      selected: [...selectedIds, 'Sm'],
+      base: baseInfo.id,
+    });
+    selectedIds = [...new Set([...selectedIds, ...resolved.filter((id) => known.has(id))])];
+    addedSm = true;
   }
 
   // 2. Partition extensions
@@ -417,6 +458,11 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     u.push(`#`);
     for (const line of CONFIG_EXPORT_NOTICE) u.push(`# ${line}`);
     u.push(`#`);
+    if (addedSm) {
+      u.push(`# Sm was added: every hart has M-mode, and UDB defines MXLEN and the`);
+      u.push(`# M-mode parameters under it.`);
+      u.push(`#`);
+    }
     u.push(`# THIS FILE IS NOT COMPLETE. The params under TODO are implementation`);
     u.push(`# choices and must come from your core's design document. Tests will`);
     u.push(`# produce false failures until they are filled in.`);
@@ -509,21 +555,63 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       }
     }
 
+    // Every parameter UDB requires for this configuration: those whose
+    // definedBy the configuration satisfies (#588). UDB's validator rejects a
+    // full configuration missing any of them. The fixed floor stays as a
+    // guard, so a gap in the definitions can never drop what arch-test needs.
+    const udbExtensions = new Set(
+      allExtsList.map((id) => (BASE_ISA_IDS.has(id) ? baseInfo.base.toUpperCase() : id)),
+    );
+    const knownValues = { MXLEN: baseInfo.xlen, ...paramChoices };
+    const knownIncludes = {};
+    for (const prm of constrained) {
+      if (prm.conflict) continue;
+      if (prm.kind === 'equal') knownValues[prm.name] = prm.value;
+      if (prm.kind === 'includes') knownIncludes[prm.name] = [].concat(prm.value);
+    }
+    const alreadyEmitted = new Set(['MXLEN', ...constrained.map((prm) => prm.name)]);
+    const required = new Set(UDB_REQUIRED_PARAMS.map(([name]) => name));
+    const gated = [];
+    for (const name of parameterNames()) {
+      const scope = parameterInScope(name, {
+        extensions: udbExtensions,
+        params: knownValues,
+        includes: knownIncludes,
+      });
+      if (scope === true) required.add(name);
+      else if (scope === null) gated.push(name);
+    }
+    const fallbackHint = new Map(UDB_REQUIRED_PARAMS);
+    const hintFor = (name) => {
+      const def = parameterDefinition(name);
+      const hint = def ? schemaSummary(def.schema) : fallbackHint.get(name);
+      const label = def?.long_name ? `${def.long_name}; ` : '';
+      return `${label}${hint ?? ''}`.replace(/\s+/g, ' ').trim();
+    };
+
     u.push(``);
     u.push(`  # TODO — implementation choices. No extension list implies these, and`);
     u.push(`  # they are what makes the difference between a config that reflects your`);
     u.push(`  # core and one that merely parses. Values come from your design document.`);
-    // Latent rather than live: no graph constraint currently names one of the
-    // floor params. If one ever does, the same key would be emitted in both the
-    // CONSTRAINED and TODO blocks, and duplicate keys make the document invalid
-    // YAML rather than merely untidy. Cheaper to make impossible than to detect.
-    const alreadyEmitted = new Set(constrained.map((prm) => prm.name));
-    for (const [name, fallback] of UDB_REQUIRED_PARAMS) {
+    u.push(`  # UDB requires every one of them for the extensions above.`);
+    // Duplicate keys make the document invalid YAML, so anything already
+    // emitted above is skipped.
+    for (const name of [...required].sort()) {
       if (alreadyEmitted.has(name)) continue;
-      const def = parameterDefinition(name);
-      const hint = def ? schemaSummary(def.schema) : fallback;
-      const label = def?.long_name ? `${def.long_name}; ` : '';
-      u.push(`  ${name}:   # ${label}${hint}`);
+      alreadyEmitted.add(name);
+      u.push(`  ${name}:   # ${hintFor(name)}`);
+    }
+
+    const conditional = gated.filter((name) => !alreadyEmitted.has(name)).sort();
+    if (conditional.length) {
+      u.push(``);
+      u.push(`  # CONDITIONAL — required only when another parameter holds a given`);
+      u.push(`  # value. Uncomment the ones your values above bring into scope.`);
+      for (const name of conditional) {
+        const def = parameterDefinition(name);
+        const gate = gatingSummary(def?.definedBy);
+        u.push(`  # ${name}:   # only if ${gate}; ${hintFor(name)}`);
+      }
     }
 
     if (unversioned.length) {
