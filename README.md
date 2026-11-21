@@ -41,6 +41,12 @@ get a dependency-resolved configuration with a valid `-march` string.
   switched on, **Compare profiles** opens a profile comparison directly,
   grouping extensions under Mandatory, Implied and Optional (or A–Z), and
   **Show** narrows it to required or optional extensions only.
+- **Check a configuration against a profile.** The builder's **Profile Gap
+  Check** measures the configuration against any supported profile without
+  replacing it: the mandatory extensions it lacks, what those would pull in, a
+  different base, which optional extensions it has and what it carries beyond
+  the profile. **Add missing** adds the mandatory ones through the normal
+  dependency resolution.
 - **Download a profile.** While a profile is highlighted, download its
   extensions (mandatory, implied and optional, with status and spec links) as
   YAML, JSON, CSV or Excel.

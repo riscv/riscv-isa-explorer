@@ -47,6 +47,7 @@ import { MarchToolchains } from './ToolchainSupport.jsx';
 import { buildIsaConfigYaml } from './exportUtils.js';
 import {
   DEPENDENCY_GRAPH,
+  closure,
   resolveParams,
   resolveSelection,
   impliedVlen,
@@ -54,6 +55,8 @@ import {
 } from './isaGraph.js';
 import { describeParameter } from './isaParams.js';
 import { PROFILES, PROFILE_METADATA } from './profiles.js';
+import PROFILE_OPTIONAL from './profile-optional.json';
+import { profileGap } from './profileGap.js';
 import EncodingDiagram from './EncodingDiagram.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import { BUILDER_NOTICE, MARCH_NOTE, NOTICE_STORAGE_KEY, REPORT_URL } from './builderNotice.js';
@@ -171,6 +174,182 @@ function BuilderNotice({ onDismiss }) {
   );
 }
 
+const chipStyle = (tone) => ({
+  display: 'inline-block',
+  padding: '2px 7px',
+  borderRadius: 6,
+  fontFamily: 'JetBrains Mono, monospace',
+  fontSize: 11.5,
+  border: `1px solid ${tone === 'missing' ? 'rgba(255,160,122,0.45)' : 'var(--riscv-border-2)'}`,
+  background: tone === 'missing' ? 'rgba(255,160,122,0.08)' : 'var(--riscv-surface-2)',
+  color: 'var(--riscv-text)',
+});
+
+function IdList({ ids, tone }) {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+      {ids.map((id) => (
+        <span key={id} style={chipStyle(tone)}>
+          {id}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/**
+ * Profile gap check (#583): measures the configuration against a profile
+ * without replacing it, which is what loading the profile would do.
+ */
+function ProfileGapCard({ workspaceIds, knownIds, defaultProfile, onAddIds }) {
+  const [target, setTarget] = useState(
+    defaultProfile && PROFILES[defaultProfile] ? defaultProfile : 'RVA23',
+  );
+  const gap = useMemo(
+    () =>
+      profileGap({
+        configIds: workspaceIds,
+        mandatory: PROFILES[target],
+        optional: PROFILE_OPTIONAL[target] ?? [],
+        closure,
+        known: knownIds,
+        bases: BASE_ISA_IDS,
+      }),
+    [workspaceIds, knownIds, target],
+  );
+  const missingCount = gap.missingMandatory.length + gap.missingImplied.length;
+  const label = { fontSize: 11.5, color: 'var(--riscv-text-2)', margin: '10px 0 5px' };
+
+  return (
+    <StudioCard
+      title="Profile Gap Check"
+      badge={`${gap.requiredPresent} / ${gap.required}`}
+      icon={<Layers size={14} style={{ color: 'var(--riscv-gold)' }} />}
+    >
+      <label
+        style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}
+        htmlFor="profile-gap-target"
+      >
+        <span style={{ color: 'var(--riscv-text-2)' }}>Measure against</span>
+        <select
+          id="profile-gap-target"
+          value={target}
+          onChange={(e) => setTarget(e.target.value)}
+          style={{
+            padding: '4px 8px',
+            borderRadius: 7,
+            background: 'var(--riscv-surface-2)',
+            border: '1px solid var(--riscv-border-2)',
+            color: 'var(--riscv-text)',
+            fontSize: 12,
+            fontWeight: 600,
+          }}
+        >
+          {Object.keys(PROFILES).map((name) => (
+            <option key={name} value={name}>
+              {name}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <p
+        role="status"
+        style={{
+          margin: '10px 0 0',
+          fontSize: 12.5,
+          fontWeight: 600,
+          color: 'var(--riscv-text)',
+        }}
+      >
+        {gap.meets
+          ? `Has every extension ${target} requires.`
+          : `Lacks ${missingCount} of the ${gap.required} extensions ${target} requires.`}
+      </p>
+
+      {gap.base && (
+        <p style={{ ...label, color: 'var(--riscv-text)' }}>
+          {target} needs base {gap.base.wanted}; this configuration uses{' '}
+          {gap.base.have ?? 'no base'}.
+        </p>
+      )}
+
+      {gap.missingMandatory.length > 0 && (
+        <>
+          <p style={label}>Missing mandatory extensions</p>
+          <IdList ids={gap.missingMandatory} tone="missing" />
+        </>
+      )}
+
+      {gap.missingImplied.length > 0 && (
+        <>
+          <p style={label}>Also missing, required by those</p>
+          <IdList ids={gap.missingImplied.map((m) => m.id)} tone="missing" />
+        </>
+      )}
+
+      {!gap.meets && (
+        <button
+          type="button"
+          onClick={() => onAddIds(gap.missingMandatory)}
+          style={{
+            marginTop: 12,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '6px 12px',
+            borderRadius: 8,
+            background: 'var(--riscv-surface-2)',
+            border: '1px solid var(--riscv-border-2)',
+            color: 'var(--riscv-text)',
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: 'pointer',
+          }}
+        >
+          <Plus size={13} /> Add missing
+        </button>
+      )}
+
+      {(gap.optionalPresent.length > 0 || gap.optionalAbsent.length > 0) && (
+        <details style={{ marginTop: 12, fontSize: 11.5, color: 'var(--riscv-text-2)' }}>
+          <summary style={{ cursor: 'pointer' }}>
+            Optional in {target}: {gap.optionalPresent.length} of{' '}
+            {gap.optionalPresent.length + gap.optionalAbsent.length} present
+          </summary>
+          {gap.optionalPresent.length > 0 && (
+            <>
+              <p style={label}>Present</p>
+              <IdList ids={gap.optionalPresent} />
+            </>
+          )}
+          {gap.optionalAbsent.length > 0 && (
+            <>
+              <p style={label}>Not present</p>
+              <IdList ids={gap.optionalAbsent} />
+            </>
+          )}
+        </details>
+      )}
+
+      {gap.beyond.length > 0 && (
+        <details style={{ marginTop: 8, fontSize: 11.5, color: 'var(--riscv-text-2)' }}>
+          <summary style={{ cursor: 'pointer' }}>
+            Beyond {target}: {gap.beyond.length}
+          </summary>
+          <div style={{ marginTop: 6 }}>
+            <IdList ids={gap.beyond} />
+          </div>
+        </details>
+      )}
+
+      <p style={{ margin: '12px 0 0', fontSize: 11, color: 'var(--riscv-text-2)' }}>
+        Checked against this explorer’s profile and dependency data. Not a compliance statement.
+      </p>
+    </StudioCard>
+  );
+}
+
 export default function WorkspacePanel({
   open,
   onClose,
@@ -188,6 +367,7 @@ export default function WorkspacePanel({
   paramChoices,
   onSetParam,
   onShare,
+  onAddIds,
   baselineLocked,
   onToggleBaseline,
 }) {
@@ -322,6 +502,7 @@ export default function WorkspacePanel({
   );
 
   const totalInstructions = combinedCatalog.length;
+  const knownIds = useMemo(() => new Set(allExts.map((e) => e.id)), [allExts]);
   const profileSummaries = useMemo(
     () =>
       Object.fromEntries(
@@ -2032,6 +2213,13 @@ export default function WorkspacePanel({
                   </div>
                 )}
               </StudioCard>
+
+              <ProfileGapCard
+                workspaceIds={workspaceIds}
+                knownIds={knownIds}
+                defaultProfile={seedProfile}
+                onAddIds={onAddIds}
+              />
 
               {/* Card 2.2: Hardware & Implementation Parameters */}
               {(() => {

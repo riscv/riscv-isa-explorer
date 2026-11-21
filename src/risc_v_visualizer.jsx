@@ -6620,6 +6620,7 @@ const RISCVExplorer = () => {
               }
             }}
             onAddId={(id) => addWorkspaceIdsSmart(id, true)}
+            onAddIds={(ids) => addWorkspaceIdsSmart(ids)}
             onRemoveId={(id) => {
               // Decide before mutating anything. The previous order downgraded the
               // profile first and only then discovered the removal was refused,
