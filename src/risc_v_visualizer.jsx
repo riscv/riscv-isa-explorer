@@ -3239,28 +3239,29 @@ const RISCVExplorer = () => {
                         the panel's z-40 instead. The guard stays because the
                         actions are redundant while the panel is open, one of them
                         being "open the panel". */}
+                      {/* Sized to its content and anchored to the toggle's right
+                          edge, so labelled buttons are never clipped (#585). On
+                          phones the toggle sits in a horizontally scrolling row,
+                          where overflow to the left cannot be scrolled to, so
+                          there it anchors left instead. */}
                       {builderMode && !workspacePanelOpen && (
-                        <div className="builder-toolbar absolute top-[calc(100%+6px)] left-0 right-0 flex items-center justify-between p-1 bg-slate-800/90 border border-amber-500/40 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl z-50 animate-fade-in-up gap-1">
-                          {/* Open the full panel */}
+                        <div className="builder-toolbar absolute top-[calc(100%+6px)] left-0 sm:left-auto sm:right-0 w-max min-w-full flex items-center justify-between p-1 bg-slate-800/90 border border-amber-500/40 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-xl z-50 animate-fade-in-up gap-1">
+                          {/* Open the full builder. The primary action of the
+                              toolbar, so it is filled and always labelled: as a
+                              bare panel icon (#585) nobody could tell what it
+                              opened. PanelRightOpen, not Maximize2: it opens a
+                              drawer, not a fullscreen view. */}
                           <button
                             type="button"
-                            data-tooltip="Open the builder panel (-march string, export, conflicts)"
+                            data-tooltip="Open the builder: -march string, profile gap check, exports"
                             aria-label="Open the builder panel"
                             onClick={() => setWorkspacePanelOpen(true)}
-                            className={`builder-action-amber ${workspaceIds.size === 0 ? 'flex-none px-4' : 'flex-1'} flex items-center justify-center py-1.5 text-amber-300 hover:bg-amber-500/30 hover:text-amber-100 transition-all duration-300 rounded-lg hover:shadow-[0_0_12px_rgba(251,191,36,0.3)]`}
+                            className="builder-action-primary flex-none inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-bold whitespace-nowrap rounded-lg transition-all duration-200"
                           >
-                            {/* PanelRightOpen, not Maximize2. The diagonal
-                                arrows are the universal "go fullscreen" gesture,
-                                but this opens a drawer that slides in from the
-                                right — the icon was describing the wrong motion.
-                                The label carries the rest: three unlabelled icons
-                                in a row make the reader guess, and this is the
-                                primary action of the three. */}
                             <PanelRightOpen size={14} className="shrink-0" />
+                            <span>Open builder</span>
                             {workspaceIds.size > 0 && (
-                              <span className="ml-1.5 text-[11px] font-bold whitespace-nowrap hidden sm:inline">
-                                Open panel
-                              </span>
+                              <span className="builder-action-count">{workspaceIds.size}</span>
                             )}
                           </button>
 
@@ -3270,16 +3271,17 @@ const RISCVExplorer = () => {
                               type="button"
                               onClick={() => setProfileMenuOpen((v) => !v)}
                               data-tooltip="Start the configuration from a supported profile"
-                              className={`builder-action-indigo w-full flex items-center justify-center gap-1.5 py-1.5 text-[11px] font-semibold transition-all duration-300 rounded-lg ${
+                              className={`builder-action-indigo w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold transition-all duration-300 rounded-lg ${
                                 profileMenuOpen
                                   ? 'bg-indigo-500 text-white shadow-inner'
                                   : 'text-indigo-300 hover:bg-indigo-500/30 hover:text-indigo-100 hover:shadow-[0_0_12px_rgba(99,102,241,0.3)]'
                               }`}
                             >
-                              <Layers size={14} className="transition-transform hover:scale-110" />
-                              {workspaceIds.size === 0 && (
-                                <span className="whitespace-nowrap">Start from profile</span>
-                              )}
+                              <Layers size={14} className="shrink-0" />
+                              <span className="whitespace-nowrap sm:hidden">Profile</span>
+                              <span className="whitespace-nowrap hidden sm:inline">
+                                Start from profile
+                              </span>
                             </button>
 
                             {profileMenuOpen && (
@@ -3390,7 +3392,7 @@ const RISCVExplorer = () => {
                                   setParamChoices({});
                                   setBaselineLocked(true);
                                 }}
-                                className="builder-action-rose flex-1 flex items-center justify-center py-1.5 text-rose-300 hover:bg-rose-500/30 hover:text-rose-100 hover:shadow-[0_0_12px_rgba(244,63,94,0.3)] transition-all duration-300 rounded-lg"
+                                className="builder-action-rose flex-none flex items-center justify-center px-2.5 py-1.5 text-rose-300 hover:bg-rose-500/30 hover:text-rose-100 hover:shadow-[0_0_12px_rgba(244,63,94,0.3)] transition-all duration-300 rounded-lg"
                               >
                                 <Trash2
                                   size={14}
@@ -3404,7 +3406,7 @@ const RISCVExplorer = () => {
                                   data-tooltip="Export configuration YAML"
                                   aria-label="Export configuration YAML"
                                   onClick={() => setQuickExportOpen((v) => !v)}
-                                  className={`builder-action-emerald w-full flex items-center justify-center py-1.5 transition-all duration-300 rounded-lg ${
+                                  className={`builder-action-emerald w-full flex items-center justify-center px-2.5 py-1.5 transition-all duration-300 rounded-lg ${
                                     quickExportOpen
                                       ? 'bg-emerald-500 text-white shadow-inner'
                                       : 'text-emerald-300 hover:bg-emerald-500/30 hover:text-emerald-100 hover:shadow-[0_0_12px_rgba(16,185,129,0.3)]'

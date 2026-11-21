@@ -240,7 +240,7 @@ test('the builder opens from a configuration link and shows what accepts the -ma
   const { document, errors } = await mount('https://example.test/?cfg=1;p:RVA23');
   // With nothing saved the link opens the builder directly; with a different
   // configuration saved, a banner asks first. A fresh jsdom has nothing saved.
-  button(document, 'Open panel')?.click();
+  byLabel(document, 'Open the builder panel')?.click();
   const label = await waitFor(() =>
     [...document.querySelectorAll('span')].find((s) => s.textContent.trim() === 'Accepted by'),
   );
