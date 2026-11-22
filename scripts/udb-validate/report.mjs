@@ -31,7 +31,12 @@ const baseline = baselinePath ? JSON.parse(fs.readFileSync(baselinePath, 'utf8')
 const summaryPath = flag('--summary');
 const strict = args.includes('--strict');
 const md = [];
-const cell = (s) => String(s).replace(/\|/g, '\\|').replace(/\n/g, '<br>');
+// Backslashes first, so an escaped pipe cannot be un-escaped by one in the input.
+const cell = (s) =>
+  String(s)
+    .replace(/\\/g, '\\\\')
+    .replace(/\|/g, '\\|')
+    .replace(/\n/g, '<br>');
 
 let failed;
 if (strict) {
