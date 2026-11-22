@@ -20,6 +20,7 @@ import { BASE_ISA_IDS } from '../../src/marchUtils.js';
 import { PROFILES } from '../../src/profiles.js';
 import { decodeBuilderConfig } from '../../src/configPermalink.js';
 import { fillUdbConfig } from './fill.mjs';
+import { definingExtensions, parameterDefinition, parameterNames } from '../../src/isaParams.js';
 
 const args = process.argv.slice(2);
 const flag = (name) => {
@@ -96,17 +97,32 @@ if (only) {
   }
 }
 
+// A second, 'high' fill for the profiles and for configurations whose extension
+// defines a parameter that carries a UDB rule, so the builder's rule verdicts
+// are compared with UDB's on values that break different rules (#596).
+const RULED = new Set(
+  parameterNames()
+    .filter((n) => parameterDefinition(n)?.requirements)
+    .flatMap((n) => definingExtensions(n)),
+);
+RULED.delete('Sm'); // every configuration has Sm; its rules are covered by the profiles
+
 fs.mkdirSync(outDir, { recursive: true });
 const manifest = {};
-for (const c of configs) {
+const write = (c, strategy, name) => {
   const { yaml } = buildIsaConfigYaml(c.ids, ALL, { format: 'udb' });
-  const { doc, unfilled } = fillUdbConfig(YAML.parse(yaml), c.name);
-  fs.writeFileSync(path.join(outDir, `${c.name}.yaml`), YAML.stringify(doc));
-  manifest[c.name] = { kind: c.kind, selection: c.selection, unfilled };
+  const { doc, unfilled } = fillUdbConfig(YAML.parse(yaml), name, { strategy });
+  fs.writeFileSync(path.join(outDir, `${name}.yaml`), YAML.stringify(doc));
+  manifest[name] = { kind: c.kind, selection: c.selection, strategy, unfilled };
+};
+for (const c of configs) {
+  write(c, 'low', c.name);
+  const ext = c.kind === 'extension' ? c.selection[1] : null;
+  if (c.kind === 'profile' || (ext && RULED.has(ext))) write(c, 'high', `${c.name}-high`);
 }
 fs.writeFileSync(path.join(outDir, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(
-  `wrote ${configs.length} configurations to ${outDir}` +
+  `wrote ${Object.keys(manifest).length} configurations to ${outDir}` +
     (skipped.length
       ? ` (${skipped.length} skipped: conflict with the base or an open choice)`
       : ''),

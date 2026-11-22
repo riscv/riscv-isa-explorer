@@ -8,10 +8,11 @@ paste into a public workflow run.
 | File | Does |
 |---|---|
 | `generate.mjs` | Writes the configurations: every profile, and each extension alone on RV64I and RV32I, or one `--selection` / `--cfg` |
-| `fill.mjs` | Fills the export's TODO parameters with schema-valid values, and adds gated parameters the values bring into scope |
+| `fill.mjs` | Fills the export's TODO parameters with schema-valid values, and adds gated parameters the values bring into scope. `low` picks the smallest values; `high` (profiles, and extensions whose parameters carry UDB rules) the largest, so different rules break |
 | `validate.rb` | Loads UDB once and runs `ConfiguredArchitecture#valid?` (what `udb validate cfg` runs) on every file |
 | `classify.mjs` | Sorts UDB's reasons into structural (the export's fault) and value (the filled values') |
-| `report.mjs` | Compares with `baseline.json` and writes the summary |
+| `report.mjs` | Compares with `baseline.json` and writes the summary; with `--configs`, also runs `agree.mjs` |
+| `agree.mjs` | Runs the builder's parameter model (`src/paramModel.js`) on each configuration and compares its verdicts with UDB's: rule, schema, missing and undefined parameters. Any disagreement fails the check |
 | `baseline.json` | Structural failures accepted for now, each with the reason it is accepted |
 
 ## Locally

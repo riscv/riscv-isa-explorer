@@ -106,6 +106,11 @@ export function gatingParameters(nameOrNode) {
  *   not chosen (Sv39 forces SXLEN to include 64)
  * @returns {true|false|null}
  */
+// Values may be BigInt (64-bit IDs parsed exactly) or Number; compare across both.
+const num = (v) =>
+  typeof v === 'bigint' ? v : typeof v === 'number' && Number.isInteger(v) ? BigInt(v) : null;
+const same = (a, b) => (num(a) !== null && num(b) !== null ? num(a) === num(b) : a === b);
+
 export function parameterInScope(nameOrNode, { extensions, params = {}, includes = {} }) {
   const all = (results) => (results.includes(false) ? false : results.includes(null) ? null : true);
   const any = (results) => (results.includes(true) ? true : results.includes(null) ? null : false);
@@ -129,9 +134,16 @@ export function parameterInScope(nameOrNode, { extensions, params = {}, includes
     if (!Object.prototype.hasOwnProperty.call(params, node.name)) return null;
     let value = params[node.name];
     if (node.index !== undefined) value = Array.isArray(value) ? value[node.index] : undefined;
-    if ('equal' in node) return value === node.equal;
-    if ('includes' in node) return Array.isArray(value) && value.includes(node.includes);
-    if ('greaterThan' in node) return typeof value === 'number' && value > node.greaterThan;
+    if (node.size) value = Array.isArray(value) ? value.length : undefined;
+    if (value === undefined) return null;
+    if ('equal' in node) return same(value, node.equal);
+    if ('notEqual' in node) return !same(value, node.notEqual);
+    if ('includes' in node)
+      return Array.isArray(value) && value.some((x) => same(x, node.includes));
+    if ('greaterThan' in node) return num(value) !== null && num(value) > num(node.greaterThan);
+    if ('lessThanOrEqual' in node) {
+      return num(value) !== null && num(value) <= num(node.lessThanOrEqual);
+    }
     return null;
   };
   const extTest = (node) => {
