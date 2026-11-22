@@ -1,0 +1,25 @@
+{
+  "$comment": "Structural failures of the UDB export check accepted for now (#589). Each names its configuration and UDB's reason, keyed to an explanation in `why`. report.mjs lists entries that start passing; remove them then.",
+  "accepted": {
+    "rv32i-Smcfiss": ["Smcfiss is not a known extension"],
+    "rv64i-Smcfiss": ["Smcfiss is not a known extension"],
+    "rv32i-Smtdeleg": ["Smtdeleg is not a known extension"],
+    "rv64i-Smtdeleg": ["Smtdeleg is not a known extension"],
+    "rv32i-Smvatag": ["Smvatag is not a known extension"],
+    "rv64i-Smvatag": ["Smvatag is not a known extension"],
+    "rv32i-Ssdtso": ["Ssdtso is not a known extension"],
+    "rv64i-Ssdtso": ["Ssdtso is not a known extension"],
+    "rv32i-Svatag": ["Svatag is not a known extension"],
+    "rv64i-Svatag": ["Svatag is not a known extension"],
+    "rv32i-Zvabd": ["0.7.0 is not a known version of extension Zvabd"],
+    "rv64i-Zvabd": ["0.7.0 is not a known version of extension Zvabd"]
+  },
+  "why": {
+    "Smcfiss is not a known extension": "A draft the catalogue lists and riscv-unified-db does not define at the pinned commit. Nothing to export against until UDB adds it.",
+    "Smtdeleg is not a known extension": "A draft the catalogue lists and riscv-unified-db does not define at the pinned commit.",
+    "Smvatag is not a known extension": "A draft the catalogue lists and riscv-unified-db does not define at the pinned commit.",
+    "Ssdtso is not a known extension": "A draft the catalogue lists and riscv-unified-db does not define at the pinned commit.",
+    "Svatag is not a known extension": "A draft the catalogue lists and riscv-unified-db does not define at the pinned commit.",
+    "0.7.0 is not a known version of extension Zvabd": "The catalogue carries the draft at 0.7.0, newer than any version riscv-unified-db defines at the pinned commit."
+  }
+}

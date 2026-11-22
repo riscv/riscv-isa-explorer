@@ -18,6 +18,7 @@ on:
       - Sync ISA manual status
       - Check UDB Completeness
       - Check riscv-opcodes Drift
+      - UDB Export Check
     types: [completed]
 
 permissions:
@@ -27,7 +28,12 @@ permissions:
 jobs:
   alert:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'failure' || github.event.workflow_run.conclusion == 'success'
+    # Scheduled and manual runs only: the UDB Export Check also runs on pull
+    # requests, where a red check belongs on the PR, not in an issue.
+    if: >-
+      github.event.workflow_run.event != 'pull_request' &&
+      (github.event.workflow_run.conclusion == 'failure' ||
+      github.event.workflow_run.conclusion == 'success')
     steps:
       - name: Open, update or close the issue
         env:
