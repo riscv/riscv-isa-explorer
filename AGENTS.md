@@ -70,6 +70,7 @@ src/
   isaGraph.js                 # dependency resolution: resolveSelection, closure, explain, validateGraph
   paramModel.js / paramRules.js  # every UDB parameter's scope, state and rules; IDL subset evaluator
   ParametersView.jsx / paramEditing.js  # the builder's Parameters tab; editors, stored form ({$int} for 64-bit)
+  udbImport.js                # a UDB config into the builder, with a report (yaml loaded on demand)
   marchUtils.js               # -march assembly + canonical ordering (pure, no React, no catalog import)
   exportUtils.js              # YAML + riscv-config export
   profileExport.js            # profile membership (mandatory/implied/optional) + YAML/JSON/CSV/XLSX download

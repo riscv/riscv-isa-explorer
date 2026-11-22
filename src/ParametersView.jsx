@@ -14,6 +14,7 @@
 import React, { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { parameterDefinition } from './isaParams.js';
+import { importUdbConfig, NOT_CHECKED_HERE } from './udbImport.js';
 import {
   builderParamStates,
   editorFor,
@@ -408,7 +409,175 @@ function ParamRow({ p, stored, onSetParam }) {
   );
 }
 
-export default function ParametersView({ ids, values, onSetParam }) {
+const REPORT_COLOR = {
+  errors: 'var(--riscv-danger)',
+  invalid: 'var(--riscv-danger)',
+  warnings: 'var(--riscv-text)',
+  info: 'var(--riscv-text-2)',
+};
+
+/**
+ * Import a UDB config (#604): a file or pasted text, checked by the same
+ * parameter model as the tab, and loaded only on an explicit second step when
+ * it would replace a configuration.
+ */
+function ImportPanel({ catalog, hasConfig, onImport }) {
+  const [text, setText] = useState('');
+  const [report, setReport] = useState(null);
+  const [confirming, setConfirming] = useState(false);
+
+  const check = async (source) => {
+    setConfirming(false);
+    let doc;
+    try {
+      // Loaded on demand, so the parser is not in the page until it is used.
+      const { parse } = await import('yaml');
+      doc = parse(source, { intAsBigInt: true });
+    } catch (e) {
+      setReport({
+        ok: false,
+        errors: [`Not valid YAML: ${String(e.message).split('\n')[0]}`],
+        warnings: [],
+        info: [],
+      });
+      return;
+    }
+    setReport(importUdbConfig(doc, catalog));
+  };
+
+  return (
+    <details
+      open={!hasConfig}
+      style={{
+        marginBottom: 16,
+        borderRadius: 10,
+        border: '1px solid var(--riscv-border)',
+        background: 'var(--riscv-surface)',
+      }}
+    >
+      <summary
+        style={{
+          padding: '10px 12px',
+          cursor: 'pointer',
+          fontSize: 13,
+          fontWeight: 700,
+          color: 'var(--riscv-text)',
+        }}
+      >
+        Import a UDB config
+      </summary>
+      <div style={{ padding: '0 12px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <p style={{ margin: 0, fontSize: 12, color: 'var(--riscv-text-2)' }}>
+          A fully configured riscv-unified-db architecture configuration, such as a riscv-arch-test
+          DUT config or this builder&apos;s own UDB export. It is read here, in your browser, and
+          not sent anywhere.
+        </p>
+        <input
+          type="file"
+          accept=".yaml,.yml,text/yaml"
+          aria-label="UDB config file"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const content = await file.text();
+            setText(content);
+            check(content);
+          }}
+          style={{ fontSize: 12, color: 'var(--riscv-text-2)', maxWidth: '100%' }}
+        />
+        <textarea
+          aria-label="UDB config text"
+          placeholder="…or paste the YAML here"
+          value={text}
+          onChange={(e) => {
+            setText(e.target.value);
+            setReport(null);
+            setConfirming(false);
+          }}
+          rows={5}
+          style={{ ...control, width: '100%', boxSizing: 'border-box', fontSize: 11.5 }}
+        />
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <button
+            type="button"
+            onClick={() => check(text)}
+            disabled={!text.trim()}
+            style={toggle(false, !text.trim())}
+          >
+            Check
+          </button>
+          {report?.ok && !confirming && (
+            <button
+              type="button"
+              onClick={() => (hasConfig ? setConfirming(true) : onImport(report))}
+              style={toggle(true)}
+            >
+              Load into builder
+            </button>
+          )}
+          {confirming && (
+            <>
+              <span style={{ fontSize: 12, color: 'var(--riscv-text)' }}>
+                Replace the current configuration and its values?
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setConfirming(false);
+                  onImport(report);
+                }}
+                style={toggle(true)}
+              >
+                Replace
+              </button>
+              <button type="button" onClick={() => setConfirming(false)} style={toggle(false)}>
+                Cancel
+              </button>
+            </>
+          )}
+        </div>
+        {report && (
+          <div
+            role="status"
+            style={{ fontSize: 12, display: 'flex', flexDirection: 'column', gap: 4 }}
+          >
+            <strong style={{ color: report.ok ? 'var(--riscv-text)' : 'var(--riscv-danger)' }}>
+              {report.ok
+                ? `Readable${report.name ? `: ${report.name}` : ''}. ${report.ids.length} extensions, ${Object.keys(report.paramChoices).length} parameter values.`
+                : 'This file cannot be loaded.'}
+            </strong>
+            {report.invalid?.length > 0 && (
+              <span style={{ color: 'var(--riscv-text)' }}>
+                Invalid values load as they are; fix them in this tab afterwards:
+              </span>
+            )}
+            {['errors', 'invalid', 'warnings', 'info'].map((kind) =>
+              report[kind]?.length ? (
+                <ul
+                  key={kind}
+                  aria-label={kind}
+                  style={{
+                    margin: 0,
+                    paddingLeft: 18,
+                    listStyle: 'disc',
+                    color: REPORT_COLOR[kind],
+                  }}
+                >
+                  {report[kind].map((m) => (
+                    <li key={m}>{m}</li>
+                  ))}
+                </ul>
+              ) : null,
+            )}
+            {report.ok && <span style={{ color: 'var(--riscv-text-2)' }}>{NOT_CHECKED_HERE}</span>}
+          </div>
+        )}
+      </div>
+    </details>
+  );
+}
+
+export default function ParametersView({ ids, values, onSetParam, catalog, onImport }) {
   const [filter, setFilter] = useState('unset');
   const [query, setQuery] = useState('');
   const result = useMemo(() => builderParamStates(ids, values), [ids, values]);
@@ -442,11 +611,17 @@ export default function ParametersView({ ids, values, onSetParam }) {
     return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
   }, [shown]);
 
+  const importer = catalog && onImport && (
+    <ImportPanel catalog={catalog} hasConfig={ids.length > 0} onImport={onImport} />
+  );
   if (!result) {
     return (
-      <p style={{ color: 'var(--riscv-text-2)', fontSize: 13 }}>
-        Pick a base ISA first: parameters depend on it.
-      </p>
+      <section style={{ maxWidth: 1100, margin: '0 auto' }}>
+        {importer}
+        <p style={{ color: 'var(--riscv-text-2)', fontSize: 13 }}>
+          Pick a base ISA first, or import a UDB config: parameters depend on the base.
+        </p>
+      </section>
     );
   }
   const { summary } = result;
@@ -481,6 +656,7 @@ export default function ParametersView({ ids, values, onSetParam }) {
         schema and UDB&apos;s rules. Values you set go into the UDB config export in place of TODO.
         This checks consistency with UDB, not hardware compliance.
       </p>
+      {importer}
       <div
         style={{
           display: 'flex',
