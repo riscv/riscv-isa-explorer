@@ -34,8 +34,10 @@ get a dependency-resolved configuration with a valid `-march` string.
   extensions added and removed, and the parameters chosen. If the visitor
   already has a different configuration saved, the page asks before replacing it.
 - **Export** a `-march` string, a YAML configuration (optionally with every
-  instruction), or a UDB architecture configuration for riscv-arch-test.
-  Parameters chosen in the ISA Configuration Builder go into both files.
+  instruction), or a UDB architecture configuration for riscv-arch-test, which
+  is checked against riscv-unified-db's own validator (see
+  [UDB configuration export](#udb-configuration-export)). Parameters chosen in
+  the ISA Configuration Builder go into both files.
 - **Compare entries.** Pin extensions, instructions or profiles and read them
   side by side; a comparison has its own URL and can be shared. With Compare
   switched on, **Compare profiles** opens a profile comparison directly,
@@ -191,6 +193,7 @@ hand-written link to their specification's repository.
 | toolchain support | the `sync-toolchain-support` workflow, the 1st of each month at 10:00 UTC, opens or updates a PR when a new Clang, GCC, binutils, QEMU or Linux release ships or an extension's standing changes |
 | Sail, Spike and ACT links | the `sync-reference-impls` workflow, Mondays at 08:00 UTC, opens or updates a PR when an instruction gains or loses a link; new upstream commits alone do not, since the links are pinned |
 | instruction encodings | **by hand.** The `check-opcodes-drift` workflow, Mondays at 07:00 UTC, files an issue when upstream is ahead, or carries different bits under a name we list (drafts included) |
+| the UDB configuration export | the `udb-validate` workflow (UDB Export Check) runs riscv-unified-db's `udb validate cfg` on 402 exported configurations on every pull request that touches the export or its data, and Mondays at 10:00 UTC; a new structural failure fails the check |
 | new extensions | **by hand.** The weekly sync only enriches entries we already have; the `check-udb-completeness` workflow, Mondays at 09:00 UTC, keeps one issue updated with what riscv-unified-db has and we do not |
 
 `src/instr_dict.json` is hand-maintained on purpose and is not regenerated from
@@ -312,6 +315,52 @@ through to the extensions that define them.
 
 It is computed from `src/riscv_extensions.json` at runtime, so there is nothing
 to regenerate: sync the catalogue and the map follows.
+
+## UDB configuration export
+
+**Export YAML → Download UDB config (arch-test)** writes the configuration
+riscv-arch-test takes to describe a device under test, in the format
+riscv-unified-db validates (`spec/schemas/config_schema.json`). Place it beside a
+`test_config.yaml` that points at it, then run
+`make CONFIG_FILES=config/cores/<vendor>/<dut>/test_config.yaml`.
+
+It describes an implementation, so only part of it can come from an extension
+list. The file says which part is which:
+
+| Section | Holds |
+|---|---|
+| `implemented_extensions` | the dependency closure of your selection, each pinned to its version. `Sm` is always there: every hart has M-mode, and UDB defines MXLEN and every M-mode parameter under it |
+| GENERATED | MXLEN, from the base |
+| CONSTRAINED | values the extensions force (Sstvala requires every `REPORT_VA_IN_STVAL_*` to be true). Change one and the file contradicts its own extension list |
+| TODO | every other parameter UDB requires for these extensions. **These are yours to fill**, from your design document |
+| CONDITIONAL | commented out: parameters required only when another parameter takes a value (`ARCH_ID_VALUE` only if `MARCHID_IMPLEMENTED = true`). Uncomment the ones your values bring in |
+| NOT DEFINED HERE | commented out: a constraint on a parameter UDB defines only with an extension you did not select |
+
+**What is checked.** The `udb-validate` workflow exports every profile, and each
+catalogue extension alone on RV64I and RV32I, fills the TODOs with values their
+schemas allow, and runs riscv-unified-db's own validator on all of them at the
+commit our data is pinned to. A missing, undefined or unknown parameter,
+extension or version, or an unmet requirement between extensions, fails it. The
+few accepted failures, drafts riscv-unified-db does not define yet, are listed
+with their reasons in `scripts/udb-validate/baseline.json`.
+
+**What is not.** Your values. UDB also checks rules written as code (with F,
+`MSTATUS_FS_LEGAL_VALUES` must include 3), and those depend on what you write
+into the TODOs. Passing the validator also says the file is consistent with
+riscv-unified-db, not that your hardware complies with anything.
+
+**Check your own file** once the TODOs are filled. Run it locally: a manual run
+of the workflow takes a file or selection too, but its inputs appear in a
+public log, so do not use it for an unreleased core.
+
+```sh
+# in a riscv-unified-db checkout, with its toolchain set up
+./bin/udb validate cfg path/to/your-config.yaml
+```
+
+Or with Docker and nothing else installed:
+[`scripts/udb-validate/README.md`](scripts/udb-validate/README.md) has the
+container and the commands, which are the ones CI uses.
 
 ## Deployment
 
