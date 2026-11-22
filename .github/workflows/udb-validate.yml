@@ -113,7 +113,13 @@ jobs:
   validate:
     needs: generate
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    # Four shards of ~100 configurations, a few seconds each on a runner. One
+    # job took over 30 minutes for all 402.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    timeout-minutes: 30
     container: ruby:3.4.11-bookworm
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -137,6 +143,14 @@ jobs:
             .udb-bundle
             .udb-cache
           key: udb-${{ hashFiles('udb/Gemfile.lock', 'udb/tools/ruby-gems/udb/lib/udb/Z3_VERSION') }}
+      # UDB merges and resolves its whole spec into gen/ before checking
+      # anything; that depends only on the UDB commit, so it is kept.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            udb/gen/spec
+            udb/gen/resolved_spec
+          key: udb-gen-${{ needs.generate.outputs.udb_ref }}
       - name: Install udb
         run: |
           export BUNDLE_PATH="$GITHUB_WORKSPACE/.udb-bundle" XDG_CACHE_HOME="$GITHUB_WORKSPACE/.udb-cache"
@@ -149,13 +163,22 @@ jobs:
         run: |
           export BUNDLE_PATH="$GITHUB_WORKSPACE/.udb-bundle" XDG_CACHE_HOME="$GITHUB_WORKSPACE/.udb-cache"
           export BUNDLE_LOCKFILE_CHECKSUMS=false
+          # This shard's share: every fourth file, in name order.
+          ls "$GITHUB_WORKSPACE"/configs/*.yaml | sort | awk -v s="$SHARD" 'NR % 4 == s' > shard.txt
+          echo "shard $SHARD: $(wc -l < shard.txt) configurations"
           cd udb
-          bundle exec ruby "$GITHUB_WORKSPACE/scripts/udb-validate/validate.rb" \
-            "$GITHUB_WORKSPACE/results.json" "$GITHUB_WORKSPACE"/configs/*.yaml
+          if [ -s ../shard.txt ]; then
+            xargs bundle exec ruby "$GITHUB_WORKSPACE/scripts/udb-validate/validate.rb" \
+              "$GITHUB_WORKSPACE/results-$SHARD.json" < ../shard.txt
+          else
+            echo '[]' > "$GITHUB_WORKSPACE/results-$SHARD.json"
+          fi
+        env:
+          SHARD: ${{ matrix.shard }}
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: udb-validate
-          path: results.json
+          name: udb-validate-${{ matrix.shard }}
+          path: results-${{ matrix.shard }}.json
           retention-days: 30
 
   report:
@@ -169,7 +192,10 @@ jobs:
           node-version: '24'
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          name: udb-validate
+          pattern: udb-validate-*
+          merge-multiple: true
+      - name: Merge the shards
+        run: node -e "const fs=require('fs');const all=fs.readdirSync('.').filter(f=>/^results-\d+\.json$/.test(f)).flatMap(f=>JSON.parse(fs.readFileSync(f,'utf8')));fs.writeFileSync('results.json',JSON.stringify(all));console.log(all.length+' results')"
       - name: Report
         env:
           MODE: ${{ needs.generate.outputs.mode }}
