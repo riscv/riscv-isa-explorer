@@ -370,6 +370,7 @@ export default function WorkspacePanel({
   onShare,
   onAddIds,
   onImportConfig,
+  onAskContext,
   baselineLocked,
   onToggleBaseline,
 }) {
@@ -1326,6 +1327,7 @@ export default function WorkspacePanel({
               catalog={allExts}
               onImport={onImportConfig}
               onSetVlen={onSetVlen}
+              onAskContext={onAskContext}
             />
           </div>
         ) : /* --- EMPTY STATE WORKBENCH --- */

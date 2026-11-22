@@ -44,7 +44,18 @@ get a dependency-resolved configuration with a valid `-march` string.
   their gate is set, and each value is checked against its schema and UDB's
   rules, with UDB's reason when it breaks one. Values go into all three
   exports (UDB config, YAML configuration and riscv-config's
-  `physical_addr_sz`) and travel with share links.
+  `physical_addr_sz`) and travel with share links. Rows you set are tinted,
+  and an **activity log** beside the list records every change and every
+  error it causes or clears, newest first, with undo and redo for the last
+  30 moves, a reset, and export as text. Undo checks that what it reverses
+  is still there, and skips a move whose target was changed elsewhere since.
+  **Back up** saves the configuration, its values and the log as one JSON
+  file to keep or share; **Restore** loads one back after a confirmation,
+  and undo reverses it, as it does a UDB import. A log line naming a
+  parameter jumps to its row. The log and the undo history last for the
+  browser tab; a backup does not keep profile provenance (the restored
+  configuration is a custom one). Selecting a parameter gives the Ask AI
+  chip its question, as selecting an extension does.
 - **Compare entries.** Pin extensions, instructions or profiles and read them
   side by side; a comparison has its own URL and can be shared. With Compare
   switched on, **Compare profiles** opens a profile comparison directly,
