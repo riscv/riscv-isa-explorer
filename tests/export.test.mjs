@@ -481,7 +481,9 @@ test('a UDB export keeps the oneOf value the user picked', () => {
   // The builder offers these as buttons and the landscape export has always
   // recorded the pick. Emitting TODO here regardless threw the choice away and
   // asked for it again in a text editor.
-  const sel = ['RV64I', 'Ssube'];
+  // U is listed: U_MODE_ENDIANNESS exists only with U, and a constraint on a
+  // parameter the configuration does not define is not written (#589).
+  const sel = ['RV64I', 'U', 'Ssube'];
   const withChoice = buildIsaConfigYaml(sel, ALL, {
     format: 'udb',
     paramChoices: { U_MODE_ENDIANNESS: 'big' },
@@ -699,4 +701,15 @@ test('a constraint on MXLEN never writes the key twice (Smmpm requires 64)', () 
   assert.equal(udbParamKeys(yaml).filter((k) => k === 'MXLEN').length, 1);
   const rv32 = buildIsaConfigYaml(['RV32I', 'Smmpm', 'Sm'], ALL, { format: 'udb' });
   assert.match(rv32.yaml, /# CONFLICT MXLEN: MXLEN must be 64 for Smmpm, but the base is 32-bit/);
+});
+
+test('a constraint on a parameter UDB does not define here is a comment, not a key', () => {
+  // Za128rs constrains LRSC_RESERVATION_STRATEGY, which exists only with Zalrsc.
+  const alone = buildIsaConfigYaml(resolve(['RV64I', 'Za128rs']), ALL, { format: 'udb' }).yaml;
+  assert.ok(!udbParamKeys(alone).includes('LRSC_RESERVATION_STRATEGY'));
+  assert.match(alone, /# NOT DEFINED HERE/);
+  const withLrsc = buildIsaConfigYaml(resolve(['RV64I', 'Za128rs', 'Zalrsc']), ALL, {
+    format: 'udb',
+  }).yaml;
+  assert.ok(udbParamKeys(withLrsc).includes('LRSC_RESERVATION_STRATEGY'));
 });

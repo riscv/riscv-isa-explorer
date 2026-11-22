@@ -506,7 +506,20 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     u.push(`  # GENERATED — from the base ISA you selected.`);
     u.push(`  MXLEN: ${baseInfo.xlen}`);
 
-    const constrained = resolveParams(selectedIds);
+    // UDB names the base I or E, not RV64I.
+    const udbExtensions = new Set(
+      allExtsList.map((id) => (BASE_ISA_IDS.has(id) ? baseInfo.base.toUpperCase() : id)),
+    );
+    // A constraint on a parameter UDB does not define for this configuration
+    // cannot be written: Za128rs constrains LRSC_RESERVATION_STRATEGY, which
+    // exists only with Zalrsc, and writing it made UDB reject the file as "not
+    // defined by this config" (#589). Such constraints only apply once the
+    // parameter exists, so they are listed as a comment instead.
+    const allConstrained = resolveParams(selectedIds);
+    const outOfScope = allConstrained.filter(
+      (prm) => parameterInScope(prm.name, { extensions: udbExtensions }) === false,
+    );
+    const constrained = allConstrained.filter((prm) => !outOfScope.includes(prm));
     if (constrained.length) {
       u.push(``);
       u.push(`  # CONSTRAINED — forced by the extensions above. Changing any of these`);
@@ -570,9 +583,17 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     // definedBy the configuration satisfies (#588). UDB's validator rejects a
     // full configuration missing any of them. The fixed floor stays as a
     // guard, so a gap in the definitions can never drop what arch-test needs.
-    const udbExtensions = new Set(
-      allExtsList.map((id) => (BASE_ISA_IDS.has(id) ? baseInfo.base.toUpperCase() : id)),
-    );
+    if (outOfScope.length) {
+      u.push(``);
+      u.push(`  # NOT DEFINED HERE — constrained by an extension above, but UDB defines`);
+      u.push(`  # these only with an extension this configuration does not implement.`);
+      for (const prm of outOfScope) {
+        u.push(
+          `  # ${prm.name}: ${prm.kind} ${[].concat(prm.value).join(', ')}; required by ${prm.from.join(', ')}`,
+        );
+      }
+    }
+
     const knownValues = { MXLEN: baseInfo.xlen, ...paramChoices };
     const knownIncludes = {};
     for (const prm of constrained) {
