@@ -194,3 +194,17 @@ test('riscv-config takes physical_addr_sz from PHYS_ADDR_WIDTH when it is set', 
   assert.match(unset, /physical_addr_sz: 32 +# TODO/);
   assert.match(unset, /THREE FIELDS NEED YOUR INPUT/);
 });
+
+test('parameters live in one place: the tab has VLEN and conflicts, the old card is gone', () => {
+  const panel = fs.readFileSync(new URL('../src/WorkspacePanel.jsx', import.meta.url), 'utf8');
+  assert.doesNotMatch(
+    panel,
+    /title="Implementation Parameters"/,
+    'the card moved into the tab (#606)',
+  );
+  assert.match(panel, /Edit parameters/);
+  assert.match(panel, /onSetVlen=\{onSetVlen\}/);
+  const view = fs.readFileSync(new URL('../src/ParametersView.jsx', import.meta.url), 'utf8');
+  assert.match(view, /function VlenPicker/);
+  assert.match(view, /function ConflictNotice/);
+});
