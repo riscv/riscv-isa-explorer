@@ -77,7 +77,12 @@ const asNumber = (v) => {
 // so it is checked and, if need be, replaced by the first small value that fits.
 function valueFor(name, xlen, strategy) {
   const schema = parameterDefinition(name)?.schema;
-  const first = asNumber(rawValueFor(name, xlen, strategy));
+  // Our data keeps integers above 2^53 as strings, but a string enum such as
+  // VECTOR_LS_INDEX_MAX_EEW's "8" must stay a string: use whichever form the
+  // schema accepts.
+  const raw = rawValueFor(name, xlen, strategy);
+  const numeric = asNumber(raw);
+  const first = schema && checkSchema(raw, schema).length === 0 ? raw : numeric;
   if (first === null || !schema || checkSchema(first, schema).length === 0) return first;
   for (const candidate of [1, 4, 32, 64, true, false]) {
     if (checkSchema(candidate, schema).length === 0) return candidate;

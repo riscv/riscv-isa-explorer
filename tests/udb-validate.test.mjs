@@ -170,3 +170,13 @@ test('classify.mjs: a condition UDB could not decide is about values', () => {
     'Extension requirement is unmet: C@2.0.0. Condition not yet determined: (`Zca>=0`{true} && (!`F>=0`{true} || `xlen=64`{unknown}))';
   assert.equal(classifyReason(r), 'value');
 });
+
+test('fill.mjs keeps a string enum a string and makes a big integer an integer', () => {
+  const { yaml } = buildIsaConfigYaml(['RV64I', 'V', 'Zvl128b'], ALL, { format: 'udb' });
+  const { doc } = fillUdbConfig(YAML.parse(yaml), 'v');
+  if ('VECTOR_LS_INDEX_MAX_EEW' in doc.params) {
+    assert.equal(typeof doc.params.VECTOR_LS_INDEX_MAX_EEW, 'string');
+  }
+  const high = fillUdbConfig(YAML.parse(yaml), 'h', { strategy: 'high' }).doc;
+  assert.equal(typeof high.params.MTVEC_BASE_ALIGNMENT_DIRECT, 'bigint');
+});
