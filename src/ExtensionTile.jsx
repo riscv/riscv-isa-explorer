@@ -250,7 +250,7 @@ function ExtensionTile({
       </div>
 
       <div className="relative z-10 pointer-events-none">
-        <div className="flex flex-wrap items-center gap-1.5 mb-1 pr-16">
+        <div className="flex flex-wrap items-center gap-1.5 mb-2.5 pr-16">
           <span
             className="font-mono font-semibold text-[12px] leading-tight break-all"
             style={{ letterSpacing: '0.02em' }}
@@ -280,21 +280,44 @@ function ExtensionTile({
             </span>
           )}
         </div>
-        {/* The short label, not `desc`. The tile is 190px wide - about 32
+        {/* The name row's bottom margin clears the corner controls, which hang
+          about 5px below it: with less, the first line of a long description
+          ran under the Compare or + button (#598).
+
+          The short label, not `desc`. The tile is 190px wide - about 32
           characters a line, 65 in the two-line clamp - so a full description
           truncates into a fragment here. `desc` is shown in the details panel
-          when a tile is selected, where there is room for it.
-
-          The instruction count shares this row rather than the name row above:
-          the corner controls are absolutely positioned over the name row's
-          right edge, so a count there would sit under the compare and "+"
-          buttons. */}
-        <div className="flex items-end justify-between gap-2">
+          when a tile is selected, where there is room for it. */}
+        <div
+          className="text-[11px] leading-snug line-clamp-2"
+          style={{ color: 'var(--riscv-text-2)' }}
+        >
+          {data.short || data.desc}
+        </div>
+        {/* The instruction count sits on the status row, at the bottom. The
+          corner controls (Compare, the builder's +) are absolutely positioned
+          from the top-right and about 28px tall, so they reach down into the
+          description row: a count there sat under them (#598). */}
+        <div className="mt-1 flex items-end justify-between gap-2">
           <div
-            className="text-[11px] leading-snug line-clamp-2"
-            style={{ color: 'var(--riscv-text-2)' }}
+            className="text-[9px] font-mono leading-tight min-w-0"
+            style={{ color: 'var(--riscv-text-3)' }}
+            aria-label={[
+              data.state || 'Status unknown',
+              `version ${data.version || 'unknown'}`,
+              data.state === 'ratified'
+                ? `ratified ${data.ratification_date || 'date unavailable'}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(', ')}
+            title="Status, version, and ratification date from the catalogue's cited source"
           >
-            {data.short || data.desc}
+            {data.state
+              ? data.state.charAt(0).toUpperCase() + data.state.slice(1)
+              : 'Status unknown'}
+            {` · ${data.version ? `v${data.version}` : 'version unknown'}`}
+            {data.state === 'ratified' ? ` · ${data.ratification_date || 'date unavailable'}` : ''}
           </div>
           <span
             className="font-mono text-[10px] leading-none shrink-0"
@@ -312,24 +335,6 @@ function ExtensionTile({
           >
             {instructionCount > 0 ? instructionCount : 'no opcodes'}
           </span>
-        </div>
-        <div
-          className="mt-1 text-[9px] font-mono leading-tight"
-          style={{ color: 'var(--riscv-text-3)' }}
-          aria-label={[
-            data.state || 'Status unknown',
-            `version ${data.version || 'unknown'}`,
-            data.state === 'ratified'
-              ? `ratified ${data.ratification_date || 'date unavailable'}`
-              : null,
-          ]
-            .filter(Boolean)
-            .join(', ')}
-          title="Status, version, and ratification date from the catalogue's cited source"
-        >
-          {data.state ? data.state.charAt(0).toUpperCase() + data.state.slice(1) : 'Status unknown'}
-          {` · ${data.version ? `v${data.version}` : 'version unknown'}`}
-          {data.state === 'ratified' ? ` · ${data.ratification_date || 'date unavailable'}` : ''}
         </div>
       </div>
     </div>
