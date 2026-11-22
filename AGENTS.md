@@ -68,6 +68,7 @@ src/
   EncodingMap.jsx / encodingMap.js              # opcode-space map
   EncodingDiagram.jsx                           # bit-field diagram
   isaGraph.js                 # dependency resolution: resolveSelection, closure, explain, validateGraph
+  paramModel.js / paramRules.js  # every UDB parameter's scope, state and rules; IDL subset evaluator
   marchUtils.js               # -march assembly + canonical ordering (pure, no React, no catalog import)
   exportUtils.js              # YAML + riscv-config export
   profileExport.js            # profile membership (mandatory/implied/optional) + YAML/JSON/CSV/XLSX download
@@ -199,6 +200,15 @@ Then `npm run sync` and `npm test && npm run build`.
   tree, because 23 of the 228 parameters are gated on another PARAMETER'S value
   rather than on an extension; flattening it to one owner per parameter loses
   that distinction silently. Regenerate with `npm run sync:params`, never by hand.
+- **The parameter model must agree with UDB.** `src/paramModel.js` decides each
+  parameter's scope (`parameterInScope`), schema validity (`checkSchema`) and
+  rules (`src/paramRules.js`: the 18 data rules and all 52 IDL rules, parsed
+  from UDB's own text, loops unrolled). The UDB Export Check runs it on every
+  configuration it validates and fails on any verdict that differs from
+  `udb validate cfg` (`scripts/udb-validate/agree.mjs`). A new IDL construct
+  upstream fails `tests/param-model.test.mjs` at parse time rather than being
+  skipped. Integers above 2^53 are BigInt; our data keeps them as strings, so
+  schema constants are read as numbers and user values must be real integers.
 - **The UDB export must pass `udb validate cfg` once its TODOs are filled.**
   UDB requires `Sm` in every full configuration (it defines MXLEN and all
   M-mode parameters), so the export adds it, resolved, even though no graph

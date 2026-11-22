@@ -16,9 +16,9 @@ a row here and a test behind it.
 | Dependency graph and resolution | `src/isa-dependency-graph.json`, `src/isaGraph.js`, `scripts/seed-dependency-graph.mjs` | `isa-graph`, `dependency-closure`, `riscv-config-rules`, `sync-tooling`, `pipeline` |
 | `-march` strings | `src/marchUtils.js`, `scripts/emit-march-matrix.mjs` | `march`, `profiles`, `dependency-closure` |
 | Profiles | `src/profiles.js`, `src/profile-optional.json`, `scripts/sync-profile-optional.mjs` | `profiles`, `compare-model`, `pipeline` |
-| Parameters | `src/isa-params.json`, `src/isaParams.js`, `scripts/sync_udb_params.mjs` | `isa-params`, `pipeline` |
+| Parameters | `src/isa-params.json`, `src/isaParams.js`, `src/paramModel.js`, `src/paramRules.js`, `scripts/sync_udb_params.mjs` | `isa-params`, `param-model`, `pipeline` |
 | Exports (YAML, riscv-config, CSV, XLSX) | `src/exportUtils.js`, `src/profileExport.js`, `src/xlsxWriter.js` | `export`, `profile-export`, `pocket-guide` |
-| UDB export check (`udb validate cfg` in CI) | `scripts/udb-validate/generate.mjs`, `scripts/udb-validate/fill.mjs`, `scripts/udb-validate/classify.mjs`, `scripts/udb-validate/report.mjs`, `scripts/udb-validate/validate.rb`, `.github/workflows/udb-validate.yml` | `udb-validate`, `export` |
+| UDB export check (`udb validate cfg` in CI) | `scripts/udb-validate/generate.mjs`, `scripts/udb-validate/fill.mjs`, `scripts/udb-validate/classify.mjs`, `scripts/udb-validate/report.mjs`, `scripts/udb-validate/agree.mjs`, `scripts/udb-validate/validate.rb`, `.github/workflows/udb-validate.yml` | `udb-validate`, `export` |
 | Share links and builder state | `src/configPermalink.js`, `src/workspaceLock.js` | `config-permalink`, `workspace-lock`, `render-smoke` |
 | ISA Configuration Builder | `src/WorkspacePanel.jsx`, `src/ProfileDownloadMenu.jsx`, `src/builderNotice.js`, `src/profileGap.js` | `render-smoke`, `render-views`, `profile-export`, `builder-notice`, `profile-gap` |
 | Compare | `src/compareModel.js`, `src/CompareView.jsx`, `src/CompareTray.jsx` | `compare-model`, `render-smoke` |

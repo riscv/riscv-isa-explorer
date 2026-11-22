@@ -11,9 +11,14 @@
  * prints every one, value failures included.
  *
  * --summary appends Markdown, for $GITHUB_STEP_SUMMARY.
+ * --configs <dir> also compares the builder's parameter model with UDB's
+ * verdicts on those files (agree.mjs) and fails on any disagreement.
  */
 import fs from 'node:fs';
+import path from 'node:path';
+import YAML from 'yaml';
 import { classifyReason, compareWithBaseline } from './classify.mjs';
+import { compareWithModel } from './agree.mjs';
 
 const args = process.argv.slice(2);
 const flag = (name) => {
@@ -32,11 +37,7 @@ const summaryPath = flag('--summary');
 const strict = args.includes('--strict');
 const md = [];
 // Backslashes first, so an escaped pipe cannot be un-escaped by one in the input.
-const cell = (s) =>
-  String(s)
-    .replace(/\\/g, '\\\\')
-    .replace(/\|/g, '\\|')
-    .replace(/\n/g, '<br>');
+const cell = (s) => String(s).replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\n/g, '<br>');
 
 let failed;
 if (strict) {
@@ -83,6 +84,32 @@ if (strict) {
     md.push('');
   }
   failed = fresh.length > 0;
+}
+
+const configsDir = flag('--configs');
+if (configsDir) {
+  const configs = {};
+  for (const file of fs.readdirSync(configsDir).filter((f) => f.endsWith('.yaml'))) {
+    const text = fs.readFileSync(path.join(configsDir, file), 'utf8');
+    configs[file.slice(0, -5)] = YAML.parse(text, { intAsBigInt: true });
+  }
+  const disagreements = compareWithModel(results, configs);
+  md.push(
+    '### Parameter model against UDB',
+    '',
+    disagreements.length
+      ? `${disagreements.length} disagreement(s) between the builder's parameter model and UDB:`
+      : `The builder's parameter model agrees with UDB on all ${results.length} configurations.`,
+    '',
+  );
+  if (disagreements.length) {
+    md.push('| Configuration | Check | Parameter | Flagged by |', '|---|---|---|---|');
+    for (const d of disagreements.slice(0, 200)) {
+      md.push(`| ${d.name} | ${d.kind} | ${d.param} | ${d.udb ? 'UDB only' : 'model only'} |`);
+    }
+    md.push('');
+    failed = true;
+  }
 }
 
 const text = md.join('\n');

@@ -26,7 +26,11 @@ const STRUCTURAL_REASONS = [
 // A failing condition that tests a parameter value: `(NAME==true)`,
 // `(HPM_COUNTER_EN[3]==true)`, `$array_includes?(SXLEN, 64)`. An extension
 // test reads `D>=0`, with no parenthesis inside the backticks.
-const VALUE_TERM = /`\(|\$array_|`[A-Z][A-Z0-9_]+(?:\[\d+\])?\s*(?:==|!=|>=|<=|>|<)/;
+// `xlen=64` depends on the *XLEN parameters (a hart offering both widths has no
+// single xlen), and "Condition not yet determined" means UDB could not decide
+// from the values given: both are about values, not the extension list.
+const VALUE_TERM =
+  /`\(|\$array_|`xlen=|Condition not yet determined|`[A-Z][A-Z0-9_]+(?:\[\d+\])?\s*(?:==|!=|>=|<=|>|<)/;
 
 /** @returns {'structural'|'value'} */
 export function classifyReason(reason) {

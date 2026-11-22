@@ -129,3 +129,44 @@ test('report.mjs and the baseline: every accepted failure names its configuratio
       assert.ok(why[reason] || why[name], `${name}: no "why" for ${reason}`);
   }
 });
+
+test('agree.mjs: the parameter model is compared with UDB, both ways', async () => {
+  const { compareWithModel } = await import('../scripts/udb-validate/agree.mjs');
+  const config = {
+    implemented_extensions: [{ name: 'I' }, { name: 'Sm' }, { name: 'F' }],
+    params: { MXLEN: 64, MSTATUS_FS_LEGAL_VALUES: [0] },
+  };
+  // UDB and the model both flag the F rule: no disagreement on it.
+  const agreeing = compareWithModel(
+    [{ name: 'c', reasons: ["Parameter requirements not met: 'MSTATUS_FS_LEGAL_VALUES'."] }],
+    { c: config },
+  );
+  assert.ok(!agreeing.some((d) => d.kind === 'rule'), JSON.stringify(agreeing));
+  // UDB silent where the model flags it: a disagreement, attributed to the model.
+  const silent = compareWithModel([{ name: 'c', reasons: [] }], { c: config });
+  assert.ok(
+    silent.some((d) => d.kind === 'rule' && d.param === 'MSTATUS_FS_LEGAL_VALUES' && !d.udb),
+  );
+  // UDB stopped early on an unknown extension: only schema verdicts compare.
+  const early = compareWithModel([{ name: 'c', reasons: ['Xfoo is not a known extension'] }], {
+    c: config,
+  });
+  assert.deepEqual(early, []);
+});
+
+test('fill.mjs: the high strategy picks the other end of each schema, and stays valid', async () => {
+  const { checkSchema } = await import('../src/paramModel.js');
+  const { yaml } = buildIsaConfigYaml(['RV64I'], ALL, { format: 'udb' });
+  const { doc } = fillUdbConfig(YAML.parse(yaml), 'h', { strategy: 'high' });
+  assert.equal(doc.params.PRECISE_SYNCHRONOUS_EXCEPTIONS, true);
+  const { default: params } = await import('../src/isa-params.json', { with: { type: 'json' } });
+  for (const [name, value] of Object.entries(doc.params)) {
+    assert.deepEqual(checkSchema(value, params.params[name]?.schema), [], name);
+  }
+});
+
+test('classify.mjs: a condition UDB could not decide is about values', () => {
+  const r =
+    'Extension requirement is unmet: C@2.0.0. Condition not yet determined: (`Zca>=0`{true} && (!`F>=0`{true} || `xlen=64`{unknown}))';
+  assert.equal(classifyReason(r), 'value');
+});
