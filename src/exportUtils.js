@@ -14,7 +14,7 @@
  */
 
 import { CONFIG_EXPORT_NOTICE } from './builderNotice.js';
-import { fromStored } from './paramEditing.js';
+import { builderParamStates, fromStored } from './paramEditing.js';
 import {
   buildMarchString,
   BASE_ISA_IDS,
@@ -714,7 +714,13 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     rc.push(`#`);
     for (const line of CONFIG_EXPORT_NOTICE) rc.push(`# ${line}`);
     rc.push(`#`);
-    rc.push(`# TWO FIELDS NEED YOUR INPUT — marked TODO below. They are implementation`);
+    // physical_addr_sz is UDB's PHYS_ADDR_WIDTH, so a value set in the
+    // Parameters tab fills it (#596).
+    const physSet =
+      Object.prototype.hasOwnProperty.call(paramChoices, 'PHYS_ADDR_WIDTH') &&
+      fromStored(paramChoices.PHYS_ADDR_WIDTH) !== undefined;
+    const todo = physSet ? 'TWO FIELDS NEED' : 'THREE FIELDS NEED';
+    rc.push(`# ${todo} YOUR INPUT — marked TODO below. They are implementation`);
     rc.push(`# choices this tool cannot derive from an extension selection.`);
     rc.push(``);
     rc.push(`Vendor: ""   # TODO your organization`);
@@ -790,9 +796,15 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     rc.push(`  # character — Zicsr before Zca — none of which matches -march. S names follow,`);
     rc.push(`  # by privilege level (Su, Ss/Sv, Sh, Sm, Sd), then custom X names.`);
     rc.push(`  ISA: ${rcIsa}`);
-    rc.push(
-      `  physical_addr_sz: 32          # TODO physical address width for your implementation`,
-    );
+    if (physSet) {
+      rc.push(
+        `  physical_addr_sz: ${yamlValue(paramChoices.PHYS_ADDR_WIDTH)}          # your PHYS_ADDR_WIDTH`,
+      );
+    } else {
+      rc.push(
+        `  physical_addr_sz: 32          # TODO physical address width for your implementation`,
+      );
+    }
     rc.push(`  User_Spec_Version: "${userSpecVersion}"        # inferred from the selection`);
     rc.push(`  Privilege_Spec_Version: "${privSpecVersion}"   # inferred from the selection`);
     rc.push(`  supported_xlen: [${baseInfo.xlen}]`);
@@ -927,14 +939,38 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
           : prm.value;
       lines.push(`    value: ${value}`);
       lines.push(`    required_by: [${prm.from.join(', ')}]`);
-      if (prm.kind === 'oneOf' && Object.prototype.hasOwnProperty.call(paramChoices, prm.name)) {
-        const picked = paramChoices[prm.name];
-        lines.push(`    chosen: ${typeof picked === 'string' ? JSON.stringify(picked) : picked}`);
+      // The value set in the builder, for any kind of constraint (#596).
+      if (prm.kind !== 'equal' && Object.prototype.hasOwnProperty.call(paramChoices, prm.name)) {
+        lines.push(`    chosen: ${yamlValue(paramChoices[prm.name])}`);
       }
       if (prm.reason) lines.push(`    reason: ${JSON.stringify(prm.reason)}`);
       // A conflict is left in the file on purpose: silently dropping it would
       // produce a configuration that looks valid and is not.
       if (prm.conflict) lines.push(`    CONFLICT: ${JSON.stringify(prm.conflict)}`);
+    }
+  }
+  // Every other value set in the builder's Parameters tab, for a parameter
+  // this configuration has (#596). A value that breaks its schema or a UDB rule
+  // is kept, with the reason: dropping it would hide the problem.
+  const states = builderParamStates(selectedIds, paramChoices);
+  const constrainedNames = new Set(params.map((prm) => prm.name));
+  const userValues = (states?.params ?? []).filter(
+    (p) =>
+      Object.prototype.hasOwnProperty.call(paramChoices, p.name) &&
+      p.scope !== false &&
+      p.kind !== 'fixed' &&
+      !constrainedNames.has(p.name),
+  );
+  if (userValues.length) {
+    lines.push(``);
+    lines.push(`# Values set in the builder's Parameters tab, for parameters this`);
+    lines.push(`# configuration has, checked against riscv-unified-db's schemas and rules.`);
+    lines.push(`parameter_values:`);
+    for (const p of userValues) {
+      const note = p.errors.length
+        ? `   # INVALID: ${p.errors.join('; ').replace(/\s+/g, ' ')}`
+        : '';
+      lines.push(`  ${p.name}: ${yamlValue(paramChoices[p.name])}${note}`);
     }
   }
   lines.push(``);

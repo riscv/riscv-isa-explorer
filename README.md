@@ -42,8 +42,9 @@ get a dependency-resolved configuration with a valid `-march` string.
   every riscv-unified-db parameter the configuration has, with an editor for
   its type: fixed values say which extension fixes them, gated ones appear once
   their gate is set, and each value is checked against its schema and UDB's
-  rules, with UDB's reason when it breaks one. Values go into the UDB config
-  export and travel with share links.
+  rules, with UDB's reason when it breaks one. Values go into all three
+  exports (UDB config, YAML configuration and riscv-config's
+  `physical_addr_sz`) and travel with share links.
 - **Compare entries.** Pin extensions, instructions or profiles and read them
   side by side; a comparison has its own URL and can be shared. With Compare
   switched on, **Compare profiles** opens a profile comparison directly,
