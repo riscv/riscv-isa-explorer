@@ -11,11 +11,48 @@
  * Every editor is a top-level component: a component declared inside another's
  * render body remounts its subtree on every keystroke.
  */
-import React, { useMemo, useState } from 'react';
-import { Search } from 'lucide-react';
-import { parameterDefinition } from './isaParams.js';
-import { impliedVlen, resolveParams, vlenExtension } from './isaGraph.js';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Check,
+  Copy,
+  Download,
+  Eraser,
+  Redo2,
+  Save,
+  Search,
+  Trash2,
+  Undo2,
+  Upload,
+} from 'lucide-react';
+import { paramQuestion } from './askAi.js';
+import { parameterDefinition, parameterNames } from './isaParams.js';
+import { impliedVlen, resolveParams, resolveSelection, vlenExtension } from './isaGraph.js';
+import { BASE_ISA_IDS } from './marchUtils.js';
 import { importUdbConfig, NOT_CHECKED_HERE } from './udbImport.js';
+import {
+  LOG_LIMIT,
+  clearLog,
+  loadHistory,
+  pushMove,
+  redoMove,
+  saveHistory,
+  undoMove,
+  errorEntries,
+  errorMap,
+  loadLog,
+  BACKUP_MAX_BYTES,
+  backupFile,
+  extensionDiff,
+  readBackup,
+  loadSeen,
+  logFile,
+  logGroups,
+  saveSeen,
+  logText,
+  logTime,
+  saveLog,
+  valueEntry,
+} from './paramLog.js';
 import {
   builderParamStates,
   editorFor,
@@ -248,8 +285,13 @@ function ParamEditor({ p, stored, onSet }) {
   const editor = editorFor(definition?.schema);
   const label = `${p.name} value`;
   if (p.kind === 'fixed') {
+    // Focusable, so a keyboard can select a fixed row too (and ask about it).
     return (
-      <span style={{ ...control, display: 'inline-block', opacity: 0.85 }}>
+      <span
+        tabIndex={0}
+        aria-label={`${p.name} is fixed at ${formatValue(toStored(p.value))}`}
+        style={{ ...control, display: 'inline-block', opacity: 0.85 }}
+      >
         {formatValue(toStored(p.value))}
       </span>
     );
@@ -337,13 +379,19 @@ function stateLine(p) {
   return null;
 }
 
-function ParamRow({ p, stored, onSetParam }) {
+function ParamRow({ p, stored, onSetParam, selected, onSelect, current }) {
   const definition = parameterDefinition(p.name);
   const state = stateLine(p);
   const invalid = p.errors.length > 0;
   return (
     <div
       id={`param-${p.name}`}
+      // Clicking or tabbing into a row selects it: the row the Ask AI chip
+      // asks about.
+      onFocus={onSelect ? () => onSelect(p.name) : undefined}
+      onClick={onSelect ? () => onSelect(p.name) : undefined}
+      aria-current={selected ? 'true' : undefined}
+      data-last-set={current ? 'true' : undefined}
       style={{
         display: 'grid',
         // One column on a phone, two side by side when there is room.
@@ -353,8 +401,34 @@ function ParamRow({ p, stored, onSetParam }) {
         padding: '10px 12px',
         borderTop: '1px solid var(--riscv-tint-2)',
         borderLeft: `3px solid ${invalid ? 'var(--riscv-danger)' : p.set ? 'var(--riscv-gold)' : 'transparent'}`,
+        // A value you set is tinted, so a long list shows at a glance what
+        // has been done; an invalid one is tinted red. The left edge carries
+        // the same meaning without relying on colour alone.
+        background: invalid
+          ? 'var(--riscv-param-invalid-bg)'
+          : stored !== undefined
+            ? 'var(--riscv-param-set-bg)'
+            : 'transparent',
+        position: 'relative',
+        outline: selected ? '2px solid var(--riscv-gold)' : 'none',
+        outlineOffset: -2,
+        cursor: 'default',
       }}
     >
+      {current && (
+        <>
+          <span className="param-current-bar" aria-hidden="true" />
+          <span className="sr-only">Last change.</span>
+        </>
+      )}
+      {/* The tint and outline, in words. */}
+      {(selected || stored !== undefined) && (
+        <span className="sr-only">
+          {[selected && 'Selected.', stored !== undefined && 'Set by you.']
+            .filter(Boolean)
+            .join(' ')}
+        </span>
+      )}
       <div style={{ minWidth: 0 }}>
         <div
           style={{
@@ -395,7 +469,9 @@ function ParamRow({ p, stored, onSetParam }) {
         )}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 0 }}>
-        <ParamEditor p={p} stored={stored} onSet={(v) => onSetParam(p.name, v)} />
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+          <ParamEditor p={p} stored={stored} onSet={(v) => onSetParam(p.name, v)} />
+        </div>
         {p.errors.map((e) => (
           <div
             key={e}
@@ -410,6 +486,21 @@ function ParamRow({ p, stored, onSetParam }) {
   );
 }
 
+/** "1 value", "2 values". */
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
+/** Save text as a file through a temporary link. */
+function download(filename, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 const VLEN_CHOICES = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536];
 
 /**
@@ -418,12 +509,17 @@ const VLEN_CHOICES = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 3276
  * changes extensions, not a value: VLEN has no -march flag, so the floor is a
  * Zvl*b extension, and the -march string follows.
  */
-function VlenPicker({ ids, onSetVlen }) {
+// The log's target for a VLEN change: the VLEN section, not a parameter row.
+const VLEN_TARGET = '#vlen';
+
+function VlenPicker({ ids, onSetVlen, current }) {
   const vlen = impliedVlen(ids);
   return (
     <section
       aria-labelledby="vlen-title"
+      data-last-set={current ? 'true' : undefined}
       style={{
+        position: 'relative',
         marginBottom: 16,
         padding: '10px 12px',
         borderRadius: 10,
@@ -431,6 +527,12 @@ function VlenPicker({ ids, onSetVlen }) {
         background: 'var(--riscv-surface)',
       }}
     >
+      {current && (
+        <>
+          <span className="param-current-bar" aria-hidden="true" />
+          <span className="sr-only">Last change.</span>
+        </>
+      )}
       <h3 id="vlen-title" style={{ margin: '0 0 6px', fontSize: 13, color: 'var(--riscv-text)' }}>
         Vector length (VLEN):{' '}
         {vlen ? (
@@ -640,7 +742,7 @@ function ImportPanel({ catalog, hasConfig, onImport }) {
           >
             <strong style={{ color: report.ok ? 'var(--riscv-text)' : 'var(--riscv-danger)' }}>
               {report.ok
-                ? `Readable${report.name ? `: ${report.name}` : ''}. ${report.ids.length} extensions, ${Object.keys(report.paramChoices).length} parameter values.`
+                ? `Readable${report.name ? `: ${report.name}` : ''}. ${plural(report.ids.length, 'extension')}, ${Object.keys(report.paramChoices).length} parameter values.`
                 : 'This file cannot be loaded.'}
             </strong>
             {report.invalid?.length > 0 && (
@@ -674,16 +776,791 @@ function ImportPanel({ catalog, hasConfig, onImport }) {
   );
 }
 
-export default function ParametersView({ ids, values, onSetParam, catalog, onImport, onSetVlen }) {
-  const [filter, setFilter] = useState('unset');
+// The newest group that is a change rather than a "session opened" line: the
+// cyan line goes under it, marking the last change.
+const lastChangeGroup = (groups) => {
+  const i = groups.findIndex((group) => group[0].kind !== 'session');
+  return i === -1 ? 0 : i;
+};
+
+// Whether this page load has written its "opened" line to the log yet.
+let sessionSummarised = false;
+
+const LOG_COLOR = {
+  backup: '#7dd3fc',
+  restore: '#7dd3fc',
+  ext: '#7dd3fc',
+  reset: '#ffb86b',
+  undo: '#d7b4ff',
+  redo: '#d7b4ff',
+  set: '#7ee2a8',
+  change: '#f5c542',
+  clear: '#b5bac4',
+  error: '#ff8fa3',
+  ok: '#7ee2a8',
+  vlen: '#8ab4ff',
+  import: '#8ab4ff',
+  session: '#b5bac4',
+};
+
+/**
+ * The activity log (prototype): every change made in this tab and every error
+ * it causes or clears, newest at the bottom like a terminal. It stays dark in
+ * both themes, so its colours are checked against one background.
+ */
+function IconButton({ label, onClick, disabled, danger, children }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        ...logButton,
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 28,
+        height: 26,
+        padding: 0,
+        opacity: disabled ? 0.45 : 1,
+        ...(danger ? { borderColor: '#ff8fa3', color: '#ff8fa3', background: '#2a1218' } : {}),
+        cursor: disabled ? 'not-allowed' : 'pointer',
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ParamLog({
+  entries,
+  onClear,
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
+  setCount,
+  onReset,
+  onBackup,
+  onRestoreFile,
+  pendingRestore,
+  onConfirmRestore,
+  onCancelRestore,
+  onRestoreError,
+  onJump,
+}) {
+  // Reset and clear destroy work, so each takes two clicks: the first arms it
+  // and says, in words, what the second will do. Escape or a pause disarms.
+  const [arming, setArming] = useState(null); // 'reset' | 'clear' | null
+  useEffect(() => {
+    if (!arming) return undefined;
+    const t = setTimeout(() => setArming(null), 6000);
+    return () => clearTimeout(t);
+  }, [arming]);
+  // A short message for things that happened without a log line: a refused
+  // copy, a file that could not be read. Announced to screen readers.
+  const [notice, setNotice] = useState(null);
+  useEffect(() => {
+    if (!notice) return undefined;
+    const t = setTimeout(() => setNotice(null), 5000);
+    return () => clearTimeout(t);
+  }, [notice]);
+  const restoreButton = useRef(null);
+  useEffect(() => {
+    if (pendingRestore) restoreButton.current?.focus();
+  }, [pendingRestore]);
+  const list = useRef(null);
+  const fileInput = useRef(null);
+  const [copied, setCopied] = useState(false);
+  useEffect(() => {
+    // Newest first: keep the latest line in view.
+    if (list.current) list.current.scrollTop = 0;
+  }, [entries.length]);
+  const errorsNow = entries.filter((e) => e.kind === 'error').length;
+  return (
+    <aside
+      aria-label="Parameter activity log"
+      className="param-log"
+      style={{
+        borderRadius: 10,
+        border: '1px solid #2a2f3a',
+        background: '#0d1117',
+        color: '#d6dae1',
+        fontFamily: 'JetBrains Mono, monospace',
+        fontSize: 11.5,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+      }}
+    >
+      <div
+        onKeyDown={(e) => {
+          if (e.key === 'Escape' && arming) {
+            e.stopPropagation();
+            setArming(null);
+          }
+        }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 8,
+          padding: '8px 10px',
+          borderBottom: '1px solid #2a2f3a',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <span aria-hidden="true" style={{ color: '#7ee2a8' }}>
+          ●
+        </span>
+        <strong style={{ fontSize: 12, color: '#f0f3f6' }}>activity log</strong>
+        <span style={{ color: '#b5bac4' }}>
+          {entries.length} {entries.length === 1 ? 'entry' : 'entries'}
+          {errorsNow ? ` · ${errorsNow} ${errorsNow === 1 ? 'error' : 'errors'} logged` : ''}
+        </span>
+        <span style={{ marginLeft: 'auto', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+          <IconButton
+            label={
+              arming === 'reset'
+                ? `Click again to reset all ${setCount} parameter value${setCount === 1 ? '' : 's'} (undo brings them back)`
+                : 'Reset all parameter values'
+            }
+            onClick={() => {
+              if (arming === 'reset') {
+                setArming(null);
+                onReset();
+              } else setArming('reset');
+            }}
+            disabled={!setCount}
+            danger={arming === 'reset'}
+          >
+            <Eraser size={14} />
+          </IconButton>
+          <span
+            aria-hidden="true"
+            style={{ width: 1, alignSelf: 'stretch', background: '#2a2f3a' }}
+          />
+          <IconButton label="Undo the last change (Ctrl/⌘+Z)" onClick={onUndo} disabled={!canUndo}>
+            <Undo2 size={14} />
+          </IconButton>
+          <IconButton label="Redo (Shift+Ctrl/⌘+Z)" onClick={onRedo} disabled={!canRedo}>
+            <Redo2 size={14} />
+          </IconButton>
+          <IconButton
+            label={copied ? 'Copied' : 'Copy the log as text'}
+            disabled={!entries.length}
+            onClick={() => {
+              const refused = () =>
+                setNotice(
+                  'Copy failed: the browser did not allow clipboard access. Use export instead.',
+                );
+              if (!navigator.clipboard?.writeText) return refused();
+              navigator.clipboard.writeText(logText(entries)).then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 1200);
+              }, refused);
+            }}
+          >
+            {copied ? <Check size={14} /> : <Copy size={14} />}
+          </IconButton>
+          <IconButton
+            label="Back up the configuration, parameters and log (.json)"
+            onClick={onBackup}
+          >
+            <Save size={14} />
+          </IconButton>
+          <IconButton label="Restore from a backup file" onClick={() => fileInput.current?.click()}>
+            <Upload size={14} />
+          </IconButton>
+          <input
+            ref={fileInput}
+            type="file"
+            accept=".json,application/json"
+            aria-hidden="true"
+            tabIndex={-1}
+            style={{ display: 'none' }}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              e.target.value = '';
+              if (!file) return;
+              // Checked before reading: a huge file is refused, not loaded.
+              if (file.size > BACKUP_MAX_BYTES) {
+                onRestoreError('This file is too large to be a parameter backup.');
+                return;
+              }
+              try {
+                onRestoreFile(await file.text());
+              } catch {
+                onRestoreError('The file could not be read.');
+              }
+            }}
+          />
+          <IconButton
+            label="Export the log as a text file"
+            disabled={!entries.length}
+            onClick={() => {
+              const { filename, text } = logFile(entries);
+              download(filename, text, 'text/plain');
+            }}
+          >
+            <Download size={14} />
+          </IconButton>
+          <IconButton
+            label={
+              arming === 'clear'
+                ? 'Click again to empty the log (the undo history stays)'
+                : 'Clear the log'
+            }
+            onClick={() => {
+              if (arming === 'clear') {
+                setArming(null);
+                onClear();
+              } else setArming('clear');
+            }}
+            disabled={!entries.length}
+            danger={arming === 'clear'}
+          >
+            <Trash2 size={14} />
+          </IconButton>
+        </span>
+      </div>
+      {(arming || notice) && (
+        <div
+          role="status"
+          style={{
+            padding: '6px 10px',
+            borderBottom: '1px solid #2a2f3a',
+            color: arming ? '#ffc2cd' : '#f0f3f6',
+            whiteSpace: 'normal',
+          }}
+        >
+          {arming === 'reset' &&
+            `Click reset again to clear all ${setCount} parameter value${setCount === 1 ? '' : 's'}. Undo brings them back. Esc cancels.`}
+          {arming === 'clear' &&
+            'Click clear again to empty the log. The undo history stays. Esc cancels.'}
+          {!arming && notice}
+        </div>
+      )}
+      {pendingRestore && (
+        <div
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.stopPropagation();
+              onCancelRestore();
+            }
+          }}
+          role="alert"
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: 8,
+            padding: '8px 10px',
+            borderBottom: '1px solid #2a2f3a',
+            color: pendingRestore.error ? '#ffc2cd' : '#f0f3f6',
+          }}
+        >
+          {pendingRestore.error ? (
+            <>
+              <span>{pendingRestore.error}</span>
+              <button type="button" onClick={onCancelRestore} style={logButton}>
+                dismiss
+              </button>
+            </>
+          ) : (
+            <>
+              <span>
+                Restore {pendingRestore.ids.length} extensions and{' '}
+                {Object.keys(pendingRestore.values).length} values
+                {pendingRestore.exported
+                  ? ` from the backup of ${pendingRestore.exported.slice(0, 10)}`
+                  : ''}
+                ? It replaces the current configuration; undo brings it back.
+                {pendingRestore.dropped.length > 0 && (
+                  <> Left out: {pendingRestore.dropped.join(', ')}.</>
+                )}
+              </span>
+              <button
+                ref={restoreButton}
+                type="button"
+                onClick={onConfirmRestore}
+                style={logButton}
+              >
+                restore
+              </button>
+              <button type="button" onClick={onCancelRestore} style={logButton}>
+                cancel
+              </button>
+            </>
+          )}
+        </div>
+      )}
+      <ol
+        ref={list}
+        role="log"
+        aria-live="polite"
+        aria-label="Activity log, newest first"
+        tabIndex={0}
+        style={{ listStyle: 'none', margin: 0, padding: '8px 10px', overflowY: 'auto', flex: 1 }}
+      >
+        {entries.length === 0 && (
+          <li style={{ color: '#b5bac4' }}>
+            Nothing yet. Every value you set, and every error it causes, appears here. The log lasts
+            for this browser tab.
+          </li>
+        )}
+        {logGroups(entries).map((group, g, groups) => (
+          // One group per action, newest first: the action, then the errors
+          // it caused or cleared. A cyan line separates it from the one before.
+          <li
+            key={`${group[0].t}-${group[0].kind}-${group[0].text}`}
+            style={{
+              // Cyan only between the latest action and the rest; a faint line
+              // between older ones.
+              borderTop:
+                g === 0
+                  ? 'none'
+                  : g === lastChangeGroup(groups) + 1
+                    ? '1px solid #22d3ee'
+                    : '1px solid rgba(230, 234, 240, 0.18)',
+              // One shorthand: React drops a paddingLeft mixed with a changing padding.
+              padding: g === 0 ? '0 0 4px 8px' : '4px 0 4px 8px',
+              position: 'relative',
+            }}
+          >
+            {/* The same blinking bar as the row of the last parameter set:
+                the latest action here, and where it landed in the list. */}
+            {g === lastChangeGroup(groups) && group[0].kind !== 'session' && (
+              <span className="param-current-bar param-current-bar--log" aria-hidden="true" />
+            )}
+            <ol style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              {group.map((e, i) => (
+                <li
+                  key={`${e.t}-${e.kind}-${e.text}-${i}`}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '62px 54px 1fr',
+                    gap: 6,
+                    padding: '1px 0',
+                  }}
+                >
+                  <span style={{ color: '#8b93a1' }}>{logTime(e.t)}</span>
+                  <span style={{ color: LOG_COLOR[e.kind] ?? '#d6dae1' }}>{e.kind}</span>
+                  <span
+                    style={{
+                      wordBreak: 'break-word',
+                      color: e.kind === 'error' ? '#ffc2cd' : '#d6dae1',
+                    }}
+                  >
+                    {(e.target ?? e.name) && onJump ? (
+                      <button
+                        type="button"
+                        onClick={() => onJump(e.target ?? e.name)}
+                        title="Show this in the list"
+                        className="param-log-jump"
+                      >
+                        {e.text}
+                      </button>
+                    ) : (
+                      e.text
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </li>
+        ))}
+      </ol>
+    </aside>
+  );
+}
+
+const logButton = {
+  padding: '2px 8px',
+  borderRadius: 5,
+  border: '1px solid #3a4150',
+  background: '#161b22',
+  color: '#d6dae1',
+  fontFamily: 'inherit',
+  fontSize: 11,
+  cursor: 'pointer',
+};
+
+export default function ParametersView({
+  ids,
+  values,
+  onSetParam,
+  catalog,
+  onImport,
+  onSetVlen,
+  onAskContext,
+}) {
+  // Opens on All: every parameter stays on screen, and the ones you set are
+  // tinted, so the list shows what has been done rather than hiding it.
+  const [filter, setFilterState] = useState('all');
+  // Rows changed under the current filter stay in view until the filter or
+  // the search changes: under Unset, a row you set would otherwise vanish
+  // under the cursor before you could see it.
+  const [kept, setKept] = useState(() => new Set());
+  const setFilter = (next) => {
+    setKept(new Set());
+    setFilterState(next);
+  };
+  const keep = (name) => setKept((prev) => (prev.has(name) ? prev : new Set(prev).add(name)));
   const [query, setQuery] = useState('');
   const result = useMemo(() => builderParamStates(ids, values), [ids, values]);
+
+  // The activity log: entries for this browser tab's session.
+  const [entries, setEntries] = useState(() => loadLog());
+  const log = (added) => {
+    if (!added.length) return;
+    setEntries((prev) => {
+      const next = [...prev, ...added].slice(-LOG_LIMIT);
+      saveLog(next);
+      return next;
+    });
+  };
+  // Undo / redo: the last 30 moves, kept for the session like the log.
+  const [history, setHistory] = useState(() => loadHistory());
+  // The latest history, read by every move: two quick clicks must not both
+  // see the history from before the first, or one move is applied twice.
+  const historyRef = useRef(history);
+  const record = (next) => {
+    historyRef.current = next;
+    setHistory(next);
+    saveHistory(next);
+  };
+  const vlenText = (from, to) =>
+    `floor ${from ?? 'none'} → ${to ?? 'none'}${to ? ` (${vlenExtension(to)})` : ''}`;
+  const now = () => Date.now();
+
+  // What a VLEN pick resolves to, as the builder will resolve it: a vector
+  // extension can hold the floor above the pick (Zve64x requires Zvl64b), and
+  // a change that does not happen must not be logged or recorded as one.
+  const predictVlen = (bits) => {
+    const desired = new Set(ids);
+    for (const w of VLEN_CHOICES) if (bits === null || w > bits) desired.delete(`Zvl${w}b`);
+    if (bits !== null) desired.add(`Zvl${bits}b`);
+    const base = [...desired].find((x) => BASE_ISA_IDS.has(x)) ?? null;
+    return impliedVlen(resolveSelection({ selected: [...desired], base }).resolved) ?? null;
+  };
+
+  // Each move checks that what it is about to reverse is still what it left:
+  // a value or the extensions may have been changed elsewhere since (the
+  // Configuration view, a share link), and undo must never act on a state it
+  // did not produce. A move that no longer applies is dropped, and said so.
+  const sameStored = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+  const sameIds = (a, b) => JSON.stringify([...a].sort()) === JSON.stringify([...b].sort());
+  const stillApplies = (move, direction) => {
+    const expect = direction === 'undo' ? 'after' : 'before';
+    if (move.kind === 'param') return sameStored(values?.[move.name], move[expect]);
+    if (move.kind === 'vlen') return (impliedVlen(ids) ?? null) === move[expect];
+    if (move.kind === 'reset') {
+      return Object.keys(move.before).every((n) =>
+        direction === 'undo' ? values?.[n] === undefined : sameStored(values?.[n], move.before[n]),
+      );
+    }
+    if (move.kind === 'config') {
+      const side = move[expect];
+      return sameIds(ids, side.ids) && sameStored(values ?? {}, side.values);
+    }
+    return false;
+  };
+  const describe = (move) =>
+    move.kind === 'param'
+      ? move.name
+      : move.kind === 'vlen'
+        ? 'the VLEN floor'
+        : move.kind === 'reset'
+          ? 'the reset'
+          : 'the configuration';
+  const apply = (move, direction) => {
+    if (!stillApplies(move, direction)) {
+      log([
+        {
+          t: now(),
+          kind: direction,
+          text: `skipped: ${describe(move)} changed elsewhere since, so it was left as it is`,
+        },
+      ]);
+      return;
+    }
+    const value = direction === 'undo' ? move.before : move.after;
+    if (move.kind === 'reset') {
+      const names = Object.keys(move.before);
+      log([
+        {
+          t: now(),
+          kind: direction,
+          text: `reset: ${direction === 'undo' ? 'restored' : 'cleared'} ${plural(names.length, 'value')}`,
+        },
+      ]);
+      for (const name of names) onSetParam(name, direction === 'undo' ? move.before[name] : null);
+    } else if (move.kind === 'vlen') {
+      const from = direction === 'undo' ? move.after : move.before;
+      log([
+        { t: now(), kind: direction, target: VLEN_TARGET, text: `vlen ${vlenText(from, value)}` },
+      ]);
+      onSetVlen(value);
+    } else if (move.kind === 'config') {
+      log([
+        {
+          t: now(),
+          kind: direction,
+          text: `${move.label}: ${direction === 'undo' ? 'back to the previous' : 'again the'} configuration (${plural(value.ids.length, 'extension')}, ${plural(Object.keys(value.values).length, 'value')})`,
+        },
+      ]);
+      onImport({ ids: value.ids, paramChoices: value.values, source: 'history' });
+    } else {
+      const entry = valueEntry(move.name, values?.[move.name], value);
+      log([{ ...entry, kind: direction, text: `${entry.kind} ${entry.text}` }]);
+      onSetParam(move.name, value ?? null);
+    }
+  };
+  const undo = () => {
+    const { move, history: next } = undoMove(historyRef.current);
+    if (!move) return;
+    record(next);
+    apply(move, 'undo');
+  };
+  const redo = () => {
+    const { move, history: next } = redoMove(historyRef.current);
+    if (!move) return;
+    record(next);
+    apply(move, 'redo');
+  };
+  // The selected row: highlighted, and the Ask AI chip's question, the same
+  // way a selected extension or instruction sets it elsewhere in the app.
+  const [selected, setSelected] = useState(null);
+  const setParam = (name, value) => {
+    keep(name);
+    setSelected(name);
+    const before = values?.[name];
+    if (sameStored(before, value)) return;
+    log([valueEntry(name, before, value)]);
+    record(
+      pushMove(historyRef.current, {
+        kind: 'param',
+        name,
+        before: before ?? null,
+        after: value ?? null,
+      }),
+    );
+    onSetParam(name, value);
+  };
+  // Clears every value set in the tab, as one move undo can reverse.
+  const resetParams = () => {
+    const before = { ...(values ?? {}) };
+    const names = Object.keys(before);
+    if (!names.length) return;
+    log([{ t: now(), kind: 'reset', text: `cleared ${plural(names.length, 'value')}` }]);
+    record(pushMove(historyRef.current, { kind: 'reset', before }));
+    for (const name of names) onSetParam(name, null);
+  };
+  const setVlen = (bits) => {
+    const from = impliedVlen(ids) ?? null;
+    const to = predictVlen(bits);
+    if (to === from) {
+      log([
+        {
+          t: now(),
+          kind: 'vlen',
+          target: VLEN_TARGET,
+          text:
+            bits !== null && from !== null && bits < from
+              ? `floor stays ${from}: a selected vector extension requires it`
+              : `floor stays ${from ?? 'none'}`,
+        },
+      ]);
+      return;
+    }
+    log([{ t: now(), kind: 'vlen', target: VLEN_TARGET, text: vlenText(from, to) }]);
+    record(pushMove(historyRef.current, { kind: 'vlen', before: from, after: to }));
+    onSetVlen(to);
+  };
+  // Ctrl/⌘+Z and Shift+Ctrl/⌘+Z, except while typing, where the field's own
+  // undo belongs to the field.
+  const undoRef = useRef(undo);
+  const redoRef = useRef(redo);
+  undoRef.current = undo;
+  redoRef.current = redo;
+  useEffect(() => {
+    const onKey = (e) => {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey || e.key.toLowerCase() !== 'z') return;
+      if (e.defaultPrevented || e.isComposing) return;
+      // The real target, through shadow roots: the Ask AI chat's input lives
+      // in one, and its own undo must stay its own.
+      const t = (e.composedPath?.()[0] ?? e.target) || null;
+      const editable =
+        t &&
+        (['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName) ||
+          t.isContentEditable ||
+          ['textbox', 'combobox', 'searchbox'].includes(t.getAttribute?.('role')));
+      if (editable) return;
+      if (e.target && e.target !== t && e.target.shadowRoot) return;
+      e.preventDefault();
+      if (e.shiftKey) redoRef.current();
+      else undoRef.current();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  // From a log line to the thing it names: the VLEN section, or the
+  // parameter's row, shown even if the current filter or search hides it.
+  const jumpTo = (target) => {
+    if (target === VLEN_TARGET) {
+      document
+        .getElementById('vlen-title')
+        ?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      return;
+    }
+    if (!result?.params.some((p) => p.name === target && p.scope !== false)) return;
+    setQuery('');
+    keep(target);
+    setSelected(target);
+    requestAnimationFrame(() => {
+      const row = document.getElementById(`param-${target}`);
+      row?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      row?.querySelector('button, input, select, [tabindex]')?.focus({ preventScroll: true });
+    });
+  };
+
+  // A configuration replaced as a whole (restore, UDB import) is one move
+  // undo can reverse: nothing that was there before is lost.
+  const replaceConfig = (label, next, source) => {
+    record(
+      pushMove(historyRef.current, {
+        kind: 'config',
+        label,
+        before: { ids: [...ids], values: { ...(values ?? {}) } },
+        after: { ids: [...next.ids], values: { ...next.values } },
+      }),
+    );
+    onImport({ ids: next.ids, paramChoices: next.values, source });
+  };
+
+  // Backup and restore: the configuration, its values and the log, as JSON.
+  const [pendingRestore, setPendingRestore] = useState(null);
+  const backup = () => {
+    const { filename, text } = backupFile({ ids, values, entries });
+    download(filename, text, 'application/json');
+    log([
+      {
+        t: now(),
+        kind: 'backup',
+        text: `${filename}: ${plural(ids.length, 'extension')}, ${plural(Object.keys(values ?? {}).length, 'value')}`,
+      },
+    ]);
+  };
+  const restoreFile = (text) => {
+    const knownIds = new Set((catalog ?? []).map((e) => e.id));
+    const read = readBackup(text, {
+      knownIds,
+      knownParams: new Set(parameterNames()),
+      bases: BASE_ISA_IDS,
+    });
+    setPendingRestore(read.ok ? read : { error: read.error });
+  };
+  const confirmRestore = () => {
+    const r = pendingRestore;
+    setPendingRestore(null);
+    if (!r || r.error) return;
+    // The current log is kept; the backup's log follows a marker, then the
+    // restore itself, so both histories stay readable.
+    const day = r.exported ? r.exported.slice(0, 10) : 'an unknown date';
+    log([
+      ...(r.log.length
+        ? [{ t: now(), kind: 'session', text: `log from the backup of ${day} follows` }, ...r.log]
+        : []),
+      {
+        t: now(),
+        kind: 'restore',
+        text:
+          `${plural(r.ids.length, 'extension')}, ${plural(Object.keys(r.values).length, 'value')} from the backup of ${day}` +
+          (r.dropped.length ? ` · left out: ${r.dropped.join(', ')}` : ''),
+      },
+    ]);
+    replaceConfig('restore', { ids: r.ids, values: r.values }, 'backup');
+  };
+  const importConfig = (report) => {
+    log([
+      {
+        t: now(),
+        kind: 'import',
+        text:
+          `${report.name || 'UDB config'}: ${plural(report.ids.length, 'extension')}, ${plural(Object.keys(report.paramChoices).length, 'value')}` +
+          (report.invalid?.length ? `, ${report.invalid.length} invalid` : ''),
+      },
+    ]);
+    replaceConfig('import', { ids: report.ids, values: report.paramChoices }, 'udb');
+  };
+  // The last parameter a value was set on (set, change, clear, undo, redo):
+  // its row carries a blinking bar, so the list shows where you are. Taken
+  // from the log, so it survives a reload with it.
+  const lastSetName = useMemo(() => {
+    for (let i = entries.length - 1; i >= 0; i--) {
+      const e = entries[i];
+      // A VLEN change has no parameter name; it targets the VLEN section.
+      const target = e.target ?? e.name;
+      if (target && e.kind !== 'error' && e.kind !== 'ok') return target;
+    }
+    return null;
+  }, [entries]);
+  const selectedError = result?.params.find((p) => p.name === selected)?.errors[0] ?? null;
+  useEffect(() => {
+    if (!onAskContext) return;
+    onAskContext(
+      selected
+        ? { query: paramQuestion(selected, { error: selectedError ?? undefined }), submit: true }
+        : null,
+    );
+  }, [selected, selectedError, onAskContext]);
+  useEffect(() => () => onAskContext?.(null), [onAskContext]);
+
+  // Errors that appear or clear after a change are logged against it. The
+  // first state seen is the baseline: it is summarised once, not replayed.
+  const previousErrors = useRef(null);
+  useEffect(() => {
+    if (!result) return;
+    const now = errorMap(result);
+    if (previousErrors.current === null) {
+      previousErrors.current = now;
+      // Back in the tab after the extensions changed elsewhere: say what
+      // changed and what it did to the parameters, so no invalid row or jump
+      // in the counts is left unexplained.
+      const seen = loadSeen();
+      const diff = seen ? extensionDiff(seen, ids, result) : null;
+      if (diff)
+        log([{ t: Date.now(), kind: 'ext', text: diff }, ...errorEntries(seen.errors, now)]);
+      saveSeen(ids, result);
+      // Summarised once per page load, not on every return to the tab.
+      if (sessionSummarised) return;
+      sessionSummarised = true;
+      const s = result.summary;
+      log([
+        {
+          t: Date.now(),
+          kind: 'session',
+          text: `opened: ${s.set} of ${s.required} required set, ${s.invalid} invalid`,
+        },
+      ]);
+      return;
+    }
+    log(errorEntries(previousErrors.current, now));
+    previousErrors.current = now;
+    saveSeen(ids, result);
+    // Only the model's result drives this; log is a fresh closure each render.
+  }, [result]);
 
   const shown = useMemo(() => {
     if (!result) return [];
     const q = query.trim().toLowerCase();
     return result.params.filter((p) => {
       if (p.scope === false) return false;
+      if (kept.has(p.name)) return true;
       if (filter === 'unset' && !(p.scope === true && !p.set)) return false;
       if (filter === 'invalid' && p.errors.length === 0) return false;
       if (filter === 'fixed' && p.kind !== 'fixed') return false;
@@ -696,7 +1573,7 @@ export default function ParametersView({ ids, values, onSetParam, catalog, onImp
         groupOf(p.name).toLowerCase().includes(q)
       );
     });
-  }, [result, filter, query]);
+  }, [result, filter, query, kept]);
 
   const groups = useMemo(() => {
     const map = new Map();
@@ -709,16 +1586,42 @@ export default function ParametersView({ ids, values, onSetParam, catalog, onImp
   }, [shown]);
 
   const importer = catalog && onImport && (
-    <ImportPanel catalog={catalog} hasConfig={ids.length > 0} onImport={onImport} />
+    <ImportPanel catalog={catalog} hasConfig={ids.length > 0} onImport={importConfig} />
+  );
+  const logPanel = (
+    <ParamLog
+      entries={entries}
+      canUndo={history.past.length > 0}
+      canRedo={history.future.length > 0}
+      onUndo={undo}
+      onRedo={redo}
+      setCount={Object.keys(values ?? {}).length}
+      onBackup={backup}
+      onRestoreFile={restoreFile}
+      pendingRestore={pendingRestore}
+      onConfirmRestore={confirmRestore}
+      onCancelRestore={() => setPendingRestore(null)}
+      onRestoreError={(message) => setPendingRestore({ error: message })}
+      onJump={jumpTo}
+      onReset={resetParams}
+      onClear={() => {
+        clearLog();
+        setEntries([]);
+      }}
+    />
   );
   if (!result) {
     return (
-      <section style={{ maxWidth: 1100, margin: '0 auto' }}>
-        {importer}
-        <p style={{ color: 'var(--riscv-text-2)', fontSize: 13 }}>
-          Pick a base ISA first, or import a UDB config: parameters depend on the base.
-        </p>
-      </section>
+      <div className="params-layout">
+        <section style={{ minWidth: 0 }}>
+          {importer}
+          <p style={{ color: 'var(--riscv-text-2)', fontSize: 13 }}>
+            Pick a base ISA first, import a UDB config, or restore a parameter backup from the log:
+            parameters depend on the base.
+          </p>
+        </section>
+        {logPanel}
+      </div>
     );
   }
   const { summary } = result;
@@ -731,102 +1634,120 @@ export default function ParametersView({ ids, values, onSetParam, catalog, onImp
   };
 
   return (
-    <section aria-labelledby="params-title" style={{ maxWidth: 1100, margin: '0 auto' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 12 }}>
-        <h2 id="params-title" style={{ margin: 0, fontSize: 18, color: 'var(--riscv-text)' }}>
-          Parameters
-        </h2>
-        <span role="status" style={{ fontSize: 13, color: 'var(--riscv-text-2)' }}>
-          {summary.set} of {summary.required} required parameters set
-          {summary.invalid ? ` · ${summary.invalid} invalid` : ''}
-        </span>
-      </div>
-      <p
-        style={{
-          fontSize: 12.5,
-          color: 'var(--riscv-text-2)',
-          margin: '6px 0 14px',
-          maxWidth: 820,
-        }}
-      >
-        What riscv-unified-db requires for this configuration, with each value checked against its
-        schema and UDB&apos;s rules. Values you set go into the UDB config export in place of TODO.
-        This checks consistency with UDB, not hardware compliance.
-      </p>
-      {importer}
-      <ConflictNotice ids={ids} />
-      {onSetVlen && <VlenPicker ids={ids} onSetVlen={onSetVlen} />}
-      <div
-        style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 8,
-          alignItems: 'center',
-          marginBottom: 12,
-        }}
-      >
-        <div role="group" aria-label="Show" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {FILTERS.map((f) => (
-            <button
-              key={f.key}
-              type="button"
-              aria-pressed={filter === f.key}
-              onClick={() => setFilter(f.key)}
-              style={chip(filter === f.key)}
-            >
-              {f.label} {counts[f.key]}
-            </button>
-          ))}
+    <div className="params-layout">
+      <section aria-labelledby="params-title" style={{ minWidth: 0 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'baseline', gap: 12 }}>
+          <h2 id="params-title" style={{ margin: 0, fontSize: 18, color: 'var(--riscv-text)' }}>
+            Parameters
+          </h2>
+          <span role="status" style={{ fontSize: 13, color: 'var(--riscv-text-2)' }}>
+            {summary.set} of {summary.required} required parameters set
+            {summary.invalid ? ` · ${summary.invalid} invalid` : ''}
+          </span>
         </div>
-        <label style={{ position: 'relative', marginLeft: 'auto' }}>
-          <Search
-            size={13}
-            aria-hidden="true"
-            style={{ position: 'absolute', left: 8, top: 7, color: 'var(--riscv-text-2)' }}
-          />
-          <input
-            type="search"
-            aria-label="Search parameters"
-            placeholder="Search parameters"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            style={{ ...control, paddingLeft: 26, width: 220, fontFamily: 'inherit' }}
-          />
-        </label>
-      </div>
-      {groups.length === 0 && (
-        <p style={{ fontSize: 13, color: 'var(--riscv-text-2)' }}>
-          {filter === 'unset' ? 'Every required parameter is set.' : 'No parameters match.'}
-        </p>
-      )}
-      {groups.map(([group, params]) => (
-        <details
-          key={group}
-          open
+        <p
           style={{
-            marginBottom: 10,
-            borderRadius: 10,
-            border: '1px solid var(--riscv-border)',
-            background: 'var(--riscv-surface)',
+            fontSize: 12.5,
+            color: 'var(--riscv-text-2)',
+            margin: '6px 0 14px',
+            maxWidth: 820,
           }}
         >
-          <summary
+          What riscv-unified-db requires for this configuration, with each value checked against its
+          schema and UDB&apos;s rules. Values you set go into the UDB config export in place of
+          TODO. This checks consistency with UDB, not hardware compliance.
+        </p>
+        {importer}
+        <ConflictNotice ids={ids} />
+        {onSetVlen && (
+          <VlenPicker ids={ids} onSetVlen={setVlen} current={lastSetName === VLEN_TARGET} />
+        )}
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 8,
+            alignItems: 'center',
+            marginBottom: 12,
+          }}
+        >
+          <div role="group" aria-label="Show" style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {FILTERS.map((f) => (
+              <button
+                key={f.key}
+                type="button"
+                aria-pressed={filter === f.key}
+                onClick={() => setFilter(f.key)}
+                style={chip(filter === f.key)}
+              >
+                {f.label} {counts[f.key]}
+              </button>
+            ))}
+          </div>
+          <label style={{ position: 'relative', marginLeft: 'auto' }}>
+            <Search
+              size={13}
+              aria-hidden="true"
+              style={{ position: 'absolute', left: 8, top: 7, color: 'var(--riscv-text-2)' }}
+            />
+            <input
+              type="search"
+              aria-label="Search parameters"
+              placeholder="Search parameters"
+              value={query}
+              onChange={(e) => {
+                setKept(new Set());
+                setQuery(e.target.value);
+              }}
+              style={{ ...control, paddingLeft: 26, width: 220, fontFamily: 'inherit' }}
+            />
+          </label>
+        </div>
+        {groups.length === 0 && (
+          <p style={{ fontSize: 13, color: 'var(--riscv-text-2)' }}>
+            {filter === 'unset' ? 'Every required parameter is set.' : 'No parameters match.'}
+          </p>
+        )}
+        {groups.map(([group, params]) => (
+          <details
+            key={group}
+            open
             style={{
-              padding: '10px 12px',
-              cursor: 'pointer',
-              fontSize: 13,
-              fontWeight: 700,
-              color: 'var(--riscv-text)',
+              marginBottom: 10,
+              borderRadius: 10,
+              border: '1px solid var(--riscv-border)',
+              background: 'var(--riscv-surface)',
             }}
           >
-            {group}{' '}
-            <span style={{ fontWeight: 500, color: 'var(--riscv-text-2)' }}>· {params.length}</span>
-          </summary>
-          {params.map((p) => (
-            <ParamRow key={p.name} p={p} stored={values?.[p.name]} onSetParam={onSetParam} />
-          ))}
-        </details>
-      ))}
-    </section>
+            <summary
+              style={{
+                padding: '10px 12px',
+                cursor: 'pointer',
+                fontSize: 13,
+                fontWeight: 700,
+                color: 'var(--riscv-text)',
+              }}
+            >
+              {group}{' '}
+              <span style={{ fontWeight: 500, color: 'var(--riscv-text-2)' }}>
+                · {params.length}
+              </span>
+            </summary>
+            {params.map((p) => (
+              <ParamRow
+                key={p.name}
+                p={p}
+                stored={values?.[p.name]}
+                onSetParam={setParam}
+                selected={selected === p.name}
+                onSelect={setSelected}
+                current={lastSetName === p.name}
+              />
+            ))}
+          </details>
+        ))}
+      </section>
+      {logPanel}
+    </div>
   );
 }

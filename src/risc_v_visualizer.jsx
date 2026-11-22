@@ -1278,7 +1278,11 @@ const RISCVExplorer = () => {
    * "RISC-V" is named explicitly. Ids like B, V and M are ambiguous, and the
    * model writing the answer has read every other architecture too.
    */
+  // The parameter last touched in the Parameters tab, if any: while the
+  // builder is open, the chip asks about it rather than the configuration.
+  const [paramAskContext, setParamAskContext] = useState(null);
   const askAiContext = React.useMemo(() => {
+    if (workspacePanelOpen && paramAskContext) return paramAskContext;
     if (workspacePanelOpen) {
       /*
        * Checked first, not last. The builder panel covers the page, so while it
@@ -1312,7 +1316,7 @@ const RISCVExplorer = () => {
       return { query: `Explain the RISC-V ${selectedExt.id} extension.`, submit: true };
     }
     return null;
-  }, [selectedInstruction, selectedExt, workspacePanelOpen, seedProfile]);
+  }, [selectedInstruction, selectedExt, workspacePanelOpen, seedProfile, paramAskContext]);
 
   const [quickExportIncludeInstr, setQuickExportIncludeInstr] = useState(true);
 
@@ -6625,7 +6629,8 @@ const RISCVExplorer = () => {
             }}
             onAddId={(id) => addWorkspaceIdsSmart(id, true)}
             onAddIds={(ids) => addWorkspaceIdsSmart(ids)}
-            onImportConfig={({ ids, paramChoices: imported }) => {
+            onAskContext={setParamAskContext}
+            onImportConfig={({ ids, paramChoices: imported, source }) => {
               // A UDB config replaces the configuration and its values (#604),
               // the same way loading a profile replaces the selection.
               setWorkspaceIds(new Set());
@@ -6634,7 +6639,15 @@ const RISCVExplorer = () => {
               setCustomFromProfile(null);
               setBaselineLocked(true);
               setParamChoices(imported);
-              showToast(`Imported a UDB config: ${ids.length} extensions`);
+              // An undo or redo of a whole configuration is shown in the
+              // Parameters tab's log; a toast on top of it would be noise.
+              if (source !== 'history') {
+                showToast(
+                  source === 'backup'
+                    ? `Restored a parameter backup: ${ids.length} extensions`
+                    : `Imported a UDB config: ${ids.length} extensions`,
+                );
+              }
             }}
             onRemoveId={(id) => {
               // Decide before mutating anything. The previous order downgraded the
