@@ -49,12 +49,9 @@ import {
   DEPENDENCY_GRAPH,
   closure,
   conditionallyImplied,
-  resolveParams,
   resolveSelection,
   impliedVlen,
-  vlenExtension,
 } from './isaGraph.js';
-import { describeParameter } from './isaParams.js';
 import { PROFILES, PROFILE_METADATA } from './profiles.js';
 import PROFILE_OPTIONAL from './profile-optional.json';
 import { profileGap } from './profileGap.js';
@@ -62,6 +59,7 @@ import EncodingDiagram from './EncodingDiagram.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import { BUILDER_NOTICE, MARCH_NOTE, NOTICE_STORAGE_KEY, REPORT_URL } from './builderNotice.js';
 import ParametersView from './ParametersView.jsx';
+import { builderParamStates } from './paramEditing.js';
 
 /**
  * Sort direction indicator for the catalog table header.
@@ -511,6 +509,11 @@ export default function WorkspacePanel({
   const totalInstructions = combinedCatalog.length;
   // One array per selection, so the Parameters tab's memo sees a stable input.
   const workspaceIdList = useMemo(() => [...workspaceIds], [workspaceIds]);
+  const paramSummary = useMemo(
+    () => builderParamStates(workspaceIdList, paramChoices)?.summary ?? null,
+    [workspaceIdList, paramChoices],
+  );
+  const vlenFloor = useMemo(() => impliedVlen(workspaceIdList), [workspaceIdList]);
   const knownIds = useMemo(() => new Set(allExts.map((e) => e.id)), [allExts]);
   const profileSummaries = useMemo(
     () =>
@@ -1322,6 +1325,7 @@ export default function WorkspacePanel({
               onSetParam={onSetParam}
               catalog={allExts}
               onImport={onImportConfig}
+              onSetVlen={onSetVlen}
             />
           </div>
         ) : /* --- EMPTY STATE WORKBENCH --- */
@@ -2283,222 +2287,46 @@ export default function WorkspacePanel({
                 onAddIds={onAddIds}
               />
 
-              {/* Card 2.2: Hardware & Implementation Parameters */}
-              {(() => {
-                const ids = Array.from(workspaceIds);
-                const params = resolveParams(ids);
-                const vlen = impliedVlen(ids);
-                const VLEN_CHOICES = [
-                  32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536,
-                ];
-                return (
-                  <StudioCard
-                    title="Implementation Parameters"
-                    badge={params.length ? `${params.length} constraints` : undefined}
-                    icon={<Sliders size={14} style={{ color: 'var(--riscv-gold)' }} />}
+              {/* Parameters live in one place, the Parameters tab (#606). This
+                  card only says where they stand and opens it. */}
+              <StudioCard
+                title="Parameters"
+                icon={<Sliders size={14} style={{ color: 'var(--riscv-gold)' }} />}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12,
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <span role="status" style={{ fontSize: 12.5, color: 'var(--riscv-text-2)' }}>
+                    {paramSummary
+                      ? `${paramSummary.required - paramSummary.set} unset of ${paramSummary.required} required` +
+                        (paramSummary.invalid ? ` · ${paramSummary.invalid} invalid` : '') +
+                        (vlenFloor ? ` · VLEN at least ${vlenFloor}` : '')
+                      : 'Pick a base ISA to see its parameters.'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setView('parameters')}
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: 8,
+                      background: 'var(--riscv-surface-2)',
+                      border: '1px solid var(--riscv-border-2)',
+                      color: 'var(--riscv-text)',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
                   >
-                    {/* Vector length picker */}
-                    <div style={{ marginBottom: params.length ? 14 : 0 }}>
-                      <div
-                        style={{ fontSize: 11.5, color: 'var(--riscv-text-2)', marginBottom: 7 }}
-                      >
-                        Vector length (VLEN):{' '}
-                        {vlen ? (
-                          <span style={{ color: 'var(--riscv-gold)', fontWeight: 700 }}>
-                            ≥ {vlen} bits
-                          </span>
-                        ) : (
-                          <span style={{ color: 'var(--riscv-text-3)' }}>
-                            not constrained — no vector extension selected
-                          </span>
-                        )}
-                      </div>
-                      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        {VLEN_CHOICES.map((bits) => {
-                          const ext = vlenExtension(bits);
-                          const active = vlen === bits;
-                          return (
-                            <button
-                              key={bits}
-                              type="button"
-                              onClick={() => onSetVlen(active ? null : bits)}
-                              title={
-                                active
-                                  ? `VLEN is ≥ ${bits}. Click to clear it (removes ${ext}).`
-                                  : `Set VLEN ≥ ${bits}${vlen && bits < vlen ? ` — lowers it from ${vlen}` : ''}`
-                              }
-                              style={{
-                                fontSize: 11,
-                                fontFamily: 'JetBrains Mono, monospace',
-                                fontWeight: 600,
-                                padding: '4px 10px',
-                                borderRadius: 6,
-                                cursor: 'pointer',
-                                border: `1px solid ${active ? 'rgba(245,197,66,0.6)' : 'var(--riscv-border-2)'}`,
-                                background: active
-                                  ? 'rgba(245,197,66,0.18)'
-                                  : 'var(--riscv-surface-2)',
-                                color: active ? 'var(--riscv-gold)' : 'var(--riscv-text-2)',
-                              }}
-                            >
-                              {bits}
-                            </button>
-                          );
-                        })}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 10.5,
-                          color: 'var(--riscv-text-3)',
-                          marginTop: 6,
-                          lineHeight: 1.45,
-                        }}
-                      >
-                        There is no VLEN flag: vector length is expressed by the Zvl*b extensions.
-                        Click a value to set the floor, or click the selected one to clear it. A
-                        vector extension may hold the floor above your choice — Zve64x requires
-                        Zvl64b — in which case the higher value stands.
-                      </div>
-                    </div>
-
-                    {/* Derived Parameters */}
-                    {params.length > 0 && (
-                      <div
-                        style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}
-                      >
-                        {params.map((prm) => (
-                          <div
-                            key={prm.name}
-                            style={{
-                              borderRadius: 7,
-                              padding: '8px 10px',
-                              background: prm.conflict
-                                ? 'rgba(255,77,107,0.08)'
-                                : 'var(--riscv-surface-2)',
-                              border: `1px solid ${prm.conflict ? 'rgba(255,77,107,0.3)' : 'var(--riscv-border-2)'}`,
-                            }}
-                          >
-                            <div
-                              style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}
-                            >
-                              <span
-                                style={{
-                                  fontFamily: 'JetBrains Mono, monospace',
-                                  fontSize: 11,
-                                  color: 'var(--riscv-text)',
-                                  fontWeight: 600,
-                                }}
-                              >
-                                {prm.name}
-                              </span>
-                              <span
-                                style={{
-                                  fontFamily: 'JetBrains Mono, monospace',
-                                  fontSize: 11,
-                                  color: 'var(--riscv-gold)',
-                                  fontWeight: 700,
-                                }}
-                              >
-                                {prm.kind === 'greaterThanOrEqual'
-                                  ? `≥ ${prm.value}`
-                                  : prm.kind === 'oneOf' && Array.isArray(prm.value)
-                                    ? (paramChoices?.[prm.name] ??
-                                      `choose one of ${prm.value.length}`)
-                                    : Array.isArray(prm.value)
-                                      ? prm.value.join(', ')
-                                      : String(prm.value)}
-                              </span>
-                            </div>
-
-                            {(() => {
-                              // What the parameter IS, from unified-db, under what this
-                              // selection makes it. The row above shows a name and a value;
-                              // on its own that does not say whether the value is a count, a
-                              // mode, or a list, which is what a reader needs before deciding
-                              // whether it looks right.
-                              const def = describeParameter(prm.name);
-                              if (!def) return null;
-                              return (
-                                <div
-                                  title={def.description ?? undefined}
-                                  style={{
-                                    fontSize: 10,
-                                    color: 'var(--riscv-text-3)',
-                                    marginTop: 3,
-                                  }}
-                                >
-                                  {def.longName ? `${def.longName} · ` : ''}
-                                  {def.summary}
-                                </div>
-                              );
-                            })()}
-                            {prm.kind === 'oneOf' &&
-                              Array.isArray(prm.value) &&
-                              prm.value.length > 1 && (
-                                <div
-                                  style={{
-                                    display: 'flex',
-                                    gap: 5,
-                                    flexWrap: 'wrap',
-                                    marginTop: 6,
-                                  }}
-                                >
-                                  {prm.value.map((option) => {
-                                    const active = paramChoices?.[prm.name] === option;
-                                    return (
-                                      <button
-                                        key={String(option)}
-                                        type="button"
-                                        onClick={() => onSetParam(prm.name, active ? null : option)}
-                                        aria-pressed={active}
-                                        title={
-                                          active
-                                            ? 'Clear this choice'
-                                            : `Set ${prm.name} to ${option}`
-                                        }
-                                        style={{
-                                          fontSize: 10,
-                                          fontFamily: 'JetBrains Mono, monospace',
-                                          padding: '3px 8px',
-                                          borderRadius: 6,
-                                          cursor: 'pointer',
-                                          border: `1px solid ${active ? 'rgba(245,197,66,0.6)' : 'var(--riscv-border-2)'}`,
-                                          background: active
-                                            ? 'rgba(245,197,66,0.18)'
-                                            : 'var(--riscv-bg)',
-                                          color: active
-                                            ? 'var(--riscv-gold)'
-                                            : 'var(--riscv-text-2)',
-                                        }}
-                                      >
-                                        {String(option)}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              )}
-
-                            <div
-                              style={{ fontSize: 10, color: 'var(--riscv-text-3)', marginTop: 4 }}
-                            >
-                              {prm.kind === 'oneOf'
-                                ? `narrowed to these by ${prm.from.join(', ')}`
-                                : prm.kind === 'greaterThanOrEqual'
-                                  ? `floor set by ${prm.from.join(', ')} — raise it with the buttons above`
-                                  : `fixed by ${prm.from.join(', ')} — not separately settable`}
-                            </div>
-                            {prm.conflict && (
-                              <div style={{ fontSize: 10, color: '#ff7a8a', marginTop: 4 }}>
-                                {prm.conflict}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </StudioCard>
-                );
-              })()}
+                    Edit parameters →
+                  </button>
+                </div>
+              </StudioCard>
             </div>
 
             {/* =========================================================================

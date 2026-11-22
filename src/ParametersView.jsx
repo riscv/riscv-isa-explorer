@@ -14,6 +14,7 @@
 import React, { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
 import { parameterDefinition } from './isaParams.js';
+import { impliedVlen, resolveParams, vlenExtension } from './isaGraph.js';
 import { importUdbConfig, NOT_CHECKED_HERE } from './udbImport.js';
 import {
   builderParamStates,
@@ -409,6 +410,102 @@ function ParamRow({ p, stored, onSetParam }) {
   );
 }
 
+const VLEN_CHOICES = [32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536];
+
+/**
+ * The guaranteed vector length (#606), moved here from the Configuration
+ * view's Implementation Parameters card so parameters live in one place. It
+ * changes extensions, not a value: VLEN has no -march flag, so the floor is a
+ * Zvl*b extension, and the -march string follows.
+ */
+function VlenPicker({ ids, onSetVlen }) {
+  const vlen = impliedVlen(ids);
+  return (
+    <section
+      aria-labelledby="vlen-title"
+      style={{
+        marginBottom: 16,
+        padding: '10px 12px',
+        borderRadius: 10,
+        border: '1px solid var(--riscv-border)',
+        background: 'var(--riscv-surface)',
+      }}
+    >
+      <h3 id="vlen-title" style={{ margin: '0 0 6px', fontSize: 13, color: 'var(--riscv-text)' }}>
+        Vector length (VLEN):{' '}
+        {vlen ? (
+          <span style={{ color: 'var(--riscv-text)' }}>at least {vlen} bits</span>
+        ) : (
+          <span style={{ fontWeight: 500, color: 'var(--riscv-text-2)' }}>
+            not constrained; no vector extension selected
+          </span>
+        )}
+      </h3>
+      <div
+        role="group"
+        aria-label="Guaranteed VLEN"
+        style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}
+      >
+        {VLEN_CHOICES.map((bits) => {
+          const active = vlen === bits;
+          return (
+            <button
+              key={bits}
+              type="button"
+              aria-pressed={active}
+              onClick={() => onSetVlen(active ? null : bits)}
+              title={
+                active
+                  ? `VLEN is at least ${bits}. Click to clear it (removes ${vlenExtension(bits)}).`
+                  : `Set VLEN to at least ${bits}${vlen && bits < vlen ? `, lowering it from ${vlen}` : ''}`
+              }
+              style={toggle(active)}
+            >
+              {bits}
+            </button>
+          );
+        })}
+      </div>
+      <p style={{ margin: '6px 0 0', fontSize: 11.5, color: 'var(--riscv-text-2)', maxWidth: 820 }}>
+        There is no VLEN flag: vector length is expressed by the Zvl*b extensions, so this changes
+        the configuration and its -march string. Click a value to set the floor, or the selected one
+        to clear it. A vector extension may hold the floor higher (Zve64x requires Zvl64b), in which
+        case the higher value stands. The VLEN parameter below is the implementation&apos;s actual
+        length, at least this floor.
+      </p>
+    </section>
+  );
+}
+
+/** Extensions that demand values no setting can satisfy at once. */
+function ConflictNotice({ ids }) {
+  const conflicts = resolveParams(ids).filter((c) => c.conflict);
+  if (!conflicts.length) return null;
+  return (
+    <div
+      role="alert"
+      style={{
+        marginBottom: 16,
+        padding: '10px 12px',
+        borderRadius: 10,
+        border: '1px solid var(--riscv-danger)',
+        background: 'var(--riscv-surface)',
+        fontSize: 12.5,
+        color: 'var(--riscv-text)',
+      }}
+    >
+      <strong style={{ color: 'var(--riscv-danger)' }}>Conflicting parameter requirements</strong>
+      <ul style={{ margin: '4px 0 0', paddingLeft: 18, listStyle: 'disc' }}>
+        {conflicts.map((c) => (
+          <li key={c.name}>
+            <code style={{ fontFamily: 'JetBrains Mono, monospace' }}>{c.name}</code>: {c.conflict}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 const REPORT_COLOR = {
   errors: 'var(--riscv-danger)',
   invalid: 'var(--riscv-danger)',
@@ -577,7 +674,7 @@ function ImportPanel({ catalog, hasConfig, onImport }) {
   );
 }
 
-export default function ParametersView({ ids, values, onSetParam, catalog, onImport }) {
+export default function ParametersView({ ids, values, onSetParam, catalog, onImport, onSetVlen }) {
   const [filter, setFilter] = useState('unset');
   const [query, setQuery] = useState('');
   const result = useMemo(() => builderParamStates(ids, values), [ids, values]);
@@ -657,6 +754,8 @@ export default function ParametersView({ ids, values, onSetParam, catalog, onImp
         This checks consistency with UDB, not hardware compliance.
       </p>
       {importer}
+      <ConflictNotice ids={ids} />
+      {onSetVlen && <VlenPicker ids={ids} onSetVlen={onSetVlen} />}
       <div
         style={{
           display: 'flex',
