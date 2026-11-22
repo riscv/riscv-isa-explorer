@@ -159,3 +159,38 @@ test('ParametersView.jsx is a tab beside the existing view, which stays the defa
     /e\.key === 'Escape' && \(draft !== null \|\| error\)\) \{\s*e\.stopPropagation\(\)/,
   );
 });
+
+test('the landscape YAML records every value set, flags invalid ones, and skips out-of-scope ones', async () => {
+  const { default: YAML } = await import('yaml');
+  const ids = resolve(['RV64I', 'F', 'S', 'U', 'Sv39']);
+  const paramChoices = {
+    PHYS_ADDR_WIDTH: 40,
+    SXLEN: [64],
+    MSTATUS_FS_LEGAL_VALUES: [0],
+    ARCH_ID_VALUE: { $int: '9223372036854775809' },
+    MARCHID_IMPLEMENTED: true,
+    VSXLEN: [64],
+  };
+  const yaml = buildIsaConfigYaml(ids, ALL, { paramChoices }).yaml;
+  assert.ok(YAML.parse(yaml), 'still valid YAML');
+  assert.match(yaml, /^ {4}chosen: \[64\]$/m, 'SXLEN, a list constraint, records its value');
+  assert.match(yaml, /^ {2}PHYS_ADDR_WIDTH: 40$/m);
+  assert.match(yaml, /^ {2}ARCH_ID_VALUE: 9223372036854775809$/m, '64-bit value exact');
+  assert.match(yaml, /^ {2}MSTATUS_FS_LEGAL_VALUES: \[0\] {3}# INVALID: .*Dirty/m);
+  assert.doesNotMatch(yaml, /VSXLEN/, 'no H: VSXLEN is not a parameter of this configuration');
+  const bare = buildIsaConfigYaml(ids, ALL, {}).yaml;
+  assert.doesNotMatch(bare, /parameter_values:/);
+});
+
+test('riscv-config takes physical_addr_sz from PHYS_ADDR_WIDTH when it is set', () => {
+  const ids = resolve(['RV64I', 'M']);
+  const set = buildIsaConfigYaml(ids, ALL, {
+    format: 'riscv-config',
+    paramChoices: { PHYS_ADDR_WIDTH: 40 },
+  }).yaml;
+  assert.match(set, /physical_addr_sz: 40 +# your PHYS_ADDR_WIDTH/);
+  assert.match(set, /TWO FIELDS NEED YOUR INPUT/);
+  const unset = buildIsaConfigYaml(ids, ALL, { format: 'riscv-config' }).yaml;
+  assert.match(unset, /physical_addr_sz: 32 +# TODO/);
+  assert.match(unset, /THREE FIELDS NEED YOUR INPUT/);
+});
