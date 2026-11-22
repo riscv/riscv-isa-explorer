@@ -13,6 +13,76 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-11-22
+
+Catalogue: 218 entries, unchanged; nothing is added or removed. The profile
+`-march` strings of RVA20, RVA22, RVA23, RVA23.1, RVB23 and RVB23.1 gain
+`zcd`, because C with D now requires Zcd (see Changed). The UDB config export
+changes shape and now passes `udb validate cfg` once its TODOs are filled.
+
+### Added
+
+- **A Parameters tab in the ISA Configuration Builder.** It lists every
+  riscv-unified-db parameter in scope for the configuration, only once its
+  gate is met. Each value is checked against its schema and against UDB's
+  rules, using the same model `udb validate cfg` applies, and a broken rule is
+  shown with UDB's reason. Values travel with share links (#596, #597, #600,
+  #601, #606, #607).
+- **Import a UDB config.** Load a riscv-unified-db configuration into the
+  builder, with a report of what was read, what was left out and what is
+  invalid (#604, #605).
+- **An activity log for the Parameters tab.** Rows with a value are tinted,
+  and the log records every change and the errors it causes or clears. Undo
+  and redo cover the last 30 moves, and reset clears every value as one
+  undoable move. The log exports as text. **Back up** saves the
+  configuration, its values and the log as one JSON file; **Restore**
+  validates it before loading. Selecting a parameter gives the Ask AI chip
+  its question (#608, #609).
+- **Profile gap check.** The builder shows what a configuration lacks for a
+  chosen profile (#583, #584).
+- **A notice when the builder opens**, asking users to verify dependencies
+  and extension order against the specifications (#581, #582).
+- **A UDB Export Check workflow.** CI runs `udb validate cfg` in a container
+  on exported configurations, and on demand with parameters (#589, #593).
+
+### Changed
+
+- **UDB's conditional requirements are applied.** C requires Zcd when D is
+  present, and Zcf when F is present below 64 bits. Zicfiss with U requires
+  S, Supm requires Ssnpm or Smnpm depending on S, and Sspmp with Sm requires
+  Smpmpdeleg. Each of the six profiles above gains `zcd`, and a selection of
+  Supm alone now resolves to Smnpm (#587, #590).
+- **The seeder reads requirements UDB writes as IDL, and grouped parameter
+  constraints.** Shgatpa and Shcounterenw now require H, and Sscounterenw
+  requires S and Zihpm (#591, #592).
+- **The UDB config export** adds `Sm` and writes every parameter whose
+  definition the configuration satisfies. Parameters gated on another
+  parameter's value go in a commented CONDITIONAL block (#588, #592).
+- **The YAML and riscv-config exports** carry the Parameters tab's values
+  (`physical_addr_sz` in riscv-config) (#602, #603).
+- **The builder toolbar** labels and places its Open panel and Start from
+  profile buttons where they can be found (#585, #586).
+- **README** documents the checked UDB export and how to validate a config
+  (#594, #595).
+- **Every release credits its contributors** (#577, #578).
+
+### Fixed
+
+- **Svade and Svadu pick a satp mode that matches the base XLEN.** An RV64
+  export no longer pairs xlen 64 with an Sv32 mode (#563, #568, #569).
+- **The pocket guide embeds IBM Plex**, so every PDF prints the same (#579,
+  #580).
+- **The extension tile's instruction count** no longer collides with the
+  Compare and + buttons (#598, #599).
+
+### Contributors
+
+Thanks to everyone who wrote code or reported an issue for this release:
+
+- @NeoSamyak: satp mode matching the base XLEN (#569); reported #563 and #568
+- @rpsene: Parameters tab, UDB import and export checks, conditional
+  requirements, activity log, release
+
 ## [1.15.0] - 2026-11-20
 
 Catalogue: 218 entries, up from 217; Smqosid is added and nothing is removed.
