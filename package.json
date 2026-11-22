@@ -50,12 +50,12 @@
     "tailwindcss": "^4.3.3",
     "webpack": "^5.89.0",
     "webpack-cli": "^7.0.0",
-    "webpack-dev-server": "^6.0.0",
-    "yaml": "^2.9.0"
+    "webpack-dev-server": "^6.0.0"
   },
   "dependencies": {
     "lucide-react": "^1.0.0",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "yaml": "^2.9.0"
   }
 }

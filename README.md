@@ -356,6 +356,15 @@ with their reasons in `scripts/udb-validate/baseline.json`.
 into the TODOs. Passing the validator also says the file is consistent with
 riscv-unified-db, not that your hardware complies with anything.
 
+**Import one.** The builder's **Parameters** tab reads a fully configured UDB
+config (a riscv-arch-test DUT config, or this export) from a file or pasted
+text, in the browser, and checks it before loading: conflicts and a missing
+base block it; a dependency the file does not list, an extension or version
+the catalogue does not have, a parameter this configuration does not define,
+and values that break a rule are reported, and invalid values load so they can
+be fixed in the tab. An extension with no UDB version is a comment in the
+export, so it does not come back on import.
+
 **Check your own file** once the TODOs are filled. Run it locally: a manual run
 of the workflow takes a file or selection too, but its inputs appear in a
 public log, so do not use it for an unreleased core.

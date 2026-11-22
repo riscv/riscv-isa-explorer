@@ -371,6 +371,7 @@ export default function WorkspacePanel({
   onSetParam,
   onShare,
   onAddIds,
+  onImportConfig,
   baselineLocked,
   onToggleBaseline,
 }) {
@@ -1257,7 +1258,7 @@ export default function WorkspacePanel({
         </div>
       </header>
 
-      {!isEmpty && (
+      {
         <div
           role="tablist"
           aria-label="Builder views"
@@ -1298,7 +1299,7 @@ export default function WorkspacePanel({
             </button>
           ))}
         </div>
-      )}
+      }
 
       {/* =========================================================================
           STUDIO MAIN BODY
@@ -1313,9 +1314,15 @@ export default function WorkspacePanel({
       >
         {showNotice && <BuilderNotice onDismiss={dismissNotice} />}
 
-        {!isEmpty && view === 'parameters' ? (
+        {view === 'parameters' ? (
           <div id="builder-view" role="tabpanel" aria-labelledby="builder-tab-parameters">
-            <ParametersView ids={workspaceIdList} values={paramChoices} onSetParam={onSetParam} />
+            <ParametersView
+              ids={workspaceIdList}
+              values={paramChoices}
+              onSetParam={onSetParam}
+              catalog={allExts}
+              onImport={onImportConfig}
+            />
           </div>
         ) : /* --- EMPTY STATE WORKBENCH --- */
         isEmpty ? (

@@ -6625,6 +6625,17 @@ const RISCVExplorer = () => {
             }}
             onAddId={(id) => addWorkspaceIdsSmart(id, true)}
             onAddIds={(ids) => addWorkspaceIdsSmart(ids)}
+            onImportConfig={({ ids, paramChoices: imported }) => {
+              // A UDB config replaces the configuration and its values (#604),
+              // the same way loading a profile replaces the selection.
+              setWorkspaceIds(new Set());
+              addWorkspaceIdsSmart(ids);
+              setSeedProfile(null);
+              setCustomFromProfile(null);
+              setBaselineLocked(true);
+              setParamChoices(imported);
+              showToast(`Imported a UDB config: ${ids.length} extensions`);
+            }}
             onRemoveId={(id) => {
               // Decide before mutating anything. The previous order downgraded the
               // profile first and only then discovered the removal was refused,
