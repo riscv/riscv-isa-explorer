@@ -14,6 +14,7 @@
  */
 
 import { CONFIG_EXPORT_NOTICE } from './builderNotice.js';
+import { fromStored } from './paramEditing.js';
 import {
   buildMarchString,
   BASE_ISA_IDS,
@@ -235,6 +236,15 @@ const UDB_REQUIRED_PARAMS = [
   ['REPORT_VA_IN_MTVAL_ON_INSTRUCTION_MISALIGNED', 'true | false'],
   ['REPORT_VA_IN_MTVAL_ON_LOAD_ACCESS_FAULT', 'true | false'],
 ];
+
+// A parameter value as YAML: integers plain (64-bit ones exact), strings quoted,
+// lists in flow style. Values come from the builder as it stores them (#600).
+function yamlValue(stored) {
+  const v = fromStored(stored);
+  if (Array.isArray(v)) return `[${v.map((x) => yamlValue(x)).join(', ')}]`;
+  if (typeof v === 'string') return JSON.stringify(v);
+  return String(v);
+}
 
 // "MARCHID_IMPLEMENTED = true", for the CONDITIONAL block's comments.
 function gatingSummary(definedBy) {
@@ -554,12 +564,24 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
         if (prm.kind === 'equal') {
           u.push(`  ${prm.name}: ${prm.value}   # ${why}`);
         } else if (prm.kind === 'greaterThanOrEqual') {
-          u.push(`  ${prm.name}: ${prm.value}   # at least this; ${why}`);
+          if (Object.prototype.hasOwnProperty.call(paramChoices, prm.name)) {
+            u.push(
+              `  ${prm.name}: ${yamlValue(paramChoices[prm.name])}   # your value, at least ${prm.value}; ${why}`,
+            );
+          } else {
+            u.push(`  ${prm.name}: ${prm.value}   # at least this; ${why}`);
+          }
         } else if (prm.kind === 'includes') {
           // A list param that must CONTAIN these values, not equal them: the
           // core may support more modes than the extension forces.
           const must = [].concat(prm.value).join(', ');
-          u.push(`  ${prm.name}:   # TODO a list including ${must}; ${why}`);
+          if (Object.prototype.hasOwnProperty.call(paramChoices, prm.name)) {
+            u.push(
+              `  ${prm.name}: ${yamlValue(paramChoices[prm.name])}   # your value, including ${must}; ${why}`,
+            );
+          } else {
+            u.push(`  ${prm.name}:   # TODO a list including ${must}; ${why}`);
+          }
         } else if (prm.kind === 'oneOf') {
           const allowed = [].concat(prm.value).join(', ');
           // The builder lets a user pick one of these, and the landscape export
@@ -594,7 +616,8 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
       }
     }
 
-    const knownValues = { MXLEN: baseInfo.xlen, ...paramChoices };
+    const knownValues = { MXLEN: baseInfo.xlen };
+    for (const [name, value] of Object.entries(paramChoices)) knownValues[name] = fromStored(value);
     const knownIncludes = {};
     for (const prm of constrained) {
       if (prm.conflict) continue;
@@ -631,7 +654,12 @@ export function buildIsaConfigYaml(selectedIds, allExts, options = {}) {
     for (const name of [...required].sort()) {
       if (alreadyEmitted.has(name)) continue;
       alreadyEmitted.add(name);
-      u.push(`  ${name}:   # ${hintFor(name)}`);
+      // A value the user set in the Parameters tab replaces the TODO (#600).
+      if (Object.prototype.hasOwnProperty.call(paramChoices, name)) {
+        u.push(`  ${name}: ${yamlValue(paramChoices[name])}   # your value; ${hintFor(name)}`);
+      } else {
+        u.push(`  ${name}:   # ${hintFor(name)}`);
+      }
     }
 
     const conditional = gated.filter((name) => !alreadyEmitted.has(name)).sort();

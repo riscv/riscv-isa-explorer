@@ -61,6 +61,7 @@ import { profileGap } from './profileGap.js';
 import EncodingDiagram from './EncodingDiagram.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import { BUILDER_NOTICE, MARCH_NOTE, NOTICE_STORAGE_KEY, REPORT_URL } from './builderNotice.js';
+import ParametersView from './ParametersView.jsx';
 
 /**
  * Sort direction indicator for the catalog table header.
@@ -387,6 +388,9 @@ export default function WorkspacePanel({
   const [extSearchQuery, setExtSearchQuery] = useState('');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [showNotice, setShowNotice] = useState(() => !noticeDismissed());
+  // Configuration (the existing view) or Parameters (#600). Starts on the
+  // existing view, so nothing changes for anyone who never opens the tab.
+  const [view, setView] = useState('configuration');
 
   function dismissNotice() {
     rememberNoticeDismissed();
@@ -504,6 +508,8 @@ export default function WorkspacePanel({
   );
 
   const totalInstructions = combinedCatalog.length;
+  // One array per selection, so the Parameters tab's memo sees a stable input.
+  const workspaceIdList = useMemo(() => [...workspaceIds], [workspaceIds]);
   const knownIds = useMemo(() => new Set(allExts.map((e) => e.id)), [allExts]);
   const profileSummaries = useMemo(
     () =>
@@ -1251,6 +1257,49 @@ export default function WorkspacePanel({
         </div>
       </header>
 
+      {!isEmpty && (
+        <div
+          role="tablist"
+          aria-label="Builder views"
+          style={{
+            display: 'flex',
+            gap: 4,
+            padding: '8px 24px 0',
+            borderBottom: '1px solid var(--riscv-tint-3)',
+            background: 'var(--riscv-surface)',
+            flexShrink: 0,
+          }}
+        >
+          {[
+            ['configuration', 'Configuration'],
+            ['parameters', 'Parameters'],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              id={`builder-tab-${key}`}
+              aria-selected={view === key}
+              aria-controls="builder-view"
+              onClick={() => setView(key)}
+              style={{
+                padding: '8px 14px',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: 'pointer',
+                border: 'none',
+                borderBottom: `2px solid ${view === key ? 'var(--riscv-gold)' : 'transparent'}`,
+                background: 'transparent',
+                color: view === key ? 'var(--riscv-text)' : 'var(--riscv-text-2)',
+                marginBottom: -1,
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* =========================================================================
           STUDIO MAIN BODY
           ========================================================================= */}
@@ -1264,8 +1313,12 @@ export default function WorkspacePanel({
       >
         {showNotice && <BuilderNotice onDismiss={dismissNotice} />}
 
-        {/* --- EMPTY STATE WORKBENCH --- */}
-        {isEmpty ? (
+        {!isEmpty && view === 'parameters' ? (
+          <div id="builder-view" role="tabpanel" aria-labelledby="builder-tab-parameters">
+            <ParametersView ids={workspaceIdList} values={paramChoices} onSetParam={onSetParam} />
+          </div>
+        ) : /* --- EMPTY STATE WORKBENCH --- */
+        isEmpty ? (
           <div
             style={{
               maxWidth: 960,

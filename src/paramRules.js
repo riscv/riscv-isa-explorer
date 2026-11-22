@@ -373,6 +373,40 @@ function paramTest(node, ctx) {
   return null;
 }
 
+// IDL back to text, for a rule UDB gives no reason for: the user sees the
+// statement that failed rather than "breaks a rule".
+export function formatIdl(node) {
+  if (!node || typeof node !== 'object') return String(node);
+  if ('lit' in node) {
+    if (typeof node.lit === 'bigint')
+      return node.lit > 0xffffn ? `0x${node.lit.toString(16)}` : String(node.lit);
+    return typeof node.lit === 'string' ? JSON.stringify(node.lit) : String(node.lit);
+  }
+  if (node.xlen) return 'xlen()';
+  if (node.ext) return `implemented?(${node.ext})`;
+  if (node.size) return `size(${node.size})`;
+  if (node.includes) return `${node.includes} includes ${formatIdl(node.value)}`;
+  if (node.param !== undefined) {
+    if (node.index) return `${node.param}[${formatIdl(node.index)}]`;
+    if (node.hi) return `${node.param}[${formatIdl(node.hi)}:${formatIdl(node.lo)}]`;
+    return node.param;
+  }
+  if (node.op === '!') return `!${formatIdl(node.arg)}`;
+  return `${formatIdl(node.left)} ${node.op} ${formatIdl(node.right)}`;
+}
+
+// The first `reason` anywhere in a data rule: UDB often puts it on the
+// consequence (then.param.reason) rather than at the top.
+function nestedReason(node) {
+  if (!node || typeof node !== 'object') return undefined;
+  if (typeof node.reason === 'string' && node.reason.trim()) return node.reason.trim();
+  for (const v of Object.values(node)) {
+    const r = nestedReason(v);
+    if (r) return r;
+  }
+  return undefined;
+}
+
 const parsed = new Map();
 /** The parsed statements of a definition's IDL rule, cached. */
 export function idlStatements(definition) {
@@ -392,13 +426,17 @@ export function idlStatements(definition) {
 export function checkRequirements(definition, ctx) {
   const req = definition?.requirements;
   if (!req) return { holds: true };
-  const reason = String(req.reason ?? '').trim() || undefined;
+  let reason = String(req.reason ?? '').trim() || undefined;
   let holds;
   if (req['idl()']) {
-    holds = evaluate3All(idlStatements(definition).map((s) => evaluate(s, ctx)));
+    const statements = idlStatements(definition);
+    const results = statements.map((s) => evaluate(s, ctx));
+    holds = evaluate3All(results);
+    if (holds === false && !reason) reason = formatIdl(statements[results.indexOf(false)]);
   } else {
     const { reason: _r, ...tree } = req;
     holds = evaluateData(tree, ctx);
+    if (!reason) reason = nestedReason(tree);
   }
   return reason ? { holds, reason } : { holds };
 }

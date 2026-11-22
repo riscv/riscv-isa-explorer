@@ -73,13 +73,26 @@ export const findProfileName = (name, profiles) => {
  * strings and the odd boolean. The link has no types, so the literal forms of
  * numbers and booleans are read back as those; anything else is a string.
  */
-const encodeValue = (value) => encodeURIComponent(String(value));
+// Lists and 64-bit integers ({"$int": "..."}) travel as JSON, URI-encoded so
+// their commas cannot split the `o:` segment's own comma list (#600). Scalars
+// keep their old plain form, so existing links still decode.
+const encodeValue = (value) =>
+  encodeURIComponent(
+    value !== null && typeof value === 'object' ? JSON.stringify(value) : String(value),
+  );
 const decodeValue = (text) => {
   let raw;
   try {
     raw = decodeURIComponent(text);
   } catch {
     return undefined;
+  }
+  if (raw.startsWith('[') || raw.startsWith('{')) {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return undefined;
+    }
   }
   if (raw === 'true') return true;
   if (raw === 'false') return false;
