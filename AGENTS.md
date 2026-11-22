@@ -199,10 +199,16 @@ Then `npm run sync` and `npm test && npm run build`.
   tree, because 23 of the 228 parameters are gated on another PARAMETER'S value
   rather than on an extension; flattening it to one owner per parameter loses
   that distinction silently. Regenerate with `npm run sync:params`, never by hand.
-- **The UDB export's `UDB_REQUIRED_PARAMS` floor is deliberately not derived.**
-  All 15 are defined by `Sm` upstream, but no graph node requires `Sm`, so a
-  selection-derived list is empty for a bare RV32I and the export would silently
-  drop every param riscv-arch-test needs. `tests/export.test.mjs` guards this.
+- **The UDB export must pass `udb validate cfg` once its TODOs are filled.**
+  UDB requires `Sm` in every full configuration (it defines MXLEN and all
+  M-mode parameters), so the export adds it, resolved, even though no graph
+  node requires it. It writes every parameter whose `definedBy` the
+  configuration satisfies (`parameterInScope()` in `src/isaParams.js`,
+  three-valued); parameters gated on another parameter's value go in a
+  commented CONDITIONAL block with their gate. The 15-entry
+  `UDB_REQUIRED_PARAMS` floor stays as a guard and is never derived.
+  Values UDB constrains with IDL code (MSTATUS_FS_LEGAL_VALUES must include 3
+  with F) are the user's to get right; the export cannot evaluate IDL (#588).
 - **The "Ask AI" assistant is behind a switch in `feature-flags.cjs`.**
   `AI_ASSISTANT_ENABLED` (on since 2026-10-26) gates both halves: set to false,
   the launcher chip does not render and the kapa.ai widget is left out of the
