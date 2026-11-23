@@ -285,3 +285,20 @@ test('the status row wraps, so the count never sits on the status text (#617)', 
     'count stays right',
   );
 });
+
+test('the name keeps whole words and makes room only for the controls shown', () => {
+  const tile = fs.readFileSync(new URL('../src/ExtensionTile.jsx', import.meta.url), 'utf8');
+  // break-all broke "Sm" into "S" / "m" once a fixed pr-16 left the name ~1px.
+  assert.doesNotMatch(tile, /break-all/, 'names break between words, never inside one');
+  assert.doesNotMatch(tile, /mb-2\.5 pr-16/, 'no fixed 64px reserve');
+  assert.match(
+    tile,
+    /className="float-right"\s+style=\{\{ width: cornerWidth/,
+    'a float the width of the controls',
+  );
+  assert.match(
+    tile,
+    /minWidth: 'min-content'/,
+    'the name row moves below the float rather than shrinking to nothing',
+  );
+});

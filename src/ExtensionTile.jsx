@@ -67,6 +67,13 @@ function ExtensionTile({
   // new comparison: it already returns false when `data` changes identity.
   const instructionCount = Object.keys(data.instructions || {}).length;
   const inCompare = compareIds.has(data.id);
+  // The corner controls' width: the EOL badge, Compare's pin, the builder's
+  // + (28px each, 4px apart), less the 4px they sit inside the padding.
+  const showAdd = builderMode && !isDiscontinued && !data.isSandbox && Boolean(onToggleWorkspace);
+  const corner = [isDiscontinued ? 30 : 0, compareMode ? 28 : 0, showAdd ? 28 : 0].filter(Boolean);
+  const cornerWidth = corner.length
+    ? corner.reduce((a, b) => a + b, 0) + 4 * (corner.length - 1)
+    : 0;
   // The category's hue, from its border class (border-blue-900/60 -> blue).
   // Each theme sets the tile's background and edge per hue in index.css, so
   // the edge can clear 3:1 on every ground (--tile-<hue>-edge).
@@ -257,9 +264,26 @@ function ExtensionTile({
       </div>
 
       <div className="relative z-10 pointer-events-none">
-        <div className="flex flex-wrap items-center gap-1.5 mb-2.5 pr-16">
+        {/* Room for the corner controls actually shown, as a float: the name
+          sits beside it when it fits and drops below it when it does not.
+          A fixed pr-16 reserved 64px for controls that are often absent,
+          which left the name about 1px on a phone and broke it a letter per
+          line ("S" / "m"). */}
+        {cornerWidth > 0 && (
           <span
-            className="font-mono font-semibold text-[12px] leading-tight break-all"
+            aria-hidden="true"
+            className="float-right"
+            style={{ width: cornerWidth, height: 24 }}
+          />
+        )}
+        {/* min-content: a box beside a float otherwise shrinks to whatever is
+          left (4px, with Compare on a phone) instead of moving below it. */}
+        <div
+          className="flex flex-wrap items-center gap-1.5 mb-2.5"
+          style={{ minWidth: 'min-content' }}
+        >
+          <span
+            className="font-mono font-semibold text-[12px] leading-tight break-words"
             style={{ letterSpacing: '0.02em' }}
           >
             {data.name}
