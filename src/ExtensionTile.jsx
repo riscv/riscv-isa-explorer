@@ -304,10 +304,17 @@ function ExtensionTile({
         {/* The instruction count sits on the status row, at the bottom. The
           corner controls (Compare, the builder's +) are absolutely positioned
           from the top-right and about 28px tall, so they reach down into the
-          description row: a count there sat under them (#598). */}
-        <div className="mt-1 flex items-end justify-between gap-2">
+          description row: a count there sat under them (#598).
+
+          The status takes the space the count leaves (flex-1 basis-0), but
+          never less than its longest word: it used to be min-w-0, which let
+          the box shrink below a word that cannot break (v0.6.0), so the word
+          ran under the count, on 19 tiles at 768px (#617). The row wraps, so
+          only when that word and the count cannot share a line does the count
+          take its own, still on the right. */}
+        <div className="mt-1 flex flex-wrap items-end justify-between gap-x-2">
           <div
-            className="text-[9px] font-mono leading-tight min-w-0"
+            className="text-[9px] font-mono leading-tight flex-1 basis-0"
             style={{ color: 'var(--riscv-text-3)' }}
             aria-label={[
               data.state || 'Status unknown',
@@ -327,7 +334,7 @@ function ExtensionTile({
             {data.state === 'ratified' ? ` · ${data.ratification_date || 'date unavailable'}` : ''}
           </div>
           <span
-            className="font-mono text-[10px] leading-none shrink-0"
+            className="font-mono text-[10px] leading-none shrink-0 ml-auto"
             style={{ color: 'var(--riscv-text-2)' }}
             aria-label={
               instructionCount > 0

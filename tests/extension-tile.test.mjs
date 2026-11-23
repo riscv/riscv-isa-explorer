@@ -266,3 +266,22 @@ test('a search match highlights only within the active profile or volume filter'
     dimmed: false,
   });
 });
+
+test('the status row wraps, so the count never sits on the status text (#617)', () => {
+  const tile = fs.readFileSync(new URL('../src/ExtensionTile.jsx', import.meta.url), 'utf8');
+  // min-w-0 lets the status box shrink below an unbreakable word (v0.6.0);
+  // without a wrapping row, that word ran under the count on narrow tiles.
+  const row = tile.match(/<div className="mt-1 flex[^"]*">/)?.[0] ?? '';
+  assert.match(row, /\bflex-wrap\b/, 'the row wraps');
+  assert.match(
+    tile,
+    /leading-tight flex-1 basis-0"/,
+    'status fills the row, never below its longest word',
+  );
+  assert.doesNotMatch(tile, /leading-tight min-w-0/, 'min-w-0 is what let the word overflow');
+  assert.match(
+    tile,
+    /className="font-mono text-\[10px\] leading-none shrink-0 ml-auto"/,
+    'count stays right',
+  );
+});
