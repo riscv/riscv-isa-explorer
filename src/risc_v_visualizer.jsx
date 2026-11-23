@@ -29,7 +29,6 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
-  Package,
   Binary,
   MemoryStick,
   CircuitBoard,
@@ -87,12 +86,7 @@ import {
 // INCOMPATIBLE_WITH is no longer imported here: conflicts now come back from
 // resolveSelection(), which checks them over the resolved closure rather than
 // only over what the user clicked.
-import {
-  BASE_ISA_IDS,
-  SMART_DEPENDENCIES,
-  buildMarchString,
-  buildCombinedCatalog,
-} from './marchUtils.js';
+import { BASE_ISA_IDS, SMART_DEPENDENCIES, buildCombinedCatalog } from './marchUtils.js';
 import { resolveSelection, closure, conditionallyImplied } from './isaGraph.js';
 import {
   profileMembership,
@@ -111,6 +105,7 @@ import AskAiLauncher from './AskAiLauncher.jsx';
 // on or off together.
 import { AI_ASSISTANT_ENABLED } from '../feature-flags.cjs';
 import SandboxPanel from './SandboxPanel.jsx';
+import ExportMenu from './ExportMenu.jsx';
 import {
   OPCODES,
   loadSandbox,
@@ -1318,8 +1313,6 @@ const RISCVExplorer = () => {
     return null;
   }, [selectedInstruction, selectedExt, workspacePanelOpen, seedProfile, paramAskContext]);
 
-  const [quickExportIncludeInstr, setQuickExportIncludeInstr] = useState(true);
-
   // Smart lock: live reverse-lookup of dependencies, plus the seeding profile's
   // mandatory floor. Derived through the shared helper so this display copy and
   // the removal guard inside addWorkspaceIdsSmart cannot drift apart.
@@ -1452,9 +1445,6 @@ const RISCVExplorer = () => {
     return buildCombinedCatalog(Array.from(workspaceIds), allExtsList).length;
   }, [workspaceIds, allExtsList]);
 
-  React.useEffect(() => {
-    setQuickExportIncludeInstr(workspaceTotalInstr <= 100);
-  }, [workspaceTotalInstr]);
   // --------------------------------------------------------------------------
   const lastScrolledKeyRef = React.useRef(null);
   // Whether the open Selected Details panel was opened by the search rather than
@@ -3425,227 +3415,16 @@ const RISCVExplorer = () => {
                                 </button>
 
                                 {quickExportOpen && (
-                                  <div
+                                  <ExportMenu
                                     className="builder-menu"
-                                    style={{
-                                      position: 'absolute',
-                                      top: 'calc(100% + 8px)',
-                                      right: 0,
-                                      zIndex: 50,
-                                      display: 'flex',
-                                      flexDirection: 'column',
-                                      gap: 0,
-                                      borderRadius: 10,
-                                      minWidth: 280,
-                                      overflow: 'hidden',
-                                    }}
-                                  >
-                                    {/* Header strip */}
-                                    <div
-                                      style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        padding: '10px 14px',
-                                        borderBottom: '1px solid var(--riscv-tint-3)',
-                                        background: 'rgba(245,197,66,0.04)',
-                                      }}
-                                    >
-                                      <div
-                                        style={{ display: 'flex', alignItems: 'center', gap: 7 }}
-                                      >
-                                        <Package
-                                          size={12}
-                                          style={{ color: 'var(--riscv-gold)', opacity: 0.85 }}
-                                        />
-                                        <span
-                                          style={{
-                                            fontSize: 12,
-                                            color: 'var(--riscv-text)',
-                                            fontWeight: 700,
-                                            letterSpacing: '0.01em',
-                                          }}
-                                        >
-                                          Export Configuration YAML
-                                        </span>
-                                      </div>
-                                      <button
-                                        onClick={() => setQuickExportOpen(false)}
-                                        style={{
-                                          background: 'none',
-                                          border: 'none',
-                                          color: '#6f7f95',
-                                          cursor: 'pointer',
-                                          padding: 2,
-                                          lineHeight: 0,
-                                          borderRadius: 4,
-                                        }}
-                                        onMouseEnter={(e) =>
-                                          (e.currentTarget.style.color = '#94a3b8')
-                                        }
-                                        onMouseLeave={(e) =>
-                                          (e.currentTarget.style.color = '#6f7f95')
-                                        }
-                                      >
-                                        <X size={13} />
-                                      </button>
-                                    </div>
-
-                                    {/* Toggle card */}
-                                    <div style={{ padding: '12px 14px' }}>
-                                      <div
-                                        onClick={() => setQuickExportIncludeInstr((v) => !v)}
-                                        style={{
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'space-between',
-                                          gap: 12,
-                                          padding: '10px 12px',
-                                          borderRadius: 8,
-                                          cursor: 'pointer',
-                                          background: quickExportIncludeInstr
-                                            ? 'rgba(245,197,66,0.07)'
-                                            : 'var(--riscv-tint-2)',
-                                          border: `1px solid ${quickExportIncludeInstr ? 'rgba(245,197,66,0.2)' : 'var(--riscv-tint-3)'}`,
-                                          transition: 'all 0.2s',
-                                          userSelect: 'none',
-                                        }}
-                                      >
-                                        <div style={{ flex: 1 }}>
-                                          <span
-                                            style={{
-                                              fontSize: 12.5,
-                                              fontWeight: 600,
-                                              color: quickExportIncludeInstr
-                                                ? 'var(--riscv-text)'
-                                                : '#94a3b8',
-                                              display: 'block',
-                                              lineHeight: 1.35,
-                                              transition: 'color 0.2s',
-                                            }}
-                                          >
-                                            Include instruction catalog
-                                          </span>
-                                          <span
-                                            style={{
-                                              fontSize: 11,
-                                              marginTop: 2,
-                                              display: 'block',
-                                              color:
-                                                workspaceTotalInstr > 100 ? '#f59e0b' : '#64748b',
-                                              fontVariantNumeric: 'tabular-nums',
-                                            }}
-                                          >
-                                            {workspaceTotalInstr.toLocaleString()} instructions
-                                            {workspaceTotalInstr > 100 ? ' · large export' : ''}
-                                          </span>
-                                        </div>
-
-                                        {/* Premium toggle track */}
-                                        <div
-                                          style={{
-                                            width: 38,
-                                            height: 21,
-                                            borderRadius: 11,
-                                            flexShrink: 0,
-                                            background: quickExportIncludeInstr
-                                              ? 'linear-gradient(135deg, #f5c542 0%, #fde68a 100%)'
-                                              : 'rgba(255,255,255,0.08)',
-                                            boxShadow: quickExportIncludeInstr
-                                              ? '0 0 8px rgba(245,197,66,0.4)'
-                                              : 'none',
-                                            position: 'relative',
-                                            transition: 'all 0.25s',
-                                            border: `1px solid ${quickExportIncludeInstr ? 'rgba(245,197,66,0.7)' : 'var(--riscv-tint-4)'}`,
-                                          }}
-                                        >
-                                          <div
-                                            style={{
-                                              width: 15,
-                                              height: 15,
-                                              borderRadius: '50%',
-                                              background: quickExportIncludeInstr
-                                                ? '#1a1206'
-                                                : '#6f7f95',
-                                              position: 'absolute',
-                                              top: 2,
-                                              left: quickExportIncludeInstr ? 19 : 2,
-                                              transition: 'all 0.25s',
-                                              boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
-                                            }}
-                                          />
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    {/* Download button */}
-                                    <div style={{ padding: '0 14px 13px' }}>
-                                      <button
-                                        onClick={async () => {
-                                          // Export schemas and parameter definitions are
-                                          // substantial and irrelevant to browsing. Load
-                                          // them only when the user actually exports.
-                                          const { buildIsaConfigYaml } =
-                                            await import('./exportUtils.js');
-                                          const { yaml } = buildIsaConfigYaml(
-                                            Array.from(workspaceIds),
-                                            allExtsList,
-                                            quickExportIncludeInstr,
-                                          );
-                                          const blob = new Blob([yaml], { type: 'text/yaml' });
-                                          const url = URL.createObjectURL(blob);
-                                          const a = document.createElement('a');
-                                          a.href = url;
-                                          const marchRes = buildMarchString(
-                                            Array.from(workspaceIds),
-                                            allExtsList,
-                                          );
-                                          const base = marchRes.march
-                                            ? marchRes.march.split('_')[0]
-                                            : 'core';
-                                          a.download = `riscv_${base}_config.yaml`;
-                                          document.body.appendChild(a);
-                                          a.click();
-                                          document.body.removeChild(a);
-                                          setTimeout(() => URL.revokeObjectURL(url), 1000);
-                                          setQuickExportOpen(false);
-                                          showToast('Exported YAML configuration!');
-                                        }}
-                                        style={{
-                                          width: '100%',
-                                          padding: '9px 14px',
-                                          borderRadius: 7,
-                                          background:
-                                            'linear-gradient(135deg, rgba(245,197,66,0.22) 0%, rgba(245,197,66,0.12) 100%)',
-                                          color: 'var(--riscv-gold)',
-                                          border: '1px solid rgba(245,197,66,0.4)',
-                                          fontSize: 12.5,
-                                          fontWeight: 700,
-                                          cursor: 'pointer',
-                                          transition: 'all 0.18s',
-                                          letterSpacing: '0.02em',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          gap: 6,
-                                        }}
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.background =
-                                            'linear-gradient(135deg, rgba(245,197,66,0.35) 0%, rgba(245,197,66,0.22) 100%)';
-                                          e.currentTarget.style.boxShadow =
-                                            '0 0 12px rgba(245,197,66,0.2)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.background =
-                                            'linear-gradient(135deg, rgba(245,197,66,0.22) 0%, rgba(245,197,66,0.12) 100%)';
-                                          e.currentTarget.style.boxShadow = 'none';
-                                        }}
-                                      >
-                                        <Package size={11} />
-                                        Download .yaml
-                                      </button>
-                                    </div>
-                                  </div>
+                                    style={{ zIndex: 50 }}
+                                    ids={workspaceIds}
+                                    allExts={allExtsList}
+                                    paramChoices={paramChoices}
+                                    totalInstructions={workspaceTotalInstr}
+                                    onClose={() => setQuickExportOpen(false)}
+                                    onExported={() => showToast('Exported YAML configuration!')}
+                                  />
                                 )}
                               </div>
                             </>
