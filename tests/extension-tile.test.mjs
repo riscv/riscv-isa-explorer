@@ -266,3 +266,39 @@ test('a search match highlights only within the active profile or volume filter'
     dimmed: false,
   });
 });
+
+test('the status row wraps, so the count never sits on the status text (#617)', () => {
+  const tile = fs.readFileSync(new URL('../src/ExtensionTile.jsx', import.meta.url), 'utf8');
+  // min-w-0 lets the status box shrink below an unbreakable word (v0.6.0);
+  // without a wrapping row, that word ran under the count on narrow tiles.
+  const row = tile.match(/<div className="mt-1 flex[^"]*">/)?.[0] ?? '';
+  assert.match(row, /\bflex-wrap\b/, 'the row wraps');
+  assert.match(
+    tile,
+    /leading-tight flex-1 basis-0"/,
+    'status fills the row, never below its longest word',
+  );
+  assert.doesNotMatch(tile, /leading-tight min-w-0/, 'min-w-0 is what let the word overflow');
+  assert.match(
+    tile,
+    /className="font-mono text-\[10px\] leading-none shrink-0 ml-auto"/,
+    'count stays right',
+  );
+});
+
+test('the name keeps whole words and makes room only for the controls shown', () => {
+  const tile = fs.readFileSync(new URL('../src/ExtensionTile.jsx', import.meta.url), 'utf8');
+  // break-all broke "Sm" into "S" / "m" once a fixed pr-16 left the name ~1px.
+  assert.doesNotMatch(tile, /break-all/, 'names break between words, never inside one');
+  assert.doesNotMatch(tile, /mb-2\.5 pr-16/, 'no fixed 64px reserve');
+  assert.match(
+    tile,
+    /className="float-right"\s+style=\{\{ width: cornerWidth/,
+    'a float the width of the controls',
+  );
+  assert.match(
+    tile,
+    /minWidth: 'min-content'/,
+    'the name row moves below the float rather than shrinking to nothing',
+  );
+});
