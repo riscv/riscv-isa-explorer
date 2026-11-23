@@ -675,7 +675,8 @@ export default function WorkspacePanel({
                 padding: '1px 5px',
                 borderRadius: 4,
                 background: 'var(--riscv-tint-3)',
-                color: 'var(--riscv-text-3)',
+                // text-2: text-3 fell to 3.9:1 on the tinted key.
+                color: 'var(--riscv-text-2)',
               }}
             >
               Esc
@@ -744,7 +745,7 @@ export default function WorkspacePanel({
                 <span style={{ color: 'var(--riscv-text)', fontVariantNumeric: 'tabular-nums' }}>
                   {workspaceIds.size}
                 </span>
-                <span style={{ opacity: 0.7, fontWeight: 500 }}>extensions</span>
+                <span style={{ fontWeight: 500 }}>extensions</span>
               </span>
 
               <span
@@ -765,7 +766,7 @@ export default function WorkspacePanel({
                 <span style={{ color: 'var(--riscv-text)', fontVariantNumeric: 'tabular-nums' }}>
                   {totalInstructions.toLocaleString()}
                 </span>
-                <span style={{ opacity: 0.7, fontWeight: 500 }}>instructions</span>
+                <span style={{ fontWeight: 500 }}>instructions</span>
               </span>
 
               {/* Profile Badge / Switcher */}
@@ -934,7 +935,8 @@ export default function WorkspacePanel({
                     ? 'rgba(16, 185, 129, 0.2)'
                     : 'rgba(16, 185, 129, 0.1)',
                   border: '1px solid rgba(16, 185, 129, 0.35)',
-                  color: '#34d399',
+                  // The theme's own green: #34d399 measured 1.75:1 in light.
+                  color: 'var(--riscv-success)',
                   fontSize: 12,
                   fontWeight: 700,
                   cursor: 'pointer',
@@ -978,7 +980,8 @@ export default function WorkspacePanel({
                 borderRadius: 8,
                 background: 'rgba(239, 68, 68, 0.08)',
                 border: '1px solid rgba(239, 68, 68, 0.25)',
-                color: '#f87171',
+                // The theme's own red: #f87171 measured 2.49:1 in light.
+                color: 'var(--riscv-danger)',
                 fontSize: 12,
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -2583,7 +2586,8 @@ function ExtChip({ ext, lockedBy, onRemove }) {
               : 'rgba(245,197,66,0.25)'
         }`,
         transition: 'all 0.12s',
-        opacity: isLocked ? 0.8 : 1,
+        // Subdued by --riscv-gold-locked itself, not by opacity on top of it,
+        // which took the name to 3.6:1.
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

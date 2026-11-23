@@ -30,7 +30,7 @@ a row here and a test behind it.
 | CSR details | `src/CsrDetails.jsx`, `src/csrLayout.js` | `csr-fields`, `csr-layout`, `render-views` |
 | Evolution | `src/evolutionModel.js`, `src/ExtensionEvolution.jsx` | `profile-export`, `copy-counts`, `render-views` |
 | Specification link | `src/specLink.js` | `spec-link`, `render-views` |
-| Main view, tiles and entry point | `src/risc_v_visualizer.jsx`, `src/ExtensionTile.jsx`, `src/tileMemo.js`, `src/main.jsx`, `src/RiscvLogo.jsx` | `render-smoke`, `render-views`, `extension-tile` |
+| Main view, tiles and entry point | `src/risc_v_visualizer.jsx`, `src/ExtensionTile.jsx`, `src/tileMemo.js`, `src/main.jsx`, `src/RiscvLogo.jsx`, `src/index.css` (themes) | `render-smoke`, `render-views`, `extension-tile`, `theme-contrast` |
 | Empty-state instruction explanation | `src/extensionNotes.js` | `no-instruction-message` |
 | Focus handling in dialogs | `src/focusTrap.js` | `focus-trap` |
 | Ask AI (behind a feature flag) | `src/AskAiLauncher.jsx`, `feature-flags.cjs` | `render-views` |

@@ -67,10 +67,17 @@ function ExtensionTile({
   // new comparison: it already returns false when `data` changes identity.
   const instructionCount = Object.keys(data.instructions || {}).length;
   const inCompare = compareIds.has(data.id);
+  // The category's hue, from its border class (border-blue-900/60 -> blue).
+  // Each theme sets the tile's background and edge per hue in index.css, so
+  // the edge can clear 3:1 on every ground (--tile-<hue>-edge).
+  const hue = isDiscontinued
+    ? 'neutral'
+    : (colorClass?.match(/\bborder-([a-z]+)-\d/)?.[1] ?? 'neutral');
 
   return (
     <div
       id={`ext-${data.id}`}
+      data-hue={dimmed ? undefined : hue}
       className={[
         'ext-tile group relative rounded-lg border select-none',
         isSelected ? 'ext-tile-active' : '',
@@ -116,7 +123,7 @@ function ExtensionTile({
             className="px-1.5 py-0.5 rounded-sm text-[9px] font-mono uppercase tracking-wider"
             style={{
               background: 'rgba(255,77,107,0.12)',
-              color: '#ff7a8a',
+              color: 'var(--tile-eol)',
               border: '1px solid rgba(255,77,107,0.25)',
             }}
           >
@@ -177,7 +184,7 @@ function ExtensionTile({
             // Amber says "you can add this"; green says "it is in". Using one colour
             // for both made a full configuration a wall of undifferentiated amber.
             // Locked tiles stay dimmed to read as unavailable.
-            const accent = '#f5c542';
+            const accent = 'var(--tile-add)';
             return (
               <button
                 type="button"
@@ -205,7 +212,7 @@ function ExtensionTile({
                       ? 'rgba(245,197,66,0.3)'
                       : inWorkspace
                         ? 'var(--riscv-check-edge)'
-                        : 'rgba(245,197,66,0.6)'
+                        : 'var(--tile-add-edge)'
                   }`,
                   background: inWorkspace
                     ? isLocked

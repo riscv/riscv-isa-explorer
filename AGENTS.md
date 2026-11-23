@@ -339,7 +339,12 @@ Then `npm run sync` and `npm test && npm run build`.
 - Never declare a React component inside another component's render body — it
   remounts the whole subtree. `react/no-unstable-nested-components` is an error
   and there's a test for it.
-- Light and dark themes must both work; text contrast must clear WCAG AA 4.5:1.
+- Three themes must all work: dark (the default), dusk and light
+  (`data-theme` on `<html>`; dusk overrides tokens on top of dark). Text
+  contrast must clear WCAG AA 4.5:1 and component edges 3:1. Category colours
+  are per-theme tokens (`--tile-<hue>-bg/-edge`, `--section-<hue>`,
+  `--tile-add`, `--tile-eol`) read by `data-hue` on each tile, never inline
+  hex; `tests/theme-contrast.test.mjs` computes every pair from `index.css`.
 - Unit tests don't render the UI (except the shallow `render-smoke` test) —
   verify interface changes in a real browser.
 

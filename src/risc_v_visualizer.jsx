@@ -42,6 +42,7 @@ import {
   Maximize2,
   Sun,
   Moon,
+  Sunset,
   GitCompare,
   PenLine,
 } from 'lucide-react';
@@ -123,6 +124,13 @@ import {
   isSubsetPattern,
   overlapExampleWord,
 } from './encodingUtils.js';
+
+// Three themes, in the order the button cycles through them. Dusk is the
+// dark theme lifted to a slate ground with softer text, for long reading; it
+// inherits every dark rule and overrides tokens (index.css, data-theme=dusk).
+const THEMES = ['dark', 'dusk', 'light'];
+const THEME_LABEL = { dark: 'Dark', dusk: 'Dusk', light: 'Light' };
+const nextTheme = (t) => THEMES[(THEMES.indexOf(t) + 1) % THEMES.length];
 
 export const formatSandboxExtensionForCatalog = (ext) => {
   const instructionsObj = {};
@@ -1074,7 +1082,7 @@ const RISCVExplorer = () => {
   const [theme, setTheme] = useState(() => {
     try {
       const saved = window.localStorage.getItem('riscv-landscape-theme');
-      if (saved === 'light' || saved === 'dark') return saved;
+      if (THEMES.includes(saved)) return saved;
     } catch {
       /* storage unavailable — fall through to the system preference */
     }
@@ -3600,9 +3608,9 @@ const RISCVExplorer = () => {
               {/* Theme Toggle - Perfectly positioned next to Search for max visibility */}
               <button
                 type="button"
-                onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
-                data-tooltip={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-                aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+                onClick={() => setTheme((t) => nextTheme(t))}
+                data-tooltip={`${THEME_LABEL[theme]} theme · switch to ${THEME_LABEL[nextTheme(theme)]}`}
+                aria-label={`Theme: ${THEME_LABEL[theme]}. Switch to ${THEME_LABEL[nextTheme(theme)]}`}
                 className="group flex items-center justify-center rounded-xl transition-all duration-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 border shrink-0"
                 style={{
                   width: 42,
@@ -3612,10 +3620,13 @@ const RISCVExplorer = () => {
                   color: 'var(--riscv-text-2)',
                 }}
               >
+                {/* The icon is the theme you are in. */}
                 {theme === 'dark' ? (
-                  <Sun size={18} className="group-hover:text-amber-400 transition-colors" />
+                  <Moon size={18} className="group-hover:text-indigo-400 transition-colors" />
+                ) : theme === 'dusk' ? (
+                  <Sunset size={18} className="group-hover:text-amber-400 transition-colors" />
                 ) : (
-                  <Moon size={18} className="group-hover:text-indigo-500 transition-colors" />
+                  <Sun size={18} className="group-hover:text-amber-600 transition-colors" />
                 )}
               </button>
             </div>
@@ -3625,10 +3636,10 @@ const RISCVExplorer = () => {
                 {/* 1. Base ISA */}
                 <div className="space-y-2.5 col-span-full">
                   <div className="flex items-center gap-2">
-                    <CircuitBoard size={13} style={{ color: '#60a5fa' }} />
+                    <CircuitBoard size={13} style={{ color: 'var(--section-blue)' }} />
                     <h2
                       className="text-[12px] font-semibold uppercase tracking-widest"
-                      style={{ color: '#60a5fa' }}
+                      style={{ color: 'var(--section-blue)' }}
                     >
                       Base ISA
                     </h2>
@@ -3652,10 +3663,10 @@ const RISCVExplorer = () => {
                 {/* 2. Single-Letter Extensions */}
                 <div className="space-y-2.5 col-span-full">
                   <div className="flex items-center gap-2">
-                    <Braces size={13} style={{ color: '#34d399' }} />
+                    <Braces size={13} style={{ color: 'var(--section-emerald)' }} />
                     <h2
                       className="text-[12px] font-semibold uppercase tracking-widest"
-                      style={{ color: '#34d399' }}
+                      style={{ color: 'var(--section-emerald)' }}
                     >
                       Single-Letter Extensions
                     </h2>
@@ -3683,10 +3694,10 @@ const RISCVExplorer = () => {
                 >
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <Binary size={12} style={{ color: '#a78bfa' }} />
+                      <Binary size={12} style={{ color: 'var(--section-violet)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#a78bfa' }}
+                        style={{ color: 'var(--section-violet)' }}
                       >
                         Bit Manipulation (Zb*)
                       </h2>
@@ -3709,10 +3720,10 @@ const RISCVExplorer = () => {
 
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <Shuffle size={12} style={{ color: '#fbbf24' }} />
+                      <Shuffle size={12} style={{ color: 'var(--section-amber)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#fbbf24' }}
+                        style={{ color: 'var(--section-amber)' }}
                       >
                         Atomics (Za/Zic*)
                       </h2>
@@ -3735,10 +3746,10 @@ const RISCVExplorer = () => {
 
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <Layers size={12} style={{ color: '#818cf8' }} />
+                      <Layers size={12} style={{ color: 'var(--section-indigo)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#818cf8' }}
+                        style={{ color: 'var(--section-indigo)' }}
                       >
                         Compressed (Zc*)
                       </h2>
@@ -3761,10 +3772,10 @@ const RISCVExplorer = () => {
 
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <FlaskConical size={12} style={{ color: '#f472b6' }} />
+                      <FlaskConical size={12} style={{ color: 'var(--section-pink)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#f472b6' }}
+                        style={{ color: 'var(--section-pink)' }}
                       >
                         Float & Numerics (Zf*)
                       </h2>
@@ -3787,10 +3798,10 @@ const RISCVExplorer = () => {
 
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <Database size={12} style={{ color: '#38bdf8' }} />
+                      <Database size={12} style={{ color: 'var(--section-sky)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#38bdf8' }}
+                        style={{ color: 'var(--section-sky)' }}
                       >
                         Load / Store
                       </h2>
@@ -3813,10 +3824,10 @@ const RISCVExplorer = () => {
 
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <Activity size={12} style={{ color: '#e879f9' }} />
+                      <Activity size={12} style={{ color: 'var(--section-fuchsia)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#e879f9' }}
+                        style={{ color: 'var(--section-fuchsia)' }}
                       >
                         Integer
                       </h2>
@@ -3839,10 +3850,10 @@ const RISCVExplorer = () => {
 
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <Zap size={12} style={{ color: '#2dd4bf' }} />
+                      <Zap size={12} style={{ color: 'var(--section-teal)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#2dd4bf' }}
+                        style={{ color: 'var(--section-teal)' }}
                       >
                         Vector Subsets (Zv/Zve)
                       </h2>
@@ -3865,10 +3876,10 @@ const RISCVExplorer = () => {
 
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <Shield size={12} style={{ color: '#f87171' }} />
+                      <Shield size={12} style={{ color: 'var(--section-red)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#f87171' }}
+                        style={{ color: 'var(--section-red)' }}
                       >
                         Security & CFI
                       </h2>
@@ -3891,10 +3902,10 @@ const RISCVExplorer = () => {
 
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <KeyRound size={12} style={{ color: '#94a3b8' }} />
+                      <KeyRound size={12} style={{ color: 'var(--section-slate)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#94a3b8' }}
+                        style={{ color: 'var(--section-slate)' }}
                       >
                         Cryptography (Zk*)
                       </h2>
@@ -3917,10 +3928,10 @@ const RISCVExplorer = () => {
 
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <Lock size={12} style={{ color: '#c4b5fd' }} />
+                      <Lock size={12} style={{ color: 'var(--section-lavender)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#c4b5fd' }}
+                        style={{ color: 'var(--section-lavender)' }}
                       >
                         Vector Cryptography (Zvk*)
                       </h2>
@@ -3943,10 +3954,10 @@ const RISCVExplorer = () => {
 
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <Settings2 size={12} style={{ color: '#fb923c' }} />
+                      <Settings2 size={12} style={{ color: 'var(--section-orange)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#fb923c' }}
+                        style={{ color: 'var(--section-orange)' }}
                       >
                         System
                       </h2>
@@ -3969,10 +3980,10 @@ const RISCVExplorer = () => {
 
                   <div className="space-y-2.5 break-inside-avoid mb-4">
                     <div className="flex items-center gap-2">
-                      <MemoryStick size={12} style={{ color: '#fdba74' }} />
+                      <MemoryStick size={12} style={{ color: 'var(--section-peach)' }} />
                       <h2
                         className="text-[12px] font-semibold uppercase tracking-widest"
-                        style={{ color: '#fdba74' }}
+                        style={{ color: 'var(--section-peach)' }}
                       >
                         Caches
                       </h2>
@@ -4000,10 +4011,10 @@ const RISCVExplorer = () => {
                   style={{ borderTop: '1px solid var(--riscv-border)' }}
                 >
                   <div className="flex items-center gap-2 mb-4">
-                    <Network size={13} style={{ color: '#22d3ee' }} />
+                    <Network size={13} style={{ color: 'var(--section-cyan)' }} />
                     <h2
                       className="text-[12px] font-semibold uppercase tracking-widest"
-                      style={{ color: '#22d3ee' }}
+                      style={{ color: 'var(--section-cyan)' }}
                     >
                       S &amp; Sv Extensions — Privileged ISA
                     </h2>

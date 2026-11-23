@@ -125,7 +125,8 @@
      dependency. The locked tone has to stay legible while reading as inactive,
      so it desaturates rather than fading out. */
   --riscv-info: #7ec8e3;
-  --riscv-gold-locked: rgba(245, 197, 66, 0.6);
+  /* Locked builder chips: a quieter gold that still clears 4.5:1 on its chip. */
+  --riscv-gold-locked: #c4a04a;
 
   --riscv-accent-1: #8b7cf8;
   --riscv-accent-2: #f472b6;
@@ -709,7 +710,8 @@ pre,
 
   --riscv-title: #003262;
 
-  --riscv-success: #14866a;
+  /* 4.5:1 on its own green-tinted buttons, not only on white. */
+  --riscv-success: #0f7259;
   --riscv-danger: #c2334d;
   --riscv-report-fg: #99203a;
   /* The Discontinued badge pairs --riscv-danger with this tint. At 0.12 the
@@ -721,7 +723,8 @@ pre,
   --riscv-report-tint: rgba(194, 51, 77, 0.12);
   --riscv-report-tint-hover: rgba(194, 51, 77, 0.18);
   --riscv-report-edge: rgba(194, 51, 77, 0.5);
-  --riscv-warn: #b06f05;
+  /* 4.7:1 on every light surface; #b06f05 was 3.6:1 on --riscv-surface-2. */
+  --riscv-warn: #965e04;
 
   /* On light the popover becomes a raised white plate: the amber edge carries
      the identity the dark gradient used to, and the shadow is tinted with the
@@ -736,7 +739,8 @@ pre,
   /* Was #807ea0, which is fine for the large, incidental text this token was
      scoped to but fails at the 11px labels the builder panel uses it for
      (3.88:1 on white). Darkened to clear 4.5:1 as body text. */
-  --riscv-text-3: #6b6a87;
+  /* 5.1:1 on the darkest category tile; #6b6a87 fell to 4.4:1 there. */
+  --riscv-text-3: #61607a;
 
   --riscv-tint-1: rgba(45, 40, 80, 0.02);
   --riscv-tint-2: rgba(45, 40, 80, 0.035);
@@ -837,72 +841,48 @@ pre,
 /* Tile families in light mode.
    The colorClass props are hardcoded Tailwind dark palettes — bg-*-950/30 with
    text-*-100 — which on a light ground give pale text on a pale wash. These
-   override by family, keeping the colour coding while making it readable.
-   Every pairing below is at least 4.5:1. */
+   override the text by family, keeping the colour coding while making it
+   readable; every pairing below is at least 4.5:1 on its tile. Background
+   and edge come from the per-theme --tile-<hue> tokens (data-hue): the edges
+   that used to be set here measured 1.2:1. */
 :root[data-theme='light'] .ext-tile[class*='amber-'] {
-  background: #fdf4de !important;
   color: #7a5406 !important;
-  border-color: #efdcae !important;
 }
 :root[data-theme='light'] .ext-tile[class*='blue-'] {
-  background: #e9f1fe !important;
   color: #1d4a80 !important;
-  border-color: #c5daf7 !important;
 }
 :root[data-theme='light'] .ext-tile[class*='cyan-'] {
-  background: #e2f6f9 !important;
   color: #0f5a68 !important;
-  border-color: #b7e4ec !important;
 }
 :root[data-theme='light'] .ext-tile[class*='emerald-'] {
-  background: #e4f6ec !important;
   color: #12603f !important;
-  border-color: #b8e3cd !important;
 }
 :root[data-theme='light'] .ext-tile[class*='fuchsia-'] {
-  background: #fbe9fa !important;
   color: #7a2570 !important;
-  border-color: #eec2ec !important;
 }
 :root[data-theme='light'] .ext-tile[class*='indigo-'] {
-  background: #eceafc !important;
   color: #3b338f !important;
-  border-color: #cbc4f2 !important;
 }
 :root[data-theme='light'] .ext-tile[class*='orange-'] {
-  background: #fdefe1 !important;
   color: #8a4a08 !important;
-  border-color: #f2d4b6 !important;
 }
 :root[data-theme='light'] .ext-tile[class*='pink-'] {
-  background: #fce9f1 !important;
   color: #8a2a53 !important;
-  border-color: #f0c2d5 !important;
 }
 :root[data-theme='light'] .ext-tile[class*='purple-'] {
-  background: #f2eafc !important;
   color: #5b2b8f !important;
-  border-color: #d9c5f2 !important;
 }
 :root[data-theme='light'] .ext-tile[class*='red-'] {
-  background: #fdeaea !important;
   color: #8c2230 !important;
-  border-color: #f3c3c3 !important;
 }
 :root[data-theme='light'] .ext-tile[class*='sky-'] {
-  background: #e6f3fd !important;
   color: #14557f !important;
-  border-color: #bcdcf5 !important;
 }
 :root[data-theme='light'] .ext-tile[class*='teal-'] {
-  background: #e0f5f1 !important;
   color: #0d5d51 !important;
-  border-color: #b3e2d8 !important;
 }
 :root[data-theme='light'] .ext-tile[class*='violet-'] {
-  background: #efeafc !important;
   color: #4b2f9c !important;
-  border-color: #d3c5f3 !important;
 }
 
 /* Tailwind's light slate text is baked into the markup in ~33 places and is
@@ -984,7 +964,8 @@ pre,
 :root[data-theme='light'] .bg-violet-500\/10 {
   background: #efeafc !important;
 }
-:root[data-theme='light'] .border-violet-900\/60,
+/* Not on tiles: their edge is --tile-violet-edge. */
+:root[data-theme='light'] .border-violet-900\/60:not(.ext-tile),
 :root[data-theme='light'] .border-violet-700\/50,
 :root[data-theme='light'] .border-violet-400\/60,
 :root[data-theme='light'] .border-violet-400\/30 {
@@ -3431,4 +3412,318 @@ pre,
     order: -1;
     max-height: 260px;
   }
+}
+
+/* ─── Category colours, per theme ───────────────────────────────────────────
+   Each extension tile carries its category as data-hue (ExtensionTile.jsx),
+   and each theme sets that hue's background and edge here. The edges are
+   solid colours solved to clear 3:1 against both the page and the tile
+   (WCAG 1.4.11), the section titles 4.5:1, and the tile's + icon 3:1: the
+   old category borders were dark shades that measured 1.2:1 in every theme.
+   tests/theme-contrast.test.mjs recomputes every pair from this file. */
+:root {
+  --tile-blue-bg: #151b34;
+  --tile-blue-edge: #436ea6;
+  --tile-emerald-bg: #0c1e20;
+  --tile-emerald-edge: #25795f;
+  --tile-purple-bg: #200f34;
+  --tile-purple-edge: #7d58a5;
+  --tile-amber-bg: #231615;
+  --tile-amber-edge: #836621;
+  --tile-indigo-bg: #17162c;
+  --tile-indigo-edge: #5c63ae;
+  --tile-pink-bg: #260f20;
+  --tile-pink-edge: #9d4d7b;
+  --tile-sky-bg: #101c2b;
+  --tile-sky-edge: #287398;
+  --tile-fuchsia-bg: #250e2d;
+  --tile-fuchsia-edge: #91509f;
+  --tile-teal-bg: #0f1c23;
+  --tile-teal-edge: #217670;
+  --tile-red-bg: #231018;
+  --tile-red-edge: #a14e51;
+  --tile-violet-bg: #1c1234;
+  --tile-violet-edge: #6f5ea6;
+  --tile-orange-bg: #231417;
+  --tile-orange-edge: #955b2f;
+  --tile-cyan-bg: #111a26;
+  --tile-cyan-edge: #1b7486;
+  --tile-neutral-edge: #6b7180;
+  --section-blue: #60a5fa;
+  --section-emerald: #34d399;
+  --section-violet: #a78bfa;
+  --section-amber: #fbbf24;
+  --section-indigo: #818cf8;
+  --section-pink: #f472b6;
+  --section-sky: #38bdf8;
+  --section-fuchsia: #e879f9;
+  --section-teal: #2dd4bf;
+  --section-red: #f87171;
+  --section-slate: #94a3b8;
+  --section-lavender: #c4b5fd;
+  --section-orange: #fb923c;
+  --section-peach: #fdba74;
+  --section-cyan: #22d3ee;
+  --tile-add: #f5c542;
+  --tile-eol: #ff7a8a;
+  --tile-add-edge: rgba(245, 197, 66, 0.6);
+}
+:root[data-theme='dusk'] {
+  --tile-blue-bg: #2f343f;
+  --tile-blue-edge: #5084c5;
+  --tile-emerald-bg: #2f343f;
+  --tile-emerald-edge: #2f9172;
+  --tile-purple-bg: #2f343f;
+  --tile-purple-edge: #9a6ecb;
+  --tile-amber-bg: #2f343f;
+  --tile-amber-edge: #9d7e2c;
+  --tile-indigo-bg: #2f343f;
+  --tile-indigo-edge: #707ad3;
+  --tile-pink-bg: #2f343f;
+  --tile-pink-edge: #c36197;
+  --tile-sky-bg: #2f343f;
+  --tile-sky-edge: #328ab4;
+  --tile-fuchsia-bg: #2f343f;
+  --tile-fuchsia-edge: #b263c2;
+  --tile-teal-bg: #2f343f;
+  --tile-teal-edge: #2a9088;
+  --tile-red-bg: #2f343f;
+  --tile-red-edge: #ca6264;
+  --tile-violet-bg: #2f343f;
+  --tile-violet-edge: #8874cb;
+  --tile-orange-bg: #2f343f;
+  --tile-orange-edge: #b7713a;
+  --tile-cyan-bg: #2f343f;
+  --tile-cyan-edge: #248ea3;
+  --tile-neutral-edge: #828a9a;
+  --section-blue: #60a5fa;
+  --section-emerald: #34d399;
+  --section-violet: #a78bfa;
+  --section-amber: #fbbf24;
+  --section-indigo: #818cf8;
+  --section-pink: #f472b6;
+  --section-sky: #38bdf8;
+  --section-fuchsia: #e879f9;
+  --section-teal: #2dd4bf;
+  --section-red: #f87171;
+  --section-slate: #94a3b8;
+  --section-lavender: #c4b5fd;
+  --section-orange: #fb923c;
+  --section-peach: #fdba74;
+  --section-cyan: #22d3ee;
+  --tile-add: #f5c542;
+  --tile-eol: #ff8795;
+  --tile-add-edge: rgba(245, 197, 66, 0.6);
+}
+:root[data-theme='light'] {
+  --tile-blue-bg: #e9f1fe;
+  --tile-blue-edge: #5182ee;
+  --tile-emerald-bg: #e4f6ec;
+  --tile-emerald-edge: #3c957d;
+  --tile-purple-bg: #f2eafc;
+  --tile-purple-edge: #a566dc;
+  --tile-amber-bg: #fdf4de;
+  --tile-amber-edge: #c2753c;
+  --tile-indigo-bg: #eceafc;
+  --tile-indigo-edge: #7b73eb;
+  --tile-pink-bg: #fce9f1;
+  --tile-pink-edge: #d05d8e;
+  --tile-sky-bg: #e6f3fd;
+  --tile-sky-edge: #428db8;
+  --tile-fuchsia-bg: #fbe9fa;
+  --tile-fuchsia-edge: #bc5fc7;
+  --tile-teal-bg: #e0f5f1;
+  --tile-teal-edge: #42928d;
+  --tile-red-bg: #fdeaea;
+  --tile-red-edge: #cd6466;
+  --tile-violet-bg: #efeafc;
+  --tile-violet-edge: #996ae4;
+  --tile-orange-bg: #fdefe1;
+  --tile-orange-edge: #ce6a43;
+  --tile-cyan-bg: #e2f6f9;
+  --tile-cyan-edge: #4190a8;
+  --tile-neutral-edge: #868298;
+  --section-blue: #4170aa;
+  --section-emerald: #1f7d5a;
+  --section-violet: #7663b1;
+  --section-amber: #8c6a14;
+  --section-indigo: #5f67b7;
+  --section-pink: #aa4f7f;
+  --section-sky: #23779c;
+  --section-fuchsia: #9b51a6;
+  --section-teal: #1a7b6f;
+  --section-red: #b05050;
+  --section-slate: #656f7d;
+  --section-lavender: #726993;
+  --section-orange: #a15e26;
+  --section-peach: #8d6841;
+  --section-cyan: #147a8a;
+  --tile-add: #9d7e2a;
+  --tile-eol: #b91c1c;
+  --tile-add-edge: #9d7e2a;
+}
+
+.ext-tile[data-hue='blue'] {
+  background-color: var(--tile-blue-bg);
+  border-color: var(--tile-blue-edge);
+}
+.ext-tile[data-hue='emerald'] {
+  background-color: var(--tile-emerald-bg);
+  border-color: var(--tile-emerald-edge);
+}
+.ext-tile[data-hue='purple'] {
+  background-color: var(--tile-purple-bg);
+  border-color: var(--tile-purple-edge);
+}
+.ext-tile[data-hue='amber'] {
+  background-color: var(--tile-amber-bg);
+  border-color: var(--tile-amber-edge);
+}
+.ext-tile[data-hue='indigo'] {
+  background-color: var(--tile-indigo-bg);
+  border-color: var(--tile-indigo-edge);
+}
+.ext-tile[data-hue='pink'] {
+  background-color: var(--tile-pink-bg);
+  border-color: var(--tile-pink-edge);
+}
+.ext-tile[data-hue='sky'] {
+  background-color: var(--tile-sky-bg);
+  border-color: var(--tile-sky-edge);
+}
+.ext-tile[data-hue='fuchsia'] {
+  background-color: var(--tile-fuchsia-bg);
+  border-color: var(--tile-fuchsia-edge);
+}
+.ext-tile[data-hue='teal'] {
+  background-color: var(--tile-teal-bg);
+  border-color: var(--tile-teal-edge);
+}
+.ext-tile[data-hue='red'] {
+  background-color: var(--tile-red-bg);
+  border-color: var(--tile-red-edge);
+}
+.ext-tile[data-hue='violet'] {
+  background-color: var(--tile-violet-bg);
+  border-color: var(--tile-violet-edge);
+}
+.ext-tile[data-hue='orange'] {
+  background-color: var(--tile-orange-bg);
+  border-color: var(--tile-orange-edge);
+}
+.ext-tile[data-hue='cyan'] {
+  background-color: var(--tile-cyan-bg);
+  border-color: var(--tile-cyan-edge);
+}
+.ext-tile[data-hue='neutral'] {
+  border-color: var(--tile-neutral-edge);
+}
+
+/* ─── Dusk ──────────────────────────────────────────────────────────────────
+   Between dark and light: a slate ground instead of near-black, warm
+   off-white text instead of white, accents a step softer, the gold kept. For
+   long reading. It inherits every dark-theme rule (dark is the default) and
+   changes tokens only, plus the slate utilities, which it maps onto its own
+   surfaces the way the light theme maps them onto its. */
+:root[data-theme='dusk'] {
+  --riscv-bg: #262b36;
+  --riscv-panel: #20242e;
+  --riscv-surface: #2d3340;
+  --riscv-surface-2: #343b4a;
+  --riscv-border: #3f4758;
+  --riscv-border-2: #4b5468;
+  --riscv-muted: #5b6579;
+
+  --riscv-text: #ece6da;
+  --riscv-text-2: #c8c2b6;
+  /* 5.6:1 on a tile. */
+  --riscv-text-3: #b2ada3;
+
+  --riscv-logo-ink: #f3eee4;
+  --riscv-gold: #ecc55e;
+  --riscv-title: #f2bb4e;
+
+  --riscv-accent-1: #aea2f6;
+  --riscv-accent-2: #eea2ca;
+  --riscv-accent-3: #74d6c9;
+  --riscv-accent-4: #90bcf2;
+  --riscv-accent-5: #ecc55e;
+  --riscv-accent-6: #7dd5ac;
+  --riscv-accent-7: #f2ab7c;
+  --riscv-accent-8: #bdabf4;
+  --riscv-accent-9: #f29e9e;
+
+  --riscv-success: #74d6ab;
+  --riscv-danger: #f28d9c;
+  --riscv-report-fg: #f28d9c;
+  --riscv-info: #a0cbe2;
+  --riscv-warn: #eab364;
+
+  --riscv-popover-bg: linear-gradient(145deg, #323949 0%, #2c3240 100%);
+  --riscv-popover-shadow: 0 12px 28px rgba(10, 12, 18, 0.35);
+  --riscv-plate: rgba(255, 255, 255, 0.025);
+  --riscv-tint-1: rgba(255, 255, 255, 0.03);
+  --riscv-tint-2: rgba(255, 255, 255, 0.045);
+  --riscv-tint-3: rgba(255, 255, 255, 0.08);
+  --riscv-tint-4: rgba(255, 255, 255, 0.14);
+  --riscv-hairline: rgba(255, 255, 255, 0.08);
+  --riscv-gold-locked: #d6b764;
+  /* Links and the compare accent: dark's violet is 3.8:1 on slate. */
+  --riscv-violet: #a99efa;
+  /* Toolchain chips: dark's green is too dim on slate. */
+  --riscv-check: #86e0a6;
+}
+
+:root[data-theme='dusk'] .bg-slate-950,
+:root[data-theme='dusk'] .bg-slate-950\/90,
+:root[data-theme='dusk'] .bg-slate-950\/80,
+:root[data-theme='dusk'] .bg-slate-950\/75,
+:root[data-theme='dusk'] .bg-slate-950\/50,
+:root[data-theme='dusk'] .bg-slate-950\/40,
+:root[data-theme='dusk'] .bg-slate-950\/30,
+:root[data-theme='dusk'] .bg-black,
+:root[data-theme='dusk'] .bg-black\/40,
+:root[data-theme='dusk'] .bg-black\/30 {
+  background: var(--riscv-panel) !important;
+}
+:root[data-theme='dusk'] .bg-slate-900,
+:root[data-theme='dusk'] .bg-slate-900\/90,
+:root[data-theme='dusk'] .bg-slate-900\/80,
+:root[data-theme='dusk'] .bg-slate-900\/75,
+:root[data-theme='dusk'] .bg-slate-900\/60,
+:root[data-theme='dusk'] .bg-slate-900\/50 {
+  background: var(--riscv-surface) !important;
+}
+:root[data-theme='dusk'] .bg-slate-800,
+:root[data-theme='dusk'] .bg-slate-800\/90,
+:root[data-theme='dusk'] .bg-slate-800\/80,
+:root[data-theme='dusk'] .bg-slate-800\/70,
+:root[data-theme='dusk'] .bg-slate-800\/50 {
+  background: var(--riscv-surface-2) !important;
+}
+:root[data-theme='dusk'] .bg-slate-700,
+:root[data-theme='dusk'] .bg-slate-700\/90,
+:root[data-theme='dusk'] .bg-slate-700\/80,
+:root[data-theme='dusk'] .bg-slate-700\/70,
+:root[data-theme='dusk'] .bg-slate-700\/60,
+:root[data-theme='dusk'] .bg-slate-700\/50,
+:root[data-theme='dusk'] .bg-slate-700\/40 {
+  background: var(--riscv-border) !important;
+}
+:root[data-theme='dusk'] .bg-slate-600 {
+  background: var(--riscv-muted) !important;
+}
+:root[data-theme='dusk'] .border-slate-800,
+:root[data-theme='dusk'] .border-slate-700,
+:root[data-theme='dusk'] .border-slate-700\/50 {
+  border-color: var(--riscv-border-2) !important;
+}
+:root[data-theme='dusk'] .border-slate-600 {
+  border-color: var(--riscv-muted) !important;
+}
+:root[data-theme='dusk'] .text-slate-500 {
+  color: var(--riscv-text-3) !important;
+}
+:root[data-theme='dusk'] .text-slate-400 {
+  color: var(--riscv-text-2) !important;
 }
