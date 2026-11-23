@@ -9,7 +9,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Package, X } from 'lucide-react';
-import { EXPORT_FORMATS, exportFilename, exportOptions } from './exportFormats.js';
+import { EXPORT_FORMATS, exportDetail, exportFilename, exportOptions } from './exportFormats.js';
 
 // Below this width the toolbar clips an absolutely placed menu (it is a
 // horizontal scroll container, under a backdrop filter that also traps fixed
@@ -177,7 +177,7 @@ export default function ExportMenu({
                   color: 'var(--riscv-text-2)',
                 }}
               >
-                {f.detail}
+                {exportDetail(f, paramChoices)}
               </span>
             </button>
             {f.format === 'landscape' && (

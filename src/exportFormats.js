@@ -5,6 +5,11 @@
  */
 import { buildMarchString } from './marchUtils.js';
 
+/** What a format's file contains, for the values set so far. */
+export function exportDetail(f, paramChoices) {
+  return typeof f.detail === 'function' ? f.detail(paramChoices ?? {}) : f.detail;
+}
+
 /** The three files, in the order shown, and what each one is for. */
 export const EXPORT_FORMATS = [
   {
@@ -23,7 +28,12 @@ export const EXPORT_FORMATS = [
   {
     format: 'riscv-config',
     label: 'Download riscv-config ISA spec',
-    detail: 'ISA specification for riscv-config; three fields need your input.',
+    // Named, not counted: the export leaves Vendor and Device for you, and the
+    // physical address width too unless the Parameters tab has set it.
+    detail: (paramChoices = {}) =>
+      Object.prototype.hasOwnProperty.call(paramChoices, 'PHYS_ADDR_WIDTH')
+        ? 'ISA specification for riscv-config. You fill in Vendor and Device; the physical address width comes from the Parameters tab.'
+        : 'ISA specification for riscv-config. You fill in Vendor, Device and the physical address width (or set PHYS_ADDR_WIDTH in the Parameters tab).',
     suffix: 'riscv_config_isa',
   },
 ];

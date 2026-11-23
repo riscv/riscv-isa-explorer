@@ -4,7 +4,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { EXPORT_FORMATS, exportFilename, exportOptions } from '../src/exportFormats.js';
+import {
+  EXPORT_FORMATS,
+  exportDetail,
+  exportFilename,
+  exportOptions,
+} from '../src/exportFormats.js';
 import { buildIsaConfigYaml } from '../src/exportUtils.js';
 
 const catalog = JSON.parse(
@@ -19,7 +24,7 @@ test('the menu offers all three files, Standard first', () => {
     EXPORT_FORMATS.map((f) => f.format),
     ['landscape', 'udb', 'riscv-config'],
   );
-  for (const f of EXPORT_FORMATS) assert.ok(f.label && f.detail, f.format);
+  for (const f of EXPORT_FORMATS) assert.ok(f.label && exportDetail(f, {}), f.format);
 });
 
 test('every format gets an options object carrying the parameter values', () => {
@@ -54,4 +59,20 @@ test('the toolbar and the panel both render the one menu, and nothing else expor
     assert.doesNotMatch(src(f), /buildIsaConfigYaml\(/, `${f} must not call the exporter itself`);
   }
   assert.match(src('ExportMenu.jsx'), /paramChoices/);
+});
+
+test('the riscv-config option names the fields left to fill in, as the file does', () => {
+  const rc = EXPORT_FORMATS.find((f) => f.format === 'riscv-config');
+  const unset = exportDetail(rc, {});
+  const set = exportDetail(rc, { PHYS_ADDR_WIDTH: 40 });
+  assert.match(unset, /Vendor, Device and the physical address width/);
+  assert.match(set, /Vendor and Device/);
+  assert.doesNotMatch(set, /fill in Vendor, Device and/);
+  // The file agrees: three TODO fields without the width, two with it.
+  const todos = (paramChoices) =>
+    buildIsaConfigYaml(IDS, ALL, exportOptions('riscv-config', { paramChoices }))
+      .yaml.split('\n')
+      .filter((l) => /# TODO/.test(l)).length;
+  assert.equal(todos({}), 3);
+  assert.equal(todos({ PHYS_ADDR_WIDTH: 40 }), 2);
 });
