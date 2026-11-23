@@ -63,6 +63,7 @@ src/
   main.jsx                    # React entry, imports index.css
   risc_v_visualizer.jsx       # main view
   WorkspacePanel.jsx          # ISA Configuration Builder panel
+  ExportMenu.jsx / exportFormats.js  # the one export menu (toolbar and panel): Standard, UDB, riscv-config
   ExtensionTile.jsx           # one extension tile (memoised; see tileMemo.js)
   CompareView / CompareTray / compareModel.js   # side-by-side comparison
   EncodingMap.jsx / encodingMap.js              # opcode-space map

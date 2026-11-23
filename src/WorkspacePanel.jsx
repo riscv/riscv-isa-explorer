@@ -16,7 +16,6 @@ import {
   ArrowLeft,
   ExternalLink,
   Trash2,
-  Package,
   Download,
   Info,
   BookOpen,
@@ -44,7 +43,7 @@ import {
   DATA_PROVENANCE,
 } from './marchUtils.js';
 import { MarchToolchains } from './ToolchainSupport.jsx';
-import { buildIsaConfigYaml } from './exportUtils.js';
+import ExportMenu from './ExportMenu.jsx';
 import {
   DEPENDENCY_GRAPH,
   closure,
@@ -384,7 +383,6 @@ export default function WorkspacePanel({
   const [hoveredRow, setHoveredRow] = useState(null);
   const [selectedRowInstruction, setSelectedRowInstruction] = useState(null);
   const [showExportOptions, setShowExportOptions] = useState(false);
-  const [includeInstructions, setIncludeInstructions] = useState(true);
   const [extSearchQuery, setExtSearchQuery] = useState('');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [showNotice, setShowNotice] = useState(() => !noticeDismissed());
@@ -563,11 +561,6 @@ export default function WorkspacePanel({
     setEncodeResult(buildMarchString(Array.from(workspaceIds), allExts));
   }, [workspaceIds, allExts, marchTab]);
 
-  // Auto-disable instruction catalog export for very large selections
-  useEffect(() => {
-    setIncludeInstructions(totalInstructions <= 100);
-  }, [totalInstructions]);
-
   useEffect(() => {
     if (open && marchTab === 'decode') setTimeout(() => marchInputRef.current?.focus(), 80);
   }, [open, marchTab]);
@@ -592,28 +585,6 @@ export default function WorkspacePanel({
     });
     setCopiedMarch(true);
     setTimeout(() => setCopiedMarch(false), 1500);
-  }
-
-  function handleExportYaml(format = 'landscape') {
-    const { yaml } = buildIsaConfigYaml(
-      Array.from(workspaceIds),
-      allExts,
-      format === 'landscape' ? { includeInstructions, paramChoices } : { format, paramChoices },
-    );
-    const blob = new Blob([yaml], { type: 'text/yaml' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const baseProfile = encodeResult?.march ? encodeResult.march.split('_')[0] : 'core';
-    a.download =
-      format === 'udb'
-        ? `riscv_${baseProfile}_udb_config.yaml`
-        : `riscv_${baseProfile}_config.yaml`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    setShowExportOptions(false);
   }
 
   function toggleSort(col) {
@@ -983,198 +954,14 @@ export default function WorkspacePanel({
                 <ChevronDown size={12} />
               </button>
 
-              {/* Export Popover */}
               {showExportOptions && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 8px)',
-                    right: 0,
-                    zIndex: 100,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    borderRadius: 10,
-                    background: 'var(--riscv-popover-bg)',
-                    border: '1px solid var(--riscv-popover-edge)',
-                    boxShadow: 'var(--riscv-popover-shadow), 0 0 0 1px var(--riscv-tint-2) inset',
-                    minWidth: 300,
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '10px 14px',
-                      borderBottom: '1px solid var(--riscv-tint-3)',
-                      background: 'var(--riscv-popover-head)',
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                      <Package size={13} style={{ color: 'var(--riscv-gold)' }} />
-                      <span
-                        style={{
-                          fontSize: 12,
-                          color: 'var(--riscv-text)',
-                          fontWeight: 700,
-                          letterSpacing: '0.01em',
-                        }}
-                      >
-                        Export Configuration YAML
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setShowExportOptions(false)}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--riscv-text-3)',
-                        cursor: 'pointer',
-                        padding: 2,
-                        borderRadius: 4,
-                      }}
-                    >
-                      <X size={13} />
-                    </button>
-                  </div>
-
-                  <div style={{ padding: '12px 14px' }}>
-                    <div
-                      onClick={() => setIncludeInstructions((v) => !v)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 12,
-                        padding: '10px 12px',
-                        borderRadius: 8,
-                        cursor: 'pointer',
-                        background: includeInstructions
-                          ? 'rgba(245,197,66,0.07)'
-                          : 'var(--riscv-tint-2)',
-                        border: `1px solid ${includeInstructions ? 'rgba(245,197,66,0.2)' : 'var(--riscv-tint-3)'}`,
-                        transition: 'all 0.2s',
-                        userSelect: 'none',
-                      }}
-                    >
-                      <div style={{ flex: 1 }}>
-                        <span
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: includeInstructions
-                              ? 'var(--riscv-text)'
-                              : 'var(--riscv-text-2)',
-                            display: 'block',
-                            lineHeight: 1.35,
-                          }}
-                        >
-                          Include instruction catalog
-                        </span>
-                        <span
-                          style={{
-                            fontSize: 11,
-                            marginTop: 2,
-                            display: 'block',
-                            color:
-                              totalInstructions > 100 ? 'var(--riscv-warn)' : 'var(--riscv-text-3)',
-                            fontVariantNumeric: 'tabular-nums',
-                          }}
-                        >
-                          {totalInstructions.toLocaleString()} instructions
-                          {totalInstructions > 100 ? ' · large export' : ''}
-                        </span>
-                      </div>
-
-                      <div
-                        style={{
-                          width: 38,
-                          height: 21,
-                          borderRadius: 11,
-                          flexShrink: 0,
-                          background: includeInstructions
-                            ? 'linear-gradient(135deg, #f5c542 0%, #fde68a 100%)'
-                            : 'var(--riscv-tint-4)',
-                          position: 'relative',
-                          transition: 'all 0.25s',
-                          border: `1px solid ${includeInstructions ? 'rgba(245,197,66,0.7)' : 'var(--riscv-tint-4)'}`,
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: 15,
-                            height: 15,
-                            borderRadius: '50%',
-                            background: includeInstructions ? '#1a1206' : 'var(--riscv-text-3)',
-                            position: 'absolute',
-                            top: 2,
-                            left: includeInstructions ? 19 : 2,
-                            transition: 'all 0.25s',
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      padding: '0 14px 13px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 7,
-                    }}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => handleExportYaml('landscape')}
-                      style={{
-                        width: '100%',
-                        padding: '9px 14px',
-                        borderRadius: 7,
-                        background:
-                          'linear-gradient(135deg, rgba(245,197,66,0.22) 0%, rgba(245,197,66,0.12) 100%)',
-                        color: 'var(--riscv-gold)',
-                        border: '1px solid rgba(245,197,66,0.4)',
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <Package size={13} />
-                      Download .yaml (Standard)
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleExportYaml('udb')}
-                      title="UDB architecture configuration for riscv-arch-test."
-                      style={{
-                        width: '100%',
-                        padding: '8px 14px',
-                        borderRadius: 7,
-                        background: 'var(--riscv-tint-2)',
-                        color: 'var(--riscv-text)',
-                        border: '1px solid var(--riscv-tint-3)',
-                        fontSize: 11.5,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 6,
-                      }}
-                    >
-                      <Package size={13} />
-                      Download UDB config (arch-test)
-                    </button>
-                  </div>
-                </div>
+                <ExportMenu
+                  ids={workspaceIds}
+                  allExts={allExts}
+                  paramChoices={paramChoices}
+                  totalInstructions={totalInstructions}
+                  onClose={() => setShowExportOptions(false)}
+                />
               )}
             </div>
           )}
