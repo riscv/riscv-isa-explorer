@@ -33,6 +33,10 @@ get a dependency-resolved configuration with a valid `-march` string.
   configuration. A configuration link records the profile it started from, the
   extensions added and removed, and the parameters chosen. If the visitor
   already has a different configuration saved, the page asks before replacing it.
+- **Three themes.** The button beside the search cycles Dark, Dusk and Light.
+  Dusk sits between the two: a slate ground and warm off-white text, for long
+  reading. Each category keeps its colour in every theme, with tile edges and
+  section titles checked against the WCAG contrast floors.
 - **Export** a `-march` string, a YAML configuration (optionally with every
   instruction), or a UDB architecture configuration for riscv-arch-test, which
   is checked against riscv-unified-db's own validator (see
