@@ -18,6 +18,7 @@ on:
       - Sync ISA manual status
       - Check UDB Completeness
       - Check riscv-opcodes Drift
+      - Check toolchain gaps
       - UDB Export Check
     types: [completed]
 

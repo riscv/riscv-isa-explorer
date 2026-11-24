@@ -1,0 +1,129 @@
+name: Check toolchain gaps
+
+# Reports the ratified extensions the newest Clang, GCC, binutils and QEMU
+# releases do not accept yet, with Linux as leads (#622).
+#
+# sync-toolchain-support.yml keeps src/toolchain-support.json current; this
+# reads it the other way round. Modelled on check-udb-completeness.yml: one
+# issue, edited in place while gaps remain, closed once none do. It reports
+# rather than fails: a gate that goes red the day RISC-V ratifies something is
+# a gate somebody switches off.
+
+on:
+  # When the toolchain data changes, which is when the sync's pull request
+  # merges, and monthly so the "open for" ages stay current.
+  push:
+    branches: [main]
+    paths:
+      - src/toolchain-support.json
+      - src/riscv_extensions.json
+      - scripts/check-toolchain-gaps.mjs
+  schedule:
+    - cron: '0 11 2 * *'
+  workflow_dispatch:
+
+# Reads the repository and writes an issue. It never pushes.
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: check-toolchain-gaps
+  cancel-in-progress: false
+
+jobs:
+  gaps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout the explorer repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: '24'
+
+      # Committed data only: no install and no network needed.
+      - name: Compare the toolchains against the catalogue
+        id: check
+        run: |
+          set +e
+          node scripts/check-toolchain-gaps.mjs > report.md
+          status=$?
+          set -e
+          cat report.md
+
+          # 0 no gaps, 1 gaps, 2 the data could not be read. Node also exits 1
+          # when a module fails to load, so a 1 counts as gaps only alongside
+          # the result line the script prints last.
+          if [ "${status}" -eq 0 ]; then
+            echo "complete=true" >> "$GITHUB_OUTPUT"
+          elif [ "${status}" -eq 1 ] && grep -q '^complete: false' report.md; then
+            echo "complete=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "check-toolchain-gaps failed with status ${status}"
+            exit "${status}"
+          fi
+
+      - name: Find any existing report
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          number=$(gh issue list --state open --label automated --limit 100 --json number,body \
+            --jq 'map(select(.body | contains("<!-- toolchain-gaps-report -->"))) | .[0].number // empty')
+          echo "number=${number}" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the report
+        if: steps.check.outputs.complete == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXISTING: ${{ steps.existing.outputs.number }}
+        run: |
+          {
+            echo "<!-- toolchain-gaps-report -->"
+            echo "Ratified extensions the newest toolchain releases do not accept yet, read"
+            echo "from \`src/toolchain-support.json\` at \`${GITHUB_SHA}\`. Reproduce with"
+            echo "\`npm run toolchain:check\`."
+            echo
+            echo "To point a gap at the upstream work (a patch, a thread, a tracking issue),"
+            echo "add it to \`TRACKING\` in \`scripts/check-toolchain-gaps.mjs\`. An id that is"
+            echo "not a real gap goes in \`NOT_GAPS\`, with the reason."
+            echo
+            sed '$d' report.md
+            echo
+            echo "Closed automatically once every tool accepts every ratified extension."
+          } > body.md
+
+          if [ -n "${EXISTING}" ]; then
+            # Comment only when the gaps changed, not on every monthly run; the
+            # commit line differs every time, so it is left out of the compare.
+            gh issue view "${EXISTING}" --json body --jq .body > old.md
+            gh issue edit "${EXISTING}" --body-file body.md
+            if ! diff -q <(grep -v '` at `' old.md) <(grep -v '` at `' body.md) >/dev/null; then
+              gh issue comment "${EXISTING}" --body "The gaps changed as of \`${GITHUB_SHA}\`. Report updated."
+            fi
+          else
+            gh issue create \
+              --title "Ratified extensions the toolchains don't accept yet" \
+              --body-file body.md \
+              --label automated,data-sync
+          fi
+
+      - name: Close the report once complete
+        if: steps.check.outputs.complete == 'true' && steps.existing.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXISTING: ${{ steps.existing.outputs.number }}
+        run: |
+          gh issue close "${EXISTING}" \
+            --comment "Every tool now accepts every ratified extension. Closing automatically."
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ -f report.md ]; then
+            { echo '## Toolchain gaps'; echo; cat report.md; } >> "$GITHUB_STEP_SUMMARY"
+          fi
