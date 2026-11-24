@@ -481,21 +481,25 @@ test('a UDB export keeps the oneOf value the user picked', () => {
   // The builder offers these as buttons and the landscape export has always
   // recorded the pick. Emitting TODO here regardless threw the choice away and
   // asked for it again in a text editor.
-  // U is listed: U_MODE_ENDIANNESS exists only with U, and a constraint on a
+  // Za64rs narrows LRSC_RESERVATION_STRATEGY to a oneOf of two values. Zalrsc
+  // is listed: the parameter exists only with it, and a constraint on a
   // parameter the configuration does not define is not written (#589).
-  const sel = ['RV64I', 'U', 'Ssube'];
+  const sel = ['RV64I', 'Zalrsc', 'Za64rs'];
+  const pick = 'reserve naturally-aligned 64-byte region';
   const withChoice = buildIsaConfigYaml(sel, ALL, {
     format: 'udb',
-    paramChoices: { U_MODE_ENDIANNESS: 'big' },
+    paramChoices: { LRSC_RESERVATION_STRATEGY: pick },
   }).yaml;
   const without = buildIsaConfigYaml(sel, ALL, { format: 'udb' }).yaml;
 
-  const line = withChoice.split('\n').find((l) => l.trim().startsWith('U_MODE_ENDIANNESS:'));
-  assert.ok(line, 'U_MODE_ENDIANNESS must appear');
-  assert.match(line, /U_MODE_ENDIANNESS: "big"/, `the pick should be the value, got: ${line}`);
+  const find = (yaml) =>
+    yaml.split('\n').find((l) => l.trim().startsWith('LRSC_RESERVATION_STRATEGY:'));
+  const line = find(withChoice);
+  assert.ok(line, 'LRSC_RESERVATION_STRATEGY must appear');
+  assert.ok(line.includes(`"${pick}"`), `the pick should be the value, got: ${line}`);
   assert.doesNotMatch(line, /TODO/, 'a chosen value is not a TODO');
   // And without a choice it stays a TODO, so the test cannot pass vacuously.
-  const bare = without.split('\n').find((l) => l.trim().startsWith('U_MODE_ENDIANNESS:'));
+  const bare = find(without);
   assert.match(bare, /TODO/, `unchosen should still be a TODO, got: ${bare}`);
 });
 

@@ -36,7 +36,7 @@ export function marchToken(id) {
  * but no `b`); `parts` is { since, via } when a -march tool took every part
  * before it took the bundle's name.
  * `switch` is the QEMU switch that provides a supported extension under
- * another name (`-cpu rv64,big-endian=on` for Ssube).
+ * another name (QEMU_PROVIDED_AS in scripts/toolchain-support.mjs).
  * `earliest` means the scan's first release already had it, so "since" reads
  * as "this release or earlier"; `experimentalEarliest` is the same for the
  * experimental start of a supported extension.

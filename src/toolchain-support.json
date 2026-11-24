@@ -1201,8 +1201,6 @@
         "supported": "9.0"
       }
     },
-    "sstvecv": {},
-    "ssu32xl": {},
     "ssu64xl": {
       "llvm": {
         "supported": "19",
@@ -1216,12 +1214,6 @@
       },
       "qemu": {
         "supported": "10.0"
-      }
-    },
-    "ssube": {
-      "qemu": {
-        "supported": "11.1",
-        "switch": "-cpu rv64,big-endian=on"
       }
     },
     "suclic": {},

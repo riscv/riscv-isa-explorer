@@ -130,11 +130,12 @@ export function parseBinutils(text) {
 const QEMU_ALIASES = { epmp: ['smepmp'], aia: ['smaia', 'ssaia'] };
 
 /*
- * QEMU switches that provide an extension without naming it. `big-endian`
- * (QEMU 11.1) fixes MBE, SBE and UBE to 1, which is what Ssube asks for: UBE
- * able to hold 1. The switch is kept, so the tooltip can say how to turn it on.
+ * QEMU switches that provide an extension without naming it, as switch ->
+ * -march token. The switch is kept, so the tooltip can say how to turn it on.
+ * Empty since `big-endian` -> Ssube went with Ssube itself, which no
+ * specification defines (#631).
  */
-const QEMU_PROVIDED_AS = { 'big-endian': 'ssube' };
+const QEMU_PROVIDED_AS = {};
 
 /*
  * name -> status, from QEMU's target/riscv/cpu.c. A user property without

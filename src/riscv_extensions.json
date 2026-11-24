@@ -86018,22 +86018,6 @@
       "version": "1.0.0"
     },
     {
-      "id": "Sstvecv",
-      "name": "Sstvecv",
-      "short": "stvec Vectored Mode",
-      "tags": [],
-      "desc": "Guarantees stvec supports Vectored mode, so each interrupt cause can dispatch to its own entry point.",
-      "use": "Vectored trap routing",
-      "url": "https://github.com/riscv/riscv-profiles/releases/tag/v1.0",
-      "instructions": {},
-      "long_name": "Vectored exception handling",
-      "type": "privileged",
-      "state": "ratified",
-      "ratification_date": "2023-03",
-      "behavior": "`stvec.MODE` must be capable of holding the value 1 (Vectored).\nWhen `stvec.MODE`=Vectored, interrupts set `pc` to `stvec.BASE + 4 * cause`,\nallowing each interrupt source to have its own entry point.\nSynchronous exceptions still use the base address regardless of the mode.",
-      "version": "1.0.0"
-    },
-    {
       "id": "Ssdtso",
       "name": "Ssdtso",
       "short": "Supervisor TSO Opt-in",
@@ -86072,22 +86056,6 @@
       "version": "1.0.0"
     },
     {
-      "id": "Ssu32xl",
-      "name": "Ssu32xl",
-      "short": "UXL=32 support",
-      "tags": [],
-      "desc": "Lets U-mode run 32-bit code on a 64-bit machine by allowing sstatus.UXL to select UXLEN=32.",
-      "use": "User XLEN=32 capability",
-      "url": "https://github.com/riscv/riscv-isa-manual",
-      "instructions": {},
-      "long_name": "32-bit UXLEN",
-      "type": "privileged",
-      "state": "ratified",
-      "ratification_date": "2021-12",
-      "behavior": "`sstatus.UXL` must be capable of holding the value 1 (i.e., UXLEN=32 must be supported).\n\nThis allows U-mode to run 32-bit code on a 64-bit machine by setting `sstatus.UXL` to 1.",
-      "version": "1.0.0"
-    },
-    {
       "id": "Ssu64xl",
       "name": "Ssu64xl",
       "short": "UXL=64 support",
@@ -86101,22 +86069,6 @@
       "state": "ratified",
       "ratification_date": "2023-03",
       "behavior": "`sstatus.UXL` must be capable of holding the value 2 (i.e., UXLEN=64 must be supported).\n\n[NOTE]\nThis extension is defined by RVA22.",
-      "version": "1.0.0"
-    },
-    {
-      "id": "Ssube",
-      "name": "Ssube",
-      "short": "Big-Endian S",
-      "tags": [],
-      "desc": "Lets U-mode data accesses use big-endian byte order while instruction fetch stays little-endian.",
-      "use": "Supervisor big-endian/bi-endian",
-      "url": "https://github.com/riscv/riscv-isa-manual",
-      "instructions": {},
-      "long_name": "Big-endian User Mode",
-      "type": "privileged",
-      "state": "ratified",
-      "ratification_date": "2021-12",
-      "behavior": "`sstatus.UBE` must be capable of holding the value 1 (i.e., big-endian user mode must be supported).\n\nWhen `sstatus.UBE` is set to 1, data accesses in U-mode use big-endian byte ordering.\nInstructions are always fetched as little-endian regardless of this setting.",
       "version": "1.0.0"
     },
     {
