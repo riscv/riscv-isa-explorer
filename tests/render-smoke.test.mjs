@@ -16,7 +16,7 @@
  * page render and did anything throw", which is exactly the class of failure
  * that slipped through.
  */
-import { test, before, after } from 'node:test';
+import { test as nodeTest, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,15 +27,22 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(here, '..', 'dist');
 const bundlePath = path.join(dist, 'bundle.js');
+const missingBuild = !fs.existsSync(bundlePath);
+const test = missingBuild
+  ? (name, fn) => nodeTest(name, { skip: 'dist/bundle.js is missing' }, fn)
+  : nodeTest;
+
+if (missingBuild) {
+  nodeTest('the built bundle is present', () => {
+    assert.fail('dist/bundle.js is missing — run `npm run build` first, then the tests');
+  });
+}
 
 let dom;
 const consoleErrors = [];
 
 before(async () => {
-  assert.ok(
-    fs.existsSync(bundlePath),
-    'dist/bundle.js is missing — run `npm run build` first (CI builds before testing)',
-  );
+  if (missingBuild) return;
 
   dom = new JSDOM(fs.readFileSync(path.join(dist, 'index.html'), 'utf8'), {
     runScripts: 'outside-only',

@@ -12,7 +12,7 @@
  * Same contract as the smoke test: the real built bundle in jsdom, shallow
  * assertions that the view rendered its key parts, and no console errors.
  */
-import { test, after } from 'node:test';
+import { test as nodeTest, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -21,6 +21,17 @@ import { JSDOM } from 'jsdom';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dist = path.join(here, '..', 'dist');
+const missingBuild = !fs.existsSync(path.join(dist, 'bundle.js'));
+const test = missingBuild
+  ? (name, fn) => nodeTest(name, { skip: 'dist/bundle.js is missing' }, fn)
+  : nodeTest;
+
+if (missingBuild) {
+  nodeTest('the built bundle is present', () => {
+    assert.fail('dist/bundle.js is missing — run `npm run build` first, then the tests');
+  });
+}
+
 const mounted = [];
 
 after(() => {

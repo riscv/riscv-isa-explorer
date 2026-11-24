@@ -42,6 +42,7 @@ a row here and a test behind it.
 | Opcodes drift report | `scripts/check-opcodes-drift.mjs` | `opcodes-drift` |
 | Documentation links | `scripts/map-doc-links.mjs` | `doc-links` |
 | Crawler pages and sitemap | `scripts/static-pages.mjs` | `static-pages` |
+| `src/` loads as ES modules, with no MODULE_TYPELESS_PACKAGE_JSON warning | `src/package.json` | `module-type` |
 | Printable pocket guide (HTML on every build, PDF in the deploy job) | `scripts/pocket-guide.mjs`, `scripts/pocket-guide-pdf.mjs` | `pocket-guide` |
 | Scheduled workflows (bot identity, build before test, failure alert), action references pinned to commit SHAs, CI's steps matching `npm run check`, and every workflow's Node version read from `.nvmrc`, which `engines` allows | `.github/workflows/` | `sync-tooling` |
 
