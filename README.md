@@ -198,6 +198,7 @@ npm run graph:check -- <path-to-riscv-unified-db>
 npm run links:check
 npm run opcodes:check -- <path-to-riscv-opcodes>
 npm run udb:check -- <path-to-riscv-unified-db> [--published]   # ratified extensions/instructions we lack; --published also checks drafts we list
+npm run toolchain:check                       # ratified extensions the newest Clang, GCC, binutils and QEMU don't accept; Linux as leads
 ```
 
 `map-doc-links.mjs` reads the ISA manual and profile pages on docs.riscv.org and

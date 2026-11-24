@@ -9,6 +9,7 @@
     "links:check": "node scripts/map-doc-links.mjs --check",
     "opcodes:check": "node scripts/check-opcodes-drift.mjs",
     "udb:check": "node scripts/check-udb-completeness.mjs",
+    "toolchain:check": "node scripts/check-toolchain-gaps.mjs",
     "sync": "node scripts/sync_instructions.mjs",
     "sync:check": "npm run sync -- --strict",
     "sync:instruction-metadata": "node scripts/sync_instruction_metadata.mjs",

@@ -51,6 +51,7 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
 | `npm run opcodes:check -- <path-to-riscv-opcodes>` | Report missing encodings and bits that disagree (drafts included) |
 | `npm run udb:check -- <path-to-udb> [--published]` | Report ratified extensions/instructions we lack; `--published` also checks every draft we list |
+| `npm run toolchain:check` | Report the ratified extensions each tool's newest release does not accept (committed data, no network) |
 
 There is no separate typecheck (no TypeScript).
 
@@ -330,6 +331,13 @@ Then `npm run sync` and `npm test && npm run build`.
   bundle there only if its specification defines it purely as its parts. `COMPILER_EXPLORER_UNSUPPORTED` must
   equal what the pinned Compiler Explorer clang takes only as experimental;
   `tests/toolchain-support.test.mjs` checks it against this data.
+  The gaps are read the other way round by `npm run toolchain:check`
+  (`scripts/check-toolchain-gaps.mjs`): per tool, every ratified extension the
+  newest release does not accept, oldest first, with Linux reported as leads
+  because the kernel lists only what it uses. A monthly workflow, also run when
+  the data changes, keeps one issue current. Ids that are not real gaps go in
+  `NOT_GAPS` with a reason, links to upstream work in `TRACKING`; the tests
+  fail once either goes stale.
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;
   eslint ignores both). Don't hand-edit `dist/`.
 - **`gh-pages` branch is machine-published** by CI on every push to `main`.

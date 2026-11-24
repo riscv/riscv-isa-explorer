@@ -26,7 +26,7 @@ a row here and a test behind it.
 | Extension Sandbox | `src/sandboxModel.js`, `src/SandboxPanel.jsx` | `sandbox-model`, `render-views` |
 | Instruction details (syntax, intrinsics, Compiler Explorer) | `src/instructionUsage.js`, `src/InstructionUsage.jsx`, `src/DetailSection.jsx`, `src/instructionMetadata.js`, `src/instruction-metadata.json`, `src/instruction-intrinsics.json`, `scripts/sync_instruction_metadata.mjs`, `scripts/sync_intrinsics.mjs` | `instruction-usage`, `pipeline`, `render-views` |
 | Sail, Spike and ACT links | `src/instruction-references.json`, `scripts/sail-assembly.mjs`, `scripts/sync_reference_impls.mjs` | `reference-implementations`, `pipeline` |
-| Toolchain support and timeline | `src/toolchain-support.json`, `src/toolchainSupport.js`, `src/ToolchainSupport.jsx`, `src/ToolchainTimeline.jsx`, `scripts/toolchain-support.mjs`, `scripts/sync_toolchain_support.mjs` | `toolchain-support`, `render-views` |
+| Toolchain support and timeline | `src/toolchain-support.json`, `src/toolchainSupport.js`, `src/ToolchainSupport.jsx`, `src/ToolchainTimeline.jsx`, `scripts/toolchain-support.mjs`, `scripts/sync_toolchain_support.mjs`, `scripts/check-toolchain-gaps.mjs` | `toolchain-support`, `toolchain-gaps`, `render-views` |
 | CSR details | `src/CsrDetails.jsx`, `src/csrLayout.js` | `csr-fields`, `csr-layout`, `render-views` |
 | Evolution | `src/evolutionModel.js`, `src/ExtensionEvolution.jsx` | `profile-export`, `copy-counts`, `render-views` |
 | Specification link | `src/specLink.js` | `spec-link`, `render-views` |
