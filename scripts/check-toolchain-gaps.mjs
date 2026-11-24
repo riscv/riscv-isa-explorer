@@ -50,11 +50,118 @@ export const NOT_GAPS = {
 };
 
 /*
- * Upstream work on a gap: { Id: { tool: 'https://…' } }. Shown in the report
- * so a gap leads somewhere. The tests fail once the tool accepts the extension,
- * so a link is dropped when its work has landed.
+ * Upstream work on a gap: { Id: { tool: { url, state } } }, shown in the
+ * report so a gap leads somewhere. `state` says how far the work is ("on
+ * main, first release Clang 24", "patch v1, 2026-11-22"). The tests fail once
+ * the tool accepts the extension, so a link goes when its work has shipped.
+ * Checked 2026-11-24; a gap with no entry has no upstream work found.
  */
-export const TRACKING = {};
+const SPMP_GCC = {
+  url: 'https://patchwork.sourceware.org/project/gcc/patch/20261122033744.173193-1-jiawei@iscas.ac.cn/',
+  state: 'patch v1, 2026-11-22',
+};
+const SPMP_LLVM = {
+  url: 'https://github.com/llvm/llvm-project/pull/207696',
+  state: 'on main, first release Clang 24',
+};
+const SPMP_BINUTILS = {
+  url: 'https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=b16f10037c4814ab03416a4ab143337591881e2b',
+  state: 'on master, first release binutils 2.48',
+};
+const SPMP_QEMU = {
+  url: 'https://patchew.org/QEMU/20260318185238.99143-1-luisccunha8@gmail.com/',
+  state: 'RFC v1, 2026-03-18',
+};
+const GCC_MINIMAL = (commit) => ({
+  url: `https://github.com/gcc-mirror/gcc/commit/${commit}`,
+  state: 'on master, first release GCC 17',
+});
+const VLEN_QEMU = {
+  url: 'https://patchew.org/QEMU/20260717094046.1600827-1-joel.bueno@openchip.com/',
+  state: 'series v2, 2026-07-17 (raises the VLEN cap from 1024 to 65536)',
+};
+export const TRACKING = {
+  Sspmp: { llvm: SPMP_LLVM, gcc: SPMP_GCC, binutils: SPMP_BINUTILS, qemu: SPMP_QEMU },
+  Sspmpen: { llvm: SPMP_LLVM, gcc: SPMP_GCC, binutils: SPMP_BINUTILS, qemu: SPMP_QEMU },
+  Smpmpdeleg: { llvm: SPMP_LLVM, gcc: SPMP_GCC, binutils: SPMP_BINUTILS, qemu: SPMP_QEMU },
+  Zicfiss: {
+    llvm: {
+      url: 'https://github.com/llvm/llvm-project/pull/217794',
+      state: 'on main, first release Clang 24',
+    },
+  },
+  Zicfilp: {
+    llvm: {
+      url: 'https://github.com/llvm/llvm-project/pull/157015',
+      state: 'pull request open since 2025-09-05',
+    },
+  },
+  Q: {
+    gcc: {
+      url: 'https://patchwork.sourceware.org/project/gcc/patch/20250909033222.2302895-1-shihua@iscas.ac.cn/',
+      state: 'patch v1, 2025-09-09, changes requested',
+    },
+  },
+  Smcdeleg: { gcc: GCC_MINIMAL('320b40cca27e8983f3d290de110a3a06774850e5') },
+  Ssccfg: { gcc: GCC_MINIMAL('d69c9828a50cc5309869c491a5cab08657eef1d9') },
+  Ssqosid: {
+    gcc: GCC_MINIMAL('be7a231d52b91d7a50dc88f628e03ce0721c1b05'),
+    qemu: {
+      url: 'https://patchew.org/QEMU/20261111-riscv-ssqosid-cbqri-v8-0-121f6dcfb573@kernel.org/',
+      state: 'series v8, 2026-11-11',
+    },
+  },
+  Ziccamoc: {
+    gcc: GCC_MINIMAL('bab1ed6f96a90398ad55eb73978a0ea2b97adec7'),
+    binutils: {
+      url: 'https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=cd2166234b9e6569b1cf8a4169e58f487996c447',
+      state: 'on master, first release binutils 2.48',
+    },
+  },
+  Smctr: { gcc: GCC_MINIMAL('22fe3a35d341d2044c5ced341eec11484b36a18f') },
+  Ssctr: { gcc: GCC_MINIMAL('ebe3818ac8e4390a94ee99c6501eeb14aa8b4b01') },
+  Svrsw60t59b: { gcc: GCC_MINIMAL('741dd3fa641a4506e5b138ba5de9eb45ebbf6888') },
+  Zalasr: { gcc: GCC_MINIMAL('d58044c97ef8b5ecd490fd897fa086028053e4a2') },
+  Ziccid: {
+    gcc: GCC_MINIMAL('a3ee6072ca6d72faa61f99b7aab2ead0b4a3c102'),
+    binutils: {
+      url: 'https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=9caf79667b214062cc9c3f5c4a58c5ac8567b0ae',
+      state: 'on master, first release binutils 2.48',
+    },
+  },
+  Sdext: {
+    gcc: {
+      url: 'https://patchwork.sourceware.org/project/gcc/patch/20261122033557.153193-1-jiawei@iscas.ac.cn/',
+      state: 'patch v1, 2026-11-22',
+    },
+    binutils: {
+      url: 'https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=da9f1249e9157b33218518227dd51c70395cec24',
+      state: 'on master, first release binutils 2.48',
+    },
+    qemu: {
+      url: 'https://github.com/qemu/qemu/commit/3065350ec908179c89de6901b2991883aee64f47',
+      state: 'on master, first release QEMU 11.2',
+    },
+  },
+  Zama16b: {
+    binutils: {
+      url: 'https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=59db9002142a655b4d5e4af7cbf0605aaddefc7e',
+      state: 'on master, first release binutils 2.48',
+    },
+  },
+  Shlcofideleg: {
+    binutils: {
+      url: 'https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=7d157b544f4ad3fd70fc79fad5e726df1ab03dbe',
+      state: 'on master, first release binutils 2.48',
+    },
+  },
+  Zvl2048b: { qemu: VLEN_QEMU },
+  Zvl4096b: { qemu: VLEN_QEMU },
+  Zvl8192b: { qemu: VLEN_QEMU },
+  Zvl16384b: { qemu: VLEN_QEMU },
+  Zvl32768b: { qemu: VLEN_QEMU },
+  Zvl65536b: { qemu: VLEN_QEMU },
+};
 
 const TOOL_NAMES = {
   llvm: 'Clang',
@@ -176,7 +283,7 @@ function table(rows, { experimental = false } = {}) {
         r.ratified ?? '?',
         r.open ?? '?',
         ...(experimental ? [r.since] : []),
-        r.tracking ? `[link](${r.tracking})` : '',
+        r.tracking ? `[${r.tracking.state}](${r.tracking.url})` : '',
         '',
       ]
         .join(' | ')
@@ -211,13 +318,16 @@ function section(t, lead) {
 export function formatReport(result) {
   const count = (t) => t.missing.length + t.experimental.length;
   const summary = [...result.gaps, ...result.leads]
-    .map((t) => `| ${t.name} ${t.newest} | ${t.missing.length} | ${t.experimental.length} |`)
+    .map(
+      (t) =>
+        `| ${t.name} ${t.newest} | ${t.missing.length} | ${t.experimental.length} | ${[...t.missing, ...t.experimental].filter((r) => r.tracking).length} |`,
+    )
     .join('\n');
   const out = [
     `Ratified extensions with a -march token: ${result.ratified}. Not counted (with reasons in scripts/check-toolchain-gaps.mjs): ${Object.keys(NOT_GAPS).join(', ')}.`,
     '',
-    '| Newest release | Not accepted | Experimental only |',
-    '|---|---|---|',
+    '| Newest release | Not accepted | Experimental only | With upstream work |',
+    '|---|---|---|---|',
     summary,
     '',
     '## Gaps',
