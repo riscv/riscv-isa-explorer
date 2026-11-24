@@ -1218,7 +1218,12 @@
         "supported": "10.0"
       }
     },
-    "ssube": {},
+    "ssube": {
+      "qemu": {
+        "supported": "11.1",
+        "switch": "-cpu rv64,big-endian=on"
+      }
+    },
     "suclic": {},
     "supm": {
       "llvm": {
@@ -1282,6 +1287,9 @@
       },
       "binutils": {
         "supported": "2.43"
+      },
+      "qemu": {
+        "supported": "11.1"
       }
     },
     "svinval": {

@@ -246,6 +246,12 @@ async function releaseAt(key, tool, tag) {
     for (const [token, property] of extensions.properties ?? []) {
       options.set(token, `-cpu rv64,${property}=on`);
     }
+    const switches = new Map(
+      [...(extensions.switches ?? [])].map(([token, property]) => [
+        token,
+        `-cpu rv64,${property}=on`,
+      ]),
+    );
     const impliedBy =
       key === 'qemu' ? addQemuImplied(extensions, extras[0] ?? '', requires) : new Map();
     const assemblyOnly = key === 'llvm' ? parseLlvmUsage(extras[0] ?? '') : new Set();
@@ -254,7 +260,7 @@ async function releaseAt(key, tool, tag) {
     const run = key === 'qemu' || key === 'linux';
     const through = run ? addBundles(extensions, bundleParts) : new Map();
     const byParts = run ? new Set() : bundlesByParts(extensions, bundleParts);
-    return { extensions, options, impliedBy, assemblyOnly, through, byParts };
+    return { extensions, options, switches, impliedBy, assemblyOnly, through, byParts };
   }
   throw new Error(`${tool.repo}@${tag}: no extension table found; has the file moved?`);
 }
@@ -394,6 +400,10 @@ for (const [key, tool] of Object.entries(TOOLS)) {
       }
       if (options.length) result.options = options;
     }
+    // A supported extension QEMU provides under another name: how to turn it
+    // on, as the newest release spells it.
+    const via = releases.at(-1).switches?.get(token);
+    if (result.supported && via) result.switch = via;
     const by = releases.at(-1).impliedBy.get(token);
     if (by) result.impliedBy = idOf.get(by) ?? by;
     // As the newest release's documentation describes it today.
