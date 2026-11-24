@@ -35,6 +35,8 @@ export function marchToken(id) {
  * `through` lists the parts a bundle is known by (Linux has Zba, Zbb and Zbs
  * but no `b`); `parts` is { since, via } when a -march tool took every part
  * before it took the bundle's name.
+ * `switch` is the QEMU switch that provides a supported extension under
+ * another name (`-cpu rv64,big-endian=on` for Ssube).
  * `earliest` means the scan's first release already had it, so "since" reads
  * as "this release or earlier"; `experimentalEarliest` is the same for the
  * experimental start of a supported extension.
@@ -54,6 +56,7 @@ function standingFor(tool, entry) {
       assemblyOnly: Boolean(entry.assemblyOnly),
       through: entry.through ?? null,
       parts: entry.parts ?? null,
+      switch: entry.switch ?? null,
     };
   }
   if (entry?.experimental) {

@@ -91,7 +91,9 @@ function standingTitle(s) {
     const since = `${capitalise(verb)} ${s.name} ${s.since} and later${floor}${part}`;
     const from = `${s.experimentalSince}${s.experimentalEarliest ? ' or earlier' : ''}`;
     const earlier = s.experimentalSince && then ? `; experimental from ${from}, ${then(s)}` : '';
-    return `${since}${earlier}${before}${note}`;
+    // QEMU names some switches after what they do, not the extension.
+    const how = s.switch ? `; enable it with ${s.switch}` : '';
+    return `${since}${how}${earlier}${before}${note}`;
   }
   if (s.state === 'experimental') {
     const how = now ? now(s) : '';

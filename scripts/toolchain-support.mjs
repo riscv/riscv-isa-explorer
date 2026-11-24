@@ -130,6 +130,13 @@ export function parseBinutils(text) {
 const QEMU_ALIASES = { epmp: ['smepmp'], aia: ['smaia', 'ssaia'] };
 
 /*
+ * QEMU switches that provide an extension without naming it. `big-endian`
+ * (QEMU 11.1) fixes MBE, SBE and UBE to 1, which is what Ssube asks for: UBE
+ * able to hold 1. The switch is kept, so the tooltip can say how to turn it on.
+ */
+const QEMU_PROVIDED_AS = { 'big-endian': 'ssube' };
+
+/*
  * name -> status, from QEMU's target/riscv/cpu.c. A user property without
  * "x-" means supported; with it, experimental. ISA_EXT_DATA_ENTRY lists what
  * goes in the device tree's riscv,isa, which also includes experimental
@@ -140,16 +147,26 @@ const QEMU_ALIASES = { epmp: ['smepmp'], aia: ['smaia', 'ssaia'] };
  * The returned Map also carries `properties`: name -> the experimental
  * property as QEMU spells it, so a renamed one keeps its real name (Smaia was
  * `x-aia` in 7.x, not `x-smaia`).
+ * `switches` is name -> the supported switch that provides an extension under
+ * another name (QEMU_PROVIDED_AS).
  */
 export function parseQemu(text) {
   const plain = new Set();
   const experimental = new Map(); // name -> property
   const listed = new Set();
   const names = (raw) => QEMU_ALIASES[raw.toLowerCase()] ?? [raw.toLowerCase()];
+  const switches = new Map(); // name -> the switch that provides it
+  // object_property_add(obj, "svbare", "bool", ...) is how QEMU 11.1 adds the
+  // satp modes, svbare among them, outside the extension table.
   const props =
-    /(?:DEFINE_PROP_BOOL|MULTI_EXT_CFG_BOOL)\(\s*"([A-Za-z0-9-]+)"|MISA_EXT_INFO\(\s*\w+\s*,\s*"([a-z0-9-]+)"/g;
+    /(?:DEFINE_PROP_BOOL|MULTI_EXT_CFG_BOOL)\(\s*"([A-Za-z0-9-]+)"|MISA_EXT_INFO\(\s*\w+\s*,\s*"([a-z0-9-]+)"|object_property_add\(\s*\w+\s*,\s*"([a-z0-9-]+)"\s*,\s*"bool"/g;
   for (const m of text.matchAll(props)) {
-    const property = m[1] ?? m[2];
+    const property = m[1] ?? m[2] ?? m[3];
+    if (QEMU_PROVIDED_AS[property]) {
+      plain.add(QEMU_PROVIDED_AS[property]);
+      switches.set(QEMU_PROVIDED_AS[property], property);
+      continue;
+    }
     if (property.startsWith('x-')) {
       for (const name of names(property.slice(2))) experimental.set(name, property);
     } else {
@@ -164,6 +181,7 @@ export function parseQemu(text) {
   }
   const result = new Map();
   result.properties = new Map();
+  result.switches = switches;
   for (const name of listed) if (!experimental.has(name)) result.set(name, 'supported');
   for (const [name, property] of experimental) {
     if (plain.has(name)) continue;
