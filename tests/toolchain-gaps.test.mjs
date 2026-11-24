@@ -119,7 +119,10 @@ test('every NOT_GAPS entry says why, and none hides a real gap', () => {
   const r = toolchainGaps(read('toolchain-support.json'), read('riscv_extensions.json'));
   assert.deepEqual(r.stale, [], 'NOT_GAPS and TRACKING match the data');
   for (const [id, links] of Object.entries(TRACKING)) {
-    for (const url of Object.values(links)) assert.match(url, /^https:\/\//, id);
+    for (const [tool, link] of Object.entries(links)) {
+      assert.match(link.url, /^https:\/\//, `${id}.${tool}`);
+      assert.ok(link.state, `${id}.${tool} says how far the work is`);
+    }
   }
 });
 
