@@ -312,7 +312,7 @@ places the instruction. Merge it in and verify:
 
 ```bash
 npm run sync
-npm test && npm run build
+npm run check
 ```
 
 ## Encoder Validator

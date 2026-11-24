@@ -43,7 +43,7 @@ a row here and a test behind it.
 | Documentation links | `scripts/map-doc-links.mjs` | `doc-links` |
 | Crawler pages and sitemap | `scripts/static-pages.mjs` | `static-pages` |
 | Printable pocket guide (HTML on every build, PDF in the deploy job) | `scripts/pocket-guide.mjs`, `scripts/pocket-guide-pdf.mjs` | `pocket-guide` |
-| Scheduled workflows (bot identity, build before test, failure alert) and action references pinned to commit SHAs | `.github/workflows/` | `sync-tooling` |
+| Scheduled workflows (bot identity, build before test, failure alert), action references pinned to commit SHAs, CI's steps matching `npm run check`, and every workflow's Node version read from `.nvmrc`, which `engines` allows | `.github/workflows/` | `sync-tooling` |
 
 Test names are files in `tests/`, without `.test.mjs`.
 
@@ -69,7 +69,7 @@ after a sync of instruction metadata or intrinsics.
 ## Running them
 
 ```bash
-npm run build && npm test          # what CI and the hook run (plus lint and sync:check)
+npm run check                      # build, lint, sync:check and tests, as CI and the hook run them
 node --test tests/render-views.test.mjs
 UDB_DIR=../riscv-unified-db npm test   # include the UDB checks
 ```

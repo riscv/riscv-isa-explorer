@@ -17,7 +17,7 @@ mode this project guards against.
 
 ## Setup
 
-Node.js + npm are the only requirements (CI uses Node 24; Babel 8 needs Node 22.18+ or 24.11+).
+Node.js + npm are the only requirements (`.nvmrc` sets the version CI uses; `engines` in `package.json` the range the build supports).
 
 ```bash
 npm ci
@@ -120,7 +120,7 @@ node, then `npm test`. A catalogue entry without a graph node fails the tests.
 **To add an instruction:** add to `src/instr_dict.json` keyed by mnemonic
 lowercased with `.`→`_` (`SC.W` → `sc_w`), with `encoding`/`variable_fields`/
 `extension`/`match`/`mask`. `extension` must match a catalogue entry's `tags`.
-Then `npm run sync` and `npm test && npm run build`.
+Then `npm run sync` and `npm run check`.
 
 **To add a profile:** edit `src/profiles.js` by hand from the spec.
 
@@ -363,8 +363,8 @@ Then `npm run sync` and `npm test && npm run build`.
 - **Every commit must be signed off** (`git commit -s`, DCO 1.1). CI enforces it
   (`.github/workflows/dco.yml`). Fix a whole branch with
   `git rebase --signoff origin/main` then force-push with `--force-with-lease`.
-- Before a PR: `npm test && npm run build` (both must pass — see the PR template
-  checklist).
+- Before a PR: `npm run check` (build, lint, `sync:check` and tests, as CI runs
+  them; it must pass — see the PR template checklist).
 - **Every key part has a row in `docs/TESTING.md`** naming its files and
   tests, and `tests/coverage-map.test.mjs` fails when a file in `src/` or
   `scripts/` is missing from it. Adding a module means adding a row and a test

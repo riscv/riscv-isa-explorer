@@ -520,3 +520,67 @@ test('the pre-push hook runs what CI runs, and npm install sets it up', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   assert.match(pkg.scripts.prepare ?? '', /core\.hooksPath \.githooks/);
 });
+
+test('npm run check runs what CI runs, in the same order', () => {
+  const steps = ['npm run build', 'npm run lint', 'npm run sync:check', 'npm test'];
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  const check = (pkg.scripts.check ?? '').split('&&').map((step) => step.trim());
+  assert.deepEqual(
+    check,
+    steps,
+    `package.json "check" must run ${steps.join(' && ')}; found ${JSON.stringify(pkg.scripts.check)}`,
+  );
+  const ci = fs.readFileSync(path.join(root, '.github', 'workflows', 'ci.yml'), 'utf8');
+  const lines = ci.split(/\r?\n/);
+  const at = steps.map((step) =>
+    lines.findIndex((line) => line.match(/^\s*(?:-\s+)?run:\s*(.*?)\s*$/)?.[1] === step),
+  );
+  steps.forEach((step, index) => {
+    assert.notEqual(
+      at[index],
+      -1,
+      `ci.yml no longer runs ${step}; update package.json "check" and this list`,
+    );
+  });
+  const where = steps.map((step, index) => `${step} (line ${at[index] + 1})`).join(', ');
+  assert.ok(
+    at.every((line, index) => index === 0 || at[index - 1] < line),
+    `ci.yml must run ${steps.join(', ')} in that order, as package.json "check" does; found ${where}`,
+  );
+});
+
+test('every workflow takes its Node version from .nvmrc, and engines allows it', () => {
+  const dir = path.join(root, '.github', 'workflows');
+  const files = fs.readdirSync(dir).filter((file) => /\.ya?ml$/.test(file));
+  let checked = 0;
+  for (const file of files) {
+    const text = fs.readFileSync(path.join(dir, file), 'utf8');
+    const setups = text.match(/^\s*(?:-\s+)?uses:\s*actions\/setup-node@/gm) ?? [];
+    if (setups.length === 0) continue;
+    checked += 1;
+    const fromFile = text.match(/^\s*node-version-file:\s*\.nvmrc\s*$/gm) ?? [];
+    assert.equal(
+      fromFile.length,
+      setups.length,
+      `${file}: every actions/setup-node step must set node-version-file: .nvmrc`,
+    );
+    assert.doesNotMatch(
+      text,
+      /^\s*node-version:/m,
+      `${file}: use node-version-file: .nvmrc, not node-version:`,
+    );
+  }
+  assert.ok(checked >= 8, `expected the workflows that set up Node, found ${checked}`);
+  const nvmrc = fs.readFileSync(path.join(root, '.nvmrc'), 'utf8').trim();
+  assert.match(nvmrc, /^\d+$/, `.nvmrc must hold a major Node version; found ${nvmrc}`);
+  const major = Number(nvmrc);
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  const range = pkg.engines?.node;
+  assert.ok(range, 'package.json must declare engines.node');
+  const allowed = range.split('||').some((part) => {
+    const bound = part.trim().match(/^(\^|>=)(\d+)\.\d+\.\d+$/);
+    assert.ok(bound, `engines.node part "${part.trim()}" is not ^X.Y.Z or >=X.Y.Z`);
+    return bound[1] === '^' ? major === Number(bound[2]) : major >= Number(bound[2]);
+  });
+  assert.ok(allowed, `.nvmrc says Node ${major}, which engines.node "${range}" does not allow`);
+});
