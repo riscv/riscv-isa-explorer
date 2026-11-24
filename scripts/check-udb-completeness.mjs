@@ -228,6 +228,19 @@ export const EXTENSION_ALIASES = { I: ['RV32I', 'RV64I', 'RV32E', 'RV64E'] };
 export const UPSTREAM_ERRATA = {};
 
 /*
+ * Extensions unified-db marks ratified that no specification defines: neither
+ * the ISA manual nor riscv-profiles names them, and the UDB issues that asked
+ * for them found no definition. The ISA manual outranks UDB on what is
+ * ratified, so the catalogue leaves them out (#631). tests/sync-tooling.test.mjs
+ * fails once UDB drops one, as with UPSTREAM_ERRATA.
+ */
+export const UPSTREAM_PHANTOM_EXTENSIONS = {
+  Ssu32xl: 'no definition in the ISA manual or profiles (riscv-unified-db#1202, #2822)',
+  Ssube: 'no definition in the ISA manual or profiles (riscv-unified-db#1203, #2822)',
+  Sstvecv: 'no definition in the ISA manual or profiles (riscv-unified-db#1201, #2822)',
+};
+
+/*
  * Exit codes match check-opcodes-drift.mjs, which the reporting workflow keys
  * off: 0 complete, 1 gaps found, 2 the checkout could not be read. Conflating
  * the last two would let a broken clone report a perfect catalogue, which is
@@ -276,7 +289,10 @@ function main(argv) {
     { extensions, instructions },
     {
       extensionAliases: EXTENSION_ALIASES,
-      allowMissingExtensions: Object.keys(EXTENSION_ALIASES),
+      allowMissingExtensions: [
+        ...Object.keys(EXTENSION_ALIASES),
+        ...Object.keys(UPSTREAM_PHANTOM_EXTENSIONS),
+      ],
       allowMissingInstructions: Object.keys(UPSTREAM_ERRATA),
       onlyRatified: !includeAll,
       includePublished,
@@ -343,6 +359,14 @@ function main(argv) {
   if (errata.length) {
     console.log(`\nknown upstream errors, not counted (${errata.length}):`);
     for (const [mnemonic, reason] of errata) console.log(`    ${mnemonic}  ${reason}`);
+  }
+
+  const phantoms = Object.entries(UPSTREAM_PHANTOM_EXTENSIONS).filter(([id]) =>
+    extensions.includes(id),
+  );
+  if (phantoms.length) {
+    console.log(`\nupstream extensions with no specification, not counted (${phantoms.length}):`);
+    for (const [id, reason] of phantoms) console.log(`    ${id}  ${reason}`);
   }
 
   if (result.malformed.length) {

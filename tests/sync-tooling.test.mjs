@@ -320,6 +320,36 @@ test('every UDB erratum is still in UDB', async (t) => {
   }
 });
 
+test('the catalogue carries none of the UDB extensions with no specification (#631)', async () => {
+  const { UPSTREAM_PHANTOM_EXTENSIONS } = await import('../scripts/check-udb-completeness.mjs');
+  const catalogue = JSON.parse(
+    fs.readFileSync(new URL('../src/riscv_extensions.json', import.meta.url), 'utf8'),
+  );
+  const ids = new Set(
+    Object.values(catalogue)
+      .flat()
+      .map((e) => e.id),
+  );
+  for (const id of Object.keys(UPSTREAM_PHANTOM_EXTENSIONS)) {
+    assert.ok(!ids.has(id), `${id} has no specification; see UPSTREAM_PHANTOM_EXTENSIONS`);
+  }
+});
+
+test('every UDB extension left out for having no specification is still in UDB', async (t) => {
+  const specDir = path.join(UDB, 'spec', 'std', 'isa');
+  const skip = udbNotAtPin();
+  if (skip) return t.skip(skip);
+  const { UPSTREAM_PHANTOM_EXTENSIONS, parseUpstream } =
+    await import('../scripts/check-udb-completeness.mjs');
+  const upstream = new Set(parseUpstream(specDir).extensions);
+  for (const id of Object.keys(UPSTREAM_PHANTOM_EXTENSIONS)) {
+    assert.ok(
+      upstream.has(id),
+      `UDB no longer lists ${id}; drop it from UPSTREAM_PHANTOM_EXTENSIONS`,
+    );
+  }
+});
+
 test('every sync bot signs off as the same identity it authors as, and signs', () => {
   // The DCO gate compares the Signed-off-by trailer against the commit author
   // (%an <%ae>), but create-pull-request writes that trailer from the

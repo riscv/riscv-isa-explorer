@@ -375,7 +375,10 @@ Then `npm run sync` and `npm test && npm run build`.
   or not at that version, in the catalogue. UDB lagged on Sm 1.13
   (riscv-unified-db#2740). Fix the catalogue entry by hand (the UDB sync only
   fills missing states, so it keeps the fix) and file the UDB issue; do not
-  edit the snapshot.
+  edit the snapshot. The same rule keeps out extensions only UDB defines:
+  Ssu32xl, Ssube and Sstvecv have no definition in the manual or the
+  profiles, so they are listed in `UPSTREAM_PHANTOM_EXTENSIONS`
+  (`scripts/check-udb-completeness.mjs`) instead of the catalogue (#631).
 - CI clones riscv-unified-db at the commit `src/isa-dependency-graph.json`
   records, so the UDB checks never skip there. Every UDB-derived file must
   carry that same commit (`tests/pipeline.test.mjs`): never regenerate from a

@@ -102,7 +102,7 @@ test('every behavior text the panel shows reads as prose', () => {
     const reason = noInstructionReason(ext);
     if (!reason) continue;
     const text = cleanBehaviorText(ext.behavior);
-    // A bare * is arithmetic (Sstvecv: "stvec.BASE + 4 * cause"), not markup.
+    // A bare * is arithmetic ("stvec.BASE + 4 * cause"), not markup.
     if (/`|\*[^\s*][^*]*\*|(^|[^\n])\n(?!\n)/.test(text)) leftovers.push(ext.id);
     if (
       reason.includes('described below') &&

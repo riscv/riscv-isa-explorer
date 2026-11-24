@@ -926,32 +926,6 @@
       ],
       "verified": "udb"
     },
-    "Sstvecv": {
-      "requires": [],
-      "params": [
-        {
-          "name": "STVEC_MODES",
-          "kind": "includes",
-          "value": 1,
-          "src": "udb",
-          "ref": "Sstvecv.yaml requirements … param"
-        }
-      ],
-      "verified": "udb"
-    },
-    "Ssu32xl": {
-      "requires": [],
-      "params": [
-        {
-          "name": "UXLEN",
-          "kind": "includes",
-          "value": 32,
-          "src": "udb",
-          "ref": "Ssu32xl.yaml requirements … param"
-        }
-      ],
-      "verified": "udb"
-    },
     "Ssu64xl": {
       "requires": [],
       "params": [
@@ -961,22 +935,6 @@
           "value": 64,
           "src": "udb",
           "ref": "Ssu64xl.yaml requirements … param"
-        }
-      ],
-      "verified": "udb"
-    },
-    "Ssube": {
-      "requires": [],
-      "params": [
-        {
-          "name": "U_MODE_ENDIANNESS",
-          "kind": "oneOf",
-          "value": [
-            "big",
-            "dynamic"
-          ],
-          "src": "udb",
-          "ref": "Ssube.yaml requirements … param"
         }
       ],
       "verified": "udb"

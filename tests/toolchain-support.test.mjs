@@ -189,21 +189,16 @@ test('bases are read per XLEN from each tool’s own restriction', () => {
   assert.deepEqual(bases('linux', ['i', 'e'], '').set, ['rv32i', 'rv64i']);
 });
 
-test('QEMU 11.1: svbare as a satp-mode switch, and Ssube through big-endian (#627)', () => {
-  // Both live outside the extension table, so the table alone missed them.
+test('QEMU 11.1: svbare as a satp-mode switch (#627)', () => {
+  // svbare lives outside the extension table, so the table alone missed it.
   const r = parseQemu(`
     object_property_add(obj, "svbare", "bool", cpu_riscv_get_satp,
-                        cpu_riscv_set_satp, NULL, &cpu->cfg.satp_mode);
-    DEFINE_PROP_BOOL("big-endian", RISCVCPU, cfg.big_endian, false),`);
+                        cpu_riscv_set_satp, NULL, &cpu->cfg.satp_mode);`);
   assert.equal(r.get('svbare'), 'supported');
-  assert.equal(r.get('ssube'), 'supported');
-  assert.equal(r.has('big-endian'), false, 'the switch is not an extension');
-  assert.deepEqual([...r.switches], [['ssube', 'big-endian']]);
-  // In the committed data, with the switch the tooltip names.
+  // big-endian once stood for Ssube, which no specification defines (#631).
+  assert.deepEqual([...r.switches], []);
   assert.equal(data.extensions.svbare.qemu.supported, '11.1');
-  assert.equal(data.extensions.ssube.qemu.supported, '11.1');
-  const ssube = extensionSupport(data, 'Ssube').find((s) => s.key === 'qemu');
-  assert.equal(ssube.switch, '-cpu rv64,big-endian=on');
+  assert.equal(data.extensions.ssube, undefined);
 });
 
 test('QEMU provides what V brings and what its extensions require', () => {

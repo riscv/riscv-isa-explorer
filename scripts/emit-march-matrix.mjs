@@ -86,9 +86,6 @@ const CLANG21_UNSUPPORTED = new Set([
   'Smpmpdeleg',
   'Smctr',
   'Ssctr',
-  'Sstvecv',
-  'Ssu32xl',
-  'Ssube',
 ]);
 
 // Every ratified, selectable catalogue entry under each base it does not
