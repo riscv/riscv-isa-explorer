@@ -27,8 +27,9 @@ get a dependency-resolved configuration with a valid `-march` string.
   implied ones tagged with the extension that pulls them in, optional ones tagged
   and outlined. The grid, the download and the comparison all use the same
   classification.
-- **Share a view.** Selecting an extension puts `?ext=` in the address bar, a
-  highlighted profile puts `?profile=` there (`?profile=rva23.1` works), and
+- **Share a view.** Selecting an extension puts `?ext=` in the address bar,
+  opening one of its instructions adds `?insn=` (`?insn=c.jal` works, and
+  `?ext=Zca&insn=C.JAL` opens it under Zca), a highlighted profile puts `?profile=` there (`?profile=rva23.1` works), and
   **Share** copies a link to either the highlighted profile or the whole builder
   configuration. A configuration link records the profile it started from, the
   extensions added and removed, and the parameters chosen. If the visitor

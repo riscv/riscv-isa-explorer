@@ -358,10 +358,46 @@ const extensionFromUrl = () => {
   }
 };
 
-const permalinkFor = (extId) => {
+/*
+ * ?insn=C.JAL opens that instruction's details, as ?ext= opens an extension's
+ * (#633). With ?ext= as well, the instruction opens under that extension,
+ * provided it lists it: ?ext=Zca&insn=C.JAL. Without it, the first extension in
+ * the catalogue that lists the instruction is used. Anything that does not
+ * resolve is ignored, so the link opens as it would without the parameter.
+ */
+const INSTRUCTION_PARAM = 'insn';
+
+const instructionLinkFromUrl = () => {
+  if (typeof window === 'undefined') return null;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const wanted = normalizeMnemonicKey(params.get(INSTRUCTION_PARAM));
+    if (!wanted) return null;
+    const inExtension = (ext) => {
+      const mnemonic = Object.keys(ext?.instructions ?? {}).find(
+        (m) => normalizeMnemonicKey(m) === wanted,
+      );
+      return mnemonic ? { ext, instruction: { mnemonic, ...ext.instructions[mnemonic] } } : null;
+    };
+    const extParam = params.get(PERMALINK_PARAM);
+    if (extParam) return inExtension(findExtensionById(extParam));
+    for (const ext of allExtensionsFlat) {
+      const hit = inExtension(ext);
+      if (hit) return hit;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+};
+
+const permalinkFor = (extId, mnemonic = null) => {
   if (typeof window === 'undefined') return '';
   const url = new URL(window.location.href);
+  url.searchParams.delete(PERMALINK_PARAM);
+  url.searchParams.delete(INSTRUCTION_PARAM);
   url.searchParams.set(PERMALINK_PARAM, extId);
+  if (mnemonic) url.searchParams.set(INSTRUCTION_PARAM, mnemonic);
   url.hash = '';
   return url.toString();
 };
@@ -646,8 +682,10 @@ const RISCVExplorer = () => {
   const [activeProfile, setActiveProfile] = useState(profileFromUrl);
   const [activeVolume, setActiveVolume] = useState(null);
   // Lazy initialiser, so ?ext=Zba is honoured on first paint rather than
-  // selecting nothing and then correcting itself.
-  const [selectedExt, setSelectedExt] = useState(extensionFromUrl);
+  // selecting nothing and then correcting itself. ?insn= picks the extension
+  // too when it resolves, so the two always agree.
+  const [instructionLink] = useState(instructionLinkFromUrl);
+  const [selectedExt, setSelectedExt] = useState(() => instructionLink?.ext ?? extensionFromUrl());
   const [detailPanelModal, setDetailPanelModal] = useState(false);
   const isCompactLayout = useMediaQuery('(max-width: 1024px)');
   const detailPanelRef = React.useRef(null);
@@ -657,18 +695,22 @@ const RISCVExplorer = () => {
   // though it did nothing, and the details card was found only by scrolling.
   const instructionDetailsRef = React.useRef(null);
   const extensionNameRef = React.useRef(null);
-  const revealDetailsRef = React.useRef(false);
+  // A ?insn= link scrolls to and focuses the details it opened, as a click does.
+  const revealDetailsRef = React.useRef(Boolean(instructionLink));
   const returnToNameRef = React.useRef(false);
   const detailOpenerRef = React.useRef(null);
   const [permalinkCopied, setPermalinkCopied] = useState(false);
-  const [selectedInstruction, setSelectedInstruction] = useState(null);
+  const [selectedInstruction, setSelectedInstruction] = useState(
+    instructionLink?.instruction ?? null,
+  );
   const [showAllInstructions, setShowAllInstructions] = useState(false);
   // Another extension starts with its instruction chips collapsed again.
   React.useEffect(() => setShowAllInstructions(false), [selectedExt]);
   /* Scrolls the details panel (not the page) so `el` sits near its top. */
   const scrollPanelTo = React.useCallback((el) => {
     const panel = el?.closest('.overflow-y-auto');
-    if (!panel) return;
+    // jsdom has no Element.scrollTo; a ?insn= link reaches this on first paint.
+    if (!panel || typeof panel.scrollTo !== 'function') return;
     const top =
       el.getBoundingClientRect().top - panel.getBoundingClientRect().top + panel.scrollTop - 12;
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -2130,13 +2172,21 @@ const RISCVExplorer = () => {
   React.useEffect(() => {
     if (typeof window === 'undefined') return undefined;
 
+    // ?insn= follows the open instruction (#633), and goes with it.
     const write = () => {
       const url = new URL(window.location.href);
-      const current = url.searchParams.get(PERMALINK_PARAM);
       const next = selectedExt?.id ?? null;
-      if (current === next) return;
+      const nextInsn = (selectedExt && selectedInstruction?.mnemonic) || null;
+      if (
+        url.searchParams.get(PERMALINK_PARAM) === next &&
+        url.searchParams.get(INSTRUCTION_PARAM) === nextInsn
+      )
+        return;
+      // Deleted and re-added so the link always reads ?ext=…&insn=…, in that order.
+      url.searchParams.delete(PERMALINK_PARAM);
+      url.searchParams.delete(INSTRUCTION_PARAM);
       if (next) url.searchParams.set(PERMALINK_PARAM, next);
-      else url.searchParams.delete(PERMALINK_PARAM);
+      if (nextInsn) url.searchParams.set(INSTRUCTION_PARAM, nextInsn);
       window.history.replaceState(null, '', url.toString());
     };
 
@@ -2146,7 +2196,7 @@ const RISCVExplorer = () => {
     }
     const id = setTimeout(write, 250);
     return () => clearTimeout(id);
-  }, [selectedExt]);
+  }, [selectedExt, selectedInstruction]);
 
   /*
    * Follow a ?ext= link to its tile, as search does. The link already selected
@@ -4774,7 +4824,27 @@ const RISCVExplorer = () => {
                                 </span>
                               )}
                             </h3>
-                            <div className="flex items-center gap-2">
+                            {/* Wraps on narrow panels: five buttons no longer fit one row. */}
+                            <div className="flex flex-wrap items-center justify-end gap-2">
+                              {/* Copies ?ext=…&insn=…, the link the address bar
+                                  already carries, as the extension's Share does. */}
+                              <button
+                                type="button"
+                                className="inline-flex items-center gap-1 px-2 py-1 riscv-btn tooltip-align-right"
+                                aria-label={`Share ${selectedInstruction.mnemonic}: copy a link to it`}
+                                data-tooltip={`Copy a link to ${selectedInstruction.mnemonic}`}
+                                onClick={async () => {
+                                  const ok = await copyTextToClipboard(
+                                    permalinkFor(selectedExt.id, selectedInstruction.mnemonic),
+                                  );
+                                  if (ok)
+                                    showToast(`Link to ${selectedInstruction.mnemonic} copied`);
+                                  else showToast('Copy failed');
+                                }}
+                              >
+                                <Share2 size={12} />
+                                Share
+                              </button>
                               {(() => {
                                 const isPinned = compareInstrKeys.has(
                                   instructionKey(selectedExt.id, selectedInstruction.mnemonic),

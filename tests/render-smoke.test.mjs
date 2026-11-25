@@ -884,3 +884,65 @@ test('compact mode keeps its own Esc handling', async () => {
   assert.ok(panelOpen(linked), 'Esc closed the inline compact panel');
   assert.deepEqual(realErrors(errors), [], 'console errors in compact mode');
 });
+
+/* ─── Instruction links (#633) ───────────────────────────────────────────── */
+const detailsFor = (d, mnemonic) =>
+  d.window.document.querySelector(`[aria-label="Instruction details: ${mnemonic}"]`);
+const panelExt = (d) =>
+  d.window.document
+    .querySelector('#detail-panel button[aria-label^="Share "][aria-label$=": copy a link to it"]')
+    ?.getAttribute('aria-label')
+    .replace(/^Share (.*): copy a link to it$/, '$1');
+const query = (d) => new d.window.URL(d.window.location.href).searchParams;
+
+test('an instruction link opens its details, under the first extension that lists it', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?insn=c.jal');
+  await waitFor(() => detailsFor(d, 'C.JAL'));
+  assert.ok(detailsFor(d, 'C.JAL'), 'the C.JAL details did not open');
+  // The extension's Share button comes first in the panel; the card's has the mnemonic.
+  assert.equal(panelExt(d), 'C', 'C.JAL should open under C, the first extension listing it');
+  await waitFor(() => query(d).get('insn') === 'C.JAL');
+  assert.equal(query(d).get('ext'), 'C', 'the address bar should carry the extension');
+  assert.equal(
+    query(d).get('insn'),
+    'C.JAL',
+    'the address bar should spell the mnemonic as listed',
+  );
+  assert.equal(d.window.location.search, '?ext=C&insn=C.JAL', 'ext should come before insn');
+  assert.ok(
+    d.window.document.querySelector('button[aria-label="Share C.JAL: copy a link to it"]'),
+    'the instruction card has no Share button',
+  );
+  assert.deepEqual(realErrors(errors), [], 'console errors while following an instruction link');
+});
+
+test('with ?ext= too, the instruction opens under that extension', async () => {
+  const { dom: d } = await mountAt('https://example.test/?ext=Zca&insn=C.JAL');
+  await waitFor(() => detailsFor(d, 'C.JAL'));
+  assert.equal(panelExt(d), 'Zca');
+});
+
+test('an instruction the linked extension does not list opens the extension alone', async () => {
+  const { dom: d } = await mountAt('https://example.test/?ext=Zba&insn=C.JAL');
+  await waitFor(() => !query(d).has('insn'));
+  assert.equal(panelExt(d), 'Zba', 'the extension should still open');
+  assert.equal(detailsFor(d, 'C.JAL'), null, 'no instruction should open');
+  assert.equal(query(d).has('insn'), false, 'the unresolved insn should leave the address bar');
+});
+
+test('an unknown instruction is ignored, and closing the details drops insn', async () => {
+  const unknown = await mountAt('https://example.test/?insn=NOT.AN.INSN');
+  await waitFor(() => !query(unknown.dom).has('insn'));
+  assert.equal(query(unknown.dom).has('insn'), false);
+  assert.equal(panelExt(unknown.dom), undefined, 'nothing should be selected');
+
+  const { dom: d } = await mountAt('https://example.test/?insn=c.jal');
+  await waitFor(() => detailsFor(d, 'C.JAL'));
+  const close = d.window.document.querySelector(
+    'button[aria-label="Close the instruction details"]',
+  );
+  close.dispatchEvent(new d.window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await waitFor(() => !query(d).has('insn'));
+  assert.equal(query(d).get('ext'), 'C', 'closing the instruction keeps the extension');
+  assert.equal(query(d).has('insn'), false);
+});
