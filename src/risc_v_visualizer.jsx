@@ -124,6 +124,13 @@ import {
   isSubsetPattern,
   overlapExampleWord,
 } from './encodingUtils.js';
+import {
+  EXTENSION_PARAM,
+  INSTRUCTION_PARAM,
+  findExtensionById as findExtensionInPool,
+  normalizeMnemonicKey,
+  resolveInstructionLink,
+} from './permalinks.js';
 
 // Three themes, in the order the button cycles through them. Dusk is the
 // dark theme lifted to a slate ground with softer text, for long reading; it
@@ -178,7 +185,7 @@ const CATALOG_IDS = new Set(
  * on a hard refresh unless the host were configured to fall back to
  * index.html. ?ext=Zba needs no server cooperation at all.
  */
-const PERMALINK_PARAM = 'ext';
+const PERMALINK_PARAM = EXTENSION_PARAM;
 const BUILDER_STORAGE_KEY = 'riscv-landscape-builder-state';
 
 /**
@@ -322,17 +329,12 @@ const PROFILE_NAMES = Object.keys(PROFILES);
 // tile memo: tiles receive a boolean, so a fresh Set would compare the same.
 const EMPTY_MATCH_SET = new Set();
 
-const findExtensionById = (id, extraExtensions = []) => {
-  const wanted = String(id ?? '')
-    .trim()
-    .toLowerCase();
-  if (!wanted) return null;
-  // Case-insensitive: people type ?ext=zba as readily as ?ext=Zba.
-  const pool = extraExtensions.length
-    ? [...allExtensionsFlat, ...extraExtensions]
-    : allExtensionsFlat;
-  return pool.find((ext) => ext.id.toLowerCase() === wanted) ?? null;
-};
+// The lookups live in permalinks.js, where a test walks the whole catalogue.
+const findExtensionById = (id, extraExtensions = []) =>
+  findExtensionInPool(
+    extraExtensions.length ? [...allExtensionsFlat, ...extraExtensions] : allExtensionsFlat,
+    id,
+  );
 
 const extensionFromUrl = () => {
   if (typeof window === 'undefined') return null;
@@ -358,34 +360,11 @@ const extensionFromUrl = () => {
   }
 };
 
-/*
- * ?insn=C.JAL opens that instruction's details, as ?ext= opens an extension's
- * (#633). With ?ext= as well, the instruction opens under that extension,
- * provided it lists it: ?ext=Zca&insn=C.JAL. Without it, the first extension in
- * the catalogue that lists the instruction is used. Anything that does not
- * resolve is ignored, so the link opens as it would without the parameter.
- */
-const INSTRUCTION_PARAM = 'insn';
-
+/* ?insn=C.JAL opens that instruction's details, as ?ext= does an extension's (#633). */
 const instructionLinkFromUrl = () => {
   if (typeof window === 'undefined') return null;
   try {
-    const params = new URLSearchParams(window.location.search);
-    const wanted = normalizeMnemonicKey(params.get(INSTRUCTION_PARAM));
-    if (!wanted) return null;
-    const inExtension = (ext) => {
-      const mnemonic = Object.keys(ext?.instructions ?? {}).find(
-        (m) => normalizeMnemonicKey(m) === wanted,
-      );
-      return mnemonic ? { ext, instruction: { mnemonic, ...ext.instructions[mnemonic] } } : null;
-    };
-    const extParam = params.get(PERMALINK_PARAM);
-    if (extParam) return inExtension(findExtensionById(extParam));
-    for (const ext of allExtensionsFlat) {
-      const hit = inExtension(ext);
-      if (hit) return hit;
-    }
-    return null;
+    return resolveInstructionLink(allExtensionsFlat, window.location.search);
   } catch {
     return null;
   }
@@ -401,12 +380,6 @@ const permalinkFor = (extId, mnemonic = null) => {
   url.hash = '';
   return url.toString();
 };
-
-const normalizeMnemonicKey = (value) =>
-  String(value ?? '')
-    .trim()
-    .toUpperCase()
-    .split(/\s+/)[0];
 
 const COMPRESSED_INSTRUCTION_MAPPINGS = [
   {

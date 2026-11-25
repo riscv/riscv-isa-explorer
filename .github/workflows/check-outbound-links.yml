@@ -1,0 +1,132 @@
+name: Check outbound links
+
+# Checks every link the explorer shows to the outside world (#635): extension
+# and profile documentation, the UDB source links, intrinsic documentation and
+# the Sail, Spike and ACT links. GitHub links pinned to a commit are looked up
+# in that commit's tree; everything else is requested.
+#
+# Modelled on check-toolchain-gaps.yml: one issue, edited in place while links
+# are broken, closed once none are. It reports rather than fails, since a host
+# that moves a page is not something a pull request on this repository broke.
+# Links that only failed to answer are listed but never open the issue alone.
+
+on:
+  # Weekly, and when the data or the checker changes.
+  push:
+    branches: [main]
+    paths:
+      - 'src/*.json'
+      - src/profiles.js
+      - src/instructionUsage.js
+      - scripts/check-outbound-links.mjs
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+# Reads the repository and writes an issue. It never pushes.
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: check-outbound-links
+  cancel-in-progress: false
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout the explorer repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check the links
+        id: check
+        env:
+          # The tree lookups use the GitHub API; the token lifts its rate limit.
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          node scripts/check-outbound-links.mjs > report.md
+          status=$?
+          set -e
+          cat report.md
+
+          # 0 nothing broken, 1 broken links, 2 the check failed. Node also
+          # exits 1 when a module fails to load, so a 1 counts as broken links
+          # only alongside the result line the script prints last.
+          if [ "${status}" -eq 0 ]; then
+            echo "complete=true" >> "$GITHUB_OUTPUT"
+          elif [ "${status}" -eq 1 ] && grep -q '^complete: false' report.md; then
+            echo "complete=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "check-outbound-links failed with status ${status}"
+            exit "${status}"
+          fi
+
+      - name: Find any existing report
+        id: existing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          number=$(gh issue list --state open --label automated --limit 100 --json number,body \
+            --jq 'map(select(.body | contains("<!-- outbound-links-report -->"))) | .[0].number // empty')
+          echo "number=${number}" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the report
+        if: steps.check.outputs.complete == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXISTING: ${{ steps.existing.outputs.number }}
+        run: |
+          {
+            echo "<!-- outbound-links-report -->"
+            echo "Links the explorer shows that no longer resolve, checked at \`${GITHUB_SHA}\`."
+            echo "Reproduce with \`npm run links:outbound\`. The *Where* column says which"
+            echo "data file or source file carries each link."
+            echo
+            sed '$d' report.md
+            echo
+            echo "Closed automatically once no link is broken."
+          } > body.md
+
+          if [ -n "${EXISTING}" ]; then
+            # Comment only when the result changed; the commit line differs on
+            # every run, so it is left out of the compare.
+            gh issue view "${EXISTING}" --json body --jq .body > old.md
+            gh issue edit "${EXISTING}" --body-file body.md
+            if ! diff -q <(grep -v '` at `\|checked at' old.md) <(grep -v '` at `\|checked at' body.md) >/dev/null; then
+              gh issue comment "${EXISTING}" --body "The broken links changed as of \`${GITHUB_SHA}\`. Report updated."
+            fi
+          else
+            gh issue create \
+              --title "Broken links in the explorer" \
+              --body-file body.md \
+              --label automated,data-sync
+          fi
+
+      - name: Close the report once complete
+        if: steps.check.outputs.complete == 'true' && steps.existing.outputs.number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXISTING: ${{ steps.existing.outputs.number }}
+        run: |
+          gh issue close "${EXISTING}" \
+            --comment "Every link resolves again. Closing automatically."
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ -f report.md ]; then
+            { echo '## Outbound links'; echo; cat report.md; } >> "$GITHUB_STEP_SUMMARY"
+          fi

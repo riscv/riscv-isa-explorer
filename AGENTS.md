@@ -49,6 +49,7 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run sync:params -- <path-to-udb>` | Regenerate `src/isa-params.json` (UDB parameter definitions) |
 | `npm run graph:check -- <path-to-udb>` | Check dependency graph vs UDB |
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
+| `npm run links:outbound` | Check every outbound link (docs, UDB, Sail/Spike/ACT, intrinsics); a weekly workflow keeps one issue of broken ones |
 | `npm run opcodes:check -- <path-to-riscv-opcodes>` | Report missing encodings and bits that disagree (drafts included) |
 | `npm run udb:check -- <path-to-udb> [--published]` | Report ratified extensions/instructions we lack; `--published` also checks every draft we list |
 | `npm run toolchain:check` | Report the ratified extensions each tool's newest release does not accept (committed data, no network) |

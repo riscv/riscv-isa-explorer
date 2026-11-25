@@ -19,7 +19,7 @@ a row here and a test behind it.
 | Parameters | `src/isa-params.json`, `src/isaParams.js`, `src/paramModel.js`, `src/paramRules.js`, `scripts/sync_udb_params.mjs` | `isa-params`, `param-model`, `pipeline` |
 | Exports (YAML, riscv-config, CSV, XLSX) | `src/exportUtils.js`, `src/profileExport.js`, `src/xlsxWriter.js` | `export`, `profile-export`, `pocket-guide` |
 | UDB export check (`udb validate cfg` in CI) | `scripts/udb-validate/generate.mjs`, `scripts/udb-validate/fill.mjs`, `scripts/udb-validate/classify.mjs`, `scripts/udb-validate/report.mjs`, `scripts/udb-validate/agree.mjs`, `scripts/udb-validate/validate.rb`, `.github/workflows/udb-validate.yml` | `udb-validate`, `export` |
-| Share links and builder state | `src/configPermalink.js`, `src/workspaceLock.js` | `config-permalink`, `workspace-lock`, `render-smoke` |
+| Share links and builder state, and the `?ext=`/`?insn=` links for every extension and instruction | `src/configPermalink.js`, `src/workspaceLock.js`, `src/permalinks.js` | `config-permalink`, `workspace-lock`, `permalinks`, `render-smoke` |
 | ISA Configuration Builder | `src/WorkspacePanel.jsx`, `src/ProfileDownloadMenu.jsx`, `src/builderNotice.js`, `src/profileGap.js`, `src/ParametersView.jsx`, `src/paramEditing.js`, `src/udbImport.js`, `src/paramLog.js`, `src/askAi.js`, `src/ExportMenu.jsx`, `src/exportFormats.js` | `render-smoke`, `render-views`, `profile-export`, `builder-notice`, `profile-gap`, `param-editing`, `udb-import`, `param-log`, `export-menu` |
 | Compare | `src/compareModel.js`, `src/CompareView.jsx`, `src/CompareTray.jsx` | `compare-model`, `render-smoke` |
 | Encoding tools | `src/encodingUtils.js`, `src/encodingMap.js`, `src/EncodingMap.jsx`, `src/EncodingDiagram.jsx` | `encoding-utils`, `encoding-map`, `render-views` |
@@ -41,6 +41,7 @@ a row here and a test behind it.
 | Weekly UDB sync | `scripts/sync_udb_extensions.cjs` | `sync-tooling`, `csr-fields`, `catalog-coverage` |
 | Opcodes drift report | `scripts/check-opcodes-drift.mjs` | `opcodes-drift` |
 | Documentation links | `scripts/map-doc-links.mjs` | `doc-links` |
+| Every outbound link (collected from the data and the source; checked weekly by `check-outbound-links.yml`) | `scripts/check-outbound-links.mjs` | `outbound-links` |
 | Crawler pages and sitemap | `scripts/static-pages.mjs` | `static-pages` |
 | `src/` loads as ES modules, with no MODULE_TYPELESS_PACKAGE_JSON warning | `src/package.json` | `module-type` |
 | Printable pocket guide (HTML on every build, PDF in the deploy job) | `scripts/pocket-guide.mjs`, `scripts/pocket-guide-pdf.mjs` | `pocket-guide` |
