@@ -13,6 +13,72 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.17.0] - 2026-11-25
+
+Catalogue: 218 -> 215 entries. Removed: **Ssu32xl**, **Ssube** and
+**Sstvecv**, which no specification defines (see Removed). Nothing is added
+or renamed. No profile `-march` string changes. The toolbar's export now
+includes the Parameters tab's values and offers the UDB and riscv-config
+files (see Changed).
+
+### Added
+
+- **Direct links to an instruction.** `?insn=C.JAL` opens that
+  instruction's details, under the first extension that lists it. Adding
+  `?ext=` picks the extension. The instruction card gains a Share button,
+  and the address bar follows the instruction you open (#633, #634).
+- **A report of the ratified extensions the toolchains don't accept yet.**
+  `npm run toolchain:check` lists them per tool from the committed data,
+  oldest first, with a link to the upstream work for each gap. A monthly
+  workflow keeps one issue up to date (#622, #623, #625, #626).
+- **Dusk, a third theme** between dark and light. The theme button cycles
+  Dark, Dusk and Light (#613, #614).
+- **Every link is checked.** Each test run follows every `?ext=` and
+  `?insn=` link the explorer can produce. A weekly workflow checks every
+  outbound link (docs, UDB, Sail, Spike, ACT, intrinsics) and keeps one
+  issue listing any that are broken (#635, #636).
+- **`npm run check`** runs build, lint, `sync:check` and the tests in the
+  order CI uses, and `.nvmrc` sets the Node version for every workflow
+  (#621, #629).
+
+### Changed
+
+- **One export menu for the toolbar and the builder panel.** It offers the
+  Standard .yaml, the UDB config and the riscv-config ISA spec, and says
+  what each file contains. The toolbar's file used to drop the Parameters
+  tab's values. On narrow screens the menu opens as a sheet instead of
+  being clipped (#611, #612).
+- **Data synced** from riscv-unified-db (commit `5d1ded1`) and from the ISA
+  manual's ratified list (#619, #620). Dependencies updated (#615, #616).
+
+### Removed
+
+- **Ssu32xl, Ssube and Sstvecv.** They come only from UDB; neither the ISA
+  manual nor riscv-profiles defines them. A saved selection or share link
+  that named one loses it. `npm run udb:check` lists them separately, and
+  the tests fail once UDB drops one (#631, #632).
+
+### Fixed
+
+- **Contrast in all three themes.** Tile edges, section titles, the tile's
+  + button and the EOL badge read per-theme tokens and clear WCAG AA
+  (#613, #614).
+- **Narrow extension tiles** keep the name whole, and the instruction count
+  no longer overlaps the status line (#617, #618).
+- **QEMU 11.1 is credited with Svbare.** The toolchain parser now reads
+  QEMU's boolean properties (#627, #628).
+- **Tests without a build** report one clear failure per render test file,
+  and Node's module-type warnings are gone (#621, #630).
+
+### Contributors
+
+Thanks to everyone who wrote code or reported an issue for this release:
+
+- @NeoSamyak: `npm run check`, `.nvmrc`, and clearer test output (#629,
+  #630); reported #621
+- @rpsene: instruction links, link checks, toolchain gap report, Dusk
+  theme, export menu, release
+
 ## [1.16.0] - 2026-11-22
 
 Catalogue: 218 entries, unchanged; nothing is added or removed. The profile
