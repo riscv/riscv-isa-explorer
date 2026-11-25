@@ -19,6 +19,7 @@ on:
       - Check UDB Completeness
       - Check riscv-opcodes Drift
       - Check toolchain gaps
+      - Check outbound links
       - UDB Export Check
     types: [completed]
 
