@@ -24,12 +24,16 @@
     "sync:udb": "node scripts/sync_udb_extensions.cjs",
     "sync:params": "node scripts/sync_udb_params.mjs",
     "test": "node --test tests/*.test.mjs",
+    "check": "npm run build && npm run lint && npm run sync:check && npm test",
     "dev": "webpack serve --mode development",
     "guide:pdf": "node scripts/pocket-guide-pdf.mjs",
     "lint": "eslint .",
     "format": "prettier --write \"src/**/*.{js,jsx,css}\"",
     "profiles:optional": "node scripts/sync-profile-optional.mjs",
     "profiles:check": "node scripts/sync-profile-optional.mjs --check"
+  },
+  "engines": {
+    "node": "^22.18.0 || >=24.11.0"
   },
   "license": "Apache-2.0",
   "devDependencies": {

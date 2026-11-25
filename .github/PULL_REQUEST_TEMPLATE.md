@@ -18,8 +18,7 @@ What you actually ran or clicked, rather than what should work in theory.
 For interface changes, please say which themes and widths you checked.
 -->
 
-- [ ] `npm test` passes
-- [ ] `npm run build` succeeds
+- [ ] `npm run check` passes (build, lint, sync:check and tests)
 
 ## If this touches ISA data
 

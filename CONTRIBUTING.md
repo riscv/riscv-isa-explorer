@@ -57,11 +57,12 @@ python3 -m http.server 8080 -d dist
 ## Before opening a pull request
 
 ```bash
-npm test && npm run build
+npm run check
 ```
 
-Both must pass. CI runs the same two commands, then feeds every generated
-`-march` string to clang, so a string no compiler accepts fails the build.
+It must pass. It runs the build, lint, `sync:check` and the tests, the same
+steps CI runs in the same order; CI then feeds every generated `-march` string
+to clang, so a string no compiler accepts fails the build.
 
 ## How the data fits together
 
@@ -162,7 +163,7 @@ because hand-counting produced two wrong numbers in a row.
 Then verify, open the pull request, and merge it once CI is green:
 
 ```bash
-npm run lint && npm run build && npm test
+npm run check
 ```
 
 After the release commit is on `main`:
