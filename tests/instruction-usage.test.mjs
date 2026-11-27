@@ -32,6 +32,8 @@ import {
   takesImmediate,
   xlenRestriction,
 } from '../src/instructionUsage.js';
+import { resolveSelection } from '../src/isaGraph.js';
+import { BASE_ISA_IDS, parseMarchString } from '../src/marchUtils.js';
 
 const require = createRequire(import.meta.url);
 const metadata = require('../src/instruction-metadata.json');
@@ -133,6 +135,40 @@ test('definedBy adds what the listed extension alone does not provide', () => {
   assert.match(marchOf('c.zext.w'), /_zba/);
   assert.match(marchOf('fleq.d'), /^rv64i?\w*d/);
   assert.match(marchOf('aes32esi'), /^rv32/);
+});
+
+test('definedBy never adds an extension the listed one excludes', () => {
+  // UDB defines fmadd.s by F alone; under Zfinx, which forbids F, that gave
+  // rv64if_zfinx_zicsr, an -march clang rejects.
+  const zfinx = extensions.find((ext) => ext.id === 'Zfinx');
+  const fmadd = instructionMarch({
+    extensionId: 'Zfinx',
+    extensionTags: zfinx.instructions['FMADD.S'].extension,
+    definedBy: metadata['fmadd.s'].defined_by,
+    catalogIds,
+  });
+  assert.equal(fmadd, 'rv64i_zfinx_zicsr');
+  assert.equal(abiForMarch(fmadd), 'lp64', 'Zfinx has no floating-point registers');
+
+  // Every instruction, under every extension that lists it.
+  const clashes = [];
+  for (const ext of extensions) {
+    for (const [mnemonic, instruction] of Object.entries(ext.instructions || {})) {
+      const key = mnemonic.toLowerCase();
+      const march = instructionMarch({
+        extensionId: ext.id,
+        extensionTags: instruction.extension,
+        definedBy: metadata[key]?.defined_by,
+        catalogIds,
+      });
+      const ids = parseMarchString(march, extensions).resolvedIds;
+      const base = ids.find((id) => BASE_ISA_IDS.has(id));
+      if (resolveSelection({ selected: ids, base }).conflicts.length) {
+        clashes.push(`${ext.id} ${key}: ${march}`);
+      }
+    }
+  }
+  assert.deepEqual(clashes, []);
 });
 
 test('an instruction shown under a base ISA is built for that base', () => {

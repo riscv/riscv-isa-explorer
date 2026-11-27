@@ -277,7 +277,14 @@ export function instructionMarch({
   const resolve = (ids) => resolveSelection({ selected: [base, ...ids], base }).resolved;
   let selected = [...new Set([extensionId, ...extra])].filter((id) => id && id !== base);
   let resolved = resolve(selected);
-  const needed = requiredExtensions(definedBy, resolved, catalogIds);
+  // UDB can name an extension the listed one excludes: fmadd.s is defined by F
+  // alone, yet Zfinx provides it and forbids F. Adding F there gave
+  // rv64if_zfinx_zicsr, which clang rejects, so a conflicting id is left out.
+  const conflicts = (ids) => resolveSelection({ selected: [base, ...ids], base }).conflicts.length;
+  const clean = conflicts(selected);
+  const needed = requiredExtensions(definedBy, resolved, catalogIds).filter(
+    (id) => conflicts([...selected, id]) === clean,
+  );
   if (needed.length) resolved = resolve((selected = [...selected, ...needed]));
   const groupWidth = Math.max(0, ...resolved.map((id) => ELEMENT_GROUP_WIDTH[id] ?? 0));
   const zvl = groupWidth > (impliedVlen(resolved) ?? 0) ? vlenExtension(groupWidth) : null;
