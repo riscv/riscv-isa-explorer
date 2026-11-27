@@ -33,6 +33,7 @@ import {
   isReplySubject,
   ownWords,
   part,
+  personName,
   versionLabel,
 } from './upstream-history-lib.mjs';
 import { DATA, thread, writeData } from './sync_upstream_history.mjs';
@@ -82,7 +83,7 @@ export async function messagesFor(series, readThread = thread) {
 }
 
 const render = (m) =>
-  `[${m.n}] ${m.date.toISOString().slice(0, 10)} | ${m.from.replace(/\s*<.*>/, '')} | ${m.version} | ${m.subject}\n${m.text}\n`;
+  `[${m.n}] ${m.date.toISOString().slice(0, 10)} | ${personName(m.from)} | ${m.version} | ${m.subject}\n${m.text}\n`;
 
 /** Everything the model is shown, so a summary is rewritten when any of it changes. */
 export function inputHash(extensions, series, messages) {
@@ -211,10 +212,7 @@ export async function summarize(extensions, series, messages, call = converse) {
         sources: check.cited.map((n) => ({
           n,
           date: byN.get(n).date.toISOString().slice(0, 10),
-          from: byN
-            .get(n)
-            .from.replace(/\s*<.*>/, '')
-            .replace(/^"|"$/g, ''),
+          from: personName(byN.get(n).from),
           url: `https://lore.kernel.org/all/${encodeURIComponent(byN.get(n).messageId)}/`,
         })),
         usage,

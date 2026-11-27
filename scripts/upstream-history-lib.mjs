@@ -133,12 +133,17 @@ export const norm = (text) =>
     .replace(/[^a-z0-9]+/g, ' ')
     .trim();
 
-/** "Name <addr>" -> "Name"; a trailer's "# comment" is dropped. */
+/**
+ * "Name <addr>" -> "Name"; a trailer's "# comment" is dropped. Everything from
+ * the first "<" goes, so no angle bracket survives into the data.
+ */
 export const personName = (addr) =>
-  addr
+  String(addr ?? '')
+    .split('<')[0]
     .replace(/\s*#.*$/, '')
-    .replace(/\s*<.*>/, '')
+    .trim()
     .replace(/^"|"$/g, '')
+    .replace(/>/g, '')
     .trim();
 
 /** Every name in a commit's trailers of one kind, in order, once each. */
