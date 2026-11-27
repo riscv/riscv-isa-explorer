@@ -102,7 +102,26 @@ export async function gh(endpoint, { fetchImpl = fetch } = {}) {
       }),
     );
     if (!res) continue;
-    if (res.status === 404 || res.status === 422) return null;
+    if (res.status === 404 || res.status === 422) {
+      // Cached too: a release tag not cut yet is asked about for every commit.
+      fs.mkdirSync(CACHE, { recursive: true });
+      fs.writeFileSync(file, 'null');
+      return null;
+    }
+    // Out of API calls: wait for the reset GitHub names, up to an hour.
+    const reset = Number(res.headers?.get?.('x-ratelimit-reset'));
+    if (
+      (res.status === 403 || res.status === 429) &&
+      res.headers?.get?.('x-ratelimit-remaining') === '0' &&
+      reset
+    ) {
+      const wait = reset * 1000 - Date.now() + 5000;
+      if (wait > 0 && wait < 3_600_000) {
+        console.error(`GitHub rate limit: waiting ${Math.ceil(wait / 60000)} min`);
+        await new Promise((r) => setTimeout(r, wait));
+        continue;
+      }
+    }
     if (res.ok) {
       const json = await res.json();
       fs.mkdirSync(CACHE, { recursive: true });
@@ -304,7 +323,34 @@ async function seriesHistory(commit, { curated = null } = {}) {
   };
 }
 
+/**
+ * Drops what can change between runs from the cache, keeping only answers
+ * that never change: a commit's details, its comparison with a tag that
+ * exists, a tag's date. Lore searches and threads grow, the commit listings
+ * move, and a tag not cut yet will be. The weekly workflow keeps the cache
+ * between runs and passes --refresh; a local rerun keeps everything.
+ */
+export function pruneMutable(dir = CACHE) {
+  if (!fs.existsSync(dir)) return 0;
+  let dropped = 0;
+  for (const name of fs.readdirSync(dir)) {
+    const file = path.join(dir, name);
+    const mutable =
+      name.startsWith('lore-') ||
+      name.startsWith('gh-repos_torvalds_linux_commits_path') ||
+      fs.readFileSync(file, 'utf8') === 'null';
+    if (mutable) {
+      fs.rmSync(file);
+      dropped += 1;
+    }
+  }
+  return dropped;
+}
+
 export async function main(argv = process.argv.slice(2)) {
+  if (argv.includes('--refresh'))
+    console.log(`refresh: dropped ${pruneMutable()} cached answers that can change`);
+  argv = argv.filter((a) => !a.startsWith('--'));
   const ids = catalogueIds();
   const support = JSON.parse(
     fs.readFileSync(path.join(ROOT, 'src', 'toolchain-support.json'), 'utf8'),

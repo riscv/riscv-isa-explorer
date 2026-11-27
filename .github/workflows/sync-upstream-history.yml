@@ -44,6 +44,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The GitHub answers that never change (a commit's details, its place in
+      # a release) are kept from week to week, so a run stays well inside the
+      # API limit; --refresh below drops everything that can change.
+      - name: Restore the network cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache/upstream-history
+          key: upstream-history-${{ github.run_id }}
+          restore-keys: upstream-history-
+
       # GitHub's API for the kernel's commits and release tags, lore.kernel.org
       # for the patch series. Responses are cached in .cache/, which the
       # summaries step reads too.
@@ -53,7 +63,7 @@ jobs:
         # pipefail: without it, tee's success would hide a failed run.
         run: |
           set -o pipefail
-          node scripts/sync_upstream_history.mjs | tee "$RUNNER_TEMP/report.txt"
+          node scripts/sync_upstream_history.mjs --refresh | tee "$RUNNER_TEMP/report.txt"
 
       - name: Sign in to AWS
         uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0

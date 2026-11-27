@@ -100,8 +100,8 @@
  "Smcntrpmf": {
   "release": "7.3",
   "firstPatch": "2024-02-17",
-  "versions": 7,
-  "replies": 105,
+  "versions": 9,
+  "replies": 122,
   "landedWith": []
  },
  "Smcsrind": {
@@ -116,8 +116,8 @@
  "Smmpm": {
   "release": "6.13",
   "firstPatch": "2024-03-19",
-  "versions": 1,
-  "replies": 1,
+  "versions": 5,
+  "replies": 39,
   "landedWith": [
    "Smnpm",
    "Ssnpm"
@@ -126,8 +126,8 @@
  "Smnpm": {
   "release": "6.13",
   "firstPatch": "2024-03-19",
-  "versions": 1,
-  "replies": 1,
+  "versions": 5,
+  "replies": 39,
   "landedWith": [
    "Smmpm",
    "Ssnpm"
@@ -170,8 +170,8 @@
  "Ssnpm": {
   "release": "6.13",
   "firstPatch": "2024-03-19",
-  "versions": 1,
-  "replies": 1,
+  "versions": 5,
+  "replies": 39,
   "landedWith": [
    "Smmpm",
    "Smnpm"
@@ -233,8 +233,8 @@
  "Svrsw60t59b": {
   "release": "6.19",
   "firstPatch": "2025-04-09",
-  "versions": 1,
-  "replies": 2,
+  "versions": 9,
+  "replies": 29,
   "landedWith": []
  },
  "Svvptc": {
@@ -326,8 +326,8 @@
  "Zbc": {
   "release": "6.8",
   "firstPatch": "2022-12-20",
-  "versions": 1,
-  "replies": 2,
+  "versions": 2,
+  "replies": 10,
   "landedWith": []
  },
  "Zbkb": {
@@ -417,8 +417,8 @@
  "Zfh": {
   "release": "6.8",
   "firstPatch": "2023-10-11",
-  "versions": 3,
-  "replies": 36,
+  "versions": 4,
+  "replies": 46,
   "landedWith": [
    "Zfhmin"
   ]
@@ -426,8 +426,8 @@
  "Zfhmin": {
   "release": "6.8",
   "firstPatch": "2023-10-11",
-  "versions": 3,
-  "replies": 36,
+  "versions": 4,
+  "replies": 46,
   "landedWith": [
    "Zfh"
   ]
@@ -476,22 +476,22 @@
  "Zicclsm": {
   "release": "7.3",
   "firstPatch": "2024-06-06",
-  "versions": 11,
-  "replies": 96,
+  "versions": 12,
+  "replies": 102,
   "landedWith": []
  },
  "Ziccrse": {
   "release": "6.13",
   "firstPatch": "2024-07-17",
-  "versions": 1,
-  "replies": 18,
+  "versions": 4,
+  "replies": 67,
   "landedWith": []
  },
  "Zicfilp": {
   "release": "7.0",
   "firstPatch": "2024-01-25",
-  "versions": 19,
-  "replies": 115,
+  "versions": 27,
+  "replies": 226,
   "landedWith": [
    "Zicfiss"
   ]
@@ -499,8 +499,8 @@
  "Zicfiss": {
   "release": "7.0",
   "firstPatch": "2024-01-25",
-  "versions": 19,
-  "replies": 115,
+  "versions": 27,
+  "replies": 226,
   "landedWith": [
    "Zicfilp"
   ]
@@ -514,8 +514,8 @@
  "Zicond": {
   "release": "6.7",
   "firstPatch": "2023-09-19",
-  "versions": 2,
-  "replies": 12,
+  "versions": 3,
+  "replies": 23,
   "landedWith": []
  },
  "Zicsr": {
@@ -533,8 +533,8 @@
  "Zihintntl": {
   "release": "6.8",
   "firstPatch": "2023-10-11",
-  "versions": 3,
-  "replies": 36,
+  "versions": 4,
+  "replies": 46,
   "landedWith": []
  },
  "Zihintpause": {
@@ -698,8 +698,8 @@
  "Zvfh": {
   "release": "6.8",
   "firstPatch": "2023-10-11",
-  "versions": 1,
-  "replies": 2,
+  "versions": 4,
+  "replies": 46,
   "landedWith": [
    "Zvfhmin"
   ]
@@ -707,8 +707,8 @@
  "Zvfhmin": {
   "release": "6.8",
   "firstPatch": "2023-10-11",
-  "versions": 1,
-  "replies": 2,
+  "versions": 4,
+  "replies": 46,
   "landedWith": [
    "Zvfh"
   ]

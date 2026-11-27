@@ -231,10 +231,6 @@ export function groupSeries(input) {
   );
   const covers = posts.filter((p) => part(p.subject)[0] === 0);
   const groups = [];
-  // Patches answering the same cover the search did not return: the first
-  // of them stands for the series, so its siblings are not split into
-  // separate groups (and one of them mistaken for an earlier attempt).
-  const unseenCover = new Map(); // author|parent id -> { head, group }
   for (const p of [...posts].sort((a, b) => a.date - b.date)) {
     const [n] = part(p.subject);
     // The cover the patch answers, when lore says; otherwise the same
@@ -248,16 +244,16 @@ export function groupSeries(input) {
             Math.abs(c.date - p.date) < ONE_DAY,
         ))
       : null;
-    const sibling = n && !cover && p.inReplyTo ? `${p.author}|${p.inReplyTo}` : null;
-    const shared = sibling ? unseenCover.get(sibling) : null;
-    const head = cover ?? shared?.head ?? p;
+    const head = cover ?? p;
     const headTitle = title(head.subject);
-    let group = shared?.group ?? groups.find((g) => similarTitles(g.title, headTitle));
+    let group = groups.find((g) => similarTitles(g.title, headTitle));
     if (!group) {
-      group = { title: headTitle, postings: new Map() };
+      group = { title: headTitle, postings: new Map(), unseenCovers: new Set() };
       groups.push(group);
     }
-    if (sibling && !shared) unseenCover.set(sibling, { head, group });
+    // A numbered patch whose cover the search did not return: remember the
+    // cover, so its siblings' groups can be joined below.
+    if (n && !cover && p.inReplyTo) group.unseenCovers.add(`${p.author}|${p.inReplyTo}`);
     const key = `${isRfc(head.subject)}|${version(head.subject)}|${head.author}|${iso(head.date)}`;
     if (!group.postings.has(key))
       group.postings.set(key, {
@@ -270,6 +266,21 @@ export function groupSeries(input) {
       });
     group.postings.get(key).titles.add(norm(title(p.subject)));
   }
+  // Patches answering one unseen cover are one series, whatever their titles:
+  // join their groups (the earliest group's title stands), so a companion
+  // patch is not split off and mistaken for an earlier attempt.
+  for (let i = 0; i < groups.length; i += 1)
+    for (let j = groups.length - 1; j > i; j -= 1)
+      if ([...groups[j].unseenCovers].some((k) => groups[i].unseenCovers.has(k))) {
+        for (const [k, v] of groups[j].postings) {
+          if (groups[i].postings.has(k))
+            for (const t of v.titles) groups[i].postings.get(k).titles.add(t);
+          else groups[i].postings.set(k, v);
+        }
+        for (const k of groups[j].unseenCovers) groups[i].unseenCovers.add(k);
+        groups.splice(j, 1);
+        j = groups.length; // a join can connect more groups: rescan
+      }
   return groups.map((g) => {
     const byVersion = new Map();
     for (const p of [...g.postings.values()].sort((a, b) => a.date - b.date)) {

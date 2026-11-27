@@ -33,7 +33,7 @@ import {
   version,
 } from '../scripts/upstream-history-lib.mjs';
 import { CURATED, UNCOLLECTED } from '../scripts/upstream-curated.mjs';
-import { buildIndex } from '../scripts/sync_upstream_history.mjs';
+import { buildIndex, pruneMutable } from '../scripts/sync_upstream_history.mjs';
 import {
   MODEL_NAME,
   inputHash,
@@ -408,6 +408,21 @@ test('patches whose cover the search missed stay one series', () => {
     'the companion patch is not an earlier attempt',
   );
   assert.equal(landed.group.postings.length, 1, 'v9 once');
+
+  // Across versions, whichever patch comes first: still one series, every version.
+  const versions = groupSeries([
+    post('a1', '[PATCH v1 1/2] riscv: Add the CSR definitions', 'X', '2025-01-10', 'c1'),
+    post('b1', '[PATCH v1 2/2] riscv: Detect Svfoo', 'X', '2025-01-10', 'c1'),
+    post('b2', '[PATCH v2 1/2] riscv: Detect Svfoo', 'X', '2025-02-10', 'c2'),
+    post('a2', '[PATCH v2 2/2] riscv: Add the CSR definitions', 'X', '2025-02-10', 'c2'),
+    post('b3', '[PATCH v3 1/1] riscv: Detect Svfoo', 'X', '2025-03-10', 'c3'),
+  ]);
+  assert.equal(versions.length, 1, 'one series');
+  assert.deepEqual(
+    selectLanded(versions, 'riscv: Detect Svfoo').group.postings.map((p) => p.version),
+    [1, 2, 3],
+    'all three versions',
+  );
 });
 
 test('a patch joins the cover it answers, even beside another of that day', () => {
@@ -830,6 +845,27 @@ test('dates under a lane never collide; the more important one wins', () => {
     placed.map((p) => p.text),
     ['release', 'first'],
   );
+});
+
+test('--refresh keeps only cached answers that cannot change', () => {
+  const dir = fs.mkdtempSync(
+    new URL('../node_modules/.upstream-cache-test-', import.meta.url).pathname,
+  );
+  const files = {
+    'gh-repos_torvalds_linux_commits_abc.json': '{"sha":"abc"}',
+    'gh-repos_torvalds_linux_compare_v6.5...abc_per_page_1.json': '{"status":"behind"}',
+    'gh-repos_torvalds_linux_compare_v7.19...abc_per_page_1.json': 'null',
+    'gh-repos_torvalds_linux_commits_path_arch_riscv_kernel_cpu.c_page_1.json': '[]',
+    'lore-linux-riscv_q_s_3Azawrs_x_A_o_0': '<feed/>',
+    'lore-all_abc_t.mbox.gz': 'From mboxrd@z',
+  };
+  for (const [name, body] of Object.entries(files)) fs.writeFileSync(`${dir}/${name}`, body);
+  assert.equal(pruneMutable(dir), 4);
+  assert.deepEqual(fs.readdirSync(dir).sort(), [
+    'gh-repos_torvalds_linux_commits_abc.json',
+    'gh-repos_torvalds_linux_compare_v6.5...abc_per_page_1.json',
+  ]);
+  fs.rmSync(dir, { recursive: true });
 });
 
 /* ---------- the committed data ---------- */
