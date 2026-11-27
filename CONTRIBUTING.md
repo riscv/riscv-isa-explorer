@@ -149,6 +149,23 @@ that. Reserve a patch for fixes that leave the entry set intact.
 
 ### Steps
 
+First, look at what is still open. A pull request opened shortly before the tag
+otherwise misses the release without anyone deciding that it should (#644):
+
+```bash
+gh pr list --state open
+gh issue list --state open
+gh run list --status action_required   # fork PRs waiting for workflow approval
+```
+
+For each open pull request, decide whether it goes in this release (review and
+merge it first) or waits for the next one, and say which in the release issue.
+Do the same for open issues that report a bug. A first-time contributor's pull
+request has no CI results until a maintainer approves its workflows, so an
+empty checks list does not mean it is not ready.
+
+Then branch and bump the version:
+
 ```bash
 git checkout -b chore/release-X.Y.Z
 npm version --no-git-tag-version X.Y.Z      # package.json + package-lock.json
