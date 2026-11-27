@@ -13,6 +13,11 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.18.0] - 2026-11-27
+
+Catalogue: 215 entries, unchanged; nothing is added or removed. No profile
+`-march` string or exported file changes.
+
 ### Added
 
 - **Upstream history.** The details panel's Linux chip opens how the
@@ -22,7 +27,26 @@ someone silently. Each release below records its catalogue size.
   cites the messages it rests on. Bundles show their parts, and extensions that
   landed together share one history, with Previous and Next between them. Ask
   AI asks about the extension shown. `?history=linux` links to it, and a weekly
-  workflow keeps it current (#649).
+  workflow keeps it current (#649, #653).
+
+### Fixed
+
+- **Examples under Zfinx, Zdinx, Zhinx and Zhinxmin use integer registers**,
+  which those extensions keep floating-point values in; Zdinx operands start on
+  even registers, as RV32's register pairs need. All 84 used FP registers that
+  an assembler for those extensions rejects (#646, #651).
+- **Search opens the extension a word names.** Registers match by name only,
+  and extension names are checked before the deep search, so `vector` opens V
+  and `counter` opens Zicntr rather than an H register whose description
+  mentions the word (#650, #652).
+
+### Contributors
+
+Thanks to everyone who wrote code or reported an issue for this release:
+
+- @Mani7527: integer registers in the Zfinx family's examples (#651)
+- @NeoSamyak: search opening the extension a word names (#652); reported #650
+- @rpsene: upstream history, release
 
 ## [1.17.2] - 2026-11-27
 
