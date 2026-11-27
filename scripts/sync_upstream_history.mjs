@@ -87,10 +87,32 @@ async function retrying(attempt, request) {
   }
 }
 
+/**
+ * How long to wait before asking GitHub again, or null when the answer is not
+ * a rate limit. GitHub's secondary limits (an expensive query such as a
+ * path's history in torvalds/linux) answer 429 or 403 with Retry-After; the
+ * primary limit answers with x-ratelimit-remaining: 0 and the reset time. A
+ * bare 429 backs off by minutes. A 403 with neither is a real refusal.
+ */
+export function rateLimitWait(status, headers, attempt = 0, now = Date.now()) {
+  if (status !== 403 && status !== 429) return null;
+  const header = (name) => headers?.get?.(name) ?? null;
+  const retryAfter = Number(header('retry-after'));
+  if (retryAfter > 0) return Math.min(retryAfter * 1000 + 1000, 3_600_000);
+  const reset = Number(header('x-ratelimit-reset'));
+  if (header('x-ratelimit-remaining') === '0' && reset) {
+    const wait = reset * 1000 - now + 5000;
+    return wait > 0 && wait < 3_600_000 ? wait : null;
+  }
+  if (status === 429) return Math.min(60_000 * 2 ** attempt, 900_000);
+  return null;
+}
+
 /** Cached JSON from GitHub's API; null for a 404 or 422 (an unknown ref, a comparison it will not compute). */
 export async function gh(endpoint, { fetchImpl = fetch } = {}) {
   const file = path.join(CACHE, `gh-${safeName(endpoint)}.json`);
   if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf8'));
+  let limited = 0; // rate-limit waits so far, counted apart from failures
   for (let attempt = 0; ; attempt += 1) {
     const res = await retrying(attempt, () =>
       fetchImpl(`https://api.github.com/${endpoint}`, {
@@ -108,19 +130,13 @@ export async function gh(endpoint, { fetchImpl = fetch } = {}) {
       fs.writeFileSync(file, 'null');
       return null;
     }
-    // Out of API calls: wait for the reset GitHub names, up to an hour.
-    const reset = Number(res.headers?.get?.('x-ratelimit-reset'));
-    if (
-      (res.status === 403 || res.status === 429) &&
-      res.headers?.get?.('x-ratelimit-remaining') === '0' &&
-      reset
-    ) {
-      const wait = reset * 1000 - Date.now() + 5000;
-      if (wait > 0 && wait < 3_600_000) {
-        console.error(`GitHub rate limit: waiting ${Math.ceil(wait / 60000)} min`);
-        await new Promise((r) => setTimeout(r, wait));
-        continue;
-      }
+    const wait = rateLimitWait(res.status, res.headers, limited);
+    if (wait !== null && limited < 6) {
+      limited += 1;
+      console.error(`GitHub rate limit (HTTP ${res.status}): waiting ${Math.ceil(wait / 1000)} s`);
+      await new Promise((r) => setTimeout(r, wait));
+      attempt -= 1; // waiting out a limit is not a failed attempt
+      continue;
     }
     if (res.ok) {
       const json = await res.json();

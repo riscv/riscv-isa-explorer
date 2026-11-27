@@ -33,7 +33,7 @@ import {
   version,
 } from '../scripts/upstream-history-lib.mjs';
 import { CURATED, UNCOLLECTED } from '../scripts/upstream-curated.mjs';
-import { buildIndex, pruneMutable } from '../scripts/sync_upstream_history.mjs';
+import { buildIndex, pruneMutable, rateLimitWait } from '../scripts/sync_upstream_history.mjs';
 import {
   MODEL_NAME,
   inputHash,
@@ -888,6 +888,33 @@ test('dates under a lane never collide; the more important one wins', () => {
     placed.map((p) => p.text),
     ['release', 'first'],
   );
+});
+
+test("GitHub's rate limits are waited out; a real refusal is not", () => {
+  const headers = (h) => ({ get: (name) => h[name] ?? null });
+  const now = Date.parse('2026-11-27T18:00:00Z');
+  // Secondary limit: Retry-After, in seconds.
+  assert.equal(rateLimitWait(429, headers({ 'retry-after': '60' }), 0, now), 61_000);
+  assert.equal(rateLimitWait(403, headers({ 'retry-after': '30' }), 0, now), 31_000);
+  // Primary limit: wait for the reset, with a margin.
+  const reset = String(now / 1000 + 600);
+  assert.equal(
+    rateLimitWait(
+      403,
+      headers({ 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': reset }),
+      0,
+      now,
+    ),
+    605_000,
+  );
+  // A bare 429 backs off by minutes, doubling, capped.
+  assert.equal(rateLimitWait(429, headers({}), 0, now), 60_000);
+  assert.equal(rateLimitWait(429, headers({}), 2, now), 240_000);
+  assert.equal(rateLimitWait(429, headers({}), 9, now), 900_000);
+  // Not a limit: a refusal, a missing page, a server error.
+  assert.equal(rateLimitWait(403, headers({}), 0, now), null);
+  assert.equal(rateLimitWait(404, headers({}), 0, now), null);
+  assert.equal(rateLimitWait(500, headers({ 'retry-after': '5' }), 0, now), null);
 });
 
 test('--refresh keeps only cached answers that cannot change', () => {
