@@ -13,6 +13,24 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.17.1] - 2026-11-27
+
+Catalogue: 215 entries, unchanged; nothing is added or removed. No profile
+`-march` string or exported file changes.
+
+### Fixed
+
+- **Highlighting a profile closes the extension selected before it.** The
+  tile stayed selected, its details panel stayed open over the profile's
+  highlight, and `?ext=` stayed in the address bar, so it read as part of
+  the profile. Choosing Vol I or Vol II does the same (#640, #641).
+
+### Contributors
+
+Thanks to everyone who wrote code or reported an issue for this release:
+
+- @rpsene: reported #640, fix, release
+
 ## [1.17.0] - 2026-11-25
 
 Catalogue: 218 -> 215 entries. Removed: **Ssu32xl**, **Ssube** and
