@@ -254,7 +254,11 @@ export function groupSeries(input) {
     // A numbered patch whose cover the search did not return: remember the
     // cover, so its siblings' groups can be joined below.
     if (n && !cover && p.inReplyTo) group.unseenCovers.add(`${p.author}|${p.inReplyTo}`);
-    const key = `${isRfc(head.subject)}|${version(head.subject)}|${head.author}|${iso(head.date)}`;
+    // A posting is its cover; a sibling whose cover the search missed is that
+    // unseen cover, whatever day it carries (patches straddle midnight UTC).
+    const unseen = n && !cover && p.inReplyTo ? `cover:${p.author}|${p.inReplyTo}` : null;
+    const key =
+      unseen ?? `${isRfc(head.subject)}|${version(head.subject)}|${head.author}|${iso(head.date)}`;
     if (!group.postings.has(key))
       group.postings.set(key, {
         version: version(head.subject),
@@ -317,8 +321,19 @@ export function selectLanded(groups, commitSubject, namedTitle = null) {
 
 // Another subsystem using an extension is not an attempt to add it: KVM
 // guest support and its selftests, crypto code using Zbc, perf, BPF.
-const CONSUMER =
-  /^\s*((risc-?v|riscv)\s*:\s*)?(kvm|crypto|selftests?|perf|bpf|libbpf|tools|ftrace)\b|\bselftests?\b|\bkvm\b/i;
+const CONSUMER = new RegExp(
+  [
+    // another subsystem, at the start or anywhere
+    '^\\s*((risc-?v|riscv)\\s*:\\s*)?(kvm|crypto|selftests?|perf|bpf|libbpf|tools|ftrace)\\b',
+    '\\b(selftests?|kvm|dt-bindings|errata)\\b',
+    // using an extension rather than adding it: "Implement GCM ghash using
+    // Zbc", "riscv: Use Zicbop in arch_xchg", crypto and checksum code
+    '\\busing\\b',
+    '^\\s*((risc-?v|riscv)\\s*:\\s*)?use\\b',
+    '\\b(ghash|gcm|aes|sha-?\\d*|sm[34]|crc-?\\d*|chacha|poly1305)\\b',
+  ].join('|'),
+  'i',
+);
 
 /**
  * The other series that were attempts at the same support: begun before the
@@ -384,6 +399,9 @@ export function checkCitations(summary, messageCount) {
     const pieces = sentence.split(/(?<=[.!?])\s+(?=\S)/);
     for (const piece of pieces.slice(0, -1)) uncited.push(piece.trim());
     if (/[.!?]$/.test(pieces.at(-1) ?? '')) uncited.push(pieces.at(-1).trim());
+    // A citation with next to nothing before it says nothing ("[1].").
+    else if ((pieces.at(-1) ?? '').split(/\s+/).filter((w) => /\w/.test(w)).length < 3)
+      uncited.push(`${(pieces.at(-1) ?? '').trim()} [${m[1]}]`.trim());
     for (const n of m[1].split(',').map((x) => x.trim()))
       if (/^\d+$/.test(n) && Number(n) >= 1 && Number(n) <= messageCount) cited.push(Number(n));
       else invalid.push(n);

@@ -1111,8 +1111,19 @@ test('the history body renders from the real data: stats, timeline, people and a
   assert.match(text, /Applied by /, 'the applied row of the timeline');
   assert.match(text, /Andrew Jones/, 'a series author');
   assert.ok(dialog.querySelector('svg[role="img"]'), 'the Progression chart');
-  const versionLinks = [...dialog.querySelectorAll('a[href^="https://lore.kernel.org/"]')];
-  assert.ok(versionLinks.length >= 3, 'each version links to its lore thread');
+  // The timeline's own version links, not the summary's citations.
+  const historyData = JSON.parse(
+    fs.readFileSync(path.join(here, '..', 'src', 'upstream-history.json'), 'utf8'),
+  );
+  const zawrs = historyData.series[historyData.extensions.Zawrs.series];
+  const versionLinks = [...dialog.querySelectorAll('ol a.font-mono')].map((a) =>
+    a.getAttribute('href'),
+  );
+  assert.deepEqual(
+    versionLinks.slice(0, zawrs.versions.length),
+    zawrs.versions.map((v) => v.href),
+    'each version links to its own lore thread',
+  );
   assert.match(text, /AI summary/);
   assert.doesNotMatch(text, /Claude Haiku/, 'the header does not name the model');
   const citations = [...dialog.querySelectorAll('sup a[href^="https://lore.kernel.org/all/"]')];

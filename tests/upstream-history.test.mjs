@@ -365,6 +365,20 @@ test('earlier attempts: before the landed series, and not another subsystem usin
       'Crypto Dev',
       '2022-06-01',
     ),
+    // The real titles the search returned, without a subsystem prefix:
+    post(
+      'ghash',
+      '[PATCH v6 0/4] Implement GCM ghash using Zbc and Zbkb extensions',
+      'Crypto Dev',
+      '2022-06-02',
+    ),
+    post('xchg', '[PATCH] riscv: Use Zbc in arch_xchg when available', 'Other Dev', '2022-06-03'),
+    post(
+      'dtb',
+      '[PATCH] dt-bindings: riscv: Add Zbc extension description',
+      'DT Dev',
+      '2022-06-04',
+    ),
     post('kvm', '[PATCH] RISC-V: KVM: Allow Zbc for Guest/VM', 'KVM Dev', '2022-07-01'),
     post('self', '[PATCH] KVM: riscv: selftests: Add Zbc to get-reg-list', 'KVM Dev', '2022-07-02'),
     post('landed', '[PATCH] riscv: add ISA extension parsing for Zbc', 'Lander', '2023-10-11'),
@@ -408,6 +422,23 @@ test('patches whose cover the search missed stay one series', () => {
     'the companion patch is not an earlier attempt',
   );
   assert.equal(landed.group.postings.length, 1, 'v9 once');
+
+  // Siblings of one unseen cover on either side of midnight UTC: one posting, no resend.
+  const midnight = groupSeries([
+    {
+      ...post('m1', '[PATCH v2 1/2] riscv: Detect Svbar', 'Y', '2025-05-01', 'coverY'),
+      date: new Date('2025-05-01T23:59:00Z'),
+    },
+    {
+      ...post('m2', '[PATCH v2 2/2] riscv: Add Svbar CSRs', 'Y', '2025-05-02', 'coverY'),
+      date: new Date('2025-05-02T00:01:00Z'),
+    },
+  ]);
+  assert.equal(midnight.length, 1);
+  assert.deepEqual(
+    midnight[0].postings.map((p) => [p.version, p.resends]),
+    [[2, 0]],
+  );
 
   // Across versions, whichever patch comes first: still one series, every version.
   const versions = groupSeries([
@@ -524,24 +555,27 @@ test('the citation gate: every sentence cites, every citation exists', () => {
     'a message that does not exist',
   );
   assert.deepEqual(checkCitations('It adds Zawrs [0].', 4).invalid, ['0']);
+  assert.equal(checkCitations('[1].', 4).ok, false, 'a bare citation says nothing');
+  assert.equal(checkCitations('Yes [1].', 4).ok, false);
   const uncited = checkCitations('It adds Zawrs [1]. Everyone agreed.', 4);
   assert.equal(uncited.ok, false);
   assert.deepEqual(uncited.uncited, ['Everyone agreed.']);
   assert.equal(checkCitations('No citations at all', 4).ok, false);
   // Whatever a sentence starts with, it must end with its citations.
-  assert.deepEqual(checkCitations('Supported [1]. unsupported claim.', 2).uncited, [
+  assert.deepEqual(checkCitations('This claim is supported [1]. unsupported claim.', 2).uncited, [
     'unsupported claim.',
   ]);
-  assert.deepEqual(checkCitations('Supported [1]. 2025 brought another claim.', 2).uncited, [
-    '2025 brought another claim.',
-  ]);
+  assert.deepEqual(
+    checkCitations('This claim is supported [1]. 2025 brought another claim.', 2).uncited,
+    ['2025 brought another claim.'],
+  );
   assert.equal(
     checkCitations('Reviewers agreed [1] and then a claim nobody made.', 2).ok,
     false,
     'text after the citation is uncited',
   );
   assert.deepEqual(
-    checkCitations('First claim. Second claim [1].', 2).uncited,
+    checkCitations('First claim. Second claim made here [1].', 2).uncited,
     ['First claim.'],
     'a sentence hiding before a cited one',
   );
@@ -578,7 +612,7 @@ test('a summary that passes the gate keeps only the messages it cites', async ()
   const fake = (user) => {
     calls.push(user);
     return {
-      text: 'It adds Zawrs [1]. Reviewers asked about wrs.nto [3].',
+      text: 'It adds Zawrs here [1]. Reviewers asked about wrs.nto [3].',
       usage: { inputTokens: 10, outputTokens: 5 },
     };
   };
@@ -601,15 +635,18 @@ test('a summary that passes the gate keeps only the messages it cites', async ()
 });
 
 test('a summary failing the gate is retried once, then dropped', async () => {
-  const answers = ['Uncited sentence. Another [1].', 'Fixed [1]. Now cited [2].'];
+  const answers = [
+    'Uncited sentence. Another real point [1].',
+    'It is fixed now [1]. It is cited now [2].',
+  ];
   let i = 0;
   const retried = await summarize(['Zawrs'], series, messages(2), () => ({ text: answers[i++] }));
-  assert.equal(retried.summary, 'Fixed [1]. Now cited [2].');
+  assert.equal(retried.summary, 'It is fixed now [1]. It is cited now [2].');
   assert.equal(i, 2);
   let n = 0;
   const dropped = await summarize(['Zawrs'], series, messages(2), () => {
     n += 1;
-    return { text: 'Cites a ghost [7].' };
+    return { text: 'It cites a ghost [7].' };
   });
   assert.equal(dropped, null);
   assert.equal(n, 2, 'one retry, no more');
@@ -627,7 +664,9 @@ test('a long discussion is summarised in parts, each citing only its own message
   const r = await summarize(['V'], series, long, (user) => {
     prompts.push(user);
     const first = partOf(user);
-    return { text: first ? `Part summary [${first}].` : 'Merged [1, 2, 3].' };
+    return {
+      text: first ? `The part says this [${first}].` : 'The merged summary says this [1, 2, 3].',
+    };
   });
   assert.ok(r, 'parts citing their own messages pass');
   assert.equal(prompts.length, 4, 'three parts and a merge');
@@ -641,7 +680,7 @@ test('a long discussion is summarised in parts, each citing only its own message
   let calls = 0;
   const outOfRange = await summarize(['V'], series, long, (user) => {
     calls += 1;
-    return { text: partOf(user) ? 'Part summary [1].' : 'Merged [1].' };
+    return { text: partOf(user) ? 'The part says this [1].' : 'The merged summary says this [1].' };
   });
   assert.equal(outOfRange, null, 'part 2 citing [1] must not pass');
   assert.ok(calls <= 2 + 2 * 2, 'bounded retries');
@@ -651,12 +690,16 @@ test('a long discussion is summarised in parts, each citing only its own message
   const pairs = messages(4).map((m) => ({ ...m, text: 'x'.repeat(140_000) }));
   const invented = await summarize(['V'], series, pairs, (user) => {
     const first = partOf(user);
-    return { text: first ? `Part summary [${first}].` : 'Merged [1, 2, 3].' };
+    return {
+      text: first ? `The part says this [${first}].` : 'The merged summary says this [1, 2, 3].',
+    };
   });
   assert.equal(invented, null, 'the merge may cite only what the parts cited');
   const faithful = await summarize(['V'], series, pairs, (user) => {
     const first = partOf(user);
-    return { text: first ? `Part summary [${first}].` : 'Merged [1, 3].' };
+    return {
+      text: first ? `The part says this [${first}].` : 'The merged summary says this [1, 3].',
+    };
   });
   assert.deepEqual(
     faithful.sources.map((x) => x.n),
