@@ -13,23 +13,30 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
-### Fixed
+## [1.18.1] - 2026-11-27
 
-- **A long lane name no longer runs into its bar** in the upstream history's
-  Progression chart: the name column fits the longest name, and a name too long
-  even for that is shortened ("Za64rs, Ziccamoa +1") (#661).
-
-- **The upstream history sync waits out GitHub's secondary rate limit.**
-  Listing the kernel's commits is expensive for GitHub, which answered the
-  first weekly run with HTTP 429 and Retry-After; the sync gave up after three
-  quick retries. It now honours Retry-After and backs off by minutes (#657).
+Catalogue: 215 entries, unchanged; nothing is added or removed. No profile
+`-march` string or exported file changes.
 
 ### Changed
 
 - **The upstream history sync reads the kernel from a git clone** instead of
-  GitHub's API: commits, diffs, trailers and release tags come from a blobless
+  GitHub's API. Commits, diffs, trailers and release tags come from a blobless
   clone the weekly workflow makes, so the sync no longer meets GitHub's rate
-  limits at all (#659).
+  limits, which the first weekly run hit (#657, #658, #659, #660). The
+  collected data is unchanged.
+
+### Fixed
+
+- **A long lane name no longer runs into its bar** in the upstream history's
+  Progression chart: the name column fits the longest name, and a name too
+  long even for that is shortened ("Za64rs, Ziccamoa +1") (#661, #662).
+
+### Contributors
+
+Thanks to everyone who wrote code or reported an issue for this release:
+
+- @rpsene: upstream history sync from a git clone, lane names, release
 
 ## [1.18.0] - 2026-11-27
 
