@@ -297,6 +297,23 @@ export function selectLanded(groups, commitSubject, namedTitle = null) {
   return byPatch ? { group: byPatch, partial: Boolean(namedTitle) } : null;
 }
 
+// Another subsystem using an extension is not an attempt to add it: KVM
+// guest support and its selftests, crypto code using Zbc, perf, BPF.
+const CONSUMER =
+  /^\s*((risc-?v|riscv)\s*:\s*)?(kvm|crypto|selftests?|perf|bpf|libbpf|tools|ftrace)\b|\bselftests?\b|\bkvm\b/i;
+
+/**
+ * The other series that were attempts at the same support: begun before the
+ * series that landed, and not another subsystem's use of the extension (the
+ * extension-name search also finds those). Later work is not an earlier attempt.
+ */
+export function earlierAttempts(groups, landed) {
+  const start = landed.postings[0].date;
+  return groups.filter(
+    (g) => g !== landed && g.postings[0].date < start && !CONSUMER.test(g.title),
+  );
+}
+
 /** "2y 03m" between two ISO dates, or "N days" under a month. */
 export function span(from, to) {
   const days = Math.round((Date.parse(to) - Date.parse(from)) / ONE_DAY);

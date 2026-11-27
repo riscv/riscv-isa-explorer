@@ -27,7 +27,14 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { BOT, checkCitations, ownWords, part, versionLabel } from './upstream-history-lib.mjs';
+import {
+  BOT,
+  checkCitations,
+  isReplySubject,
+  ownWords,
+  part,
+  versionLabel,
+} from './upstream-history-lib.mjs';
 import { DATA, thread, writeData } from './sync_upstream_history.mjs';
 
 export const MODEL_NAME = 'Claude Haiku 5.5';
@@ -58,7 +65,7 @@ export async function messagesFor(series, readThread = thread) {
     for (const m of await readThread(v.href)) {
       if (!m.messageId || seen.has(m.messageId) || BOT.test(m.from)) continue;
       seen.add(m.messageId);
-      const reply = /^\s*re:/i.test(m.subject);
+      const reply = isReplySubject(m.subject);
       if (!reply && part(m.subject)[0] !== 0) continue; // patches themselves are not discussion
       const text = ownWords(m.body);
       if (text.split(/\s+/).length < 4) continue; // a bare ack carries nothing to summarise
@@ -169,6 +176,7 @@ export async function summarize(extensions, series, messages, call = converse) {
       ? '\nYour previous answer had a sentence without citations or a citation to a message that does not exist. Every sentence must end with [n] citations to messages below.'
       : '';
     let text;
+    let allowed = null;
     if (chunks.length === 1) {
       text = ask(
         `${instructions(extensions, series)}${reminder}\n\n${chunks[0].map(render).join('\n')}`,
@@ -189,12 +197,14 @@ export async function summarize(extensions, series, messages, call = converse) {
         if (partial === null) return null;
         parts.push(partial);
       }
+      // The merge sees only the parts, so it may cite only what they cited.
+      allowed = new Set(parts.flatMap((p) => checkCitations(p, messages.length).cited));
       text = ask(
         `${instructions(extensions, series, 'The discussion was summarised in parts; merge these partial summaries into one paragraph, keeping the message citations exactly as given.')}${reminder}\n\n${parts.map((p, i) => `Part ${i + 1}: ${p}`).join('\n')}`,
       );
     }
     const check = checkCitations(text, messages.length);
-    if (check.ok) {
+    if (check.ok && (!allowed || check.cited.every((n) => allowed.has(n)))) {
       const byN = new Map(messages.map((m) => [m.n, m]));
       return {
         summary: text,

@@ -64,15 +64,18 @@ test('the grid is the opcode map as the manual draws it', () => {
 test('every instruction lands somewhere, exactly once', () => {
   const { totals } = map;
   assert.equal(
-    totals.thirtyTwoBit + totals.compressed, totals.distinct,
+    totals.thirtyTwoBit + totals.compressed,
+    totals.distinct,
     'each instruction is either 32-bit or compressed, never both or neither',
   );
   assert.equal(
-    map.cells.reduce((n, c) => n + c.count, 0), totals.thirtyTwoBit,
+    map.cells.reduce((n, c) => n + c.count, 0),
+    totals.thirtyTwoBit,
     'the grid holds every 32-bit instruction and nothing else',
   );
   assert.equal(
-    map.quadrants.reduce((n, q) => n + q.count, 0), totals.compressed,
+    map.quadrants.reduce((n, q) => n + q.count, 0),
+    totals.compressed,
     'the quadrants hold every compressed instruction',
   );
 });
@@ -80,7 +83,10 @@ test('every instruction lands somewhere, exactly once', () => {
 test('quadrant 3 does not exist', () => {
   // inst[1:0]=11 is the 32-bit encoding, so it cannot also be a quadrant. A
   // populated quadrant 3 was the visible symptom of the mask-width bug.
-  assert.deepEqual(map.quadrants.map((q) => q.quadrant), [0, 1, 2]);
+  assert.deepEqual(
+    map.quadrants.map((q) => q.quadrant),
+    [0, 1, 2],
+  );
 });
 
 test('a mnemonic is counted once, however many extensions offer it', () => {
@@ -90,7 +96,8 @@ test('a mnemonic is counted once, however many extensions offer it', () => {
   assert.equal(add.length, 1, 'ADD should collapse to a single instruction');
   assert.ok(add[0].extensions.length > 1, 'but should still record every extension offering it');
   assert.equal(
-    new Set(instructions.map((i) => i.mnemonic)).size, instructions.length,
+    new Set(instructions.map((i) => i.mnemonic)).size,
+    instructions.length,
     'no mnemonic appears twice',
   );
 });
@@ -105,7 +112,10 @@ test('known opcodes sit in their known slots', () => {
   assert.equal(OPCODE_NAMES[0x57], 'OP-V');
 
   const op = byName.get('OP');
-  assert.ok(op.instructions.some((i) => i.mnemonic === 'ADD'), 'ADD belongs to OP');
+  assert.ok(
+    op.instructions.some((i) => i.mnemonic === 'ADD'),
+    'ADD belongs to OP',
+  );
   assert.ok(op.extensions.includes('RV32I'), 'and OP should credit the base ISA');
 });
 
@@ -116,13 +126,17 @@ test('occupancy is reported honestly', () => {
   assert.equal(totals.totalSlots, 32);
   assert.ok(occupied > 0 && occupied < 32, 'some slots used, some still free');
   assert.equal(
-    totals.busiest.count, Math.max(...map.cells.map((c) => c.count)),
+    totals.busiest.count,
+    Math.max(...map.cells.map((c) => c.count)),
     'busiest really is the maximum',
   );
 
   // Ratchet, in the spirit of the catalogue coverage tests: a sync that quietly
   // stopped delivering instructions would otherwise still produce a valid map.
-  assert.ok(totals.distinct > 1000, `expected over 1000 distinct instructions, found ${totals.distinct}`);
+  assert.ok(
+    totals.distinct > 1000,
+    `expected over 1000 distinct instructions, found ${totals.distinct}`,
+  );
   assert.ok(occupied >= 20, `expected at least 20 opcode slots in use, found ${occupied}`);
 });
 
@@ -147,20 +161,28 @@ test('every free slot says what it is reserved for', () => {
   const uncategorised = map.cells
     .filter((c) => c.count === 0 && c.category === 'unassigned')
     .map((c) => `${c.name} @ 0x${c.opcode.toString(16)}`);
-  assert.deepEqual(uncategorised, [], `free slots with no category:\n  ${uncategorised.join('\n  ')}`);
+  assert.deepEqual(
+    uncategorised,
+    [],
+    `free slots with no category:\n  ${uncategorised.join('\n  ')}`,
+  );
 
   for (const cell of map.cells) {
     if (cell.count > 0) {
       assert.equal(cell.category, null, `${cell.name} is occupied and needs no category`);
     } else {
-      assert.ok(FREE_SLOT_KINDS[cell.category], `${cell.name} has no description for ${cell.category}`);
+      assert.ok(
+        FREE_SLOT_KINDS[cell.category],
+        `${cell.name} has no description for ${cell.category}`,
+      );
     }
   }
 
   // The tally the summary sentence is built from must match the cells.
   const counted = Object.values(map.totals.freeByKind).reduce((a, b) => a + b, 0);
   assert.equal(
-    counted, map.cells.filter((c) => c.count === 0).length,
+    counted,
+    map.cells.filter((c) => c.count === 0).length,
     'freeByKind must account for every free slot',
   );
 });
@@ -179,7 +201,11 @@ test('there are four custom opcodes, and 0x5b is one of them', () => {
     assert.equal(cell.category, 'vendor', `custom-${i} is custom space`);
   }
   assert.equal(map.totals.freeByKind.vendor, 4, 'all four custom opcodes counted');
-  assert.equal(map.cells.find((c) => c.name === 'OP-P'), undefined, 'nothing should claim to be OP-P');
+  assert.equal(
+    map.cells.find((c) => c.name === 'OP-P'),
+    undefined,
+    'nothing should claim to be OP-P',
+  );
 });
 
 test('the free-slot taxonomy describes the specification, not our dataset', () => {
@@ -187,11 +213,13 @@ test('the free-slot taxonomy describes the specification, not our dataset', () =
   // what the slot is set aside for is a fact about the specification. Only the
   // second belongs in a category, which is why "unratified" is not one.
   assert.deepEqual(
-    Object.keys(FREE_SLOT_KINDS).sort(), ['reserved', 'vendor', 'wide'],
+    Object.keys(FREE_SLOT_KINDS).sort(),
+    ['reserved', 'vendor', 'wide'],
     'categories cover specification allocation only',
   );
   assert.deepEqual(
-    map.totals.freeByKind, { vendor: 4, wide: 4, reserved: 1 },
+    map.totals.freeByKind,
+    { vendor: 4, wide: 4, reserved: 1 },
     'four custom, four longer-than-32-bit, one reserved',
   );
 });

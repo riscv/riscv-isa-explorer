@@ -1086,6 +1086,7 @@ test('the history body renders from the real data: stats, timeline, people and a
   const text = dialog.textContent;
   assert.match(text, /Linux 6\.11/, 'the release');
   assert.match(text, /first patch to release/);
+  assert.match(text, /versions found/, 'the count claims what was found, not completeness');
   assert.match(text, /Applied by /, 'the applied row of the timeline');
   assert.match(text, /Andrew Jones/, 'a series author');
   assert.ok(dialog.querySelector('svg[role="img"]'), 'the Progression chart');

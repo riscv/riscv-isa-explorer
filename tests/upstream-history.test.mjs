@@ -15,6 +15,7 @@ import {
   decodeBody,
   decodeMime,
   dropDisguisedReplies,
+  earlierAttempts,
   groupSeries,
   isBulk,
   isPosting,
@@ -355,6 +356,28 @@ test('two titles are one series when the shorter one is mostly in the longer', (
   assert.equal(similarTitles('riscv: Add Zicbop', 'RISC-V: add zicbop'), true);
 });
 
+test('earlier attempts: before the landed series, and not another subsystem using it', () => {
+  const groups = groupSeries([
+    post('old', '[PATCH] riscv: Add Zbc support', 'First Try', '2022-01-10'),
+    post(
+      'crypto',
+      '[PATCH] crypto: riscv - Implement GCM ghash using Zbc',
+      'Crypto Dev',
+      '2022-06-01',
+    ),
+    post('kvm', '[PATCH] RISC-V: KVM: Allow Zbc for Guest/VM', 'KVM Dev', '2022-07-01'),
+    post('self', '[PATCH] KVM: riscv: selftests: Add Zbc to get-reg-list', 'KVM Dev', '2022-07-02'),
+    post('landed', '[PATCH] riscv: add ISA extension parsing for Zbc', 'Lander', '2023-10-11'),
+    post('later', '[PATCH] riscv: Use Zbc for CRC32', 'Later Dev', '2024-02-01'),
+  ]);
+  const landed = groups.find((g) => /parsing for Zbc/.test(g.title));
+  assert.deepEqual(
+    earlierAttempts(groups, landed).map((g) => g.title),
+    ['riscv: Add Zbc support'],
+    'only the genuine prior attempt',
+  );
+});
+
 test('a patch joins the cover it answers, even beside another of that day', () => {
   const groups = groupSeries([
     post('ca', '[PATCH 0/2] riscv: First series', 'Same Author', '2024-01-10'),
@@ -575,6 +598,23 @@ test('a long discussion is summarised in parts, each citing only its own message
   });
   assert.equal(outOfRange, null, 'part 2 citing [1] must not pass');
   assert.ok(calls <= 2 + 2 * 2, 'bounded retries');
+
+  // Two messages per part; the parts cite 1 and 3, so a merge citing 2 or 4
+  // cites what it was never shown, though both messages exist.
+  const pairs = messages(4).map((m) => ({ ...m, text: 'x'.repeat(140_000) }));
+  const invented = await summarize(['V'], series, pairs, (user) => {
+    const first = partOf(user);
+    return { text: first ? `Part summary [${first}].` : 'Merged [1, 2, 3].' };
+  });
+  assert.equal(invented, null, 'the merge may cite only what the parts cited');
+  const faithful = await summarize(['V'], series, pairs, (user) => {
+    const first = partOf(user);
+    return { text: first ? `Part summary [${first}].` : 'Merged [1, 3].' };
+  });
+  assert.deepEqual(
+    faithful.sources.map((x) => x.n),
+    [1, 3],
+  );
 });
 
 test('the input hash changes with anything the model is shown', () => {
@@ -632,6 +672,7 @@ test('each summary message is labelled with the version its subject names', asyn
     msg('r2', 'Re: [RFC PATCH v2 1/2] riscv: x', 4),
     msg('p2', '[PATCH v2 1/2] riscv: x', 3),
     msg('ack', 'Re: [PATCH v2 1/2] riscv: x', 5, 'Acked-by: X'),
+    msg('aw', 'AW: [PATCH v2 2/2] riscv: x', 6, 'a review from a German mail client'),
   ];
   const threads = { h1: v1, h2: v2 };
   const out = await messagesFor(
@@ -649,6 +690,7 @@ test('each summary message is labelled with the version its subject names', asyn
       [1, 'c1', 'v1'],
       [2, 'r1', 'v1'],
       [3, 'r2', 'RFC v2'],
+      [4, 'aw', 'v2'],
     ],
     'each once, oldest first, numbered; the patch itself and a bare ack left out',
   );

@@ -25,8 +25,15 @@ import { closure, resolveSelection } from '../src/isaGraph.js';
 import { buildMarchString, SHORTHAND_BUNDLES } from '../src/marchUtils.js';
 
 const ALL = (() => {
-  const file = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'riscv_extensions.json');
-  return Object.values(JSON.parse(fs.readFileSync(file, 'utf8'))).flat().filter(Boolean);
+  const file = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '..',
+    'src',
+    'riscv_extensions.json',
+  );
+  return Object.values(JSON.parse(fs.readFileSync(file, 'utf8')))
+    .flat()
+    .filter(Boolean);
 })();
 const CATALOG_IDS = new Set(ALL.map((e) => e.id));
 
@@ -55,12 +62,14 @@ const CONFLICTS = [
  */
 const EXCLUDED = {
   'Zam -> A': 'Zam is not in our catalog, so the rule has nothing to apply to.',
-  'N -> U': 'N (User-Level Interrupts) was removed from the specification in 2024. ' +
-            'riscv-config still carries the rule; we keep N only as a historical catalog entry.',
-  'Zfa -> Zfh': 'Disputed. riscv-config claims Zfa requires Zfh; UDB (Zfa.yaml) requires only F, ' +
-                'and Zfa adds instructions for whichever FP types are present — only its ' +
-                'half-precision forms need Zfh. riscv-config appends this message but never sets ' +
-                'its error flag, so even there it is advisory. We follow UDB.',
+  'N -> U':
+    'N (User-Level Interrupts) was removed from the specification in 2024. ' +
+    'riscv-config still carries the rule; we keep N only as a historical catalog entry.',
+  'Zfa -> Zfh':
+    'Disputed. riscv-config claims Zfa requires Zfh; UDB (Zfa.yaml) requires only F, ' +
+    'and Zfa adds instructions for whichever FP types are present — only its ' +
+    'half-precision forms need Zfh. riscv-config appends this message but never sets ' +
+    'its error flag, so even there it is advisory. We follow UDB.',
 };
 
 test('the exclusion list stays honest', () => {
@@ -87,10 +96,7 @@ for (const [a, b] of CONFLICTS) {
     // conflicts with Zfhmin, and Zfh only reaches that through Zfh -> Zfhmin.
     // Reading the table alone reports a false gap.
     const result = resolveSelection({ selected: [a, b] });
-    assert.ok(
-      result.conflicts.length > 0,
-      `selecting ${a} with ${b} should conflict, got none`,
-    );
+    assert.ok(result.conflicts.length > 0, `selecting ${a} with ${b} should conflict, got none`);
   });
 }
 
@@ -104,7 +110,7 @@ for (const [a, b] of CONFLICTS) {
 const EXPECTED_SHORTHANDS = {
   Zkn: ['Zbkb', 'Zbkc', 'Zbkx', 'Zknd', 'Zkne', 'Zknh'],
   Zks: ['Zbkb', 'Zbkc', 'Zbkx', 'Zksed', 'Zksh'],
-  Zk:  ['Zbkb', 'Zbkc', 'Zbkx', 'Zknd', 'Zkne', 'Zknh', 'Zkn', 'Zkr', 'Zkt'],
+  Zk: ['Zbkb', 'Zbkc', 'Zbkx', 'Zknd', 'Zkne', 'Zknh', 'Zkn', 'Zkr', 'Zkt'],
 };
 
 test('every shorthand riscv-config knows about is modelled', () => {
@@ -124,7 +130,10 @@ test('a shorthand absorbs its members in the ISA string', () => {
   // catches this.
   for (const [shorthand, members] of Object.entries(EXPECTED_SHORTHANDS)) {
     const { resolved } = resolveSelection({ selected: ['RV64I', shorthand], base: 'RV64I' });
-    const { march, excluded } = buildMarchString(resolved.filter((id) => CATALOG_IDS.has(id)), ALL);
+    const { march, excluded } = buildMarchString(
+      resolved.filter((id) => CATALOG_IDS.has(id)),
+      ALL,
+    );
     assert.ok(march, `${shorthand} produced no -march string`);
     const tokens = march.split('_');
     assert.ok(tokens.includes(shorthand.toLowerCase()), `${shorthand} itself should be emitted`);
@@ -145,7 +154,10 @@ test('ordinary dependencies are NOT absorbed', () => {
   // The rule above is narrow. D implies F and both belong in the string; a
   // blanket "drop anything implied" would silently mangle every config.
   const { resolved } = resolveSelection({ selected: ['RV64I', 'D'], base: 'RV64I' });
-  const { march } = buildMarchString(resolved.filter((id) => CATALOG_IDS.has(id)), ALL);
+  const { march } = buildMarchString(
+    resolved.filter((id) => CATALOG_IDS.has(id)),
+    ALL,
+  );
   assert.match(march, /f/, `F should still appear alongside D: ${march}`);
   assert.match(march, /d/, `D should appear: ${march}`);
 });

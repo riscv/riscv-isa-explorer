@@ -41,6 +41,7 @@ import {
   parseAtom,
   parseMbox,
   personName,
+  earlierAttempts,
   reviewReplies,
   selectLanded,
   title,
@@ -262,7 +263,8 @@ async function seriesHistory(commit, { curated = null } = {}) {
   const repliers = [...new Set(replies.map((m) => personName(m.from)))];
   const release = await firstRelease(commit.sha);
   if (!release) return { missing: 'applied, not in a release yet' };
-  const firstPatch = groups
+  const earlier = earlierAttempts(groups, group);
+  const firstPatch = [group, ...earlier]
     .flatMap((g) => g.postings.map((p) => p.date))
     .reduce((a, b) => (a < b ? a : b));
   return {
@@ -292,14 +294,12 @@ async function seriesHistory(commit, { curated = null } = {}) {
       href: p.href,
     })),
     review: { replies: replies.length, people: repliers.length },
-    earlier: groups
-      .filter((g) => g !== group)
-      .map((g) => ({
-        date: iso(g.postings[0].date),
-        title: g.title,
-        authors: [...new Set(g.postings.map((p) => p.author))],
-        postings: g.postings.length,
-      })),
+    earlier: earlier.map((g) => ({
+      date: iso(g.postings[0].date),
+      title: g.title,
+      authors: [...new Set(g.postings.map((p) => p.author))],
+      postings: g.postings.length,
+    })),
     firstPatch: iso(firstPatch),
   };
 }

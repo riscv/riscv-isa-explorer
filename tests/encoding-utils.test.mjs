@@ -48,7 +48,10 @@ test('normalizeHexString and normalizeEncodingString strip whitespace cleanly', 
   assert.equal(normalizeHexString(null), '');
   assert.equal(normalizeHexString(''), '');
 
-  assert.equal(normalizeEncodingString(' 0000000 ----- ----- 000 ----- 0110011 '), '0000000----------000-----0110011');
+  assert.equal(
+    normalizeEncodingString(' 0000000 ----- ----- 000 ----- 0110011 '),
+    '0000000----------000-----0110011',
+  );
   assert.equal(normalizeEncodingString(null), '');
 });
 

@@ -61,7 +61,13 @@ test('absent normalizes to null and stays distinct from empty', () => {
 
 test('arrays compare as sets, because list order is not meaningful', () => {
   assert.equal(normalizeCell(['bit', 'addr']), normalizeCell(['addr', 'bit']));
-  assert.equal(cellsAllSame([['bit', 'addr'], ['addr', 'bit']]), true);
+  assert.equal(
+    cellsAllSame([
+      ['bit', 'addr'],
+      ['addr', 'bit'],
+    ]),
+    true,
+  );
   assert.equal(cellsAllSame([['bit'], ['addr']]), false);
 });
 
@@ -93,7 +99,10 @@ test('null is not equal to a present value', () => {
 test('the extension model puts one cell per column, in column order', () => {
   const model = buildExtensionComparison([byId('Zba'), byId('Zbb'), byId('Zbc')]);
   assert.equal(model.kind, 'ext');
-  assert.deepEqual(model.columns.map((c) => c.key), ['Zba', 'Zbb', 'Zbc']);
+  assert.deepEqual(
+    model.columns.map((c) => c.key),
+    ['Zba', 'Zbb', 'Zbc'],
+  );
   assert.equal(model.bitDiff, null);
   for (const r of model.rows) {
     assert.equal(r.cells.length, 3, `row ${r.key} has ${r.cells.length} cells for 3 columns`);
@@ -113,7 +122,10 @@ test('instruction counts differ across Zba, Zbb and Zbc and are flagged', () => 
 
 test('comparing an extension with itself marks every row as agreeing', () => {
   const model = buildExtensionComparison([byId('Zba'), byId('Zba')]);
-  assert.deepEqual(model.rows.filter((r) => !r.allSame).map((r) => r.key), []);
+  assert.deepEqual(
+    model.rows.filter((r) => !r.allSame).map((r) => r.key),
+    [],
+  );
 });
 
 test('an extension with no state yields null, not a throw and not a blank', () => {
@@ -152,7 +164,10 @@ test('SLLI differs between RV32I and RV64I at exactly bit 25', () => {
   // RV64 widens shamt by one bit, so bit 25 goes from a fixed 0 to part of a
   // variable field. This is the case the feature exists to make visible, and
   // the reason items are keyed by (extId, mnemonic) rather than by mnemonic.
-  const model = buildInstructionComparison([instrItem('RV32I', 'SLLI'), instrItem('RV64I', 'SLLI')]);
+  const model = buildInstructionComparison([
+    instrItem('RV32I', 'SLLI'),
+    instrItem('RV64I', 'SLLI'),
+  ]);
   assert.ok(Array.isArray(model.bitDiff));
   assert.equal(model.bitDiff.length, 32);
   const differing = model.bitDiff.map((d, i) => (d ? 31 - i : null)).filter((b) => b !== null);
@@ -160,7 +175,10 @@ test('SLLI differs between RV32I and RV64I at exactly bit 25', () => {
 });
 
 test('the instruction columns carry the mnemonic and its owning extension', () => {
-  const model = buildInstructionComparison([instrItem('RV32I', 'SLLI'), instrItem('RV64I', 'SLLI')]);
+  const model = buildInstructionComparison([
+    instrItem('RV32I', 'SLLI'),
+    instrItem('RV64I', 'SLLI'),
+  ]);
   assert.equal(model.kind, 'instr');
   assert.deepEqual(model.columns, [
     { key: 'RV32I.SLLI', label: 'SLLI', sublabel: 'RV32I' },
@@ -171,9 +189,15 @@ test('the instruction columns carry the mnemonic and its owning extension', () =
 });
 
 test('an instruction compared with itself has an all-false bit diff', () => {
-  const model = buildInstructionComparison([instrItem('Zba', 'ADD.UW'), instrItem('Zba', 'ADD.UW')]);
+  const model = buildInstructionComparison([
+    instrItem('Zba', 'ADD.UW'),
+    instrItem('Zba', 'ADD.UW'),
+  ]);
   assert.deepEqual(model.bitDiff, new Array(32).fill(false));
-  assert.deepEqual(model.rows.filter((r) => !r.allSame).map((r) => r.key), []);
+  assert.deepEqual(
+    model.rows.filter((r) => !r.allSame).map((r) => r.key),
+    [],
+  );
 });
 
 test('a non-32-character encoding yields no bit diff rather than a wrong one', () => {
@@ -190,7 +214,10 @@ test('whitespace in an encoding does not shift the bit alignment', () => {
 });
 
 test('deprecated reads as yes or no, never as absent', () => {
-  const model = buildInstructionComparison([instrItem('Zba', 'ADD.UW'), instrItem('Zba', 'SH1ADD')]);
+  const model = buildInstructionComparison([
+    instrItem('Zba', 'ADD.UW'),
+    instrItem('Zba', 'SH1ADD'),
+  ]);
   for (const cell of rowOf(model, 'deprecated').cells) {
     assert.ok(cell === 'yes' || cell === 'no', `unexpected deprecated cell ${cell}`);
   }
@@ -406,7 +433,10 @@ test('the profile model has one row per extension across the union, sorted', () 
   const model = buildProfileComparison(['RVA20', 'RVA22'], { order: 'alphabetical' });
   assert.equal(model.rows.filter((r) => r.render === 'section').length, 0);
   assert.equal(model.kind, 'profile');
-  assert.deepEqual(model.columns.map((c) => c.key), ['RVA20', 'RVA22']);
+  assert.deepEqual(
+    model.columns.map((c) => c.key),
+    ['RVA20', 'RVA22'],
+  );
 
   // Mandatory and optional lists alike: an option is part of what a profile says.
   const union = [
@@ -417,7 +447,10 @@ test('the profile model has one row per extension across the union, sorted', () 
       ...PROFILE_OPTIONAL.RVA22,
     ]),
   ].sort();
-  assert.deepEqual(requirementRows(model).map((r) => r.label), union);
+  assert.deepEqual(
+    requirementRows(model).map((r) => r.label),
+    union,
+  );
 });
 
 test('by default rows are grouped Mandatory, Implied, Optional, alphabetical within', () => {
@@ -437,7 +470,8 @@ test('by default rows are grouped Mandatory, Implied, Optional, alphabetical wit
     }
     if (row.render !== 'requirement') continue;
     // Each row sits under the strongest requirement any profile gives it.
-    const strongest = strength[Math.min(...row.cells.filter(Boolean).map((c) => strength.indexOf(c)))];
+    const strongest =
+      strength[Math.min(...row.cells.filter(Boolean).map((c) => strength.indexOf(c)))];
     assert.equal(current, strongest, `${row.label} is under ${current}`);
     assert.ok(previous.localeCompare(row.label) < 0, `${row.label} out of order`);
     previous = row.label;
@@ -480,7 +514,9 @@ test('the requirement filter keeps a row when any compared profile matches', () 
   const optional = visibleRows(model, { requirement: 'optional' });
   assert.deepEqual(
     ext(required).map((r) => r.label),
-    all.filter((r) => r.cells.some((c) => c === 'mandatory' || c === 'implied')).map((r) => r.label),
+    all
+      .filter((r) => r.cells.some((c) => c === 'mandatory' || c === 'implied'))
+      .map((r) => r.label),
   );
   assert.deepEqual(
     ext(optional).map((r) => r.label),
@@ -520,7 +556,10 @@ test('a filtered heading counts only what is under it, and empty headings go', (
   // Filtering must not edit the model's own headings.
   const before = model.rows.filter((r) => r.render === 'section').map((r) => r.count);
   visibleRows(model, { requirement: 'optional' });
-  assert.deepEqual(model.rows.filter((r) => r.render === 'section').map((r) => r.count), before);
+  assert.deepEqual(
+    model.rows.filter((r) => r.render === 'section').map((r) => r.count),
+    before,
+  );
 });
 
 test('markdown follows the requirement filter', () => {
@@ -528,7 +567,11 @@ test('markdown follows the requirement filter', () => {
   const md = toMarkdown(model, { requirement: 'optional' });
   assert.match(md, /^\| V \|/m, 'V is optional in RVA22');
   assert.doesNotMatch(md, /^\| Zicsr \|/m, 'Zicsr is optional in neither');
-  assert.doesNotMatch(md, /^\| Mandatory \|/m, 'the mandatory count row belongs to the required view');
+  assert.doesNotMatch(
+    md,
+    /^\| Mandatory \|/m,
+    'the mandatory count row belongs to the required view',
+  );
   assert.match(md, /^\| Optional \|/m, 'the optional count row stays');
 });
 
@@ -553,7 +596,7 @@ test('with dependencies expanded, required-but-unlisted extensions read as impli
   assert.ok(model.rows.some((r) => r.key === 'implied_count'));
 });
 
-test('a summary row reports each profile\'s extension count', () => {
+test("a summary row reports each profile's extension count", () => {
   const model = buildProfileComparison(['RVA20', 'RVA22']);
   const counts = model.rows.find((r) => r.key === 'extension_count');
   assert.ok(counts, 'expected an extension_count row');
@@ -583,7 +626,10 @@ test('an extension in every profile is dimmed, one that differs is not', () => {
 
 test('comparing a profile with itself marks every row as agreeing', () => {
   const model = buildProfileComparison(['RVA23', 'RVA23']);
-  assert.deepEqual(model.rows.filter((r) => !r.allSame).map((r) => r.key), []);
+  assert.deepEqual(
+    model.rows.filter((r) => !r.allSame).map((r) => r.key),
+    [],
+  );
 });
 
 test('expanding dependencies widens the union and never narrows it', () => {
@@ -606,7 +652,10 @@ test('expanding dependencies widens the union and never narrows it', () => {
 test('an unknown profile name is skipped rather than throwing', () => {
   assert.doesNotThrow(() => buildProfileComparison(['RVA20', 'NOPE']));
   const model = buildProfileComparison(['RVA20', 'NOPE']);
-  assert.deepEqual(model.columns.map((c) => c.key), ['RVA20']);
+  assert.deepEqual(
+    model.columns.map((c) => c.key),
+    ['RVA20'],
+  );
   assert.equal(buildProfileComparison([]).columns.length, 0);
   assert.doesNotThrow(() => buildProfileComparison(undefined));
 });

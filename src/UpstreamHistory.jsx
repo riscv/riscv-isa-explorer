@@ -962,7 +962,7 @@ function HistoryBody({ h, landedWith, onPick }) {
           label={
             h.partial
               ? 'versions found; the archive lacks the rest'
-              : 'versions of the landed series'
+              : 'versions found of the landed series'
           }
         />
         <Stat value={h.review.replies} label={`review replies, ${h.review.people} people`} />

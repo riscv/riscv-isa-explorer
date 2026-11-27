@@ -49,14 +49,6 @@
       "Atish Patra"
      ],
      "postings": 1
-    },
-    {
-     "date": "2026-08-07",
-     "title": "dt-bindings: riscv: add Smcsrind and Sscsrind ISA extension descriptions",
-     "authors": [
-      "Atish Patra"
-     ],
-     "postings": 1
     }
    ],
    "firstPatch": "2026-08-07",
@@ -215,22 +207,6 @@
       "Clément Léger"
      ],
      "postings": 4
-    },
-    {
-     "date": "2023-11-28",
-     "title": "RISC-V: KVM: Allow Zfh[min] extensions for Guest/VM",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 1
-    },
-    {
-     "date": "2023-11-28",
-     "title": "KVM: riscv: selftests: Add Zfh[min] extensions to get-reg-list test",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 1
     }
    ],
    "firstPatch": "2023-10-11",
@@ -1962,16 +1938,7 @@
     "replies": 67,
     "people": 11
    },
-   "earlier": [
-    {
-     "date": "2024-07-17",
-     "title": "dt-bindings: riscv: Add Ziccrse ISA extension description",
-     "authors": [
-      "Alexandre Ghiti"
-     ],
-     "postings": 4
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2024-07-17",
    "adds": [
     "Ziccrse"
@@ -2154,24 +2121,7 @@
     "replies": 39,
     "people": 6
    },
-   "earlier": [
-    {
-     "date": "2024-06-25",
-     "title": "RISC-V: KVM: Allow Smnpm and Ssnpm extensions for guests",
-     "authors": [
-      "Samuel Holland"
-     ],
-     "postings": 4
-    },
-    {
-     "date": "2024-06-25",
-     "title": "KVM: riscv: selftests: Add Smnpm and Ssnpm to get-reg-list test",
-     "authors": [
-      "Samuel Holland"
-     ],
-     "postings": 4
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2024-03-19",
    "adds": [
     "Smmpm",
@@ -2436,16 +2386,7 @@
     "replies": 6,
     "people": 3
    },
-   "earlier": [
-    {
-     "date": "2024-12-25",
-     "title": "riscv: Use Zalrsc extension to implement atomic functions",
-     "authors": [
-      "Aleksandar Rikalo"
-     ],
-     "postings": 1
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2024-06-19",
    "adds": [
     "A",
@@ -2679,16 +2620,7 @@
     "replies": 223,
     "people": 28
    },
-   "earlier": [
-    {
-     "date": "2022-09-21",
-     "title": "riscv: Add task switch support for vector",
-     "authors": [
-      "Chris Stillson"
-     ],
-     "postings": 2
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2020-01-05",
    "adds": [
     "V"
@@ -3076,56 +3008,7 @@
     "replies": 102,
     "people": 15
    },
-   "earlier": [
-    {
-     "date": "2024-06-13",
-     "title": "dt-bindings: riscv: Add Zicclsm ISA extension description.",
-     "authors": [
-      "Jesse Taube"
-     ],
-     "postings": 6
-    },
-    {
-     "date": "2024-06-25",
-     "title": "RISC-V: Check Zicclsm to set unaligned access speed",
-     "authors": [
-      "Jesse Taube"
-     ],
-     "postings": 1
-    },
-    {
-     "date": "2024-08-09",
-     "title": "RISC-V: Add Zicclsm extension support",
-     "authors": [
-      "Jesse Taube"
-     ],
-     "postings": 1
-    },
-    {
-     "date": "2025-12-22",
-     "title": "dt-bindings: riscv: Add descriptions for Za64rs, Ziccamoa, Ziccif, and Zicclsm",
-     "authors": [
-      "Guodong Xu"
-     ],
-     "postings": 3
-    },
-    {
-     "date": "2026-02-07",
-     "title": "riscv: cpufeature: Add parsing for Za64rs, Ziccamoa, Ziccif, and Zicclsm",
-     "authors": [
-      "Guodong Xu"
-     ],
-     "postings": 1
-    },
-    {
-     "date": "2026-02-07",
-     "title": "riscv: hwprobe: Add support for probing Zicclsm",
-     "authors": [
-      "Guodong Xu"
-     ],
-     "postings": 1
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2024-06-06",
    "adds": [
     "Zicclsm"
@@ -4409,16 +4292,7 @@
     "replies": 29,
     "people": 10
    },
-   "earlier": [
-    {
-     "date": "2025-09-17",
-     "title": "dt-bindings: riscv: Add Svrsw60t59b extension description",
-     "authors": [
-      "Chunyan Zhang"
-     ],
-     "postings": 3
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2025-04-09",
    "adds": [
     "Svrsw60t59b"
@@ -4834,24 +4708,7 @@
     "replies": 23,
     "people": 5
    },
-   "earlier": [
-    {
-     "date": "2023-09-19",
-     "title": "RISC-V: KVM: Allow Zicond extension for Guest/VM",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 3
-    },
-    {
-     "date": "2023-09-25",
-     "title": "dt-bindings: riscv: Add Zicond extension entry",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 2
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2023-09-19",
    "adds": [
     "Zicond"
@@ -5584,14 +5441,6 @@
       "Alexandre Ghiti"
      ],
      "postings": 1
-    },
-    {
-     "date": "2025-04-21",
-     "title": "riscv: Add ARCH_HAS_PREFETCH[W] support with Zicbop",
-     "authors": [
-      "Alexandre Ghiti"
-     ],
-     "postings": 1
     }
    ],
    "firstPatch": "2023-09-10",
@@ -5858,8 +5707,8 @@
    "ai": {
     "model": "Claude Haiku 5.5",
     "generated": "2026-11-27",
-    "inputHash": "e3d71d62ce0c4608",
-    "summary": "The AIA series adds Linux irqchip drivers for the RISC-V Advanced Interrupt Architecture, covering the IMSIC per-HART MSI controller and the APLIC wired interrupt controller, along with AIA CSR definitions and ISA-string detection [1, 40]. Reviewers raised a locking issue in the IMSIC driver, where a spinlock taken in hardirq context needed to be irqsave and not a plain spin lock [4, 32]. A boot warning from aplic_msi_write_msg() during free_irq() was traced to a zeroed MSI message, and the fix was to skip the write in that case [5, 6, 51]. Devicetree binding questions covered compatible string naming, the plural \"imsics\" form, the placeholder vendor string, and how the child/delegate APLIC properties relate, which were settled by adopting a QEMU-specific compatible string and clarifying the hierarchy in examples and descriptions [8, 10, 12, 16, 31, 33, 59, 60, 62]. Marc Zyngier's v2 review asked for the IMSIC driver to be split up, dropping the unused KVM-related code and avoiding sideband IPI signalling, and the author's response deferred the KVM-dependent parts to later work and promised further cleanup [47, 48, 94, 95]. Between v1 and v2 the series was rebased, the locking was corrected, the APLIC warning was fixed, the DT bindings were revised, and the riscv,slow-ipi property was dropped [40, 94]. The AIA CSR and KVM virtualization work was then split into a separate v3 and v4 series, which was merged for Linux-6.4 apart from the final patch, which depends on the RISC-V IPI improvements series [63, 84, 93].",
+    "inputHash": "95f1650451e8b4e9",
+    "summary": "The series adds the Linux irqchip drivers for the RISC-V Advanced Interrupt Architecture (AIA), namely the IMSIC and APLIC controllers and the AIA CSR support, and was posted as v1 through v4 between November 2022 and April 2023 [1, 40, 65, 86]. Reviewers raised a range of concerns: the IMSIC locking needed raw spinlocks because of hardirq-context use (confirmed by lockdep splats) [4, 32]; a warning from the APLIC MSI write path during free_irq was traced to a zeroed MSI message and handled in v2 [6, 29, 40]; the IMSIC compatible string and its naming were debated, with a QEMU-specific string adopted in response to DT maintainers' requests [8, 10, 12, 26, 31, 45]; and the APLIC binding's \"interrupts-extended\" versus \"msi-parent\" and \"riscv,children\" versus \"riscv,delegate\" properties were repeatedly questioned until the authors explained their roles [9, 27, 33, 34, 61, 62, 63]. The v1 IMSIC driver was also criticised by Marc Zyngier for structure, unnecessary exports, and KVM code mixed in, and a v2 review raised the IOMMU MSI-mapping problem when affinity changes [48, 51, 52]. Some points were left open: the level-sensitive interrupt concern for MSI mode was answered by pointing to the spec's guidance, and a v2 reply indicated the IMSIC driver would be revised with the MSI-affinity fix planned for v3 [49, 53, 52]. Across versions, the series dropped the riscv,slow-ipi property, moved to raw spinlocks, renamed the IMSIC compatible strings and file names, and in v3 and v4 split off the KVM AIA CSR virtualization work into a separate eight-to-nine patch series that was merged in v4 after the SMAIA and SSAIA ISA-string detection patch was acked [33, 40, 65, 86, 93, 94, 95].",
     "sources": [
      {
       "n": 1,
@@ -5868,58 +5717,16 @@
       "url": "https://lore.kernel.org/all/20221111044207.1478350-1-apatel%40ventanamicro.com/"
      },
      {
-      "n": 4,
-      "date": "2022-11-11",
-      "from": "Andrew Bresticker",
-      "url": "https://lore.kernel.org/all/CALE4mHqLxWxFiPD3A_AAyaSU7y4n18cvZoMUo1E0DJ-0aLmjvw%40mail.gmail.com/"
-     },
-     {
-      "n": 5,
-      "date": "2022-11-11",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/CAOnJCULeJuxuKaxM2wWUyOdCcoYrDnQ-_zQ-MnqbGse1zF1d4Q%40mail.gmail.com/"
-     },
-     {
-      "n": 6,
-      "date": "2022-11-11",
-      "from": "Andrew Bresticker",
-      "url": "https://lore.kernel.org/all/CALE4mHrfVcFJR%2BYm-zdL%2BvPO9mrVAEfyBsnD0ZoMhuw73ey79Q%40mail.gmail.com/"
-     },
-     {
-      "n": 8,
+      "n": 9,
       "date": "2022-11-13",
       "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/Y3EDuaW0zQSSfiQ%2F%40spud/"
+      "url": "https://lore.kernel.org/all/Y3EQ4JU7uGbIMGiW%40spud/"
      },
      {
-      "n": 10,
-      "date": "2022-11-14",
-      "from": "Krzysztof Kozlowski",
-      "url": "https://lore.kernel.org/all/9be58cb4-4ee8-a6e0-7a0a-f2f581e394d3%40linaro.org/"
-     },
-     {
-      "n": 12,
-      "date": "2022-11-14",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAK9%3DC2X55CG6tjjiTPrecnnZZiwTOS1BSH3UTPa-fLBm38WdLA%40mail.gmail.com/"
-     },
-     {
-      "n": 16,
-      "date": "2022-11-14",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAK9%3DC2WDQCnVnxKR6SFspdwope2KffyASLJDF_Ygo_417ekJ5w%40mail.gmail.com/"
-     },
-     {
-      "n": 31,
-      "date": "2023-01-02",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy02xHvwbv53rH%2Bmdp1%3D0V-i5EgDjEUY0Tr%3D4nzg8fK3sQ%40mail.gmail.com/"
-     },
-     {
-      "n": 32,
-      "date": "2023-01-02",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy2ynRRQddEmULuezo91AjAshRbdSL4JN_un-m0FPhWcrQ%40mail.gmail.com/"
+      "n": 27,
+      "date": "2022-11-16",
+      "from": "Rob Herring",
+      "url": "https://lore.kernel.org/all/20221116192759.GA743769-robh%40kernel.org/"
      },
      {
       "n": 33,
@@ -5928,16 +5735,16 @@
       "url": "https://lore.kernel.org/all/CAAhSdy2UAMmX%2BW5Cm3DuTJzZ0jJ3%3DCW4PhjctQNdfeS%2B4hqWqg%40mail.gmail.com/"
      },
      {
+      "n": 34,
+      "date": "2023-01-02",
+      "from": "Anup Patel",
+      "url": "https://lore.kernel.org/all/CAAhSdy20DgoNLRtPw2TgTJSupxuco1NWWOWMN-97tpsnx9DLqg%40mail.gmail.com/"
+     },
+     {
       "n": 40,
       "date": "2023-01-03",
       "from": "Anup Patel",
       "url": "https://lore.kernel.org/all/20230103141409.772298-1-apatel%40ventanamicro.com/"
-     },
-     {
-      "n": 47,
-      "date": "2023-01-13",
-      "from": "Marc Zyngier",
-      "url": "https://lore.kernel.org/all/868ri6ojsq.wl-maz%40kernel.org/"
      },
      {
       "n": 48,
@@ -5946,58 +5753,76 @@
       "url": "https://lore.kernel.org/all/867cxqoic8.wl-maz%40kernel.org/"
      },
      {
+      "n": 49,
+      "date": "2023-01-17",
+      "from": "Vincent Chen",
+      "url": "https://lore.kernel.org/all/CABvJ_xif_nw_Ehbs8OPOjoeh8rfr2jpHak4drkqH-QbOySGC9A%40mail.gmail.com/"
+     },
+     {
       "n": 51,
+      "date": "2023-01-18",
+      "from": "Vincent Chen",
+      "url": "https://lore.kernel.org/all/CABvJ_xg6QWTHjSn2hO2BO_ana2Ze4m1At0rDDdzne6dn8kMV8w%40mail.gmail.com/"
+     },
+     {
+      "n": 52,
+      "date": "2023-01-18",
+      "from": "Anup Patel",
+      "url": "https://lore.kernel.org/all/CAAhSdy0w5BYsFm3FVtv1tuKysLO_xnr5OZHNuw%3DPeMmyiMGj1w%40mail.gmail.com/"
+     },
+     {
+      "n": 53,
       "date": "2023-01-18",
       "from": "Anup Patel",
       "url": "https://lore.kernel.org/all/CAK9%3DC2UEBV2gGsf0smmwbF7P8KGOTXBH7jctOqadBLj-HGy3Tw%40mail.gmail.com/"
      },
      {
-      "n": 59,
+      "n": 61,
       "date": "2023-02-20",
       "from": "Anup Patel",
       "url": "https://lore.kernel.org/all/CAK9%3DC2UPa5SATTG1pJdckqaoJxh-8EBz8xsENirZQ-vbaHTgjg%40mail.gmail.com/"
      },
      {
-      "n": 60,
+      "n": 62,
       "date": "2023-02-20",
       "from": "Anup Patel",
       "url": "https://lore.kernel.org/all/CAK9%3DC2XpGRH98MvrnwiuS7zhT8woKnnihGSinkNP1vcKz3WtRQ%40mail.gmail.com/"
      },
      {
-      "n": 62,
+      "n": 63,
       "date": "2023-02-20",
       "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/Y%2FNR18DhIGQrDb7w%40wendy/"
+      "url": "https://lore.kernel.org/all/Y%2FNMWZAW4KAqKXEs%40wendy/"
      },
      {
-      "n": 63,
+      "n": 65,
       "date": "2023-04-03",
       "from": "Anup Patel",
       "url": "https://lore.kernel.org/all/20230403093310.2271142-1-apatel%40ventanamicro.com/"
      },
      {
-      "n": 84,
+      "n": 86,
       "date": "2023-04-04",
       "from": "Anup Patel",
       "url": "https://lore.kernel.org/all/20230404153452.2405681-1-apatel%40ventanamicro.com/"
      },
      {
       "n": 93,
-      "date": "2023-04-21",
+      "date": "2023-04-19",
       "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy3V-BMzuCLcvZ9YVLVF%2B0o3D%2B6rMrSGJ3-BDBxxpBx1ZQ%40mail.gmail.com/"
+      "url": "https://lore.kernel.org/all/CAAhSdy1FKKt-RpE5f8ZEaQyoJL4oEr%3DYB3MfKDdHqFmL%2BAyrHg%40mail.gmail.com/"
      },
      {
       "n": 94,
-      "date": "2023-05-01",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy39OJo1c0Yt9588m_aXc7BJ9OEVm1hCJEbv3Km31hmbkA%40mail.gmail.com/"
+      "date": "2023-04-19",
+      "from": "Palmer Dabbelt",
+      "url": "https://lore.kernel.org/all/mhng-72b96cbf-6edd-4b37-9549-200e2a3cb35d%40palmer-ri-x1c9/"
      },
      {
       "n": 95,
-      "date": "2023-05-01",
-      "from": "Marc Zyngier",
-      "url": "https://lore.kernel.org/all/86ttwwh24b.wl-maz%40kernel.org/"
+      "date": "2023-04-21",
+      "from": "Anup Patel",
+      "url": "https://lore.kernel.org/all/CAAhSdy3V-BMzuCLcvZ9YVLVF%2B0o3D%2B6rMrSGJ3-BDBxxpBx1ZQ%40mail.gmail.com/"
      }
     ]
    }
@@ -6284,16 +6109,7 @@
     "replies": 7,
     "people": 2
    },
-   "earlier": [
-    {
-     "date": "2023-09-19",
-     "title": "KVM: riscv: selftests: Add smstateen registers to get-reg-list test",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 3
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2023-07-19",
    "adds": [
     "Smstateen"
@@ -6459,16 +6275,7 @@
     "replies": 122,
     "people": 13
    },
-   "earlier": [
-    {
-     "date": "2024-02-17",
-     "title": "dt-bindings: riscv: add Smcntrpmf ISA extension description",
-     "authors": [
-      "Atish Patra"
-     ],
-     "postings": 9
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2024-02-17",
    "adds": [
     "Smcntrpmf"
@@ -6838,22 +6645,6 @@
     {
      "date": "2022-11-04",
      "title": "HACK: RISC-V: add zbb support to string functions",
-     "authors": [
-      "Heiko Stuebner"
-     ],
-     "postings": 1
-    },
-    {
-     "date": "2022-12-20",
-     "title": "arch/riscv : Add support for Zba/Zbb/Zbc/Zbs ext in ISA realization",
-     "authors": [
-      "Ruinland Tsai"
-     ],
-     "postings": 1
-    },
-    {
-     "date": "2023-01-13",
-     "title": "Zbb + fast-unaligned string optimization",
      "authors": [
       "Heiko Stuebner"
      ],
@@ -7816,30 +7607,6 @@
       "Deepak Gupta"
      ],
      "postings": 27
-    },
-    {
-     "date": "2024-04-03",
-     "title": "riscv: zicfilp / zicfiss in dt-bindings (extensions.yaml)",
-     "authors": [
-      "Deepak Gupta"
-     ],
-     "postings": 24
-    },
-    {
-     "date": "2024-04-09",
-     "title": "riscv: dynamic (zicfiss) shadow call stack support",
-     "authors": [
-      "Deepak Gupta"
-     ],
-     "postings": 1
-    },
-    {
-     "date": "2025-12-01",
-     "title": "RISC-V: KVM: Add Zicfiss/Zicfilp support",
-     "authors": [
-      "zhouquan"
-     ],
-     "postings": 1
     }
    ],
    "firstPatch": "2024-01-25",
@@ -8381,28 +8148,12 @@
      "postings": 4
     },
     {
-     "date": "2023-07-12",
-     "title": "RISC-V: KVM: Allow Zbc, Zbk* and Zk* extensions for Guest/VM",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 1
-    },
-    {
      "date": "2023-11-07",
      "title": "riscv: hwprobe: export missing Zbc ISA extension",
      "authors": [
       "Clément Léger"
      ],
      "postings": 2
-    },
-    {
-     "date": "2023-11-28",
-     "title": "KVM: riscv: selftests: Add Zbc extension to get-reg-list test",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 1
     }
    ],
    "firstPatch": "2022-12-20",
@@ -8531,16 +8282,7 @@
     "replies": 122,
     "people": 13
    },
-   "earlier": [
-    {
-     "date": "2024-02-17",
-     "title": "dt-bindings: riscv: add Ssccfg ISA extension description",
-     "authors": [
-      "Atish Patra"
-     ],
-     "postings": 2
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2024-02-17",
    "adds": [
     "Smcdeleg",
@@ -8771,32 +8513,7 @@
     "replies": 46,
     "people": 5
    },
-   "earlier": [
-    {
-     "date": "2023-10-11",
-     "title": "dt-bindings: riscv: add Zihintntl ISA extension description",
-     "authors": [
-      "Clément Léger"
-     ],
-     "postings": 4
-    },
-    {
-     "date": "2023-11-28",
-     "title": "RISC-V: KVM: Allow Zihintntl extension for Guest/VM",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 1
-    },
-    {
-     "date": "2023-11-28",
-     "title": "KVM: riscv: selftests: Add Zihintntl extension to get-reg-list test",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 1
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2023-10-11",
    "adds": [
     "Zihintntl"
@@ -8972,40 +8689,7 @@
     "replies": 46,
     "people": 5
    },
-   "earlier": [
-    {
-     "date": "2023-10-11",
-     "title": "dt-bindings: riscv: add Zvfh[min] ISA extension description",
-     "authors": [
-      "Clément Léger"
-     ],
-     "postings": 4
-    },
-    {
-     "date": "2023-10-11",
-     "title": "riscv: hwprobe: export Zvfh[min] ISA extensions",
-     "authors": [
-      "Clément Léger"
-     ],
-     "postings": 4
-    },
-    {
-     "date": "2023-11-28",
-     "title": "RISC-V: KVM: Allow Zvfh[min] extensions for Guest/VM",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 1
-    },
-    {
-     "date": "2023-11-28",
-     "title": "KVM: riscv: selftests: Add Zvfh[min] extensions to get-reg-list test",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 1
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2023-10-11",
    "adds": [
     "Zvfh",
@@ -9216,22 +8900,6 @@
       "Guodong Xu"
      ],
      "postings": 3
-    },
-    {
-     "date": "2026-02-07",
-     "title": "riscv: cpufeature: Add parsing for Za64rs, Ziccamoa, Ziccif, and Zicclsm",
-     "authors": [
-      "Guodong Xu"
-     ],
-     "postings": 1
-    },
-    {
-     "date": "2026-02-07",
-     "title": "riscv: hwprobe: Add support for probing Ziccif",
-     "authors": [
-      "Guodong Xu"
-     ],
-     "postings": 1
     }
    ],
    "firstPatch": "2025-12-22",
@@ -9452,40 +9120,7 @@
     "replies": 36,
     "people": 4
    },
-   "earlier": [
-    {
-     "date": "2023-10-17",
-     "title": "dt-bindings: riscv: add Zfa ISA extension description",
-     "authors": [
-      "Clément Léger"
-     ],
-     "postings": 3
-    },
-    {
-     "date": "2023-10-17",
-     "title": "riscv: hwprobe: export Zfa ISA extension",
-     "authors": [
-      "Clément Léger"
-     ],
-     "postings": 3
-    },
-    {
-     "date": "2023-11-28",
-     "title": "RISC-V: KVM: Allow Zfa extension for Guest/VM",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 1
-    },
-    {
-     "date": "2023-11-28",
-     "title": "KVM: riscv: selftests: Add Zfa extension to get-reg-list test",
-     "authors": [
-      "Anup Patel"
-     ],
-     "postings": 1
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2023-10-17",
    "adds": [
     "Zfa"
