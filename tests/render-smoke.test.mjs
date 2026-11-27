@@ -1163,3 +1163,53 @@ test('a bundle lists its parts, and extensions that landed together point at eac
   assert.match(pair.dom.window.document.getElementById('history-title').textContent, /Zicfilp/);
   assert.deepEqual(realErrors(pair.errors), []);
 });
+
+const pasteSearch = (d, text) => {
+  const input = d.window.document.querySelector('input[type="search"]');
+  const setValue = Object.getOwnPropertyDescriptor(
+    d.window.HTMLInputElement.prototype,
+    'value',
+  ).set;
+  setValue.call(input, text);
+  input.dispatchEvent(new d.window.Event('input', { bubbles: true }));
+};
+const selectedCsr = (d) =>
+  d.window.document
+    .querySelector('#detail-panel section[aria-label$=" CSR details"]')
+    ?.getAttribute('aria-label')
+    .replace(/ CSR details$/, '')
+    .toUpperCase();
+
+test('pasting "vector" opens V, with no register selected', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/');
+  pasteSearch(d, 'vector');
+  await waitFor(() => panelExt(d) === 'V' && query(d).get('ext') === 'V');
+  assert.equal(panelExt(d), 'V', 'the details panel should open V');
+  assert.equal(query(d).get('ext'), 'V', 'the address bar should carry ?ext=V');
+  assert.equal(selectedCsr(d), undefined, 'no register should be selected');
+  assert.deepEqual(realErrors(errors), [], 'console errors while searching');
+});
+
+test('pasting "counter" does not open H', async () => {
+  const { dom: d } = await mountAt('https://example.test/');
+  pasteSearch(d, 'counter');
+  await waitFor(() => panelExt(d) !== undefined);
+  assert.ok(panelExt(d), 'the search should open an extension');
+  assert.notEqual(panelExt(d), 'H', 'a register description should not decide the extension');
+  assert.equal(selectedCsr(d), undefined, 'no register should be selected');
+});
+
+test('pasting "mstatus" still opens the MSTATUS register', async () => {
+  const { dom: d } = await mountAt('https://example.test/');
+  pasteSearch(d, 'mstatus');
+  await waitFor(() => selectedCsr(d) === 'MSTATUS');
+  assert.equal(selectedCsr(d), 'MSTATUS', 'the MSTATUS register details should open');
+});
+
+test('pasting "Zba" still opens Zba', async () => {
+  const { dom: d } = await mountAt('https://example.test/');
+  pasteSearch(d, 'Zba');
+  await waitFor(() => panelExt(d) === 'Zba' && query(d).get('ext') === 'Zba');
+  assert.equal(panelExt(d), 'Zba');
+  assert.equal(query(d).get('ext'), 'Zba');
+});

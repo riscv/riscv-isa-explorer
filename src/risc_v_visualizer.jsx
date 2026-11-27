@@ -2666,21 +2666,29 @@ const RISCVExplorer = () => {
       }
     }
 
+    const searchOrder = searchFirst
+      ? [searchFirst, ...allExts.filter((ext) => ext.id !== searchFirst.id)]
+      : allExts;
+
     // Exact CSR lookup selects the register itself so readers land on its
     // field map instead of only the extension that owns it.
     if (!targetExt) {
-      const csrSearchOrder = searchFirst
-        ? [searchFirst, ...allExts.filter((ext) => ext.id !== searchFirst.id)]
-        : allExts;
-      const csrHit = csrSearchOrder.flatMap((ext) =>
+      const csrHit = searchOrder.flatMap((ext) =>
         Object.entries(ext.csrs || {})
-          .filter(([name, csr]) => name.toLowerCase() === q || csr?.desc?.toLowerCase().includes(q))
+          .filter(([name]) => name.toLowerCase() === q)
           .map(([name]) => ({ ext, name })),
       )[0];
       if (csrHit) {
         targetExt = csrHit.ext;
         matchedCsrName = csrHit.name;
       }
+    }
+
+    if (!targetExt) {
+      targetExt =
+        searchOrder.find((ext) =>
+          [ext.name, ext.short].some((field) => field?.toLowerCase().includes(q)),
+        ) || null;
     }
 
     // If still no match, try a deep search against indexed extension+instruction details
