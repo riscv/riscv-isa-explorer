@@ -49,6 +49,9 @@ import {
   groupFor,
   hasHistory,
   historyQuestion,
+  labelColumn,
+  laneLabel,
+  LABEL_MAX,
   placeDates,
   progressionAxis,
   span as uiSpan,
@@ -880,6 +883,29 @@ test('the Progression axis fits the data and always dates its first label', () =
   assert.equal(long.ticks.find((k) => k.label).label, '2020');
   const decade = progressionAxis(['2014-01-01'], ['2026-01-01']);
   assert.ok(decade.ticks.filter((k) => k.label).length <= 7, 'every other year on a long axis');
+});
+
+test('lane names fit their column and never run into the bar', () => {
+  assert.equal(laneLabel(['Zbb']), 'Zbb');
+  assert.equal(laneLabel(['Zba', 'Zbs']), 'Zba, Zbs');
+  assert.equal(
+    laneLabel(['Za64rs', 'Ziccamoa', 'Ziccif']),
+    'Za64rs, Ziccamoa +1',
+    'shortened, still names what fits',
+  );
+  assert.equal(laneLabel(['Zfbfmin', 'Zvfbfmin', 'Zvfbfwma']), 'Zfbfmin, Zvfbfmin +1');
+  assert.equal(laneLabel(['A', 'C', 'D', 'F', 'M']), 'A, C, D, F, M', 'short ids all fit');
+  assert.equal(laneLabel(['Averyveryverylongname1', 'B']), 'Averyveryverylongname1 +1');
+  // The column holds the longest name with room before the bar, and is never below 96.
+  assert.equal(labelColumn(['Zbb']), 96);
+  const longest = 'x'.repeat(LABEL_MAX);
+  assert.ok(labelColumn([longest]) >= 12 + LABEL_MAX * 8.2, 'room for the longest name');
+  // Every lane name the committed data can produce fits within LABEL_MAX.
+  const bySeries = new Map();
+  for (const [id, e] of Object.entries(data.extensions))
+    bySeries.set(e.series, [...(bySeries.get(e.series) ?? []), id]);
+  for (const members of bySeries.values())
+    assert.ok(laneLabel(members).length <= LABEL_MAX || members.length === 1, members.join(', '));
 });
 
 test('dates under a lane never collide; the more important one wins', () => {

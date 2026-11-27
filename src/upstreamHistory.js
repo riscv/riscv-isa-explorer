@@ -148,3 +148,28 @@ export function historyQuestion(index, id) {
     return `Explain the RISC-V ${id} extension and how it relates to ${list(entry.landedWith)}.`;
   return `Explain the RISC-V ${id} extension and the specification that defines it.`;
 }
+
+/** Lane names are 13px JetBrains Mono: about this many chart units a character. */
+const LABEL_CHAR = 8.2;
+/** The longest lane name, in characters, before it is shortened. */
+export const LABEL_MAX = 22;
+
+/**
+ * A lane's name: its extensions, as many as fit in LABEL_MAX characters,
+ * then "+N" for the rest ("Za64rs +2"). The full list goes in the lane's title.
+ */
+export function laneLabel(members) {
+  const all = members.join(', ');
+  if (all.length <= LABEL_MAX) return all;
+  for (let k = members.length - 1; k >= 1; k -= 1) {
+    const label = `${members.slice(0, k).join(', ')} +${members.length - k}`;
+    if (label.length <= LABEL_MAX) return label;
+  }
+  return `${members[0]} +${members.length - 1}`;
+}
+
+/** The left column the lane names need, so none runs into its bar: 96 units at least. */
+export function labelColumn(labels) {
+  const longest = Math.max(0, ...labels.map((l) => l.length));
+  return Math.max(96, Math.ceil(12 + longest * LABEL_CHAR + 16));
+}
