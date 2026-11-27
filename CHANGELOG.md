@@ -20,6 +20,13 @@ someone silently. Each release below records its catalogue size.
   first weekly run with HTTP 429 and Retry-After; the sync gave up after three
   quick retries. It now honours Retry-After and backs off by minutes (#657).
 
+### Changed
+
+- **The upstream history sync reads the kernel from a git clone** instead of
+  GitHub's API: commits, diffs, trailers and release tags come from a blobless
+  clone the weekly workflow makes, so the sync no longer meets GitHub's rate
+  limits at all (#659).
+
 ## [1.18.0] - 2026-11-27
 
 Catalogue: 215 entries, unchanged; nothing is added or removed. No profile
