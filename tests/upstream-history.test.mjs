@@ -378,6 +378,38 @@ test('earlier attempts: before the landed series, and not another subsystem usin
   );
 });
 
+test('patches whose cover the search missed stay one series', () => {
+  // Both answer a cover titled "riscv: Add counter delegation support", which
+  // the extension-name search did not return.
+  const groups = groupSeries([
+    post(
+      'p1',
+      '[PATCH v9 03/22] RISC-V: Add Sxcsrind ISA extension CSR definitions',
+      'Atish Patra',
+      '2026-08-07',
+      'cover9',
+    ),
+    post(
+      'p2',
+      '[PATCH v9 04/22] RISC-V: Add Smcsrind and Sscsrind ISA extension definition and parsing',
+      'Atish Patra',
+      '2026-08-07',
+      'cover9',
+    ),
+  ]);
+  assert.equal(groups.length, 1, 'one series, not two');
+  const landed = selectLanded(
+    groups,
+    'RISC-V: Add Smcsrind and Sscsrind ISA extension definition and parsing',
+  );
+  assert.equal(
+    earlierAttempts(groups, landed.group).length,
+    0,
+    'the companion patch is not an earlier attempt',
+  );
+  assert.equal(landed.group.postings.length, 1, 'v9 once');
+});
+
 test('a patch joins the cover it answers, even beside another of that day', () => {
   const groups = groupSeries([
     post('ca', '[PATCH 0/2] riscv: First series', 'Same Author', '2024-01-10'),

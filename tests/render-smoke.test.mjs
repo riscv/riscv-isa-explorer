@@ -1013,6 +1013,27 @@ test('?history=linux opens the history over the extension, and Esc closes only i
   assert.deepEqual(realErrors(errors), []);
 });
 
+test('closing the history returns focus to what opened it, and a click outside closes it', async () => {
+  const { dom: d } = await mountAt('https://example.test/?ext=Zawrs');
+  await waitFor(() => panelOpen(d));
+  const chip = [...d.window.document.querySelectorAll('#detail-panel button')].find((b) =>
+    /^Linux /.test(b.textContent.trim()),
+  );
+  chip.focus();
+  chip.click();
+  await waitFor(() => historyDialog(d));
+  escapeOnWindow(d);
+  await waitFor(() => !historyDialog(d));
+  assert.equal(d.window.document.activeElement, chip, 'focus should return to the Linux chip');
+
+  chip.click();
+  await waitFor(() => historyDialog(d));
+  const layer = historyDialog(d).parentElement; // the full-screen layer around the card
+  layer.dispatchEvent(new d.window.MouseEvent('click', { bubbles: true }));
+  await waitFor(() => !historyDialog(d));
+  assert.equal(historyDialog(d), null, 'a click outside the card closes the dialog');
+});
+
 test('the Linux chip opens the history, and the address bar follows', async () => {
   const { dom: d } = await mountAt('https://example.test/?ext=Zawrs');
   await waitFor(() => panelOpen(d));

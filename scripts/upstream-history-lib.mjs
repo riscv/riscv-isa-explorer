@@ -231,6 +231,10 @@ export function groupSeries(input) {
   );
   const covers = posts.filter((p) => part(p.subject)[0] === 0);
   const groups = [];
+  // Patches answering the same cover the search did not return: the first
+  // of them stands for the series, so its siblings are not split into
+  // separate groups (and one of them mistaken for an earlier attempt).
+  const unseenCover = new Map(); // author|parent id -> { head, group }
   for (const p of [...posts].sort((a, b) => a.date - b.date)) {
     const [n] = part(p.subject);
     // The cover the patch answers, when lore says; otherwise the same
@@ -244,13 +248,16 @@ export function groupSeries(input) {
             Math.abs(c.date - p.date) < ONE_DAY,
         ))
       : null;
-    const head = cover ?? p;
+    const sibling = n && !cover && p.inReplyTo ? `${p.author}|${p.inReplyTo}` : null;
+    const shared = sibling ? unseenCover.get(sibling) : null;
+    const head = cover ?? shared?.head ?? p;
     const headTitle = title(head.subject);
-    let group = groups.find((g) => similarTitles(g.title, headTitle));
+    let group = shared?.group ?? groups.find((g) => similarTitles(g.title, headTitle));
     if (!group) {
       group = { title: headTitle, postings: new Map() };
       groups.push(group);
     }
+    if (sibling && !shared) unseenCover.set(sibling, { head, group });
     const key = `${isRfc(head.subject)}|${version(head.subject)}|${head.author}|${iso(head.date)}`;
     if (!group.postings.has(key))
       group.postings.set(key, {

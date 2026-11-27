@@ -188,6 +188,11 @@ function GroupNav({ group, at, prev, next, onPick }) {
 export function HistoryDialog({ id, onClose }) {
   // The extension the dialog shows: the panel's, or one reached from it.
   const [current, setCurrent] = React.useState(id);
+  // The element that opened the dialog, read before any effect moves focus,
+  // so closing returns there (the Linux chip or the View history button).
+  const [opener] = React.useState(() =>
+    typeof document === 'undefined' ? null : document.activeElement,
+  );
   const [data, setData] = React.useState(null);
   const [error, setError] = React.useState(null);
   const dialogRef = React.useRef(null);
@@ -216,7 +221,7 @@ export function HistoryDialog({ id, onClose }) {
   React.useEffect(() => () => setAskContext(null), []);
 
   React.useEffect(() => {
-    const restore = document.activeElement;
+    const restore = opener;
     dialogRef.current?.focus();
     const onKey = (e) => {
       if (keyBelongsElsewhere(e)) return;
@@ -266,7 +271,14 @@ export function HistoryDialog({ id, onClose }) {
         onClick={onClose}
         role="presentation"
       />
-      <div className="absolute inset-0 p-3 md:p-8 flex items-start justify-center overflow-y-auto">
+      <div
+        className="absolute inset-0 p-3 md:p-8 flex items-start justify-center overflow-y-auto"
+        // This layer covers the backdrop, so a click outside the card lands here.
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+        role="presentation"
+      >
         <div
           ref={dialogRef}
           role="dialog"
