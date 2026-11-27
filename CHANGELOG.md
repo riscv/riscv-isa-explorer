@@ -15,6 +15,10 @@ someone silently. Each release below records its catalogue size.
 
 ### Fixed
 
+- **A long lane name no longer runs into its bar** in the upstream history's
+  Progression chart: the name column fits the longest name, and a name too long
+  even for that is shortened ("Za64rs, Ziccamoa +1") (#661).
+
 - **The upstream history sync waits out GitHub's secondary rate limit.**
   Listing the kernel's commits is expensive for GitHub, which answered the
   first weekly run with HTTP 429 and Retry-After; the sync gave up after three

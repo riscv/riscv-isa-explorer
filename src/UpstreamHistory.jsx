@@ -8,6 +8,8 @@ import {
   groupFor,
   hasHistory as indexHasHistory,
   historyQuestion,
+  labelColumn,
+  laneLabel,
   month,
   placeDates,
   progressionAxis,
@@ -382,10 +384,7 @@ function Progression({ ids, current, data, onPick }) {
     s: data.series[key],
     members,
     id: members.includes(current) ? current : members[0],
-    label:
-      members.length > 3
-        ? `${members.slice(0, 3).join(', ')} +${members.length - 3}`
-        : members.join(', '),
+    label: laneLabel(members),
   }));
   if (!lanes.length) return null;
   const W = 1000;
@@ -395,7 +394,7 @@ function Progression({ ids, current, data, onPick }) {
   const axis = progressionAxis(
     lanes.map((l) => l.s.firstPatch),
     lanes.map((l) => l.s.release.date),
-    { width: W },
+    { width: W, left: labelColumn(lanes.map((l) => l.label)) },
   );
   const { x, xt } = axis;
   const pickable = lanes.length > 1;
