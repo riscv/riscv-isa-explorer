@@ -1047,3 +1047,86 @@ test('a bundle steps through its parts with the arrow keys', async () => {
   await waitFor(() => /Zbb/.test(title()));
   assert.match(title(), /Zbb/);
 });
+
+/**
+ * Runs the lazy chunks webpack asked for. It loads a chunk by adding a
+ * <script src>, which jsdom here does not execute; the chunk only calls
+ * webpackChunk.push, so evaluating the built file is what a browser would do.
+ */
+async function loadLazyChunks(d) {
+  const done = new Set();
+  for (let round = 0; round < 20; round += 1) {
+    const scripts = [...d.window.document.querySelectorAll('script[src]')]
+      .map((s) => s.getAttribute('src'))
+      .filter(
+        (src) =>
+          // webpack's own lazy chunks, served from the page's origin and built
+          // into dist/; not kapa's widget, nor the main bundle
+          new d.window.URL(src, d.window.location.href).origin === d.window.location.origin &&
+          /^\d+\.bundle\.js$/.test(path.basename(src)) &&
+          fs.existsSync(path.join(dist, path.basename(src))) &&
+          !done.has(src),
+      );
+    for (const src of scripts) {
+      done.add(src);
+      d.window.eval(fs.readFileSync(path.join(dist, path.basename(src)), 'utf8'));
+    }
+    if (!scripts.length && done.size) return done.size;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return done.size;
+}
+
+test('the history body renders from the real data: stats, timeline, people and a cited summary', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?ext=Zawrs&history=linux');
+  await waitFor(() => historyDialog(d));
+  assert.ok((await loadLazyChunks(d)) >= 1, 'the history chunk was never requested');
+  await waitFor(() => /TIMELINE|Timeline/.test(historyDialog(d)?.textContent ?? ''));
+  const dialog = historyDialog(d);
+  const text = dialog.textContent;
+  assert.match(text, /Linux 6\.11/, 'the release');
+  assert.match(text, /first patch to release/);
+  assert.match(text, /Applied by /, 'the applied row of the timeline');
+  assert.match(text, /Andrew Jones/, 'a series author');
+  assert.ok(dialog.querySelector('svg[role="img"]'), 'the Progression chart');
+  const versionLinks = [...dialog.querySelectorAll('a[href^="https://lore.kernel.org/"]')];
+  assert.ok(versionLinks.length >= 3, 'each version links to its lore thread');
+  assert.match(text, /AI summary/);
+  assert.doesNotMatch(text, /Claude Haiku/, 'the header does not name the model');
+  const citations = [...dialog.querySelectorAll('sup a[href^="https://lore.kernel.org/all/"]')];
+  assert.ok(citations.length >= 2, 'the summary links its citations to the messages');
+  assert.doesNotMatch(text, /Could not load the history/);
+  assert.deepEqual(realErrors(errors), [], 'console errors while rendering the history');
+});
+
+test('a bundle lists its parts, and extensions that landed together point at each other', async () => {
+  const bundle = await mountAt('https://example.test/?ext=B&history=linux');
+  await waitFor(() => historyDialog(bundle.dom));
+  await loadLazyChunks(bundle.dom);
+  await waitFor(() =>
+    /detects B through its parts/.test(historyDialog(bundle.dom)?.textContent ?? ''),
+  );
+  const text = historyDialog(bundle.dom).textContent;
+  assert.match(text, /available once all of them are: Linux 6\.5/, 'complete with its last part');
+  for (const part of ['Zba', 'Zbb', 'Zbs']) assert.match(text, new RegExp(part));
+  assert.deepEqual(realErrors(bundle.errors), []);
+
+  const pair = await mountAt('https://example.test/?ext=Zicfiss&history=linux');
+  await waitFor(() => historyDialog(pair.dom));
+  await loadLazyChunks(pair.dom);
+  await waitFor(() =>
+    /Landed in the same commit as/.test(historyDialog(pair.dom)?.textContent ?? ''),
+  );
+  const other = [...historyDialog(pair.dom).querySelectorAll('button')].find(
+    (b) => b.textContent.trim() === 'Zicfilp',
+  );
+  assert.ok(other, 'Zicfiss should offer Zicfilp');
+  other.click();
+  await waitFor(() =>
+    /Zicfiss›Zicfilp|Zicfiss.*Zicfilp/.test(
+      pair.dom.window.document.getElementById('history-title').textContent,
+    ),
+  );
+  assert.match(pair.dom.window.document.getElementById('history-title').textContent, /Zicfilp/);
+  assert.deepEqual(realErrors(pair.errors), []);
+});

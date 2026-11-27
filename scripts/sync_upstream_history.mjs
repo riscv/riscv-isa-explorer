@@ -41,6 +41,7 @@ import {
   parseAtom,
   parseMbox,
   personName,
+  reviewReplies,
   selectLanded,
   title,
   trailers,
@@ -255,15 +256,9 @@ async function seriesHistory(commit, { curated = null } = {}) {
   const { group, partial } = landed;
 
   const authors = new Set(group.postings.map((p) => p.author));
-  const replies = [];
-  for (const p of group.postings)
-    for (const m of await thread(p.href))
-      if (
-        /^\s*re:/i.test(m.subject) &&
-        !BOT.test(m.from) &&
-        ![...authors].some((a) => m.from.includes(a))
-      )
-        replies.push(m);
+  const threads = [];
+  for (const p of group.postings) threads.push(await thread(p.href));
+  const replies = reviewReplies(threads, authors);
   const repliers = [...new Set(replies.map((m) => personName(m.from)))];
   const release = await firstRelease(commit.sha);
   if (!release) return { missing: 'applied, not in a release yet' };

@@ -321,31 +321,65 @@ export function ownWords(body, limit = 800) {
   return parts.length > limit * 2 ? `${parts.slice(0, limit * 2).join('')} [...]` : text;
 }
 
+// Abbreviations whose full stop does not end a sentence.
+const ABBREVIATIONS = /\b(e\.g|i\.e|etc|vs|cf|al|approx|incl|resp)\./gi;
+
 /**
  * Checks an AI summary against the numbered messages it was written from.
- * Every [n] must be a message that exists, and every sentence must cite one:
- * a sentence without a citation cannot be traced to anything a person wrote.
+ * The model is told to end every sentence with its citations, so that is what
+ * is checked: each sentence must end "[n, m]." with every n a message that
+ * exists. Text after a sentence's citation, or a sentence without one,
+ * whatever letter or digit it starts with, is uncited.
  */
 export function checkCitations(summary, messageCount) {
-  const cited = [...summary.matchAll(/\[([\d,\s–-]+)\]/g)].flatMap((m) =>
-    m[1]
-      .split(',')
-      .map((n) => n.trim())
-      .filter(Boolean),
-  );
-  const invalid = [
-    ...new Set(cited.filter((n) => !/^\d+$/.test(n) || Number(n) < 1 || Number(n) > messageCount)),
-  ];
-  const sentences = summary
-    .replace(/\b(e\.g|i\.e|etc|vs|cf)\./gi, '$1')
-    .split(/(?<=[.!?])\s+(?=[A-Z`"(])/)
-    .map((s) => s.trim())
-    .filter(Boolean);
-  const uncited = sentences.filter((s) => !/\[[\d,\s]+\]/.test(s));
+  const text = summary.replace(ABBREVIATIONS, '$1').trim();
+  const end = /\[([^\]]*)\]\s*[.!?](?=\s|$)/g;
+  const cited = [];
+  const invalid = [];
+  const uncited = [];
+  let last = 0;
+  let m;
+  while ((m = end.exec(text))) {
+    const sentence = text.slice(last, m.index).trim();
+    // A full stop before the citation means an earlier sentence went uncited.
+    for (const piece of sentence.split(/(?<=[.!?])\s+(?=\S)/).slice(0, -1)) uncited.push(piece.trim());
+    for (const n of m[1].split(',').map((x) => x.trim()))
+      if (/^\d+$/.test(n) && Number(n) >= 1 && Number(n) <= messageCount) cited.push(Number(n));
+      else invalid.push(n);
+    last = end.lastIndex;
+  }
+  const rest = text.slice(last).trim();
+  if (rest) uncited.push(rest);
   return {
-    cited: [...new Set(cited.filter((n) => /^\d+$/.test(n)).map(Number))].sort((a, b) => a - b),
-    invalid,
+    cited: [...new Set(cited)].sort((a, b) => a - b),
+    invalid: [...new Set(invalid)],
     uncited,
     ok: invalid.length === 0 && uncited.length === 0 && cited.length > 0,
   };
+}
+
+/**
+ * The review of a series: replies across every version's thread, each once
+ * (a v2 posted in reply to v1 brings v1's thread along), from anyone but the
+ * series' own authors and the bots.
+ */
+export function reviewReplies(threads, authors) {
+  const seen = new Set();
+  const replies = [];
+  for (const messages of threads)
+    for (const m of messages) {
+      const key = m.messageId || `${m.from}|${m.date?.toISOString?.()}|${m.subject}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (!isReplySubject(m.subject) || BOT.test(m.from)) continue;
+      if ([...authors].some((a) => m.from.includes(a))) continue;
+      replies.push(m);
+    }
+  return replies;
+}
+
+/** "RFC v3" for a message, from its own subject; null when the subject has no [PATCH] tag. */
+export function versionLabel(subject) {
+  if (!/\[[^\]]*PATCH/i.test(subject)) return null;
+  return `${isRfc(subject) ? 'RFC ' : ''}v${version(subject)}`;
 }

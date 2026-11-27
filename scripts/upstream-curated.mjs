@@ -38,3 +38,16 @@ export const CURATED = {
   F: BASE_PORT,
   M: BASE_PORT,
 };
+
+/**
+ * Extensions Linux supports that have no history, each with the reason.
+ * tests/upstream-history.test.mjs fails when any other Linux-supported
+ * extension goes missing from the data (a parser regression would otherwise
+ * delete histories quietly), and when an entry here is collected after all.
+ */
+export const UNCOLLECTED = {
+  RV32I: 'a base, not an extension the kernel adds',
+  RV64I: 'a base, not an extension the kernel adds',
+  Sscofpmf:
+    'its landing patch ("RISC-V: Add sscofpmf extension support") matches no posting found on lore',
+};

@@ -836,8 +836,7 @@ function Summary({ ai, review }) {
           AI summary
         </span>
         <span>
-          Review discussion, {review.replies} replies from {review.people} people · {ai.model} ·{' '}
-          {ai.generated}
+          Review discussion, {review.replies} replies from {review.people} people · {ai.generated}
         </span>
       </div>
       <p className="m-0 text-[13px] leading-relaxed" style={{ color: 'var(--riscv-text)' }}>

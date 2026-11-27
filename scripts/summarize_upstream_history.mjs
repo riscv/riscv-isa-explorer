@@ -27,7 +27,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { BOT, checkCitations, ownWords, part } from './upstream-history-lib.mjs';
+import { BOT, checkCitations, ownWords, part, versionLabel } from './upstream-history-lib.mjs';
 import { DATA, thread, writeData } from './sync_upstream_history.mjs';
 
 export const MODEL_NAME = 'Claude Haiku 5.5';
@@ -62,7 +62,9 @@ export async function messagesFor(series, readThread = thread) {
       if (!reply && part(m.subject)[0] !== 0) continue; // patches themselves are not discussion
       const text = ownWords(m.body);
       if (text.split(/\s+/).length < 4) continue; // a bare ack carries nothing to summarise
-      out.push({ ...m, version: v.version, text });
+      // The message's own subject says which version it answers; the thread
+      // it came in with can be an earlier version's (v2 sent in reply to v1).
+      out.push({ ...m, version: versionLabel(m.subject) ?? v.version, text });
     }
   }
   out.sort((a, b) => a.date - b.date);
@@ -75,10 +77,12 @@ export async function messagesFor(series, readThread = thread) {
 const render = (m) =>
   `[${m.n}] ${m.date.toISOString().slice(0, 10)} | ${m.from.replace(/\s*<.*>/, '')} | ${m.version} | ${m.subject}\n${m.text}\n`;
 
-export function inputHash(series, messages) {
+/** Everything the model is shown, so a summary is rewritten when any of it changes. */
+export function inputHash(extensions, series, messages) {
   return crypto
     .createHash('sha256')
-    .update(JSON.stringify({ v: PROMPT_VERSION, model: MODEL_NAME, title: series.title }))
+    .update(JSON.stringify({ v: PROMPT_VERSION, model: MODEL_NAME, system: SYSTEM }))
+    .update(instructions(extensions, series))
     .update(messages.map(render).join('\n'))
     .digest('hex')
     .slice(0, 16);
@@ -208,7 +212,7 @@ export async function main(argv = process.argv.slice(2)) {
     const ids = members.get(key) ?? [];
     if (only.size && !ids.some((id) => only.has(id))) continue;
     const messages = await messagesFor(series);
-    const hash = inputHash(series, messages);
+    const hash = inputHash(ids, series, messages);
     if (!force && series.ai?.inputHash === hash) {
       totals.kept += 1;
       continue;

@@ -10,6 +10,8 @@ import fs from 'node:fs';
 import {
   addedIds,
   checkCitations,
+  reviewReplies,
+  versionLabel,
   decodeBody,
   decodeMime,
   dropDisguisedReplies,
@@ -29,9 +31,14 @@ import {
   trailers,
   version,
 } from '../scripts/upstream-history-lib.mjs';
-import { CURATED } from '../scripts/upstream-curated.mjs';
+import { CURATED, UNCOLLECTED } from '../scripts/upstream-curated.mjs';
 import { buildIndex } from '../scripts/sync_upstream_history.mjs';
-import { MODEL_NAME, inputHash, summarize } from '../scripts/summarize_upstream_history.mjs';
+import {
+  MODEL_NAME,
+  inputHash,
+  messagesFor,
+  summarize,
+} from '../scripts/summarize_upstream_history.mjs';
 import {
   bundleRelease,
   groupFor,
@@ -330,11 +337,21 @@ test('postings group into series across versions, resends, respins and a changed
 
 test('two titles are one series when the shorter one is mostly in the longer', () => {
   assert.equal(
-    similarTitles('Zbb string optimizations and call support in alternatives', 'Zbb string optimizations'),
+    similarTitles(
+      'Zbb string optimizations and call support in alternatives',
+      'Zbb string optimizations',
+    ),
     true,
   );
-  assert.equal(similarTitles('riscv: Apply Zawrs when available', 'riscv: Add Zawrs support for spinlocks'), false);
-  assert.equal(similarTitles('RISC-V: Add Zba', 'RISC-V: Add Zbb'), false, 'one significant word each: exact match only');
+  assert.equal(
+    similarTitles('riscv: Apply Zawrs when available', 'riscv: Add Zawrs support for spinlocks'),
+    false,
+  );
+  assert.equal(
+    similarTitles('RISC-V: Add Zba', 'RISC-V: Add Zbb'),
+    false,
+    'one significant word each: exact match only',
+  );
   assert.equal(similarTitles('riscv: Add Zicbop', 'RISC-V: add zicbop'), true);
 });
 
@@ -422,6 +439,28 @@ test('the citation gate: every sentence cites, every citation exists', () => {
   assert.equal(uncited.ok, false);
   assert.deepEqual(uncited.uncited, ['Everyone agreed.']);
   assert.equal(checkCitations('No citations at all', 4).ok, false);
+  // Whatever a sentence starts with, it must end with its citations.
+  assert.deepEqual(checkCitations('Supported [1]. unsupported claim.', 2).uncited, [
+    'unsupported claim.',
+  ]);
+  assert.deepEqual(checkCitations('Supported [1]. 2025 brought another claim.', 2).uncited, [
+    '2025 brought another claim.',
+  ]);
+  assert.equal(
+    checkCitations('Reviewers agreed [1] and then a claim nobody made.', 2).ok,
+    false,
+    'text after the citation is uncited',
+  );
+  assert.deepEqual(
+    checkCitations('First claim. Second claim [1].', 2).uncited,
+    ['First claim.'],
+    'a sentence hiding before a cited one',
+  );
+  assert.equal(
+    checkCitations('It landed in Linux 6.5, e.g. for vector [1].', 2).ok,
+    true,
+    'versions and e.g. are not sentence ends',
+  );
 });
 
 const messages = (n) =>
@@ -498,12 +537,83 @@ test('a long discussion is summarised in parts, then merged', async () => {
   assert.match(prompts.at(-1), /merge these partial summaries/);
 });
 
-test('the input hash changes with the messages and nothing else', () => {
-  const a = inputHash(series, messages(3));
-  assert.equal(a, inputHash(series, messages(3)));
+test('the input hash changes with anything the model is shown', () => {
+  const a = inputHash(['Zawrs'], series, messages(3));
+  assert.equal(a, inputHash(['Zawrs'], series, messages(3)), 'stable');
   const changed = messages(3);
   changed[1].text = 'a new point';
-  assert.notEqual(a, inputHash(series, changed));
+  assert.notEqual(a, inputHash(['Zawrs'], series, changed), 'a message');
+  assert.notEqual(a, inputHash(['Zawrs', 'Zbs'], series, messages(3)), 'the extensions');
+  assert.notEqual(
+    a,
+    inputHash(
+      ['Zawrs'],
+      {
+        ...series,
+        versions: [...series.versions, { version: 'v4', date: '2024-05-01', author: 'X' }],
+      },
+      messages(3),
+    ),
+    'the versions',
+  );
+});
+
+test('review replies are counted once across overlapping version threads', () => {
+  const m = (id, subject, from) => ({ messageId: id, subject, from, date: new Date('2024-01-01') });
+  const v1 = [
+    m('c1', '[PATCH 0/2] riscv: x', 'Author <a@x>'),
+    m('r1', 'Re: [PATCH 0/2] riscv: x', 'Reviewer <r@x>'),
+    m('own', 'Re: [PATCH 0/2] riscv: x', 'Author <a@x>'),
+    m('bot', 'Re: [PATCH 0/2] riscv: x', 'kernel test robot <lkp@intel.com>'),
+  ];
+  // v2 was sent in reply to v1, so its thread brings v1's messages along.
+  const v2 = [
+    ...v1,
+    m('c2', '[PATCH v2 0/2] riscv: x', 'Author <a@x>'),
+    m('r2', 'Re: [PATCH v2 0/2] riscv: x', 'Reviewer <r@x>'),
+  ];
+  assert.deepEqual(
+    reviewReplies([v1, v2], new Set(['Author'])).map((x) => x.messageId),
+    ['r1', 'r2'],
+  );
+});
+
+test('each summary message is labelled with the version its subject names', async () => {
+  const msg = (id, subject, day, body = 'a real point about the patch') => ({
+    messageId: id,
+    subject,
+    from: 'Reviewer <r@x>',
+    date: new Date(`2024-01-0${day}T10:00:00Z`),
+    body,
+  });
+  const v1 = [msg('c1', '[PATCH 0/2] riscv: x', 1), msg('r1', 'Re: [PATCH 0/2] riscv: x', 2)];
+  const v2 = [
+    ...v1,
+    msg('r2', 'Re: [RFC PATCH v2 1/2] riscv: x', 4),
+    msg('p2', '[PATCH v2 1/2] riscv: x', 3),
+    msg('ack', 'Re: [PATCH v2 1/2] riscv: x', 5, 'Acked-by: X'),
+  ];
+  const threads = { h1: v1, h2: v2 };
+  const out = await messagesFor(
+    {
+      versions: [
+        { version: 'v1', href: 'h1' },
+        { version: 'v2', href: 'h2' },
+      ],
+    },
+    async (href) => threads[href],
+  );
+  assert.deepEqual(
+    out.map((x) => [x.n, x.messageId, x.version]),
+    [
+      [1, 'c1', 'v1'],
+      [2, 'r1', 'v1'],
+      [3, 'r2', 'RFC v2'],
+    ],
+    'each once, oldest first, numbered; the patch itself and a bare ack left out',
+  );
+  assert.equal(versionLabel('Re: [PATCH v3 2/7] x'), 'v3');
+  assert.equal(versionLabel('Re: a reply that lost its tag'), null);
 });
 
 /* ---------- the dialog's logic ---------- */
@@ -536,6 +646,7 @@ test('a bundle is complete with its last part, compared as versions', () => {
     '6.10',
   );
   assert.equal(bundleRelease(ui, ['Q']), null);
+  assert.equal(bundleRelease(ui, ['Zba', 'Unknown']), null, 'not complete while a part is unknown');
 });
 
 test('Ask AI asks about the extension and its family, never the thread', () => {
@@ -613,8 +724,30 @@ test('the index the bundle carries is exactly what the data gives', () => {
   assert.deepEqual(index, buildIndex(data));
 });
 
+test('every extension Linux supports is in the data, or explained', () => {
+  const support = read('../src/toolchain-support.json');
+  const byLower = new Map([...catalogue].map((id) => [id.toLowerCase(), id]));
+  const supported = Object.entries(support.extensions)
+    .filter(([, v]) => v.linux?.supported)
+    .map(([token]) => byLower.get(token))
+    .filter(Boolean);
+  assert.ok(
+    supported.length >= 100,
+    `expected the Linux-supported extensions, found ${supported.length}`,
+  );
+  const missing = supported.filter(
+    (id) => !data.extensions[id] && !data.listed[id] && !data.bundles[id] && !UNCOLLECTED[id],
+  );
+  assert.deepEqual(
+    missing,
+    [],
+    'gone from the data: a regression, or add it to UNCOLLECTED with why',
+  );
+  for (const id of Object.keys(UNCOLLECTED))
+    assert.ok(!data.extensions[id], `${id} is collected now; drop it from UNCOLLECTED`);
+});
+
 test('every history belongs to a catalogue extension and a series that exists', () => {
-  assert.ok(Object.keys(data.extensions).length >= 9, 'expected the collected extensions');
   for (const [id, e] of Object.entries(data.extensions)) {
     assert.ok(catalogue.has(id), `${id} is not in the catalogue`);
     assert.ok(data.series[e.series], `${id}: series ${e.series} missing`);

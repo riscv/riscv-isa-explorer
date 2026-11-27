@@ -35,15 +35,14 @@ export function span(from, to) {
   return years ? `${years}y ${String(months).padStart(2, '0')}m` : `${months}m`;
 }
 
-/** The latest release among a bundle's parts: when the bundle is complete. */
+/**
+ * The release that completes a bundle: its last part's. Null while any part's
+ * release is unknown, since the bundle is only available once all of them are.
+ */
 export function bundleRelease(index, parts) {
-  return (
-    parts
-      .map((p) => index[p]?.release)
-      .filter(Boolean)
-      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-      .at(-1) ?? null
-  );
+  const releases = parts.map((p) => index[p]?.release);
+  if (!releases.length || releases.some((r) => !r)) return null;
+  return releases.sort((a, b) => a.localeCompare(b, undefined, { numeric: true })).at(-1);
 }
 
 /** Earlier attempts, each version, applied and released, oldest first. */
