@@ -13,6 +13,34 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+## [1.17.2] - 2026-11-27
+
+Catalogue: 215 entries, unchanged; nothing is added or removed. No profile
+`-march` string or exported file changes. The per-instruction `-march` changes
+for the 26 instructions listed under Zfinx (see Fixed).
+
+### Fixed
+
+- **Instructions shown under Zfinx get an `-march` clang accepts.** UDB
+  defines `fmadd.s` and the other single-precision instructions by F alone,
+  so under Zfinx, which forbids F, they got `rv64if_zfinx_zicsr -mabi=lp64f`.
+  They now get `rv64i_zfinx_zicsr -mabi=lp64`, in the compile tooltip and the
+  Compiler Explorer link. An extension from UDB's definition that would
+  conflict with the one shown is left out (#639).
+
+### Changed
+
+- **The release steps start by checking open work.** Before branching, list
+  the open pull requests, the open issues and any fork runs awaiting
+  approval, and decide whether each goes in this release (#644, #645).
+
+### Contributors
+
+Thanks to everyone who wrote code or reported an issue for this release:
+
+- @Mani7527: Zfinx `-march` fix (#639); found #646
+- @rpsene: release check, release
+
 ## [1.17.1] - 2026-11-27
 
 Catalogue: 215 entries, unchanged; nothing is added or removed. No profile
