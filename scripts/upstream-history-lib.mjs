@@ -233,13 +233,16 @@ export function groupSeries(input) {
   const groups = [];
   for (const p of [...posts].sort((a, b) => a.date - b.date)) {
     const [n] = part(p.subject);
+    // The cover the patch answers, when lore says; otherwise the same
+    // author's cover of that version sent within a day.
     const cover = n
-      ? covers.find(
+      ? (covers.find((c) => c.id && c.id === p.inReplyTo) ??
+        covers.find(
           (c) =>
             c.author === p.author &&
             version(c.subject) === version(p.subject) &&
             Math.abs(c.date - p.date) < ONE_DAY,
-        )
+        ))
       : null;
     const head = cover ?? p;
     const headTitle = title(head.subject);
@@ -341,8 +344,11 @@ export function checkCitations(summary, messageCount) {
   let m;
   while ((m = end.exec(text))) {
     const sentence = text.slice(last, m.index).trim();
-    // A full stop before the citation means an earlier sentence went uncited.
-    for (const piece of sentence.split(/(?<=[.!?])\s+(?=\S)/).slice(0, -1)) uncited.push(piece.trim());
+    // A full stop before the citation means an earlier sentence went uncited:
+    // inside the text ("First. Second [1].") or at its end ("Claim. [1].").
+    const pieces = sentence.split(/(?<=[.!?])\s+(?=\S)/);
+    for (const piece of pieces.slice(0, -1)) uncited.push(piece.trim());
+    if (/[.!?]$/.test(pieces.at(-1) ?? '')) uncited.push(pieces.at(-1).trim());
     for (const n of m[1].split(',').map((x) => x.trim()))
       if (/^\d+$/.test(n) && Number(n) >= 1 && Number(n) <= messageCount) cited.push(Number(n));
       else invalid.push(n);

@@ -355,6 +355,25 @@ test('two titles are one series when the shorter one is mostly in the longer', (
   assert.equal(similarTitles('riscv: Add Zicbop', 'RISC-V: add zicbop'), true);
 });
 
+test('a patch joins the cover it answers, even beside another of that day', () => {
+  const groups = groupSeries([
+    post('ca', '[PATCH 0/2] riscv: First series', 'Same Author', '2024-01-10'),
+    post('cb', '[PATCH 0/2] riscv: Second series', 'Same Author', '2024-01-10'),
+    post('pb', '[PATCH 1/2] riscv: Detect the thing', 'Same Author', '2024-01-10', 'cb'),
+  ]);
+  const second = groups.find((g) => g.title === 'riscv: Second series');
+  assert.ok(
+    second.postings[0].titles.has('riscv detect the thing'),
+    'the patch belongs to the cover it replies to',
+  );
+  assert.ok(
+    !groups
+      .find((g) => g.title === 'riscv: First series')
+      .postings[0].titles.has('riscv detect the thing'),
+  );
+  assert.equal(selectLanded(groups, 'riscv: Detect the thing').group.title, 'riscv: Second series');
+});
+
 test('the landed series: by the commit title, the latest, or a named one', () => {
   const groups = groupSeries([
     post(
@@ -461,6 +480,12 @@ test('the citation gate: every sentence cites, every citation exists', () => {
     true,
     'versions and e.g. are not sentence ends',
   );
+  for (const stray of ['Claim. [1].', 'Claim! [1].', 'Claim? [1].', 'Claim.\n[1].'])
+    assert.equal(
+      checkCitations(stray, 2).ok,
+      false,
+      `a citation after the full stop: ${JSON.stringify(stray)}`,
+    );
 });
 
 const messages = (n) =>
@@ -525,16 +550,31 @@ test('a summary failing the gate is retried once, then dropped', async () => {
   );
 });
 
-test('a long discussion is summarised in parts, then merged', async () => {
+test('a long discussion is summarised in parts, each citing only its own messages', async () => {
   const long = messages(3).map((m) => ({ ...m, text: 'x'.repeat(160_000) }));
+  const partOf = (user) => Number((user.match(/messages (\d+) to/) ?? [])[1]);
   const prompts = [];
   const r = await summarize(['V'], series, long, (user) => {
     prompts.push(user);
-    return { text: 'Part summary [1].' };
+    const first = partOf(user);
+    return { text: first ? `Part summary [${first}].` : 'Merged [1, 2, 3].' };
   });
-  assert.ok(r);
+  assert.ok(r, 'parts citing their own messages pass');
   assert.equal(prompts.length, 4, 'three parts and a merge');
   assert.match(prompts.at(-1), /merge these partial summaries/);
+  assert.deepEqual(
+    r.sources.map((x) => x.n),
+    [1, 2, 3],
+  );
+
+  // A part citing a message it was never shown is retried, then the summary is dropped.
+  let calls = 0;
+  const outOfRange = await summarize(['V'], series, long, (user) => {
+    calls += 1;
+    return { text: partOf(user) ? 'Part summary [1].' : 'Merged [1].' };
+  });
+  assert.equal(outOfRange, null, 'part 2 citing [1] must not pass');
+  assert.ok(calls <= 2 + 2 * 2, 'bounded retries');
 });
 
 test('the input hash changes with anything the model is shown', () => {

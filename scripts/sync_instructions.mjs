@@ -497,8 +497,7 @@ if (vectorBase) {
     // EEW 8/16/32, no FP.
     Zve32x: (m) => !isVectorFP(m) && !isEew64Only(m),
     // EEW 8/16/32, FP32.
-    Zve32f: (m) =>
-      isVectorFP(m) ? !isFp64Only(m) && !needsEew64Integer(m) : !isEew64Only(m),
+    Zve32f: (m) => (isVectorFP(m) ? !isFp64Only(m) && !needsEew64Integer(m) : !isEew64Only(m)),
     // EEW 8/16/32/64, no FP.
     Zve64x: (m) => !isVectorFP(m),
     // EEW 8/16/32/64, FP32.

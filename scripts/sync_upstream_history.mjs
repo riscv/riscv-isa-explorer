@@ -328,7 +328,13 @@ export async function main(argv = process.argv.slice(2)) {
   for (const [token, entry] of linux) {
     const id = ids.get(token);
     if (!id || (wanted && !wanted.has(token))) continue;
+    // One form per extension: storing one removes the others, so a targeted
+    // refresh cannot leave an extension both collected and a bundle.
+    const only = (form) => {
+      for (const key of ['extensions', 'listed', 'bundles']) if (key !== form) delete data[key][id];
+    };
     if (entry.linux.through) {
+      only('bundles');
       data.bundles[id] = { parts: entry.linux.through.map((p) => ids.get(p.toLowerCase()) ?? p) };
       report.bundles.push(id);
       continue;
@@ -344,6 +350,7 @@ export async function main(argv = process.argv.slice(2)) {
     const adds = curated ? curated.adds : commit.adds.map((x) => ids.get(x) ?? x.toUpperCase());
     if (isBulk(commit.adds ?? [], Boolean(curated))) {
       const release = await firstRelease(commit.sha);
+      only('listed');
       data.listed[id] = {
         release,
         others: commit.adds.length - 1,
@@ -374,8 +381,8 @@ export async function main(argv = process.argv.slice(2)) {
       // decides whether its input changed.
       data.series[key] = { ...h, adds, ai: previous.series?.[key]?.ai ?? null };
     }
+    only('extensions');
     data.extensions[id] = { series: key, landedWith: adds.filter((x) => x !== id) };
-    delete data.listed[id];
     report.collected.push({ id, key });
   }
   // "Landed with" names only extensions sharing this history: the 2024 commit

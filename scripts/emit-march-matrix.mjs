@@ -23,14 +23,14 @@ const ALL = Object.values(catalog).flat();
 
 /** Representative selections, chosen to cover distinct code paths. */
 const SELECTIONS = [
-  { name: 'base only',            exts: [] },
-  { name: 'imac',                 exts: ['M', 'A', 'C'] },
-  { name: 'gc equivalent',        exts: ['M', 'A', 'F', 'D', 'C', 'Zicsr', 'Zifencei'] },
-  { name: 'bitmanip',             exts: ['M', 'Zba', 'Zbb', 'Zbs'] },
-  { name: 'float + csr',          exts: ['F', 'Zicsr'] },
-  { name: 'double',               exts: ['M', 'A', 'F', 'D', 'Zicsr'] },
-  { name: 'compressed only',      exts: ['C'] },
-  { name: 'counters',             exts: ['Zicsr', 'Zicntr', 'Zihpm'] },
+  { name: 'base only', exts: [] },
+  { name: 'imac', exts: ['M', 'A', 'C'] },
+  { name: 'gc equivalent', exts: ['M', 'A', 'F', 'D', 'C', 'Zicsr', 'Zifencei'] },
+  { name: 'bitmanip', exts: ['M', 'Zba', 'Zbb', 'Zbs'] },
+  { name: 'float + csr', exts: ['F', 'Zicsr'] },
+  { name: 'double', exts: ['M', 'A', 'F', 'D', 'Zicsr'] },
+  { name: 'compressed only', exts: ['C'] },
+  { name: 'counters', exts: ['Zicsr', 'Zicntr', 'Zihpm'] },
 ];
 
 // RV128I omitted: no clang riscv128 target.
@@ -69,7 +69,13 @@ for (const members of Object.values(PROFILES)) {
   const base = members.find((id) => /^RV(32|64|128)[IE]$/.test(id)) ?? null;
   if (base === 'RV128I') continue; // no clang riscv128 target
   const { resolved } = resolveSelection({ selected: members, base });
-  emit(buildMarchString(resolved.filter((id) => CATALOG_IDS.has(id)), ALL).march, 'modern');
+  emit(
+    buildMarchString(
+      resolved.filter((id) => CATALOG_IDS.has(id)),
+      ALL,
+    ).march,
+    'modern',
+  );
 }
 
 // Ratified extensions clang 21 either still calls experimental or does not yet
@@ -98,7 +104,10 @@ for (const ext of ALL.filter((entry) => entry?.state === 'ratified')) {
     const result = resolveSelection({ selected, base });
     if (result.conflicts.length || result.unknown.length) continue;
     emit(
-      buildMarchString(result.resolved.filter((id) => CATALOG_IDS.has(id)), ALL).march,
+      buildMarchString(
+        result.resolved.filter((id) => CATALOG_IDS.has(id)),
+        ALL,
+      ).march,
       CLANG21_UNSUPPORTED.has(ext.id) ? 'known-unsupported' : 'modern',
     );
   }

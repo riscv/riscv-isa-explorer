@@ -131,6 +131,13 @@ function converse(user) {
   };
 }
 
+/** Every citation in a part's summary names a message of that part, and every sentence cites. */
+function withinChunk(text, chunk) {
+  const check = checkCitations(text, chunk.at(-1).n);
+  const shown = new Set(chunk.map((m) => m.n));
+  return check.ok && check.cited.every((n) => shown.has(n));
+}
+
 /** A checked summary of one series, or null when none passes. `call` is injected by the tests. */
 export async function summarize(extensions, series, messages, call = converse) {
   const chunks = [];
@@ -167,11 +174,21 @@ export async function summarize(extensions, series, messages, call = converse) {
         `${instructions(extensions, series)}${reminder}\n\n${chunks[0].map(render).join('\n')}`,
       );
     } else {
-      const parts = chunks.map((chunk, i) =>
-        ask(
-          `${instructions(extensions, series, `This is part ${i + 1} of ${chunks.length} of the discussion (messages ${chunk[0].n} to ${chunk.at(-1).n}).`)}${reminder}\n\n${chunk.map(render).join('\n')}`,
-        ),
-      );
+      // Each part may cite only the messages it was shown: a part citing
+      // [1] from messages 20 to 30 would pass the final check, since [1]
+      // exists, while resting on nothing. A part that fails twice drops the
+      // summary.
+      const parts = [];
+      for (const [i, chunk] of chunks.entries()) {
+        const prompt = `${instructions(extensions, series, `This is part ${i + 1} of ${chunks.length} of the discussion (messages ${chunk[0].n} to ${chunk.at(-1).n}).`)}${reminder}\n\n${chunk.map(render).join('\n')}`;
+        let partial = null;
+        for (let tryPart = 0; tryPart < 2 && partial === null; tryPart += 1) {
+          const answer = ask(prompt);
+          if (withinChunk(answer, chunk)) partial = answer;
+        }
+        if (partial === null) return null;
+        parts.push(partial);
+      }
       text = ask(
         `${instructions(extensions, series, 'The discussion was summarised in parts; merge these partial summaries into one paragraph, keeping the message citations exactly as given.')}${reminder}\n\n${parts.map((p, i) => `Part ${i + 1}: ${p}`).join('\n')}`,
       );
