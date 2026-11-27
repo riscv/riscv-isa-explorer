@@ -946,3 +946,44 @@ test('an unknown instruction is ignored, and closing the details drops insn', as
   assert.equal(query(d).get('ext'), 'C', 'closing the instruction keeps the extension');
   assert.equal(query(d).has('insn'), false);
 });
+
+/*
+ * Highlighting a profile, or a volume, is a new view (#640). An extension left
+ * selected from before kept its tile active and its panel open, and read as
+ * part of what was highlighted.
+ */
+const activeTiles = (d) =>
+  [...d.window.document.querySelectorAll('.ext-tile-active')].map((tile) => tile.id);
+
+test('highlighting a profile closes the extension selected before it', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?ext=Zba');
+  const doc = d.window.document;
+  await waitFor(() => panelOpen(d));
+  assert.ok(panelOpen(d), 'the Zba details did not open');
+  assert.ok(activeTiles(d).length > 0, 'the Zba tile is not selected');
+
+  const select = doc.querySelector('select[aria-label="Highlight Profile"]');
+  select.value = 'RVA23';
+  select.dispatchEvent(new d.window.Event('change', { bubbles: true }));
+  await waitFor(() => !panelOpen(d));
+  assert.ok(doc.body.textContent.includes('Highlighting RVA23'));
+  assert.equal(panelOpen(d), false, 'the details panel stayed open');
+  assert.deepEqual(activeTiles(d), [], 'a tile is still selected');
+  assert.equal(query(d).has('ext'), false, 'the address bar kept ?ext=');
+  assert.equal(query(d).get('profile'), 'RVA23');
+  assert.deepEqual(realErrors(errors), [], 'console errors while highlighting a profile');
+});
+
+test('choosing a volume closes the extension selected before it', async () => {
+  const { dom: d } = await mountAt('https://example.test/?ext=Zba');
+  await waitFor(() => panelOpen(d));
+  const volume = [...d.window.document.querySelectorAll('button[aria-pressed]')].find(
+    (button) => button.textContent.trim() === 'Vol I',
+  );
+  assert.ok(volume, 'no Vol I button');
+  volume.click();
+  await waitFor(() => !panelOpen(d));
+  assert.equal(panelOpen(d), false, 'the details panel stayed open');
+  assert.deepEqual(activeTiles(d), [], 'a tile is still selected');
+  assert.equal(volume.getAttribute('aria-pressed'), 'true');
+});

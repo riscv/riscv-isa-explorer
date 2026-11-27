@@ -2970,8 +2970,9 @@ const RISCVExplorer = () => {
                             // only the volume, so the grid gave no clue which filter acted.
                             setActiveProfile(profile);
                             setActiveVolume(null);
-                            setSelectedInstruction(null);
-                            setSearchMatches(null);
+                            // A new highlight is a new view: an extension left open
+                            // from before reads as part of the profile (#640).
+                            closeDetails();
                           }}
                           title="Highlight a profile without changing your ISA configuration"
                           className="riscv-profile-select rounded-lg border border-slate-500/40 px-2 py-1.5 text-[12px] font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-400/60"
@@ -3046,14 +3047,11 @@ const RISCVExplorer = () => {
                       {['I', 'II'].map((vol) => (
                         <button
                           key={vol}
-                          onClick={() =>
-                            setActiveVolume((current) => {
-                              setActiveProfile(null);
-                              setSelectedInstruction(null);
-                              setSearchMatches(null);
-                              return current === vol ? null : vol;
-                            })
-                          }
+                          onClick={() => {
+                            setActiveProfile(null);
+                            closeDetails();
+                            setActiveVolume((current) => (current === vol ? null : vol));
+                          }}
                           aria-pressed={activeVolume === vol}
                           className={[
                             'px-3 py-1.5 text-[12px] rounded-lg transition-all duration-200 font-medium whitespace-nowrap shrink-0',
