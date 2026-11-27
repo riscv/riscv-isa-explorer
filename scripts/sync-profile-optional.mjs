@@ -70,7 +70,13 @@ const MANUAL_MINOR_PROFILES = {
   'RVA23.1': { parent: 'RVA23' },
   'RVB23.1': { parent: 'RVB23' },
 };
-const PROFILE_23_1_OPTIONS = ['Ssccfg', 'Ssctr', 'Ssdbltrp', 'Ssqosid', 'Svrsw60t59b'];
+const PROFILE_23_1_OPTIONS = [
+  'Ssccfg',
+  'Ssctr',
+  'Ssdbltrp',
+  'Ssqosid',
+  'Svrsw60t59b',
+];
 
 /*
  * Extensions that exist for one XLEN only, and the XLEN they belong to.
@@ -92,23 +98,8 @@ const xlenOf = (family) => FAMILY_XLEN[family] ?? 64;
 // exactly; if it cannot, the inheritance rules have changed upstream and the
 // output is not trustworthy.
 const SPEC_CHECK = {
-  RVA23U64: [
-    'Zabha',
-    'Zacas',
-    'Zama16b',
-    'Zbc',
-    'Zfbfmin',
-    'Zfh',
-    'Ziccamoc',
-    'Zicfilp',
-    'Zicfiss',
-    'Zvbc',
-    'Zvfbfmin',
-    'Zvfbfwma',
-    'Zvfh',
-    'Zvkng',
-    'Zvksg',
-  ],
+  RVA23U64: ['Zabha', 'Zacas', 'Zama16b', 'Zbc', 'Zfbfmin', 'Zfh', 'Ziccamoc', 'Zicfilp',
+    'Zicfiss', 'Zvbc', 'Zvfbfmin', 'Zvfbfwma', 'Zvfh', 'Zvkng', 'Zvksg'],
   RVA23S64: ['Sdtrig', 'Sspm', 'Ssstrict', 'Sv48', 'Sv57', 'Svadu', 'Svvptc', 'Zkr'],
 };
 
@@ -157,20 +148,14 @@ function readExtensions(file) {
     const inh = trimmed.match(/^\$inherits:\s*(.*)$/);
     if (inh) {
       const v = inh[1].trim();
-      if (v.startsWith('['))
-        v.slice(1, -1)
-          .split(',')
-          .forEach((x) => inherits.push(x.trim().replace(/['"]/g, '')));
+      if (v.startsWith('[')) v.slice(1, -1).split(',').forEach((x) => inherits.push(x.trim().replace(/['"]/g, '')));
       else if (v) inherits.push(v.replace(/['"]/g, ''));
       current = '$inherits';
       continue;
     }
     if (/^\$remove:/.test(trimmed)) {
       const v = trimmed.replace(/^\$remove:\s*/, '').trim();
-      if (v.startsWith('['))
-        v.slice(1, -1)
-          .split(',')
-          .forEach((x) => remove.push(x.trim().replace(/['"]/g, '')));
+      if (v.startsWith('[')) v.slice(1, -1).split(',').forEach((x) => remove.push(x.trim().replace(/['"]/g, '')));
       else if (v) remove.push(v.replace(/['"]/g, ''));
       current = '$remove';
       continue;
@@ -221,9 +206,7 @@ for (const [family, [u, s]] of Object.entries(PROFILE_PAIRS)) {
   const uRes = resolve(u);
   const sRes = resolve(s);
   const mandatory = new Set(
-    [...Object.entries(uRes), ...Object.entries(sRes)]
-      .filter(([, v]) => v === 'mandatory')
-      .map(([k]) => k),
+    [...Object.entries(uRes), ...Object.entries(sRes)].filter(([, v]) => v === 'mandatory').map(([k]) => k),
   );
   const optional = [
     ...new Set(
@@ -304,12 +287,7 @@ if (failed) {
   process.exit(1);
 }
 
-const outPath = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-  'src',
-  'profile-optional.json',
-);
+const outPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'profile-optional.json');
 const payload = `${JSON.stringify(optionalByFamily, null, 2)}\n`;
 
 if (checkOnly) {

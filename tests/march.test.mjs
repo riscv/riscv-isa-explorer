@@ -74,10 +74,7 @@ test('UI-only grouping tags are excluded, not emitted', () => {
 test('architectural roots and vector umbrella names never become compiler tokens', () => {
   for (const id of ['Sm', 'Zv', 'Zve', 'Zvf', 'Zvk']) {
     const r = march(['RV64I', id]);
-    assert.ok(
-      r.excluded.some((entry) => entry.id === id),
-      `${id} should be excluded`,
-    );
+    assert.ok(r.excluded.some((entry) => entry.id === id), `${id} should be excluded`);
     assert.ok(!r.march.split('_').includes(id.toLowerCase()), `${id} leaked into ${r.march}`);
   }
 });

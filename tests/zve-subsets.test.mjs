@@ -59,14 +59,8 @@ test('the subsets nest the way the spec orders them', () => {
 
   const f32 = mnemonics('Zve32f');
   const x64 = mnemonics('Zve64x');
-  assert.ok(
-    [...f32].some((m) => !x64.has(m)),
-    'Zve32f should hold FP that Zve64x lacks',
-  );
-  assert.ok(
-    [...x64].some((m) => !f32.has(m)),
-    'Zve64x should hold EEW=64 that Zve32f lacks',
-  );
+  assert.ok([...f32].some((m) => !x64.has(m)), 'Zve32f should hold FP that Zve64x lacks');
+  assert.ok([...x64].some((m) => !f32.has(m)), 'Zve64x should hold EEW=64 that Zve32f lacks');
 });
 
 test('Zve64d is V, because V is Zve64d plus a wider VLEN', () => {

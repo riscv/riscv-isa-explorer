@@ -33,7 +33,9 @@ import { dirname, join, resolve } from 'node:path';
 import { parse as parseYAML } from 'yaml';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const catalog = JSON.parse(readFileSync(join(here, '..', 'src', 'riscv_extensions.json'), 'utf8'));
+const catalog = JSON.parse(
+  readFileSync(join(here, '..', 'src', 'riscv_extensions.json'), 'utf8'),
+);
 
 /** [[extId, csrsObject], ...] over every extension that carries CSRs. */
 function allCsrs() {
@@ -151,7 +153,10 @@ test('a CSR carries a fields map iff UDB defines that CSR', (t) => {
       } else {
         // No UDB file for this CSR (e.g. Sspmpen/spmpen) — nothing to extract, so
         // it must carry no fields key at all. Asserted explicitly, not skipped.
-        assert.ok(!('fields' in csr), `${where} has no UDB definition but carries a fields key`);
+        assert.ok(
+          !('fields' in csr),
+          `${where} has no UDB definition but carries a fields key`,
+        );
       }
     }
   }
@@ -260,16 +265,8 @@ test('every referenced CSR field matches UDB (wrong bits, marker, normalised val
         const exp = truth.byName[fn];
         assert.ok(got, `${extId}/${name}.${fn}: field present in UDB but missing from catalog`);
         assert.deepEqual(got.bits, exp.bits, `${extId}/${name}.${fn}: bits do not match UDB`);
-        assert.equal(
-          got.type,
-          exp.type,
-          `${extId}/${name}.${fn}: type marker/value does not match UDB`,
-        );
-        assert.equal(
-          got.reset,
-          exp.reset,
-          `${extId}/${name}.${fn}: reset marker/value does not match UDB`,
-        );
+        assert.equal(got.type, exp.type, `${extId}/${name}.${fn}: type marker/value does not match UDB`);
+        assert.equal(got.reset, exp.reset, `${extId}/${name}.${fn}: reset marker/value does not match UDB`);
       }
     }
   }
@@ -327,10 +324,7 @@ function runSyncOnFixture(catalogFields, udbCsrYaml) {
     };
     if (catalogFields) testcsr.fields = catalogFields;
     const catalog = { base: [{ id: 'TestExt', name: 'Test', tags: [], csrs: { testcsr } }] };
-    writeFileSync(
-      join(ws, 'src', 'riscv_extensions.json'),
-      JSON.stringify(catalog, null, 2) + '\n',
-    );
+    writeFileSync(join(ws, 'src', 'riscv_extensions.json'), JSON.stringify(catalog, null, 2) + '\n');
 
     const extDir = join(udb, 'spec', 'std', 'isa', 'ext');
     const csrDir = join(udb, 'spec', 'std', 'isa', 'csr');
@@ -382,11 +376,7 @@ test('sync corrects a catalog field whose bit range diverged from UDB', () => {
     { FOO: { bits: '8-6', type: 'RW', reset: '0' } },
     UDB_TESTCSR,
   );
-  assert.deepEqual(
-    testcsr.fields.FOO,
-    FOO_UPSTREAM,
-    'field was not corrected to the UDB bit range',
-  );
+  assert.deepEqual(testcsr.fields.FOO, FOO_UPSTREAM, 'field was not corrected to the UDB bit range');
   assert.match(
     stdout,
     /Bit-field pass: 0 CSR\(s\) gained a fields map, 1 corrected to match UDB/,

@@ -35,15 +35,10 @@ const KNOWN_DIVERGENCES = {};
 
 function clangHasRiscv() {
   try {
-    execFileSync(
-      'clang',
-      ['--target=riscv64-unknown-elf', '-march=rv64i', '-x', 'c', '/dev/null', '-fsyntax-only'],
-      { stdio: 'ignore' },
-    );
+    execFileSync('clang', ['--target=riscv64-unknown-elf', '-march=rv64i', '-x', 'c', '/dev/null', '-fsyntax-only'],
+      { stdio: 'ignore' });
     return true;
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
 /** Our transitive closure for `ext`, lowercased. */
@@ -78,46 +73,30 @@ test('every documented divergence names a real dependency entry', () => {
   // A KNOWN_DIVERGENCES key that is not in SMART_DEPENDENCIES would never be
   // visited by the closure comparison, so it would sit there unchecked forever.
   const orphans = Object.keys(KNOWN_DIVERGENCES).filter((k) => !(k in SMART_DEPENDENCIES));
-  assert.deepEqual(
-    orphans,
-    [],
-    `KNOWN_DIVERGENCES entries with no SMART_DEPENDENCIES entry: ${orphans.join(', ')}`,
-  );
+  assert.deepEqual(orphans, [], `KNOWN_DIVERGENCES entries with no SMART_DEPENDENCIES entry: ${orphans.join(', ')}`);
 });
 
-test(
-  'dependency closure matches clang, except where documented',
-  { skip: !clangHasRiscv() && 'clang has no RISC-V target' },
-  () => {
-    const undocumented = [];
-    const stale = [];
+test('dependency closure matches clang, except where documented', { skip: !clangHasRiscv() && 'clang has no RISC-V target' }, () => {
+  const undocumented = [];
+  const stale = [];
 
-    for (const ext of Object.keys(SMART_DEPENDENCIES)) {
-      const theirs = clangClosure(ext);
-      if (theirs === null) continue; // clang does not know this extension
-      const ours = ourClosure(ext);
-      const missing = [...theirs].filter((d) => !ours.has(d)).sort();
-      const accepted = (KNOWN_DIVERGENCES[ext] ?? []).slice().sort();
+  for (const ext of Object.keys(SMART_DEPENDENCIES)) {
+    const theirs = clangClosure(ext);
+    if (theirs === null) continue; // clang does not know this extension
+    const ours = ourClosure(ext);
+    const missing = [...theirs].filter((d) => !ours.has(d)).sort();
+    const accepted = (KNOWN_DIVERGENCES[ext] ?? []).slice().sort();
 
-      const unexpected = missing.filter((d) => !accepted.includes(d));
-      if (unexpected.length) {
-        undocumented.push(
-          `${ext}: clang implies ${unexpected.join(', ')} — not in our closure and not documented`,
-        );
-      }
-      const gone = accepted.filter((d) => !missing.includes(d));
-      if (gone.length) {
-        stale.push(
-          `${ext}: KNOWN_DIVERGENCES lists ${gone.join(', ')} but the gap is closed — remove the entry`,
-        );
-      }
+    const unexpected = missing.filter((d) => !accepted.includes(d));
+    if (unexpected.length) {
+      undocumented.push(`${ext}: clang implies ${unexpected.join(', ')} — not in our closure and not documented`);
     }
+    const gone = accepted.filter((d) => !missing.includes(d));
+    if (gone.length) {
+      stale.push(`${ext}: KNOWN_DIVERGENCES lists ${gone.join(', ')} but the gap is closed — remove the entry`);
+    }
+  }
 
-    assert.deepEqual(
-      undocumented,
-      [],
-      `undocumented dependency drift:\n  ${undocumented.join('\n  ')}`,
-    );
-    assert.deepEqual(stale, [], `stale divergence entries:\n  ${stale.join('\n  ')}`);
-  },
-);
+  assert.deepEqual(undocumented, [], `undocumented dependency drift:\n  ${undocumented.join('\n  ')}`);
+  assert.deepEqual(stale, [], `stale divergence entries:\n  ${stale.join('\n  ')}`);
+});

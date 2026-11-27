@@ -62,21 +62,10 @@ const checkOnly = process.argv.includes('--check');
 
 /** Names a word-match cannot be trusted with, plus the base ISAs. */
 const EXPLICIT = {
-  A: 'unpriv/a-st-ext',
-  B: 'unpriv/b-st-ext',
-  C: 'unpriv/c-st-ext',
-  D: 'unpriv/d-st-ext',
-  F: 'unpriv/f-st-ext',
-  M: 'unpriv/m-st-ext',
-  Q: 'unpriv/q-st-ext',
-  V: 'unpriv/v-st-ext',
-  H: 'priv/hypervisor',
-  S: 'priv/supervisor',
-  U: 'priv/machine',
-  RV32I: 'unpriv/rv32',
-  RV64I: 'unpriv/rv64',
-  RV32E: 'unpriv/rv32e',
-  RV64E: 'unpriv/rv32e',
+  A: 'unpriv/a-st-ext', B: 'unpriv/b-st-ext', C: 'unpriv/c-st-ext', D: 'unpriv/d-st-ext',
+  F: 'unpriv/f-st-ext', M: 'unpriv/m-st-ext', Q: 'unpriv/q-st-ext', V: 'unpriv/v-st-ext',
+  H: 'priv/hypervisor', S: 'priv/supervisor', U: 'priv/machine',
+  RV32I: 'unpriv/rv32', RV64I: 'unpriv/rv64', RV32E: 'unpriv/rv32e', RV64E: 'unpriv/rv32e',
 
   // Zvknhb is "Vector SHA-2 (full)" and lives in the vector-crypto chapter with
   // the rest of the Zvk family. Its id appears nowhere in the text the word
@@ -95,12 +84,9 @@ const EXPLICIT = {
   // Privileged-spec version tags. The profiles name them ("Ss1p13: Supervisor
   // architecture version 1.13") but no page defines them as extensions; the
   // privileged preface is where each version's changes are listed.
-  Sm1p11: 'priv/priv-preface',
-  Ss1p11: 'priv/priv-preface',
-  Sm1p12: 'priv/priv-preface',
-  Ss1p12: 'priv/priv-preface',
-  Sm1p13: 'priv/priv-preface',
-  Ss1p13: 'priv/priv-preface',
+  Sm1p11: 'priv/priv-preface', Ss1p11: 'priv/priv-preface',
+  Sm1p12: 'priv/priv-preface', Ss1p12: 'priv/priv-preface',
+  Sm1p13: 'priv/priv-preface', Ss1p13: 'priv/priv-preface',
 };
 
 /**
@@ -108,18 +94,18 @@ const EXPLICIT = {
  * specification's "New ISA Extensions" list, which defines the extensions it
  * introduces; RVA23 and RVB23 define theirs inline in the profile lists.
  */
-const PROFILE_PAGES = ['rva20-rvi20-rva22/extensions', 'rva23/rva23-profiles', 'rvb23/rvb23'];
+const PROFILE_PAGES = [
+  'rva20-rvi20-rva22/extensions',
+  'rva23/rva23-profiles',
+  'rvb23/rvb23',
+];
 
 /** Extensions whose home is a different ratified specification. */
 const OTHER_SPECS = {
-  Smaia: `${REF}/aia/index.html`,
-  Ssaia: `${REF}/aia/index.html`,
-  Sdext: `${REF}/debug/index.html`,
-  Sdtrig: `${REF}/debug/index.html`,
-  Sdtrigepm: `${REF}/debug/index.html`,
-  Sdtrigpend: `${REF}/debug/index.html`,
-  Ssqosid: `${REF}/cbqri/index.html`,
-  RERI: `${REF}/ras-eri/index.html`,
+  Smaia: `${REF}/aia/index.html`,        Ssaia: `${REF}/aia/index.html`,
+  Sdext: `${REF}/debug/index.html`,      Sdtrig: `${REF}/debug/index.html`,
+  Sdtrigepm: `${REF}/debug/index.html`,  Sdtrigpend: `${REF}/debug/index.html`,
+  Ssqosid: `${REF}/cbqri/index.html`,    RERI: `${REF}/ras-eri/index.html`,
 
   // SPMP is ratified but published only as a PDF attachment — there is no HTML
   // chapter for it. /isa/extensions/sspmp/ and its index.html are both 404s,
@@ -169,12 +155,9 @@ async function build() {
     ...(await readVolume('priv', version)),
   ]);
 
-  const words = (s) =>
-    new Set(
-      (s.replace(/<[^>]+>/g, ' ').match(/\b[A-Za-z][A-Za-z0-9]*\b/g) || []).map((w) =>
-        w.toLowerCase(),
-      ),
-    );
+  const words = (s) => new Set(
+    (s.replace(/<[^>]+>/g, ' ').match(/\b[A-Za-z][A-Za-z0-9]*\b/g) || []).map((w) => w.toLowerCase()),
+  );
 
   const index = new Map();
   for (const key of chapters) {
@@ -182,35 +165,21 @@ async function build() {
     let html;
     try {
       html = await get(`${REF}/isa/${version}/${vol}/${ch}.html`);
-    } catch {
-      continue;
-    } // a few index/colophon pages 404 under the snapshot
-    const headings = [...html.matchAll(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/g)]
-      .map((m) => m[1])
-      .join(' ');
+    } catch { continue; }              // a few index/colophon pages 404 under the snapshot
+    const headings = [...html.matchAll(/<h[1-6][^>]*>([\s\S]*?)<\/h[1-6]>/g)].map((m) => m[1]).join(' ');
     index.set(key, {
       file: ch.toLowerCase(),
-      anchors: new Set(
-        [...html.matchAll(/id="([A-Za-z][\w.-]*)"/g)].map((m) => m[1].toLowerCase()),
-      ),
+      anchors: new Set([...html.matchAll(/id="([A-Za-z][\w.-]*)"/g)].map((m) => m[1].toLowerCase())),
       headings: words(headings),
       body: words(html),
     });
   }
 
   // Volume I first — see the header note.
-  const order = [...index.keys()].sort(
-    (a, b) =>
-      (a.startsWith('unpriv/') ? 0 : 1) - (b.startsWith('unpriv/') ? 0 : 1) || a.localeCompare(b),
-  );
+  const order = [...index.keys()].sort((a, b) =>
+    (a.startsWith('unpriv/') ? 0 : 1) - (b.startsWith('unpriv/') ? 0 : 1) || a.localeCompare(b));
 
-  return {
-    version,
-    index,
-    order,
-    url: (key) => `${REF}/isa/${key}.html`,
-    profiles: await readProfiles(),
-  };
+  return { version, index, order, url: (key) => `${REF}/isa/${key}.html`, profiles: await readProfiles() };
 }
 
 /**
@@ -227,12 +196,9 @@ async function readProfiles() {
     if (!target) throw new Error(`could not follow the redirect stub for ${page}`);
     const html = await get(`${REF}/${component}/${target}`);
     const terms = new Set(
-      [...html.matchAll(/<li>\s*<p><strong>([A-Za-z][A-Za-z0-9]*)<\/strong>/g)].map((m) =>
-        m[1].toLowerCase(),
-      ),
+      [...html.matchAll(/<li>\s*<p><strong>([A-Za-z][A-Za-z0-9]*)<\/strong>/g)].map((m) => m[1].toLowerCase()),
     );
-    if (!terms.size)
-      throw new Error(`no extension terms found on ${page}; has the page layout changed?`);
+    if (!terms.size) throw new Error(`no extension terms found on ${page}; has the page layout changed?`);
     pages.push([`${REF}/${component}/${name}.html`, terms]);
   }
   return pages;
@@ -246,12 +212,12 @@ const resolve = (id) => {
   if (EXPLICIT[id]) return { url: url(EXPLICIT[id]), via: 'explicit' };
   if (OTHER_SPECS[id]) return { url: OTHER_SPECS[id], via: 'other-spec' };
   const low = id.toLowerCase();
-  if (low.length < 3) return null; // too short to word-match safely
+  if (low.length < 3) return null;    // too short to word-match safely
   for (const [via, test] of [
     ['filename', (v) => v.file === low],
-    ['heading', (v) => v.headings.has(low)],
-    ['anchor', (v) => v.anchors.has(low)],
-    ['body', (v) => v.body.has(low)],
+    ['heading',  (v) => v.headings.has(low)],
+    ['anchor',   (v) => v.anchors.has(low)],
+    ['body',     (v) => v.body.has(low)],
   ]) {
     const key = order.find((k) => test(index.get(k)));
     if (key) return { url: url(key), via };
@@ -266,10 +232,7 @@ const changes = [];
 let unmapped = 0;
 for (const entry of entries) {
   const hit = resolve(entry.id);
-  if (!hit) {
-    unmapped++;
-    continue;
-  }
+  if (!hit) { unmapped++; continue; }
   stats[hit.via] = (stats[hit.via] ?? 0) + 1;
   if (entry.url !== hit.url) changes.push(`${entry.id}: ${entry.url} -> ${hit.url}`);
   entry.url = hit.url;
