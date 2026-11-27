@@ -138,17 +138,34 @@ const immediate = (name, mnemonic) => {
   }
 };
 
+/*
+ * Zfinx and its relatives keep floating-point values in the integer registers,
+ * so an instruction listed under one of them takes x registers where UDB's
+ * template says fd/fs1. On RV32, Zdinx holds a double in an even/odd register
+ * pair, so its operands start on even registers.
+ */
+const INX_FP = { fd: 'a0', fs1: 'a1', fs2: 'a2', fs3: 'a3' };
+const INX_REGISTERS = {
+  Zfinx: INX_FP,
+  Zhinx: INX_FP,
+  Zhinxmin: INX_FP,
+  Zdinx: { fd: 'a0', fs1: 'a2', fs2: 'a4', fs3: 'a6' },
+};
+
 const LITERAL = /^(?:sp|v0|x[0-9]+|zero|ra|rtz)$/;
 
 /**
  * One line an assembler accepts, e.g. `vaadd.vv v8, v16, v24, v0.t`.
+ * `extensionId` is the extension the instruction is listed under: under
+ * Zfinx, `fadd.s` takes `a1` where under F it takes `fa1`.
  *
  * @returns {string|null} null when an operand has no known concrete value
  */
-export function exampleAssembly(mnemonic, udbAssembly) {
+export function exampleAssembly(mnemonic, udbAssembly, extensionId = null) {
   const name = String(mnemonic || '').toLowerCase();
   const assembly = operandTemplate(name, udbAssembly);
   if (!name || typeof assembly !== 'string') return null;
+  const registers = { ...REGISTERS, ...INX_REGISTERS[extensionId] };
   const operands = splitOperands(assembly);
   const concrete = [];
   for (const [index, operand] of operands.entries()) {
@@ -160,7 +177,7 @@ export function exampleAssembly(mnemonic, udbAssembly) {
     let unknown = false;
     const value = operand.replace(/\{reg_list\}|[A-Za-z_][A-Za-z0-9_]*/g, (token) => {
       if (LITERAL.test(token)) return token;
-      const resolved = REGISTERS[token] ?? immediate(token, name);
+      const resolved = registers[token] ?? immediate(token, name);
       if (resolved === null) unknown = true;
       return resolved ?? token;
     });

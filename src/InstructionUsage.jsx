@@ -146,7 +146,7 @@ export default function InstructionUsage({
     const xlenOnly = xlenRestriction(instruction.extension, meta);
     const xlen = preferredXlen(instruction.extension, meta?.defined_by);
     const syntax = assemblySyntax(key, meta?.assembly);
-    const example = exampleAssembly(key, meta?.assembly);
+    const example = exampleAssembly(key, meta?.assembly, extension?.id);
     const prototype = intrinsic ? prototypeFor(intrinsic.prototypes, xlen) : null;
 
     const marchFor = (extra) =>
