@@ -13,6 +13,17 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Added
+
+- **Upstream history.** The details panel's Linux chip opens how the
+  extension got into Linux: the patch series that landed and its versions,
+  earlier attempts, who wrote, reviewed and applied it, the release, and a
+  Progression chart of the whole path. An AI summary of the review discussion
+  cites the messages it rests on. Bundles show their parts, and extensions that
+  landed together share one history, with Previous and Next between them. Ask
+  AI asks about the extension shown. `?history=linux` links to it, and a weekly
+  workflow keeps it current (#649).
+
 ## [1.17.2] - 2026-11-27
 
 Catalogue: 215 entries, unchanged; nothing is added or removed. No profile

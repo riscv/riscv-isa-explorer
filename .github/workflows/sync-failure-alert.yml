@@ -20,6 +20,7 @@ on:
       - Check riscv-opcodes Drift
       - Check toolchain gaps
       - Check outbound links
+      - Sync upstream history
       - UDB Export Check
     types: [completed]
 

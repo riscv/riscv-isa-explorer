@@ -987,3 +987,63 @@ test('choosing a volume closes the extension selected before it', async () => {
   assert.deepEqual(activeTiles(d), [], 'a tile is still selected');
   assert.equal(volume.getAttribute('aria-pressed'), 'true');
 });
+
+/*
+ * Upstream history (#649). The full data is a lazy chunk jsdom does not load,
+ * so these cover what the bundle itself carries: the link that opens the
+ * dialog, Esc, the address bar, the Linux chip, and Previous and Next.
+ */
+const historyDialog = (d) =>
+  d.window.document.querySelector('[role="dialog"][aria-labelledby="history-title"]');
+const escapeOnWindow = (d) =>
+  d.window.dispatchEvent(new d.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+test('?history=linux opens the history over the extension, and Esc closes only it', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?ext=Zawrs&history=linux');
+  await waitFor(() => historyDialog(d));
+  assert.ok(historyDialog(d), 'the history dialog did not open');
+  assert.match(d.window.document.getElementById('history-title').textContent, /Zawrs/);
+  assert.ok(panelOpen(d), 'the details panel should stay open underneath');
+  escapeOnWindow(d);
+  await waitFor(() => !historyDialog(d));
+  assert.equal(historyDialog(d), null, 'Esc left the dialog open');
+  assert.ok(panelOpen(d), 'Esc closed the panel as well');
+  assert.equal(query(d).has('history'), false, 'closing should drop ?history=');
+  assert.equal(query(d).get('ext'), 'Zawrs');
+  assert.deepEqual(realErrors(errors), []);
+});
+
+test('the Linux chip opens the history, and the address bar follows', async () => {
+  const { dom: d } = await mountAt('https://example.test/?ext=Zawrs');
+  await waitFor(() => panelOpen(d));
+  const chip = [...d.window.document.querySelectorAll('#detail-panel button')].find((b) =>
+    /^Linux /.test(b.textContent.trim()),
+  );
+  assert.ok(chip, 'the Linux chip should be a button for an extension with a history');
+  chip.click();
+  await waitFor(() => historyDialog(d));
+  assert.ok(historyDialog(d));
+  assert.equal(query(d).get('history'), 'linux');
+});
+
+test('a bundle steps through its parts with the arrow keys', async () => {
+  const { dom: d } = await mountAt('https://example.test/?ext=B&history=linux');
+  await waitFor(() => historyDialog(d));
+  const title = () => d.window.document.getElementById('history-title').textContent;
+  const nav = () => d.window.document.querySelector('nav[aria-label="B parts"]');
+  assert.ok(nav(), 'a bundle should have Previous and Next');
+  assert.match(nav().textContent, /1 of 4/);
+  const step = (key) =>
+    d.window.dispatchEvent(new d.window.KeyboardEvent('keydown', { key, bubbles: true }));
+  step('ArrowRight');
+  await waitFor(() => /Zba/.test(title()));
+  assert.match(title(), /B›Zba/, 'the title keeps the way back to B');
+  step('ArrowRight');
+  step('ArrowRight');
+  step('ArrowRight');
+  await waitFor(() => /Zbs/.test(title()));
+  assert.match(nav().textContent, /4 of 4/, 'the last part stops there');
+  step('ArrowLeft');
+  await waitFor(() => /Zbb/.test(title()));
+  assert.match(title(), /Zbb/);
+});

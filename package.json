@@ -20,6 +20,8 @@
     "sync:references": "node scripts/sync_reference_impls.mjs",
     "sync:references:check": "node scripts/sync_reference_impls.mjs --check",
     "sync:toolchains": "node scripts/sync_toolchain_support.mjs",
+    "sync:upstream": "node scripts/sync_upstream_history.mjs",
+    "summarize:upstream": "node scripts/summarize_upstream_history.mjs",
     "sync:manual-status": "node scripts/sync_manual_status.mjs",
     "prepare": "git config core.hooksPath .githooks || true",
     "sync:udb": "node scripts/sync_udb_extensions.cjs",

@@ -6,3 +6,6 @@ dist/
 
 # Scratch workspace for agent-driven development runs.
 .superpowers/
+
+# Network cache of the upstream-history sync (scripts/sync_upstream_history.mjs).
+.cache/
