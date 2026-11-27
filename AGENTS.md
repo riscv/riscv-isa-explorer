@@ -46,7 +46,7 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run sync:references -- <sail-riscv> <riscv-isa-sim> <riscv-arch-test>` | Regenerate `src/instruction-references.json` |
 | `npm run sync:manual-status -- <riscv-isa-manual>` | Regenerate `src/isa-manual-status.json` (the manual's ratified list) |
 | `npm run sync:toolchains` | Regenerate `src/toolchain-support.json` (fetches from GitHub and sourceware) |
-| `npm run sync:upstream` | Regenerate `src/upstream-history.json` and its index: how each extension got into Linux (GitHub API and lore.kernel.org) |
+| `npm run sync:upstream -- <path-to-linux>` | Regenerate `src/upstream-history.json` and its index: how each extension got into Linux (a kernel clone, blobless is enough, and lore.kernel.org) |
 | `npm run summarize:upstream` | Write AI summaries for new or changed series (Bedrock, needs AWS credentials; `--dry-run` sends nothing) |
 | `npm run sync:params -- <path-to-udb>` | Regenerate `src/isa-params.json` (UDB parameter definitions) |
 | `npm run graph:check -- <path-to-udb>` | Check dependency graph vs UDB |
@@ -343,7 +343,9 @@ Then `npm run sync` and `npm run check`.
   fail once either goes stale.
 - **The upstream history is collected, then summarised, and only the facts are
   collected.** `scripts/sync_upstream_history.mjs` finds, per extension Linux
-  supports, the commit that added it to the kernel's extension table, the patch
+  supports, the commit that added it to the kernel's extension table (read
+  from a kernel clone with git, `scripts/kernel-git.mjs`, never GitHub's API,
+  whose rate limits a weekly run hit), the patch
   series behind it on lore (grouped by `scripts/upstream-history-lib.mjs`), its
   versions, review and release. A commit adding more than three extensions is
   bookkeeping (`BULK`): the 6.6 commit listing 13 single letters dates none of

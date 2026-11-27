@@ -33,7 +33,11 @@ import {
   version,
 } from '../scripts/upstream-history-lib.mjs';
 import { CURATED, UNCOLLECTED } from '../scripts/upstream-curated.mjs';
-import { buildIndex, pruneMutable, rateLimitWait } from '../scripts/sync_upstream_history.mjs';
+import { buildIndex } from '../scripts/sync_upstream_history.mjs';
+import { commitAt, firstRelease, splitDiff, tableCommits } from '../scripts/kernel-git.mjs';
+import { execFileSync } from 'node:child_process';
+import os from 'node:os';
+import path from 'node:path';
 import {
   MODEL_NAME,
   inputHash,
@@ -890,52 +894,126 @@ test('dates under a lane never collide; the more important one wins', () => {
   );
 });
 
-test("GitHub's rate limits are waited out; a real refusal is not", () => {
-  const headers = (h) => ({ get: (name) => h[name] ?? null });
-  const now = Date.parse('2026-11-27T18:00:00Z');
-  // Secondary limit: Retry-After, in seconds.
-  assert.equal(rateLimitWait(429, headers({ 'retry-after': '60' }), 0, now), 61_000);
-  assert.equal(rateLimitWait(403, headers({ 'retry-after': '30' }), 0, now), 31_000);
-  // Primary limit: wait for the reset, with a margin.
-  const reset = String(now / 1000 + 600);
-  assert.equal(
-    rateLimitWait(
-      403,
-      headers({ 'x-ratelimit-remaining': '0', 'x-ratelimit-reset': reset }),
-      0,
-      now,
-    ),
-    605_000,
+/* ---------- reading the kernel from a git clone ---------- */
+
+/** A tiny kernel: commits that touch the extension table, a merge, rc and release tags. */
+function fakeKernel() {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'fake-linux-'));
+  const run = (args, env = {}) =>
+    execFileSync('git', ['-C', repo, ...args], {
+      encoding: 'utf8',
+      env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1', ...env },
+    });
+  const at = (date) => ({ GIT_AUTHOR_DATE: date, GIT_COMMITTER_DATE: date });
+  run(['init', '-q', '-b', 'master']);
+  run(['config', 'user.name', 'Committer Name']);
+  run(['config', 'user.email', 'c@example.test']);
+  run(['config', 'tag.gpgSign', 'false']);
+  run(['config', 'commit.gpgSign', 'false']);
+  const table = path.join(repo, 'arch/riscv/kernel');
+  fs.mkdirSync(table, { recursive: true });
+  const write = (file, text) => fs.writeFileSync(path.join(table, file), text);
+  const commit = (message, date, author = 'Author Name <a@example.test>') => {
+    run(['add', '-A']);
+    run(['commit', '-q', '--author', author, '-m', message], at(date));
+    return run(['rev-parse', 'HEAD']).trim();
+  };
+  write('cpu.c', 'static const struct riscv_isa_ext_data isa_ext_arr[] = {\n};\n');
+  commit('riscv: start', '2022-01-02T10:00:00Z');
+  write(
+    'cpu.c',
+    'static const struct riscv_isa_ext_data isa_ext_arr[] = {\n\tSET_ISA_EXT_MAP("zbb", RISCV_ISA_EXT_ZBB);\n};\n',
   );
-  // A bare 429 backs off by minutes, doubling, capped.
-  assert.equal(rateLimitWait(429, headers({}), 0, now), 60_000);
-  assert.equal(rateLimitWait(429, headers({}), 2, now), 240_000);
-  assert.equal(rateLimitWait(429, headers({}), 9, now), 900_000);
-  // Not a limit: a refusal, a missing page, a server error.
-  assert.equal(rateLimitWait(403, headers({}), 0, now), null);
-  assert.equal(rateLimitWait(404, headers({}), 0, now), null);
-  assert.equal(rateLimitWait(500, headers({ 'retry-after': '5' }), 0, now), null);
+  const zbb = commit(
+    'riscv: add zbb support\n\nReviewed-by: Rev Iewer <r@example.test>',
+    '2022-02-01T10:00:00Z',
+  );
+  run(['tag', '-a', 'v6.0-rc1', '-m', 'v6.0-rc1'], at('2022-03-01T10:00:00Z'));
+  write(
+    'cpufeature.c',
+    'const struct riscv_isa_ext_data riscv_isa_ext[] = {\n\t__RISCV_ISA_EXT_DATA(zba, RISCV_ISA_EXT_ZBA),\n\t__RISCV_ISA_EXT_DATA(zbs, RISCV_ISA_EXT_ZBS),\n};\n',
+  );
+  const zbaZbs = commit(
+    'RISC-V: Add Zba, Zbs extension probing\n\nSigned-off-by: Author Name <a@example.test>',
+    '2022-04-01T10:00:00Z',
+  );
+  run(['tag', '-a', 'v6.0', '-m', 'Linux 6.0'], at('2022-05-01T10:00:00Z'));
+  // A merge is never the commit that added anything.
+  run(['checkout', '-q', '-b', 'side']);
+  fs.writeFileSync(path.join(repo, 'README'), 'x\n');
+  commit('docs: readme', '2022-05-10T10:00:00Z');
+  run(['checkout', '-q', 'master']);
+  run(['merge', '-q', '--no-ff', '-m', 'Merge branch side', 'side'], at('2022-05-11T10:00:00Z'));
+  run(['tag', '-a', 'v6.1', '-m', 'Linux 6.1'], at('2022-07-01T10:00:00Z'));
+  return { repo, zbb, zbaZbs };
+}
+
+test('the kernel clone gives the table commits, what each adds, and its trailers', () => {
+  const { repo, zbb, zbaZbs } = fakeKernel();
+  const commits = tableCommits(repo, '2022-01-15');
+  assert.deepEqual(
+    commits.map((c) => [c.sha, c.adds]),
+    [
+      [zbb, ['zbb']],
+      [zbaZbs, ['zba', 'zbs']],
+    ],
+    'oldest first, from both files, no merge and nothing before the since date',
+  );
+  const c = commitAt(repo, zbb);
+  assert.equal(c.commit.author.name, 'Author Name');
+  assert.equal(c.commit.committer.name, 'Committer Name');
+  assert.equal(c.commit.committer.date.slice(0, 10), '2022-02-01');
+  assert.deepEqual(trailers(c.commit.message, 'Reviewed-by'), ['Rev Iewer']);
+  assert.equal(c.commit.message.split('\n')[0], 'riscv: add zbb support');
+  fs.rmSync(repo, { recursive: true, force: true });
 });
 
-test('--refresh keeps only cached answers that cannot change', () => {
-  const dir = fs.mkdtempSync(
-    new URL('../node_modules/.upstream-cache-test-', import.meta.url).pathname,
+test('the first release containing a commit is a vX.Y tag, never an -rc, with its UTC date', () => {
+  const { repo, zbb, zbaZbs } = fakeKernel();
+  assert.deepEqual(firstRelease(repo, zbb), { version: '6.0', date: '2022-05-01' }, 'not v6.0-rc1');
+  assert.deepEqual(firstRelease(repo, zbaZbs), { version: '6.0', date: '2022-05-01' });
+  const head = execFileSync('git', ['-C', repo, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  assert.deepEqual(firstRelease(repo, head), { version: '6.1', date: '2022-07-01' });
+  // Tagged late in a time zone west of UTC: the date is the UTC one.
+  execFileSync('git', ['-C', repo, 'tag', '-a', 'v6.2', '-m', 'Linux 6.2'], {
+    env: {
+      ...process.env,
+      GIT_CONFIG_GLOBAL: '/dev/null',
+      GIT_COMMITTER_DATE: '2022-09-04T17:30:00-0700',
+    },
+  });
+  execFileSync('git', ['-C', repo, 'tag', '-d', 'v6.1'], { stdio: 'ignore' });
+  assert.deepEqual(
+    firstRelease(repo, head),
+    { version: '6.2', date: '2022-09-05' },
+    "UTC, not the tagger's day",
   );
-  const files = {
-    'gh-repos_torvalds_linux_commits_abc.json': '{"sha":"abc"}',
-    'gh-repos_torvalds_linux_compare_v6.5...abc_per_page_1.json': '{"status":"behind"}',
-    'gh-repos_torvalds_linux_compare_v7.19...abc_per_page_1.json': 'null',
-    'gh-repos_torvalds_linux_commits_path_arch_riscv_kernel_cpu.c_page_1.json': '[]',
-    'lore-linux-riscv_q_s_3Azawrs_x_A_o_0': '<feed/>',
-    'lore-all_abc_t.mbox.gz': 'From mboxrd@z',
-  };
-  for (const [name, body] of Object.entries(files)) fs.writeFileSync(`${dir}/${name}`, body);
-  assert.equal(pruneMutable(dir), 4);
-  assert.deepEqual(fs.readdirSync(dir).sort(), [
-    'gh-repos_torvalds_linux_commits_abc.json',
-    'gh-repos_torvalds_linux_compare_v6.5...abc_per_page_1.json',
-  ]);
-  fs.rmSync(dir, { recursive: true });
+  execFileSync('git', ['-C', repo, 'commit', '-q', '--allow-empty', '-m', 'after'], {
+    env: {
+      ...process.env,
+      GIT_CONFIG_GLOBAL: '/dev/null',
+      GIT_COMMITTER_NAME: 'x',
+      GIT_COMMITTER_EMAIL: 'x@x',
+      GIT_AUTHOR_NAME: 'x',
+      GIT_AUTHOR_EMAIL: 'x@x',
+    },
+  });
+  const unreleased = execFileSync('git', ['-C', repo, 'rev-parse', 'HEAD'], {
+    encoding: 'utf8',
+  }).trim();
+  assert.equal(firstRelease(repo, unreleased), null, 'applied, not released yet');
+  fs.rmSync(repo, { recursive: true, force: true });
+});
+
+test('a diff splits into the per-file patches addedIds reads', () => {
+  const files = splitDiff(
+    'diff --git a/arch/riscv/kernel/cpu.c b/arch/riscv/kernel/cpu.c\nindex 1..2\n--- a/x\n+++ b/x\n@@ -1 +1 @@\n+\t__RISCV_ISA_EXT_DATA(zfa, X),\ndiff --git a/README b/README\n@@ -1 +1 @@\n+x\n',
+  );
+  assert.deepEqual(
+    files.map((f) => f.filename),
+    ['arch/riscv/kernel/cpu.c', 'README'],
+  );
+  assert.deepEqual(addedIds(files), ['zfa']);
 });
 
 /* ---------- the committed data ---------- */

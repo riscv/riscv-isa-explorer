@@ -3,13 +3,17 @@
  * How each extension got into Linux (#649): the commit that brought it, the
  * patch series behind that commit, its versions and review, and the release.
  *
- *   node scripts/sync_upstream_history.mjs              # every extension Linux supports
- *   node scripts/sync_upstream_history.mjs Zawrs V      # just these (data for others is kept)
+ *   node scripts/sync_upstream_history.mjs <linux>            # every extension Linux supports
+ *   node scripts/sync_upstream_history.mjs <linux> Zawrs V    # just these (data for others is kept)
+ *
+ * <linux> is a clone of the kernel; a blobless one is enough and quick:
+ *   git clone --filter=blob:none --no-checkout \
+ *     https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git ../linux
  *
  * Sources, all public:
- *   - GitHub's API for torvalds/linux: the commits that touch the kernel's
- *     extension table (arch/riscv/kernel/cpufeature.c, earlier cpu.c), their
- *     trailers, and the first release tag that contains each.
+ *   - The kernel clone (scripts/kernel-git.mjs): the commits that touch the
+ *     kernel's extension table (arch/riscv/kernel/cpufeature.c, earlier
+ *     cpu.c), their trailers, and the first release tag that contains each.
  *   - lore.kernel.org: every patch posted whose subject names the extension,
  *     or the landing patch's own title, grouped into series
  *     (scripts/upstream-history-lib.mjs), and each version's thread.
@@ -20,20 +24,19 @@
  * bundle). AI summaries already in the data are kept; adding and refreshing
  * them is scripts/summarize_upstream_history.mjs's job.
  *
- * Network responses are cached in .cache/upstream-history/, so a rerun is
- * fast and a summary run that follows reads the same threads. Set
- * GITHUB_TOKEN (or have `gh` logged in) for the GitHub API.
+ * Lore's answers are cached in .cache/upstream-history/, so a local rerun is
+ * fast and a summary run that follows reads the same threads. The weekly
+ * workflow starts with an empty cache, so it always sees the latest.
  */
-import { execFileSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
+import { commitAt, firstRelease, tableCommits } from './kernel-git.mjs';
 import { CURATED } from './upstream-curated.mjs';
 import {
   BOT,
-  addedIds,
   groupSeries,
   isBulk,
   iso,
@@ -60,19 +63,6 @@ const safeName = (s) =>
     ? `${s.slice(0, 80).replace(/[^\w.-]+/g, '_')}-${crypto.createHash('sha1').update(s).digest('hex')}`
     : s.replace(/[^\w.-]+/g, '_');
 
-let token;
-function githubToken() {
-  if (token !== undefined) return token;
-  token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN || null;
-  if (!token)
-    try {
-      token = execFileSync('gh', ['auth', 'token'], { encoding: 'utf8' }).trim() || null;
-    } catch {
-      token = null;
-    }
-  return token;
-}
-
 /**
  * A fetch that survives a dropped connection: null (try again) after a short
  * wait, until the fourth attempt, which lets the error through.
@@ -84,68 +74,6 @@ async function retrying(attempt, request) {
     if (attempt >= 3) throw error;
     await new Promise((r) => setTimeout(r, 3000 * (attempt + 1)));
     return null;
-  }
-}
-
-/**
- * How long to wait before asking GitHub again, or null when the answer is not
- * a rate limit. GitHub's secondary limits (an expensive query such as a
- * path's history in torvalds/linux) answer 429 or 403 with Retry-After; the
- * primary limit answers with x-ratelimit-remaining: 0 and the reset time. A
- * bare 429 backs off by minutes. A 403 with neither is a real refusal.
- */
-export function rateLimitWait(status, headers, attempt = 0, now = Date.now()) {
-  if (status !== 403 && status !== 429) return null;
-  const header = (name) => headers?.get?.(name) ?? null;
-  const retryAfter = Number(header('retry-after'));
-  if (retryAfter > 0) return Math.min(retryAfter * 1000 + 1000, 3_600_000);
-  const reset = Number(header('x-ratelimit-reset'));
-  if (header('x-ratelimit-remaining') === '0' && reset) {
-    const wait = reset * 1000 - now + 5000;
-    return wait > 0 && wait < 3_600_000 ? wait : null;
-  }
-  if (status === 429) return Math.min(60_000 * 2 ** attempt, 900_000);
-  return null;
-}
-
-/** Cached JSON from GitHub's API; null for a 404 or 422 (an unknown ref, a comparison it will not compute). */
-export async function gh(endpoint, { fetchImpl = fetch } = {}) {
-  const file = path.join(CACHE, `gh-${safeName(endpoint)}.json`);
-  if (fs.existsSync(file)) return JSON.parse(fs.readFileSync(file, 'utf8'));
-  let limited = 0; // rate-limit waits so far, counted apart from failures
-  for (let attempt = 0; ; attempt += 1) {
-    const res = await retrying(attempt, () =>
-      fetchImpl(`https://api.github.com/${endpoint}`, {
-        headers: {
-          accept: 'application/vnd.github+json',
-          'user-agent': USER_AGENT,
-          ...(githubToken() ? { authorization: `Bearer ${githubToken()}` } : {}),
-        },
-      }),
-    );
-    if (!res) continue;
-    if (res.status === 404 || res.status === 422) {
-      // Cached too: a release tag not cut yet is asked about for every commit.
-      fs.mkdirSync(CACHE, { recursive: true });
-      fs.writeFileSync(file, 'null');
-      return null;
-    }
-    const wait = rateLimitWait(res.status, res.headers, limited);
-    if (wait !== null && limited < 6) {
-      limited += 1;
-      console.error(`GitHub rate limit (HTTP ${res.status}): waiting ${Math.ceil(wait / 1000)} s`);
-      await new Promise((r) => setTimeout(r, wait));
-      attempt -= 1; // waiting out a limit is not a failed attempt
-      continue;
-    }
-    if (res.ok) {
-      const json = await res.json();
-      fs.mkdirSync(CACHE, { recursive: true });
-      fs.writeFileSync(file, JSON.stringify(json));
-      return json;
-    }
-    if (attempt >= 3) throw new Error(`GitHub ${endpoint}: HTTP ${res.status}`);
-    await new Promise((r) => setTimeout(r, 2000 * (attempt + 1)));
   }
 }
 
@@ -197,63 +125,6 @@ async function postings(query, until, list = 'linux-riscv') {
   return out;
 }
 
-/** Every non-merge commit that touched the kernel's extension table since 2022. */
-async function tableCommits() {
-  const seen = new Map();
-  for (const file of ['arch/riscv/kernel/cpufeature.c', 'arch/riscv/kernel/cpu.c']) {
-    for (let page = 1; ; page += 1) {
-      const batch =
-        (await gh(
-          `repos/torvalds/linux/commits?path=${file}&since=2022-01-01T00:00:00Z&per_page=100&page=${page}`,
-        )) ?? [];
-      for (const c of batch) if (c.parents.length === 1) seen.set(c.sha, c.sha);
-      if (batch.length < 100) break;
-    }
-  }
-  const commits = [];
-  for (const sha of seen.keys()) {
-    const c = await gh(`repos/torvalds/linux/commits/${sha}`);
-    if (c) commits.push({ ...c, adds: addedIds(c.files) });
-  }
-  return commits.sort((a, b) => a.commit.committer.date.localeCompare(b.commit.committer.date));
-}
-
-// Kernel release tags in order, oldest first. Containment is monotonic along
-// this list, so the first tag that contains a commit is found by bisection.
-const TAGS = [
-  ...Array.from({ length: 6 }, (_, i) => `v4.${15 + i}`),
-  ...Array.from({ length: 20 }, (_, i) => `v5.${i}`),
-  ...Array.from({ length: 20 }, (_, i) => `v6.${i}`),
-  ...Array.from({ length: 20 }, (_, i) => `v7.${i}`),
-];
-
-async function contains(tag, sha) {
-  const cmp = await gh(`repos/torvalds/linux/compare/${tag}...${sha}?per_page=1`);
-  if (!cmp) return null; // a tag not cut yet
-  return cmp.status === 'behind' || cmp.status === 'identical';
-}
-
-/** The first release that contains the commit, with its date, or null if none has yet. */
-async function firstRelease(sha) {
-  let lo = 0;
-  let hi = TAGS.length - 1;
-  // Trim tags not cut yet off the end.
-  while (hi >= 0 && (await contains(TAGS[hi], sha)) === null) hi -= 1;
-  if (hi < 0 || !(await contains(TAGS[hi], sha))) return null;
-  while (lo < hi) {
-    const mid = (lo + hi) >> 1;
-    if (await contains(TAGS[mid], sha)) hi = mid;
-    else lo = mid + 1;
-  }
-  const ref = await gh(`repos/torvalds/linux/git/ref/tags/${TAGS[lo]}`);
-  const tag =
-    ref?.object.type === 'tag' ? await gh(`repos/torvalds/linux/git/tags/${ref.object.sha}`) : null;
-  const date =
-    tag?.tagger.date ??
-    (await gh(`repos/torvalds/linux/commits/${ref?.object.sha}`))?.commit.committer.date;
-  return { version: TAGS[lo].slice(1), date: (date ?? '').slice(0, 10) };
-}
-
 /** Catalogue id for each lower-case kernel/-march name. */
 function catalogueIds() {
   const catalogue = JSON.parse(
@@ -268,7 +139,7 @@ function catalogueIds() {
 }
 
 /** The history of one commit's series. */
-async function seriesHistory(commit, { curated = null } = {}) {
+async function seriesHistory(commit, { curated = null, linux }) {
   const message = commit.commit.message;
   const subject = message.split('\n')[0];
   const applied = new Date(commit.commit.committer.date);
@@ -296,7 +167,7 @@ async function seriesHistory(commit, { curated = null } = {}) {
   for (const p of group.postings) threads.push(await thread(p.href));
   const replies = reviewReplies(threads, authors);
   const repliers = [...new Set(replies.map((m) => personName(m.from)))];
-  const release = await firstRelease(commit.sha);
+  const release = firstRelease(linux, commit.sha);
   if (!release) return { missing: 'applied, not in a release yet' };
   const earlier = earlierAttempts(groups, group);
   const firstPatch = [group, ...earlier]
@@ -339,39 +210,16 @@ async function seriesHistory(commit, { curated = null } = {}) {
   };
 }
 
-/**
- * Drops what can change between runs from the cache, keeping only answers
- * that never change: a commit's details, its comparison with a tag that
- * exists, a tag's date. Lore searches and threads grow, the commit listings
- * move, and a tag not cut yet will be. The weekly workflow keeps the cache
- * between runs and passes --refresh; a local rerun keeps everything.
- */
-export function pruneMutable(dir = CACHE) {
-  if (!fs.existsSync(dir)) return 0;
-  let dropped = 0;
-  for (const name of fs.readdirSync(dir)) {
-    const file = path.join(dir, name);
-    const mutable =
-      name.startsWith('lore-') ||
-      name.startsWith('gh-repos_torvalds_linux_commits_path') ||
-      fs.readFileSync(file, 'utf8') === 'null';
-    if (mutable) {
-      fs.rmSync(file);
-      dropped += 1;
-    }
-  }
-  return dropped;
-}
-
-export async function main(argv = process.argv.slice(2)) {
-  if (argv.includes('--refresh'))
-    console.log(`refresh: dropped ${pruneMutable()} cached answers that can change`);
-  argv = argv.filter((a) => !a.startsWith('--'));
+export async function main([linux, ...argv] = process.argv.slice(2)) {
+  if (!linux || !fs.existsSync(path.join(linux, '.git')))
+    throw new Error(
+      'usage: sync_upstream_history.mjs <path to a Linux kernel clone> [extension ...]',
+    );
   const ids = catalogueIds();
   const support = JSON.parse(
     fs.readFileSync(path.join(ROOT, 'src', 'toolchain-support.json'), 'utf8'),
   );
-  const linux = Object.entries(support.extensions).filter(([, v]) => v.linux?.supported);
+  const supported = Object.entries(support.extensions).filter(([, v]) => v.linux?.supported);
   const wanted = argv.length ? new Set(argv.map((a) => a.toLowerCase())) : null;
   const previous = fs.existsSync(DATA)
     ? JSON.parse(fs.readFileSync(DATA, 'utf8'))
@@ -379,7 +227,7 @@ export async function main(argv = process.argv.slice(2)) {
   const data = wanted ? previous : { series: {}, extensions: {}, listed: {}, bundles: {} };
   for (const key of ['series', 'extensions', 'listed', 'bundles']) data[key] ??= {};
 
-  const commits = await tableCommits();
+  const commits = tableCommits(linux);
   const firstCommit = new Map();
   for (const c of commits)
     for (const id of c.adds) if (!firstCommit.has(id)) firstCommit.set(id, c);
@@ -387,7 +235,7 @@ export async function main(argv = process.argv.slice(2)) {
   const report = { collected: [], listed: [], bundles: [], missing: [] };
   const doneThisRun = new Set();
   const failed = new Map(); // series key -> why it could not be collected
-  for (const [token, entry] of linux) {
+  for (const [token, entry] of supported) {
     const id = ids.get(token);
     if (!id || (wanted && !wanted.has(token))) continue;
     // One form per extension: storing one removes the others, so a targeted
@@ -402,16 +250,14 @@ export async function main(argv = process.argv.slice(2)) {
       continue;
     }
     const curated = CURATED[id] ?? null;
-    let commit = curated
-      ? await gh(`repos/torvalds/linux/commits/${curated.sha}`)
-      : firstCommit.get(token);
+    let commit = curated ? commitAt(linux, curated.sha) : firstCommit.get(token);
     if (!commit) {
       report.missing.push(id);
       continue;
     }
     const adds = curated ? curated.adds : commit.adds.map((x) => ids.get(x) ?? x.toUpperCase());
     if (isBulk(commit.adds ?? [], Boolean(curated))) {
-      const release = await firstRelease(commit.sha);
+      const release = firstRelease(linux, commit.sha);
       only('listed');
       data.listed[id] = {
         release,
@@ -433,7 +279,7 @@ export async function main(argv = process.argv.slice(2)) {
         ...commit,
         adds: curated ? curated.adds.map((x) => x.toLowerCase()) : commit.adds,
       };
-      const h = await seriesHistory(commit, { curated });
+      const h = await seriesHistory(commit, { curated, linux });
       if (h.missing) {
         failed.set(key, h.missing);
         report.missing.push(`${id} (${h.missing})`);
