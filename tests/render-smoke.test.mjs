@@ -987,3 +987,179 @@ test('choosing a volume closes the extension selected before it', async () => {
   assert.deepEqual(activeTiles(d), [], 'a tile is still selected');
   assert.equal(volume.getAttribute('aria-pressed'), 'true');
 });
+
+/*
+ * Upstream history (#649). The full data is a lazy chunk jsdom does not load,
+ * so these cover what the bundle itself carries: the link that opens the
+ * dialog, Esc, the address bar, the Linux chip, and Previous and Next.
+ */
+const historyDialog = (d) =>
+  d.window.document.querySelector('[role="dialog"][aria-labelledby="history-title"]');
+const escapeOnWindow = (d) =>
+  d.window.dispatchEvent(new d.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+
+test('?history=linux opens the history over the extension, and Esc closes only it', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?ext=Zawrs&history=linux');
+  await waitFor(() => historyDialog(d));
+  assert.ok(historyDialog(d), 'the history dialog did not open');
+  assert.match(d.window.document.getElementById('history-title').textContent, /Zawrs/);
+  assert.ok(panelOpen(d), 'the details panel should stay open underneath');
+  escapeOnWindow(d);
+  await waitFor(() => !historyDialog(d));
+  assert.equal(historyDialog(d), null, 'Esc left the dialog open');
+  assert.ok(panelOpen(d), 'Esc closed the panel as well');
+  assert.equal(query(d).has('history'), false, 'closing should drop ?history=');
+  assert.equal(query(d).get('ext'), 'Zawrs');
+  assert.deepEqual(realErrors(errors), []);
+});
+
+test('closing the history returns focus to what opened it, and a click outside closes it', async () => {
+  const { dom: d } = await mountAt('https://example.test/?ext=Zawrs');
+  await waitFor(() => panelOpen(d));
+  const chip = [...d.window.document.querySelectorAll('#detail-panel button')].find((b) =>
+    /^Linux /.test(b.textContent.trim()),
+  );
+  chip.focus();
+  chip.click();
+  await waitFor(() => historyDialog(d));
+  escapeOnWindow(d);
+  await waitFor(() => !historyDialog(d));
+  assert.equal(d.window.document.activeElement, chip, 'focus should return to the Linux chip');
+
+  chip.click();
+  await waitFor(() => historyDialog(d));
+  const layer = historyDialog(d).parentElement; // the full-screen layer around the card
+  layer.dispatchEvent(new d.window.MouseEvent('click', { bubbles: true }));
+  await waitFor(() => !historyDialog(d));
+  assert.equal(historyDialog(d), null, 'a click outside the card closes the dialog');
+});
+
+test('the Linux chip opens the history, and the address bar follows', async () => {
+  const { dom: d } = await mountAt('https://example.test/?ext=Zawrs');
+  await waitFor(() => panelOpen(d));
+  const chip = [...d.window.document.querySelectorAll('#detail-panel button')].find((b) =>
+    /^Linux /.test(b.textContent.trim()),
+  );
+  assert.ok(chip, 'the Linux chip should be a button for an extension with a history');
+  chip.click();
+  await waitFor(() => historyDialog(d));
+  assert.ok(historyDialog(d));
+  assert.equal(query(d).get('history'), 'linux');
+});
+
+test('a bundle steps through its parts with the arrow keys', async () => {
+  const { dom: d } = await mountAt('https://example.test/?ext=B&history=linux');
+  await waitFor(() => historyDialog(d));
+  const title = () => d.window.document.getElementById('history-title').textContent;
+  const nav = () => d.window.document.querySelector('nav[aria-label="B parts"]');
+  assert.ok(nav(), 'a bundle should have Previous and Next');
+  assert.match(nav().textContent, /1 of 4/);
+  const step = (key) =>
+    d.window.dispatchEvent(new d.window.KeyboardEvent('keydown', { key, bubbles: true }));
+  step('ArrowRight');
+  await waitFor(() => /Zba/.test(title()));
+  assert.match(title(), /B›Zba/, 'the title keeps the way back to B');
+  step('ArrowRight');
+  step('ArrowRight');
+  step('ArrowRight');
+  await waitFor(() => /Zbs/.test(title()));
+  assert.match(nav().textContent, /4 of 4/, 'the last part stops there');
+  step('ArrowLeft');
+  await waitFor(() => /Zbb/.test(title()));
+  assert.match(title(), /Zbb/);
+});
+
+/**
+ * Runs the lazy chunks webpack asked for. It loads a chunk by adding a
+ * <script src>, which jsdom here does not execute; the chunk only calls
+ * webpackChunk.push, so evaluating the built file is what a browser would do.
+ */
+async function loadLazyChunks(d) {
+  const done = new Set();
+  for (let round = 0; round < 20; round += 1) {
+    const scripts = [...d.window.document.querySelectorAll('script[src]')]
+      .map((s) => s.getAttribute('src'))
+      .filter(
+        (src) =>
+          // webpack's own lazy chunks, served from the page's origin and built
+          // into dist/; not kapa's widget, nor the main bundle
+          new d.window.URL(src, d.window.location.href).origin === d.window.location.origin &&
+          /^\d+\.bundle\.js$/.test(path.basename(src)) &&
+          fs.existsSync(path.join(dist, path.basename(src))) &&
+          !done.has(src),
+      );
+    for (const src of scripts) {
+      done.add(src);
+      d.window.eval(fs.readFileSync(path.join(dist, path.basename(src)), 'utf8'));
+    }
+    if (!scripts.length && done.size) return done.size;
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return done.size;
+}
+
+test('the history body renders from the real data: stats, timeline, people and a cited summary', async () => {
+  const { dom: d, errors } = await mountAt('https://example.test/?ext=Zawrs&history=linux');
+  await waitFor(() => historyDialog(d));
+  assert.ok((await loadLazyChunks(d)) >= 1, 'the history chunk was never requested');
+  await waitFor(() => /TIMELINE|Timeline/.test(historyDialog(d)?.textContent ?? ''));
+  const dialog = historyDialog(d);
+  const text = dialog.textContent;
+  assert.match(text, /Linux 6\.11/, 'the release');
+  assert.match(text, /first patch to release/);
+  assert.match(text, /versions found/, 'the count claims what was found, not completeness');
+  assert.match(text, /Applied by /, 'the applied row of the timeline');
+  assert.match(text, /Andrew Jones/, 'a series author');
+  assert.ok(dialog.querySelector('svg[role="img"]'), 'the Progression chart');
+  // The timeline's own version links, not the summary's citations.
+  const historyData = JSON.parse(
+    fs.readFileSync(path.join(here, '..', 'src', 'upstream-history.json'), 'utf8'),
+  );
+  const zawrs = historyData.series[historyData.extensions.Zawrs.series];
+  const versionLinks = [...dialog.querySelectorAll('ol a.font-mono')].map((a) =>
+    a.getAttribute('href'),
+  );
+  assert.deepEqual(
+    versionLinks.slice(0, zawrs.versions.length),
+    zawrs.versions.map((v) => v.href),
+    'each version links to its own lore thread',
+  );
+  assert.match(text, /AI summary/);
+  assert.doesNotMatch(text, /Claude Haiku/, 'the header does not name the model');
+  const citations = [...dialog.querySelectorAll('sup a[href^="https://lore.kernel.org/all/"]')];
+  assert.ok(citations.length >= 2, 'the summary links its citations to the messages');
+  assert.doesNotMatch(text, /Could not load the history/);
+  assert.deepEqual(realErrors(errors), [], 'console errors while rendering the history');
+});
+
+test('a bundle lists its parts, and extensions that landed together point at each other', async () => {
+  const bundle = await mountAt('https://example.test/?ext=B&history=linux');
+  await waitFor(() => historyDialog(bundle.dom));
+  await loadLazyChunks(bundle.dom);
+  await waitFor(() =>
+    /detects B through its parts/.test(historyDialog(bundle.dom)?.textContent ?? ''),
+  );
+  const text = historyDialog(bundle.dom).textContent;
+  assert.match(text, /available once all of them are: Linux 6\.5/, 'complete with its last part');
+  for (const part of ['Zba', 'Zbb', 'Zbs']) assert.match(text, new RegExp(part));
+  assert.deepEqual(realErrors(bundle.errors), []);
+
+  const pair = await mountAt('https://example.test/?ext=Zicfiss&history=linux');
+  await waitFor(() => historyDialog(pair.dom));
+  await loadLazyChunks(pair.dom);
+  await waitFor(() =>
+    /Landed in the same commit as/.test(historyDialog(pair.dom)?.textContent ?? ''),
+  );
+  const other = [...historyDialog(pair.dom).querySelectorAll('button')].find(
+    (b) => b.textContent.trim() === 'Zicfilp',
+  );
+  assert.ok(other, 'Zicfiss should offer Zicfilp');
+  other.click();
+  await waitFor(() =>
+    /Zicfiss›Zicfilp|Zicfiss.*Zicfilp/.test(
+      pair.dom.window.document.getElementById('history-title').textContent,
+    ),
+  );
+  assert.match(pair.dom.window.document.getElementById('history-title').textContent, /Zicfilp/);
+  assert.deepEqual(realErrors(pair.errors), []);
+});

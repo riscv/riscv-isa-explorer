@@ -57,6 +57,7 @@ import DetailSection from './DetailSection.jsx';
 import { specificationLink } from './specLink.js';
 import { noInstructionReason, cleanBehaviorText } from './extensionNotes.js';
 import { ExtensionToolchains } from './ToolchainSupport.jsx';
+import { useHistoryAskContext } from './UpstreamHistory.jsx';
 import CsrDetails, { CsrChipList } from './CsrDetails.jsx';
 import { focusableWithin, nextFocus } from './focusTrap.js';
 import { computeLockedExtensions, missingMandatory } from './workspaceLock.js';
@@ -1299,7 +1300,11 @@ const RISCVExplorer = () => {
   // The parameter last touched in the Parameters tab, if any: while the
   // builder is open, the chip asks about it rather than the configuration.
   const [paramAskContext, setParamAskContext] = useState(null);
+  // An open upstream-history dialog covers the page, so the chip asks about
+  // the extension it shows (its specification and family, #649).
+  const historyAskContext = useHistoryAskContext();
   const askAiContext = React.useMemo(() => {
+    if (historyAskContext) return historyAskContext;
     if (workspacePanelOpen && paramAskContext) return paramAskContext;
     if (workspacePanelOpen) {
       /*
@@ -1334,7 +1339,14 @@ const RISCVExplorer = () => {
       return { query: `Explain the RISC-V ${selectedExt.id} extension.`, submit: true };
     }
     return null;
-  }, [selectedInstruction, selectedExt, workspacePanelOpen, seedProfile, paramAskContext]);
+  }, [
+    historyAskContext,
+    selectedInstruction,
+    selectedExt,
+    workspacePanelOpen,
+    seedProfile,
+    paramAskContext,
+  ]);
 
   // Smart lock: live reverse-lookup of dependencies, plus the seeding profile's
   // mandatory floor. Derived through the shared helper so this display copy and

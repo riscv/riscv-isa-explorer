@@ -1,0 +1,147 @@
+name: Sync upstream history
+
+on:
+  # Weekly, Monday 11:00 UTC, after the other Monday syncs and checks.
+  #
+  # Collects how each extension got into Linux (scripts/sync_upstream_history.mjs),
+  # then writes AI summaries only for series whose review discussion changed
+  # (scripts/summarize_upstream_history.mjs), and opens one pull request when
+  # the data changed. A person reads any new summary there before it merges.
+  schedule:
+    - cron: '0 11 * * 1'
+  workflow_dispatch:
+
+# id-token: write lets the job sign in to AWS through GitHub's OIDC provider.
+# The role (secret UPSTREAM_HISTORY_ROLE_ARN) trusts only this repository's
+# main branch and may only call Claude Haiku 5.5 through the explorer's own
+# Bedrock inference profile (secret UPSTREAM_MODEL_ARN). Both ARNs are secrets
+# because they carry the account number, and this repository's logs are public.
+# "Create Pull Request" also needs "Allow GitHub Actions to create and approve
+# pull requests" in the repository settings.
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+concurrency:
+  group: sync-upstream-history
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout the explorer repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The GitHub answers that never change (a commit's details, its place in
+      # a release) are kept from week to week, so a run stays well inside the
+      # API limit; --refresh below drops everything that can change.
+      - name: Restore the network cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .cache/upstream-history
+          key: upstream-history-${{ github.run_id }}
+          restore-keys: upstream-history-
+
+      # GitHub's API for the kernel's commits and release tags, lore.kernel.org
+      # for the patch series. Responses are cached in .cache/, which the
+      # summaries step reads too.
+      - name: Collect the history
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # pipefail: without it, tee's success would hide a failed run.
+        run: |
+          set -o pipefail
+          node scripts/sync_upstream_history.mjs --refresh | tee "$RUNNER_TEMP/report.txt"
+
+      - name: Sign in to AWS
+        uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ secrets.UPSTREAM_HISTORY_ROLE_ARN }}
+          role-session-name: riscv-isa-explorer-upstream-history
+          aws-region: us-east-1
+
+      - name: Summarise new and changed series
+        env:
+          UPSTREAM_MODEL: ${{ secrets.UPSTREAM_MODEL_ARN }}
+        # pipefail: without it, tee's success would hide a failed run.
+        run: |
+          set -o pipefail
+          node scripts/summarize_upstream_history.mjs | tee -a "$RUNNER_TEMP/report.txt"
+
+      - name: Summarise the run
+        run: |
+          {
+            echo '## Upstream history'
+            echo
+            sed 's/^/    /' "$RUNNER_TEMP/report.txt"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # The render smoke test mounts the built bundle, so npm test needs dist/.
+      - name: Build
+        run: npm run build
+
+      # tests/upstream-history.test.mjs checks the data: every summary passes
+      # the citation gate, dates run in order, the index matches. A failure
+      # here opens no pull request.
+      - name: Validate the result
+        run: npm test
+
+      - name: Decide whether to open a pull request
+        id: changes
+        run: |
+          if git diff --quiet src/upstream-history.json src/upstream-history-index.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Nothing changed."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            {
+              echo 'report<<REPORT_EOF'
+              cat "$RUNNER_TEMP/report.txt"
+              echo 'REPORT_EOF'
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8
+        with:
+          commit-message: 'data: sync the upstream history'
+          # Same identity for author and committer, so the Signed-off-by trailer
+          # matches the author and DCO passes; sign-commits because main requires
+          # signed commits. See sync-udb-extensions.yml for the full story.
+          author: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
+          committer: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
+          sign-commits: true
+          signoff: true
+          title: 'data: sync the upstream history'
+          body: |
+            Automated refresh of how each extension got into Linux: the
+            landing commit, its patch series and review, and the release.
+
+            ```
+            ${{ steps.changes.outputs.report }}
+            ```
+
+            New or changed AI summaries are in `src/upstream-history.json`
+            under each series' `ai`. Each sentence cites the review messages
+            it rests on, and `npm test` checked every citation before this
+            pull request opened; still read the new ones before merging.
+
+            Generated by the `sync-upstream-history` workflow.
+          branch: automated/sync-upstream-history
+          labels: automated,data-sync
+          add-paths: |
+            src/upstream-history.json
+            src/upstream-history-index.json

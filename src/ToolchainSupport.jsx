@@ -1,6 +1,7 @@
 import React from 'react';
 import toolchainData from './toolchain-support.json';
 import { BUILD_TOOLS, RUN_TOOLS, extensionSupport, marchRequirements } from './toolchainSupport.js';
+import { HistoryDialog, HistorySummary, hasHistory, useHistoryDialog } from './UpstreamHistory.jsx';
 
 /*
  * What "knows an extension" means for each tool, for the tooltips. Clang and
@@ -53,7 +54,19 @@ const STYLES = {
   },
 };
 
-function Chip({ state, title, children }) {
+function Chip({ state, title, children, onClick }) {
+  if (onClick)
+    return (
+      <button
+        type="button"
+        className={`${CHIP} cursor-pointer underline decoration-dotted underline-offset-2`}
+        style={STYLES[state]}
+        title={`${title}. Click for how it got there`}
+        onClick={onClick}
+      >
+        {children}
+      </button>
+    );
   return (
     <span className={CHIP} style={STYLES[state]} title={title}>
       {children}
@@ -105,7 +118,7 @@ function standingTitle(s) {
     : `Not ${verb} ${s.name} ${s.newest}, the newest release`;
 }
 
-function StandingRow({ label, title, support }) {
+function StandingRow({ label, title, support, onOpen = {} }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       <span
@@ -116,7 +129,7 @@ function StandingRow({ label, title, support }) {
         {label}
       </span>
       {support.map((s) => (
-        <Chip key={s.key} state={s.state} title={standingTitle(s)}>
+        <Chip key={s.key} state={s.state} title={standingTitle(s)} onClick={onOpen[s.key]}>
           {s.state === 'none' ? `${s.name}: not yet` : `${s.name} ${s.since}+`}
           {s.state === 'experimental' && <span className="italic">experimental</span>}
           {s.assemblyOnly && <span className="italic">assembly only</span>}
@@ -128,8 +141,10 @@ function StandingRow({ label, title, support }) {
 
 /* The extension panel's rows: what builds code for it, and what runs it. */
 export function ExtensionToolchains({ id }) {
+  const [historyOpen, setHistoryOpen] = useHistoryDialog(id);
   const build = extensionSupport(toolchainData, id, BUILD_TOOLS);
   if (!build) return null;
+  const openHistory = hasHistory(id) ? () => setHistoryOpen(true) : null;
   const run = extensionSupport(toolchainData, id, RUN_TOOLS);
   return (
     <div>
@@ -146,8 +161,15 @@ export function ExtensionToolchains({ id }) {
           title="Compilers that accept it in -march, and the assembler"
           support={build}
         />
-        <StandingRow label="Run" title="Emulator and kernel" support={run} />
+        <StandingRow
+          label="Run"
+          title="Emulator and kernel"
+          support={run}
+          onOpen={openHistory ? { linux: openHistory } : {}}
+        />
+        <HistorySummary id={id} onOpen={openHistory} />
       </div>
+      {historyOpen && <HistoryDialog id={id} onClose={() => setHistoryOpen(false)} />}
     </div>
   );
 }

@@ -46,6 +46,8 @@ For live-reload development: `npm run dev` (serves on :8080 with source maps).
 | `npm run sync:references -- <sail-riscv> <riscv-isa-sim> <riscv-arch-test>` | Regenerate `src/instruction-references.json` |
 | `npm run sync:manual-status -- <riscv-isa-manual>` | Regenerate `src/isa-manual-status.json` (the manual's ratified list) |
 | `npm run sync:toolchains` | Regenerate `src/toolchain-support.json` (fetches from GitHub and sourceware) |
+| `npm run sync:upstream` | Regenerate `src/upstream-history.json` and its index: how each extension got into Linux (GitHub API and lore.kernel.org) |
+| `npm run summarize:upstream` | Write AI summaries for new or changed series (Bedrock, needs AWS credentials; `--dry-run` sends nothing) |
 | `npm run sync:params -- <path-to-udb>` | Regenerate `src/isa-params.json` (UDB parameter definitions) |
 | `npm run graph:check -- <path-to-udb>` | Check dependency graph vs UDB |
 | `npm run links:check` | Verify doc URLs resolve on docs.riscv.org |
@@ -339,6 +341,24 @@ Then `npm run sync` and `npm run check`.
   the data changes, keeps one issue current. Ids that are not real gaps go in
   `NOT_GAPS` with a reason, links to upstream work in `TRACKING`; the tests
   fail once either goes stale.
+- **The upstream history is collected, then summarised, and only the facts are
+  collected.** `scripts/sync_upstream_history.mjs` finds, per extension Linux
+  supports, the commit that added it to the kernel's extension table, the patch
+  series behind it on lore (grouped by `scripts/upstream-history-lib.mjs`), its
+  versions, review and release. A commit adding more than three extensions is
+  bookkeeping (`BULK`): the 6.6 commit listing 13 single letters dates none of
+  them, so those whose real history matters are named by hand in
+  `scripts/upstream-curated.mjs` (V, H and the base port), and the rest show as
+  listed only. A posting that answers someone else's message is a reply, even
+  without "Re:" (`dropDisguisedReplies`), or reviewers end up listed as
+  authors. `scripts/summarize_upstream_history.mjs` then asks Claude Haiku 5.5
+  on Bedrock for one paragraph per series, only when the series' messages
+  changed; every sentence must cite numbered messages (`checkCitations`), and a
+  summary that fails twice is dropped, never kept unchecked. The weekly
+  workflow signs in through GitHub OIDC to a role that may only call that model
+  through the explorer's inference profile; both ARNs are repository secrets.
+  The dialog's Ask AI question is about the extension and its family, never the
+  thread (`historyQuestion`).
 - **`dist/` and `node_modules/` are generated** (dist is git-ignored / rebuilt;
   eslint ignores both). Don't hand-edit `dist/`.
 - **`gh-pages` branch is machine-published** by CI on every push to `main`.

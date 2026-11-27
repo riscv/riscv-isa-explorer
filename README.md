@@ -27,8 +27,13 @@ get a dependency-resolved configuration with a valid `-march` string.
   implied ones tagged with the extension that pulls them in, optional ones tagged
   and outlined. The grid, the download and the comparison all use the same
   classification.
+- **Upstream history.** For extensions Linux supports, the Linux chip in the
+  details panel opens how the extension got there: the patch series that
+  landed, its versions and earlier attempts, the people in its trailers, the
+  release, a Progression chart, and an AI summary of the review that cites the
+  messages it rests on. `?history=linux` beside `?ext=` opens it directly.
 - **Share a view.** Selecting an extension puts `?ext=` in the address bar,
-  opening one of its instructions adds `?insn=` (`?insn=c.jal` works, and
+  opening one of its instructions adds `?insn=`, its upstream history adds `?history=linux` (`?insn=c.jal` works, and
   `?ext=Zca&insn=C.JAL` opens it under Zca), a highlighted profile puts `?profile=` there (`?profile=rva23.1` works), and
   **Share** copies a link to either the highlighted profile or the whole builder
   configuration. A configuration link records the profile it started from, the
