@@ -90,6 +90,33 @@ test('examples use operands an assembler accepts for that family', () => {
   }
 });
 
+// Every (extension, instruction) listing under Zfinx and its relatives, which
+// the map above skips: their instructions are listed under F, D and Zfh first.
+const INX = new Set(['Zfinx', 'Zdinx', 'Zhinx', 'Zhinxmin']);
+const inxListings = extensions
+  .filter((ext) => INX.has(ext.id))
+  .flatMap((ext) =>
+    Object.entries(ext.instructions || {}).map(([mnemonic, instruction]) => ({
+      ext,
+      instruction,
+      key: mnemonic.toLowerCase(),
+    })),
+  );
+
+test('examples under Zfinx and its relatives use integer registers', () => {
+  const example = (key, extensionId) => exampleAssembly(key, metadata[key].assembly, extensionId);
+  assert.equal(example('fmadd.s', 'Zfinx'), 'fmadd.s a0, a1, a2, a3, rne');
+  assert.equal(example('fcvt.s.h', 'Zhinxmin'), 'fcvt.s.h a0, a1, rne');
+  assert.equal(example('fmadd.d', 'Zdinx'), 'fmadd.d a0, a2, a4, a6, rne', 'even pairs');
+  assert.equal(example('fmadd.s', 'F'), 'fmadd.s fa0, fa1, fa2, fa3, rne', 'F is unchanged');
+
+  assert.equal(inxListings.length, 84);
+  const withFpRegisters = inxListings
+    .map(({ ext, key }) => [ext.id, exampleAssembly(key, metadata[key]?.assembly, ext.id)])
+    .filter(([, line]) => !line || /\bf[ast]\d+\b/.test(line));
+  assert.deepEqual(withFpRegisters, []);
+});
+
 test('every catalogue instruction with a UDB template gets an example', () => {
   const missing = [...instructions.keys()].filter(
     (key) =>
@@ -300,6 +327,31 @@ test('every example assembles', { skip: !CLANG && 'set RISCV_CLANG to run' }, ()
       `${line}\n`,
     );
     if (error && !TOOLCHAIN_LAG.test(error)) failures.push(`${line} [${march}]: ${error}`);
+  }
+  // The *inx listings, also on RV32 where Zdinx needs even register pairs.
+  for (const { ext, instruction, key } of inxListings) {
+    const line = exampleAssembly(key, metadata[key]?.assembly, ext.id);
+    const march = instructionMarch({
+      extensionId: ext.id,
+      extensionTags: instruction.extension,
+      definedBy: metadata[key]?.defined_by,
+      catalogIds,
+    });
+    const marches = [march];
+    if (
+      march.startsWith('rv64') &&
+      xlenRestriction(instruction.extension, metadata[key]) !== 'RV64'
+    ) {
+      marches.push(march.replace(/^rv64/, 'rv32'));
+    }
+    for (const target of marches) {
+      const { error } = compile(
+        target,
+        ['-c', '-x', 'assembler', '-', '-o', '/dev/null'],
+        `${line}\n`,
+      );
+      if (error && !TOOLCHAIN_LAG.test(error)) failures.push(`${line} [${target}]: ${error}`);
+    }
   }
   assert.deepEqual(failures, []);
 });
