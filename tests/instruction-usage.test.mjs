@@ -269,7 +269,44 @@ test('the intrinsic example is a complete file that calls it', () => {
     /__riscv_ror_64\(x, 1\)/,
   );
   assert.match(prototypeFor(intrinsics.ror.prototypes, 32), /__riscv_ror_32/);
-  assert.deepEqual(intrinsicExtensions('vfloat32m1_t __riscv_x(vfloat16mf2_t vs2);'), ['Zvfh']);
+  assert.deepEqual(intrinsicExtensions('vfloat32m1_t __riscv_x(vfloat16mf2_t vs2);'), [
+    'Zvfh',
+    'Zve32f',
+  ]);
+});
+
+// Listings under the vector subsets, whose ELEN or element types are narrower than V's.
+const VECTOR_SUBSETS = new Set([
+  'Zve32x',
+  'Zve32f',
+  'Zve64x',
+  'Zve64f',
+  'Zve64d',
+  'Zvfh',
+  'Zvfhmin',
+]);
+const subsetIntrinsics = extensions
+  .filter((ext) => VECTOR_SUBSETS.has(ext.id))
+  .flatMap((ext) => Object.keys(ext.instructions || {}).map((m) => [ext.id, m.toLowerCase()]))
+  .filter(([, key]) => intrinsics[key]?.header);
+
+const intrinsicMarch = (extensionId, key) =>
+  instructionMarch({
+    extensionId,
+    extensionTags: instructions.get(key).instruction.extension,
+    definedBy: metadata[key]?.defined_by,
+    catalogIds,
+    extra: intrinsicExtensions(prototypeFor(intrinsics[key].prototypes, 64)),
+  });
+
+test('an intrinsic under a vector subset gets the element types it uses', () => {
+  const tokens = (extensionId, key) => intrinsicMarch(extensionId, key).split('_');
+  assert.ok(!tokens('Zve32x', 'vle8.v').includes('zve32f'), 'vint8m1_t fits Zve32x');
+  assert.ok(tokens('Zve32x', 'vle32.v').includes('zve32f'), 'vfloat32m1_t');
+  assert.ok(tokens('Zve32x', 'vnsra.wv').includes('zve64x'), 'vint64m2_t');
+  assert.ok(tokens('Zve32f', 'vfncvt.x.f.w').includes('zve64d'), 'vfloat64m2_t');
+  assert.ok(tokens('Zvfh', 'vfwcvt.x.f.v').includes('zve64x'), 'vfloat32mf2_t');
+  assert.ok(subsetIntrinsics.length > 2000, `found ${subsetIntrinsics.length}`);
 });
 
 test('the Compiler Explorer link carries the source, compiler and options', () => {
@@ -384,6 +421,26 @@ test(
       } else if (!new RegExp(`\\b${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`).test(out)) {
         failures.push(`${key} [${march}]: compiled, but not to ${key}`);
       }
+    }
+    assert.deepEqual(failures, []);
+  },
+);
+
+test(
+  'every intrinsic example under a vector subset compiles',
+  { skip: !CLANG && 'set RISCV_CLANG to run' },
+  () => {
+    const failures = [];
+    for (const [extensionId, key] of subsetIntrinsics) {
+      const march = intrinsicMarch(extensionId, key);
+      const source = intrinsicSource(
+        intrinsics[key].header,
+        prototypeFor(intrinsics[key].prototypes, 64),
+        { immediate: takesImmediate(key, metadata[key]?.assembly) },
+      );
+      const args = [`-mabi=${abiForMarch(march)}`, '-S', '-ffreestanding', '-x', 'c', '-'];
+      const { error } = compile(march, [...args, '-o', '/dev/null'], source);
+      if (error && !TOOLCHAIN_LAG.test(error)) failures.push(`${extensionId} ${key}: ${error}`);
     }
     assert.deepEqual(failures, []);
   },
