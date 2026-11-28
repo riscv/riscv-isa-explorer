@@ -65,6 +65,8 @@ function keyBelongsElsewhere(e) {
   return Boolean(kapa && (e.target === kapa || kapa.contains(e.target)));
 }
 const SECTION = 'text-[11px] uppercase tracking-widest font-semibold mb-2';
+// A series with no posting for a year is not "in review" any more.
+const dormant = (lastPosted) => Date.now() - Date.parse(lastPosted) > 365 * 24 * 3600 * 1000;
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 /** The line under the toolchain rows, with the button that opens the dialog. */
@@ -72,8 +74,16 @@ export function HistorySummary({ id, onOpen }) {
   const h = historyIndex[id];
   if (!h) return null;
   let text;
-  if (h.listed)
-    text = `In the kernel's extension list since Linux ${h.listed.release}, added there with ${h.listed.others} others in one commit; the work that made it supported is older and not collected yet.`;
+  if (h.pending?.merged)
+    text = `Merged for the next Linux release: ${h.pending.title} (${plural(h.pending.versions, 'version')})`;
+  else if (h.pending && dormant(h.pending.lastPosted))
+    text = `Not in Linux yet · last series: ${h.pending.title} (${plural(h.pending.versions, 'version')}, last posted ${month(h.pending.lastPosted)}, nothing since)`;
+  else if (h.pending)
+    text = `Not in Linux yet · in review: ${h.pending.title} (${plural(h.pending.versions, 'version')}, last posted ${month(h.pending.lastPosted)})`;
+  else if (h.listed)
+    text = h.listed.note
+      ? `In the kernel's extension list since Linux ${h.listed.release}. ${h.listed.note}`
+      : `In the kernel's extension list since Linux ${h.listed.release}, added there with ${h.listed.others} others in one commit; the work that made it supported is older and not collected yet.`;
   else if (h.parts)
     text = `Detected through ${h.parts.map((p) => (historyIndex[p]?.release ? `${p} (${historyIndex[p].release})` : p)).join(', ')}`;
   else
@@ -343,6 +353,7 @@ export function HistoryDialog({ id, onClose }) {
             {data && historyIndex[current]?.parts && (
               <BundleBody id={current} parts={historyIndex[current].parts} onPick={setCurrent} />
             )}
+            {data && data.pending?.[current] && <PendingBody p={data.pending[current]} />}
             {data && data.extensions[current] && (
               <HistoryBody
                 h={data.series[data.extensions[current].series]}
@@ -367,6 +378,9 @@ function Swatch({ style, cls = 'w-4 h-2 rounded', children }) {
   );
 }
 
+/** Where a lane's path ends: released, applied, or its last posting. */
+const laneEnd = (l) => l.s.release?.date ?? l.s.commit?.applied ?? l.s.lastPosted;
+
 /*
  * The progression on one time axis, a lane per series: the whole path from
  * first patch to release (grey, a dot for each earlier attempt), the series
@@ -386,14 +400,32 @@ function Progression({ ids, current, data, onPick }) {
     id: members.includes(current) ? current : members[0],
     label: laneLabel(members),
   }));
+  // An extension still in review: one lane, ending at its last posting.
+  if (!lanes.length && data.pending?.[current])
+    lanes.push({
+      // Merged but not released (Zic64b in an -rc): applied, no release yet.
+      s: data.pending[current].merged
+        ? {
+            ...data.pending[current],
+            commit: {
+              applied: data.pending[current].merged.applied,
+              sha: data.pending[current].merged.commit,
+            },
+          }
+        : { ...data.pending[current], pending: true },
+      members: [current],
+      id: current,
+      label: laneLabel([current]),
+    });
   if (!lanes.length) return null;
+  const inReview = lanes.every((l) => l.s.pending);
   const W = 1000;
   const laneH = 60;
   const top = 26;
   const H = top + lanes.length * laneH + 4;
   const axis = progressionAxis(
     lanes.map((l) => l.s.firstPatch),
-    lanes.map((l) => l.s.release.date),
+    lanes.map(laneEnd),
     { width: W, left: labelColumn(lanes.map((l) => l.label)) },
   );
   const { x, xt } = axis;
@@ -415,14 +447,18 @@ function Progression({ ids, current, data, onPick }) {
           Whole path, earlier attempts as dots
         </Swatch>
         <Swatch style={{ background: 'var(--riscv-gold)' }}>
-          Series that landed, a tick per version
+          {inReview ? 'Series in review' : 'Series that landed'}, a tick per version
         </Swatch>
-        <Swatch style={{ background: 'var(--riscv-violet)' }} cls="w-1 h-3">
-          Applied
-        </Swatch>
-        <Swatch style={{ background: 'var(--riscv-success)' }} cls="w-2 h-2 rounded-sm">
-          Linux release
-        </Swatch>
+        {lanes.some((l) => l.s.commit) && (
+          <Swatch style={{ background: 'var(--riscv-violet)' }} cls="w-1 h-3">
+            Applied
+          </Swatch>
+        )}
+        {lanes.some((l) => l.s.release) && (
+          <Swatch style={{ background: 'var(--riscv-success)' }} cls="w-2 h-2 rounded-sm">
+            Linux release
+          </Swatch>
+        )}
       </div>
       <div className="overflow-x-auto">
         <svg
@@ -431,9 +467,10 @@ function Progression({ ids, current, data, onPick }) {
           style={{ minWidth: 560 }}
           role="img"
           aria-label={lanes
-            .map(
-              (l) =>
-                `${l.members.join(', ')}: first patch ${l.s.firstPatch}, applied ${l.s.commit.applied}, Linux ${l.s.release.version}`,
+            .map((l) =>
+              l.s.pending
+                ? `${l.members.join(', ')}: first patch ${l.s.firstPatch}, last posted ${l.s.lastPosted}, not merged`
+                : `${l.members.join(', ')}: first patch ${l.s.firstPatch}, applied ${l.s.commit.applied}, ${l.s.release ? `Linux ${l.s.release.version}` : 'not in a release yet'}`,
             )
             .join('; ')}
         >
@@ -482,19 +519,31 @@ function Progression({ ids, current, data, onPick }) {
 function Lane({ lane, cy, laneH, width, x, selected, onPick }) {
   const s = lane.s;
   const landed = s.versions[0].date;
+  // A series still in review has no applied or release mark: its path ends
+  // at the last posting.
+  const end = laneEnd(lane);
+  const appliedAt = s.commit?.applied ?? s.lastPosted;
   const dates = placeDates([
     {
-      at: x(s.release.date),
-      text: month(s.release.date),
-      fill: 'var(--riscv-success)',
+      at: x(end),
+      text: month(end),
+      fill: s.release
+        ? 'var(--riscv-success)'
+        : s.commit
+          ? 'var(--riscv-violet)'
+          : 'var(--riscv-gold)',
       anchor: 'middle',
     },
-    {
-      at: x(s.commit.applied),
-      text: month(s.commit.applied),
-      fill: 'var(--riscv-violet)',
-      anchor: 'middle',
-    },
+    ...(!s.release || !s.commit
+      ? []
+      : [
+          {
+            at: x(appliedAt),
+            text: month(appliedAt),
+            fill: 'var(--riscv-violet)',
+            anchor: 'middle',
+          },
+        ]),
     {
       at: x(s.firstPatch),
       text: month(s.firstPatch),
@@ -529,7 +578,7 @@ function Lane({ lane, cy, laneH, width, x, selected, onPick }) {
       <rect
         x={x(s.firstPatch)}
         y={cy - 4}
-        width={Math.max(2, x(s.release.date) - x(s.firstPatch))}
+        width={Math.max(2, x(end) - x(s.firstPatch))}
         height="8"
         rx="4"
         fill="var(--riscv-text-3)"
@@ -546,12 +595,12 @@ function Lane({ lane, cy, laneH, width, x, selected, onPick }) {
       <rect
         x={x(landed)}
         y={cy - 6}
-        width={Math.max(4, x(s.commit.applied) - x(landed))}
+        width={Math.max(4, x(appliedAt) - x(landed))}
         height="12"
         rx="4"
         fill="var(--riscv-gold)"
       >
-        <title>{`${s.title}: ${landed} to ${s.commit.applied}`}</title>
+        <title>{`${s.title}: ${landed} to ${appliedAt}${s.pending ? ', still in review' : s.release ? '' : ', not in a release yet'}`}</title>
       </rect>
       {s.versions.map((v) => (
         <rect
@@ -566,30 +615,36 @@ function Lane({ lane, cy, laneH, width, x, selected, onPick }) {
           <title>{`${v.version} · ${v.date} · ${v.author}`}</title>
         </rect>
       ))}
-      <rect
-        x={x(s.commit.applied) - 1.5}
-        y={cy - 11}
-        width="3"
-        height="22"
-        fill="var(--riscv-violet)"
-      />
-      <rect
-        x={x(s.release.date) - 4.5}
-        y={cy - 4.5}
-        width="9"
-        height="9"
-        rx="2"
-        fill="var(--riscv-success)"
-      />
-      <text
-        x={x(s.release.date) + 9}
-        y={cy + 4}
-        fontSize="11"
-        fill="var(--riscv-text-2)"
-        fontFamily={MONO}
-      >
-        {s.release.version}
-      </text>
+      {s.commit && (
+        <rect
+          x={x(s.commit.applied) - 1.5}
+          y={cy - 11}
+          width="3"
+          height="22"
+          fill="var(--riscv-violet)"
+        />
+      )}
+      {s.release && (
+        <>
+          <rect
+            x={x(s.release.date) - 4.5}
+            y={cy - 4.5}
+            width="9"
+            height="9"
+            rx="2"
+            fill="var(--riscv-success)"
+          />
+          <text
+            x={x(s.release.date) + 9}
+            y={cy + 4}
+            fontSize="11"
+            fill="var(--riscv-text-2)"
+            fontFamily={MONO}
+          >
+            {s.release.version}
+          </text>
+        </>
+      )}
       {dates.map((d) => (
         <text
           key={`${d.text}${d.fill}`}
@@ -694,7 +749,12 @@ function Timeline({ h }) {
             className="text-[11px] -mt-1 mb-2 pl-6"
             style={{ color: 'var(--riscv-text-3)' }}
           >
-            The series that landed: {h.title}
+            {h.commit
+              ? 'The series that landed'
+              : h.merged
+                ? 'The series that was merged'
+                : 'The series in review'}
+            : {h.title}
           </li>,
         );
     }
@@ -738,7 +798,7 @@ function People({ p, committer }) {
     ['Reviewed', p.reviewedBy],
     ['Acked', p.ackedBy],
     ['Tested', p.testedBy],
-    ['Applied by', [committer]],
+    ['Applied by', committer ? [committer] : []],
   ].filter(([, list]) => list && list.length);
   return (
     <dl className="grid gap-1.5 m-0">
@@ -939,6 +999,68 @@ function BundleBody({ id, parts, onPick }) {
           <BundlePart key={p} p={p} onPick={onPick} />
         ))}
       </div>
+    </div>
+  );
+}
+
+/** An extension Linux does not support yet: the series in review for it. */
+function PendingBody({ p }) {
+  return (
+    <div className="grid gap-5">
+      <p
+        className="m-0 rounded-lg border px-3 py-2"
+        style={{
+          color: 'var(--riscv-text)',
+          borderColor: 'var(--riscv-gold)',
+          background: 'var(--riscv-gold-dim)',
+        }}
+      >
+        {p.merged
+          ? `Merged on ${p.merged.applied} (${p.merged.commit}), not in a Linux release yet.`
+          : dormant(p.lastPosted)
+            ? `Not in Linux yet. This series was posted for it and not merged; nothing has been posted since ${p.lastPosted}.`
+            : `Not in Linux yet. This series is working towards it and has not been merged; the last version was posted ${p.lastPosted}.`}
+      </p>
+      <div
+        className="grid gap-2"
+        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))' }}
+      >
+        <Stat value={month(p.lastPosted)} label="last posted" />
+        <Stat value={span(p.firstPatch, p.lastPosted)} label="first patch to last posting" />
+        <Stat value={p.versions.length} label="versions found" />
+        <Stat value={p.review.replies} label={`review replies, ${p.review.people} people`} />
+      </div>
+      <div className="grid gap-5 md:grid-cols-2">
+        <section className="min-w-0">
+          <h3 className={SECTION} style={{ color: 'var(--riscv-text-3)' }}>
+            Timeline
+          </h3>
+          <Timeline h={p} />
+        </section>
+        <section className="min-w-0 grid gap-5 content-start">
+          <div>
+            <h3 className={SECTION} style={{ color: 'var(--riscv-text-3)' }}>
+              People
+            </h3>
+            <People
+              p={{
+                author: p.authors[0],
+                coDevelopedBy: [],
+                seriesAuthors: p.authors,
+                reviewedBy: [],
+                ackedBy: [],
+                testedBy: [],
+              }}
+              committer={null}
+            />
+          </div>
+          <Summary ai={p.ai} review={p.review} />
+        </section>
+      </div>
+      <p className="m-0 text-[11px]" style={{ color: 'var(--riscv-text-3)' }}>
+        Versions and people come from the linux-riscv archive. The summary is written by an AI model
+        from the review messages; each number links to the message it rests on.
+      </p>
     </div>
   );
 }

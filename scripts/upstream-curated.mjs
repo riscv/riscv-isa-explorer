@@ -14,9 +14,16 @@
 const BASE_PORT = {
   title: 'RISC-V Linux Port',
   sha: '76d2a0493a17d4c8ecc781366850c3c4f8e1a446', // RISC-V: Init and Halt Code, Linux 4.15
-  adds: ['A', 'C', 'D', 'F', 'M'],
+  adds: ['A', 'C', 'D', 'F', 'M', 'RV64I', 'Sv39'],
   // Linux 4.15 (2018-01) is where the port, and with it these extensions, arrived.
-  why: 'Supported since the original port; listed in the kernel table only in 6.6, in bulk',
+  why: 'Supported since the original port (64-bit, Sv39 paging, from the start); the letters were listed in the kernel table only in 6.6, in bulk',
+};
+
+const RV32 = {
+  title: 'Building for 32-bit RISC-V kernel',
+  sha: '8f79125d285d2d71ed110e875754942256efa51d', // RISC-V: Select GENERIC_UCMPDI2 on RV32I
+  adds: ['RV32I', 'Sv32'],
+  why: 'RV32, and with it Sv32 paging, was in Kconfig from the 4.15 port but did not build until this series (Zong Li, 4.18)',
 };
 
 export const CURATED = {
@@ -32,6 +39,36 @@ export const CURATED = {
     adds: ['H'],
     why: 'KVM, the hypervisor extension user, merged in 5.16; the table entry came in bulk for 6.6',
   },
+  RV32I: RV32,
+  Sv32: RV32,
+  // Paging modes are not in the extension table: Linux selects them through
+  // satp, so their history is the series that added each mode.
+  Sv48: {
+    title: 'Introduce sv48 support without relocatable kernel',
+    sha: 'e8a62cc26ddf53a3c6ba2a8d33036cf7b84f3923', // riscv: Implement sv48 support, 5.17
+    adds: ['Sv48'],
+    why: 'A paging mode, chosen through satp, so not in the extension table',
+  },
+  Sv57: {
+    title: 'Add Sv57 page table support',
+    sha: '011f09d1205285b215003a6c65408609ef78abac', // riscv: mm: Set sv57 on defaultly, 5.18
+    adds: ['Sv57'],
+    why: 'A paging mode, chosen through satp, so not in the extension table',
+  },
+  Supm: {
+    title: 'riscv: Userspace pointer masking and tagged address ABI',
+    sha: '3c2e0aff7b4f03fbc11b7d63c8db5b94a48978cf', // riscv: hwprobe: Export the Supm ISA extension, 6.13
+    adds: ['Supm'],
+    why: 'Reported through hwprobe, not the extension table, which lists Ssnpm and Smnpm instead',
+  },
+  Sscofpmf: {
+    title: 'Improve RISC-V Perf support using SBI PMU and sscofpmf extension',
+    sha: '4905ec2fb7e6421c14c9fb7276f5aa92f60f2b98', // RISC-V: Add sscofpmf extension support
+    adds: ['Sscofpmf'],
+    why: 'The landing patch has no Link: trailer, and the series title does not repeat its subject',
+  },
+  RV64I: BASE_PORT,
+  Sv39: BASE_PORT,
   A: BASE_PORT,
   C: BASE_PORT,
   D: BASE_PORT,
@@ -45,9 +82,22 @@ export const CURATED = {
  * extension goes missing from the data (a parser regression would otherwise
  * delete histories quietly), and when an entry here is collected after all.
  */
-export const UNCOLLECTED = {
-  RV32I: 'a base, not an extension the kernel adds',
-  RV64I: 'a base, not an extension the kernel adds',
-  Sscofpmf:
-    'its landing patch ("RISC-V: Add sscofpmf extension support") matches no posting found on lore',
+export const UNCOLLECTED = {};
+
+/**
+ * What a listed-only extension's line says beyond "listed in N": the honest
+ * state of Linux's support, from reading the kernel (#665).
+ */
+export const LISTED_NOTES = {
+  Q: 'Linux parses Q in ISA strings, but has no quad-precision support code: the FP context it saves is 64-bit.',
+};
+
+/**
+ * Titles a series uses for an extension instead of its name, for the "in
+ * review" search: the Smctr/Ssctr series is posted as "Control Transfer
+ * Records".
+ */
+export const SERIES_ALIASES = {
+  Smctr: ['Control Transfer Records'],
+  Ssctr: ['Control Transfer Records'],
 };

@@ -25,7 +25,10 @@ import {
   parseMbox,
   part,
   personName,
+  coverOf,
+  joinRenamed,
   selectLanded,
+  seriesFor,
   similarTitles,
   span,
   title,
@@ -33,8 +36,14 @@ import {
   version,
 } from '../scripts/upstream-history-lib.mjs';
 import { CURATED, UNCOLLECTED } from '../scripts/upstream-curated.mjs';
-import { buildIndex } from '../scripts/sync_upstream_history.mjs';
-import { commitAt, firstRelease, splitDiff, tableCommits } from '../scripts/kernel-git.mjs';
+import { keptSummary, buildIndex } from '../scripts/sync_upstream_history.mjs';
+import {
+  tableIds,
+  commitAt,
+  firstRelease,
+  splitDiff,
+  tableCommits,
+} from '../scripts/kernel-git.mjs';
 import { execFileSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
@@ -75,6 +84,18 @@ test('subjects: postings, versions, parts, RFC and titles', () => {
   assert.equal(isPosting('Re: [PATCH v3 2/7] riscv: Add Zawrs support'), false);
   assert.equal(isPosting('AW: [PATCH] x'), false, 'a German client reply');
   assert.equal(isPosting('riscv: no patch tag'), false);
+  assert.equal(isPosting('[v6 0/9] Improve RISC-V Perf support'), true, 'a bare version tag');
+  assert.equal(isPosting('[RFC 1/3] riscv: x'), true);
+  assert.equal(isPosting('Re: [v6 0/9] Improve RISC-V Perf support'), false);
+  assert.equal(isPosting('[GIT PULL] RISC-V fixes for 6.1'), false);
+  assert.equal(isPosting('[GIT PULL v2] riscv: Zfoo support'), false, 'a versioned pull request');
+  assert.equal(isPosting('[ANNOUNCE v3] something'), false);
+  assert.equal(isPosting('[GIT PULL 0/2] x'), false);
+  assert.equal(isPosting('[RESEND v2 1/3] riscv: x'), true);
+  assert.equal(isPosting('[v2, 4/7] riscv: cpufeature: add zve32[xf]'), true, 'patchwork style');
+  assert.equal(version('[v2, 4/7] riscv: x'), 2);
+  assert.equal(version('[v6 0/9] Improve RISC-V Perf support'), 6);
+  assert.equal(version('[PATCH 0/9] x [v2]'), 1, 'only the posting tag counts');
   assert.equal(version('[PATCH -next v18 00/20] riscv: Add vector ISA support'), 18);
   assert.equal(version('[RFC PATCH V3 00/11] riscv: Add vector ISA support'), 3);
   assert.equal(version('[PATCH] riscv: one patch'), 1);
@@ -171,10 +192,16 @@ test('addedIds reads both forms of the table, in both files, and nothing else', 
   assert.deepEqual(addedIds(undefined), []);
 });
 
-test('a commit listing more than three extensions is bookkeeping, unless named by hand', () => {
+test('a commit is bookkeeping only when it catches up on single letters', () => {
   assert.equal(isBulk(['zba', 'zbs']), false);
-  assert.equal(isBulk(['a', 'c', 'd', 'f']), true);
-  assert.equal(isBulk(['a', 'c', 'd', 'f'], true), false);
+  assert.equal(isBulk(['a', 'c', 'd', 'f']), true, 'the 6.6 letters commit');
+  assert.equal(isBulk(['a', 'c', 'd', 'f'], true), false, 'unless named by hand');
+  assert.equal(
+    isBulk(['zbkb', 'zbkc', 'zbkx', 'zknd', 'zkne', 'zknh', 'zkr', 'zksed', 'zksh', 'zkt']),
+    false,
+    'a family landing together is a history',
+  );
+  assert.equal(isBulk(['a', 'zaamo', 'zalrsc', 'zabha']), false, 'not all letters');
 });
 
 /* ---------- series ---------- */
@@ -460,6 +487,94 @@ test('patches whose cover the search missed stay one series', () => {
     selectLanded(versions, 'riscv: Detect Svfoo').group.postings.map((p) => p.version),
     [1, 2, 3],
     'all three versions',
+  );
+});
+
+test('the table lists what the kernel names today, not what it once did', () => {
+  const ids = tableIds(`
+	__RISCV_ISA_EXT_DATA(v, RISCV_ISA_EXT_v),
+	__RISCV_ISA_EXT_SUPERSET(zicbom, RISCV_ISA_EXT_ZICBOM, riscv_xlinuxenvcfg_exts),
+	__RISCV_ISA_EXT_DATA_VALIDATE(zic64b, RISCV_ISA_EXT_ZIC64B, NULL, v),
+`);
+  assert.deepEqual([...ids], ['v', 'zicbom', 'zic64b']);
+});
+
+test("a Link finds its own version's cover, not the first cover in the thread", () => {
+  const msg = (messageId, inReplyTo, subject) => ({ messageId, inReplyTo, subject });
+  const thread = [
+    msg('v1-0', '', '[PATCH 0/2] Old name for the series'),
+    msg('v1-1', 'v1-0', '[PATCH 1/2] riscv: add Zfoo'),
+    msg('v2-0', 'v1-0', '[PATCH v2 0/2] New name for the series'),
+    msg('v2-1', 'v2-0', '[PATCH v2 1/2] riscv: add Zfoo'),
+    msg('r', 'v2-1', 'Re: [PATCH v2 1/2] riscv: add Zfoo'),
+  ];
+  assert.equal(coverOf(thread, 'v2-1').subject, '[PATCH v2 0/2] New name for the series');
+  assert.equal(coverOf(thread, 'v1-1').subject, '[PATCH 0/2] Old name for the series');
+  assert.equal(coverOf(thread, 'missing'), null);
+  assert.equal(coverOf([msg('s', '', '[PATCH] riscv: one patch')], 's'), null, 'a single patch');
+});
+
+test('a summary is kept only while its series has the same postings', () => {
+  const s = (...hrefs) => ({ versions: hrefs.map((href) => ({ href })), ai: { text: 'x' } });
+  assert.deepEqual(keptSummary(s('a', 'b'), s('a', 'b')), { text: 'x' });
+  assert.equal(keptSummary(s('a'), s('a', 'b')), null, 'a new version drops it');
+  assert.equal(keptSummary(undefined, s('a')), null);
+});
+
+test('a series renamed between versions keeps its early versions', () => {
+  const groups = groupSeries([
+    post('c1', '[PATCH 0/2] Add support for the Zca extension', 'CL', '2024-04-10'),
+    post('p1', '[PATCH 1/2] riscv: add ISA parsing for Zca', 'CL', '2024-04-10', 'c1'),
+    post('c5', '[PATCH v5 0/2] Add a few Zc* extensions, Zcmop and Zimop', 'CL', '2024-05-17'),
+    post('p5', '[PATCH v5 1/2] riscv: add ISA parsing for Zca', 'CL', '2024-05-17', 'c5'),
+    post('o', '[PATCH] riscv: add ISA parsing for Zca', 'Other', '2023-01-01'),
+  ]);
+  const landed = selectLanded(
+    groups,
+    'riscv: add ISA parsing for Zca',
+    'Add a few Zc* extensions, Zcmop and Zimop',
+  ).group;
+  const { group, groups: after } = joinRenamed(groups, landed, 'riscv: add ISA parsing for Zca');
+  assert.deepEqual(
+    group.postings.map((p) => p.version),
+    [1, 5],
+    'v1 under the old name joins',
+  );
+  assert.equal(group.title, 'Add a few Zc* extensions, Zcmop and Zimop', 'the landed name stands');
+  assert.deepEqual(
+    earlierAttempts(after, group).map((g) => g.postings[0].author),
+    ['Other'],
+    "another author's posting stays an earlier attempt",
+  );
+});
+
+test('the series in review for an extension: names it, is not a consumer, latest first', () => {
+  const groups = groupSeries([
+    post('old', '[RFC PATCH] riscv: Introduce Svukte user mode masking', 'First', '2024-01-10'),
+    post('new', '[PATCH v3 0/2] riscv: Add Svukte extension support', 'Second', '2025-06-10'),
+    post('newp', '[PATCH v3 1/2] riscv: Detect Svukte', 'Second', '2025-06-10', 'new'),
+    post('kvm', '[PATCH] RISC-V: KVM: Allow Svukte for Guest/VM', 'KVM Dev', '2025-07-01'),
+    post('other', '[PATCH] riscv: Add Svukte2 detection', 'Someone', '2025-08-01'),
+  ]);
+  assert.deepEqual(
+    seriesFor(groups, 'Svukte').map((g) => g.title),
+    ['riscv: Add Svukte extension support', 'riscv: Introduce Svukte user mode masking'],
+    'latest first; KVM use and a different extension left out',
+  );
+  assert.deepEqual(seriesFor(groups, 'Smnope'), []);
+  const ctr = groupSeries([
+    post(
+      'c',
+      '[PATCH v6 0/4] riscv: perf: Add support for Control Transfer Records Ext.',
+      'R',
+      '2026-11-25',
+    ),
+  ]);
+  assert.equal(seriesFor(ctr, 'Smctr').length, 0, 'a perf title is a consumer by id');
+  assert.equal(
+    seriesFor(ctr, 'Smctr', ['Control Transfer Records']).length,
+    1,
+    'an alias names the work itself',
   );
 });
 
@@ -865,6 +980,25 @@ test('the timeline orders attempts, versions, applied and released', () => {
     'on the same day, the version comes before applied',
   );
   assert.equal(items[2].sub, 'B, resent 1×');
+  const pending = timelineItems({
+    earlier: [],
+    versions: [{ version: 'v1', date: '2025-01-01', author: 'X', resends: 0, href: 'h' }],
+  });
+  assert.deepEqual(
+    pending.map((i) => i.kind),
+    ['landed'],
+    'a series in review has no applied or released row',
+  );
+  const merged = timelineItems({
+    earlier: [],
+    versions: [{ version: 'v1', date: '2026-05-28', author: 'X', resends: 0, href: 'h' }],
+    merged: { commit: '7493567982b0', applied: '2026-10-08' },
+  });
+  assert.deepEqual(
+    merged.map((i) => i.kind),
+    ['landed', 'applied'],
+    'merged before a release: applied, not released',
+  );
   assert.equal(items[0].sub, 'A, 2 postings');
 });
 
@@ -1111,7 +1245,7 @@ test('every AI summary passes the gate, cites real messages and names no account
   // a digit pattern cannot stand in for this.)
   assert.doesNotMatch(raw, /arn:aws|inference-profile|bedrock:/, 'no AWS identifiers in the data');
   let summaries = 0;
-  for (const [key, s] of Object.entries(data.series)) {
+  for (const [key, s] of [...Object.entries(data.series), ...Object.entries(data.pending ?? {})]) {
     if (!s.ai) continue;
     summaries += 1;
     assert.equal(s.ai.model, MODEL_NAME, key);
@@ -1126,6 +1260,25 @@ test('every AI summary passes the gate, cites real messages and names no account
       assert.match(src.url, /^https:\/\/lore\.kernel\.org\/all\//, key);
   }
   assert.ok(summaries >= 5, `expected summaries, found ${summaries}`);
+});
+
+test('every extension in review is one Linux does not support, with its versions in order', () => {
+  const support = read('../src/toolchain-support.json');
+  const supported = new Set(
+    Object.entries(support.extensions)
+      .filter(([, v]) => v.linux?.supported)
+      .map(([token]) => token),
+  );
+  for (const [id, p] of Object.entries(data.pending ?? {})) {
+    assert.ok(catalogue.has(id), `${id} is not in the catalogue`);
+    assert.ok(!supported.has(id.toLowerCase()), `${id} is supported by Linux, not in review`);
+    assert.ok(!data.extensions[id], `${id} has both a history and a pending series`);
+    const dates = p.versions.map((v) => v.date);
+    assert.deepEqual([...dates].sort(), dates, `${id}: versions out of order`);
+    assert.equal(p.lastPosted, dates.at(-1), id);
+    assert.ok(p.firstPatch <= dates[0], id);
+    for (const v of p.versions) assert.match(v.href, /^https:\/\/lore\.kernel\.org\//, id);
+  }
 });
 
 test('the hand-written list names catalogue extensions, and the data uses it', () => {

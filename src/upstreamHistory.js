@@ -61,17 +61,35 @@ export function timelineItems(series) {
       sub: `${v.author}${v.resends ? `, resent ${v.resends}×` : ''}`,
       href: v.href,
     })),
-    {
-      kind: 'applied',
-      date: series.commit.applied,
-      text: `Applied by ${series.commit.committer}`,
-      sub: series.commit.sha,
-    },
-    {
-      kind: 'release',
-      date: series.release.date,
-      text: `Released in Linux ${series.release.version}`,
-    },
+    // A series still in review has neither row yet.
+    ...(series.commit
+      ? [
+          {
+            kind: 'applied',
+            date: series.commit.applied,
+            text: `Applied by ${series.commit.committer}`,
+            sub: series.commit.sha,
+          },
+        ]
+      : series.merged
+        ? [
+            {
+              kind: 'applied',
+              date: series.merged.applied,
+              text: 'Merged, not in a Linux release yet',
+              sub: series.merged.commit,
+            },
+          ]
+        : []),
+    ...(series.release
+      ? [
+          {
+            kind: 'release',
+            date: series.release.date,
+            text: `Released in Linux ${series.release.version}`,
+          },
+        ]
+      : []),
   ];
   // Stable: on one day, an attempt before a version before applied before released.
   const rank = { earlier: 0, landed: 1, applied: 2, release: 3 };

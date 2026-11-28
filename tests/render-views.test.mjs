@@ -112,8 +112,9 @@ test('the extension details panel shows the name, status, spec link and toolchai
     /Toolchain support/i.test(h.textContent),
   );
   assert.ok(heading, 'toolchain section missing');
-  const chips = [...heading.parentElement.querySelectorAll('span[title]')].map(
-    (c) => c.textContent,
+  // A tool with an upstream history (Linux, for Zvbb) is a button that opens it.
+  const chips = [...heading.parentElement.querySelectorAll('span[title], button')].map((c) =>
+    c.textContent.trim(),
   );
   for (const tool of ['Clang', 'GCC', 'binutils', 'QEMU', 'Linux']) {
     assert.ok(

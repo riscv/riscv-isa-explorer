@@ -13,6 +13,17 @@ someone silently. Each release below records its catalogue size.
 
 ## [Unreleased]
 
+### Added
+
+- **The upstream history covers every extension Linux supports** (#665).
+  Commits that added a family at once (scalar and vector crypto, Zve, Zc,
+  Zicntr/Zicsr/Zifencei/Zihpm) now give those extensions the history of the
+  series that landed them, instead of "listed only". Sscofpmf, RV32I and RV64I
+  are mapped by hand; Q says plainly that Linux has no quad-precision support.
+- **"In review"** for extensions Linux does not support yet: the patch series
+  posted for one that has not landed, with its versions, people, review and a
+  summary.
+
 ## [1.18.1] - 2026-11-27
 
 Catalogue: 215 entries, unchanged; nothing is added or removed. No profile

@@ -8,7 +8,9 @@
    "C",
    "D",
    "F",
-   "M"
+   "M",
+   "RV64I",
+   "Sv39"
   ]
  },
  "B": {
@@ -27,7 +29,9 @@
    "A",
    "D",
    "F",
-   "M"
+   "M",
+   "RV64I",
+   "Sv39"
   ]
  },
  "D": {
@@ -39,7 +43,9 @@
    "A",
    "C",
    "F",
-   "M"
+   "M",
+   "RV64I",
+   "Sv39"
   ]
  },
  "F": {
@@ -51,7 +57,9 @@
    "A",
    "C",
    "D",
-   "M"
+   "M",
+   "RV64I",
+   "Sv39"
   ]
  },
  "H": {
@@ -70,13 +78,55 @@
    "A",
    "C",
    "D",
-   "F"
+   "F",
+   "RV64I",
+   "Sv39"
   ]
  },
  "Q": {
   "listed": {
    "release": "6.6",
-   "others": 12
+   "others": 12,
+   "note": "Linux parses Q in ISA strings, but has no quad-precision support code: the FP context it saves is 64-bit."
+  }
+ },
+ "RV32I": {
+  "release": "4.18",
+  "firstPatch": "2018-06-21",
+  "versions": 2,
+  "replies": 12,
+  "landedWith": [
+   "Sv32"
+  ]
+ },
+ "RV64I": {
+  "release": "4.15",
+  "firstPatch": "2017-06-28",
+  "versions": 3,
+  "replies": 126,
+  "landedWith": [
+   "A",
+   "C",
+   "D",
+   "F",
+   "M",
+   "Sv39"
+  ]
+ },
+ "Sdtrig": {
+  "pending": {
+   "title": "riscv: support Sdtrig extension hcontext/scontext CSRs",
+   "versions": 1,
+   "lastPosted": "2024-03-29",
+   "merged": false
+  }
+ },
+ "Sm": {
+  "pending": {
+   "title": "riscv: Add ISA extension parsing for Sm and Ss",
+   "versions": 1,
+   "lastPosted": "2024-02-13",
+   "merged": false
   }
  },
  "Smaia": {
@@ -106,12 +156,20 @@
  },
  "Smcsrind": {
   "release": "7.3",
-  "firstPatch": "2026-08-07",
-  "versions": 1,
-  "replies": 14,
+  "firstPatch": "2024-02-17",
+  "versions": 9,
+  "replies": 122,
   "landedWith": [
    "Sscsrind"
   ]
+ },
+ "Smctr": {
+  "pending": {
+   "title": "riscv: perf: Add support for Control Transfer Records Ext.",
+   "versions": 6,
+   "lastPosted": "2026-11-25",
+   "merged": false
+  }
  },
  "Smmpm": {
   "release": "6.13",
@@ -158,14 +216,45 @@
    "Smcdeleg"
   ]
  },
+ "Sscofpmf": {
+  "release": "5.18",
+  "firstPatch": "2021-09-09",
+  "versions": 4,
+  "replies": 17,
+  "landedWith": []
+ },
  "Sscsrind": {
   "release": "7.3",
-  "firstPatch": "2026-08-07",
-  "versions": 1,
-  "replies": 14,
+  "firstPatch": "2024-02-17",
+  "versions": 9,
+  "replies": 122,
   "landedWith": [
    "Smcsrind"
   ]
+ },
+ "Ssctr": {
+  "pending": {
+   "title": "riscv: perf: Add support for Control Transfer Records Ext.",
+   "versions": 6,
+   "lastPosted": "2026-11-25",
+   "merged": false
+  }
+ },
+ "Ssdbltrp": {
+  "pending": {
+   "title": "riscv: Add support for Ssdbltrp extension",
+   "versions": 1,
+   "lastPosted": "2024-04-18",
+   "merged": false
+  }
+ },
+ "Ssdtso": {
+  "pending": {
+   "title": "RISC-V: Expose Ssdtso via hwprobe API",
+   "versions": 2,
+   "lastPosted": "2024-02-09",
+   "merged": false
+  }
  },
  "Ssnpm": {
   "release": "6.13",
@@ -189,6 +278,50 @@
   "firstPatch": "2022-02-28",
   "versions": 7,
   "replies": 16,
+  "landedWith": []
+ },
+ "Supm": {
+  "release": "6.13",
+  "firstPatch": "2024-03-19",
+  "versions": 5,
+  "replies": 39,
+  "landedWith": []
+ },
+ "Sv32": {
+  "release": "4.18",
+  "firstPatch": "2018-06-21",
+  "versions": 2,
+  "replies": 12,
+  "landedWith": [
+   "RV32I"
+  ]
+ },
+ "Sv39": {
+  "release": "4.15",
+  "firstPatch": "2017-06-28",
+  "versions": 3,
+  "replies": 126,
+  "landedWith": [
+   "A",
+   "C",
+   "D",
+   "F",
+   "M",
+   "RV64I"
+  ]
+ },
+ "Sv48": {
+  "release": "5.17",
+  "firstPatch": "2020-03-22",
+  "versions": 5,
+  "replies": 61,
+  "landedWith": []
+ },
+ "Sv57": {
+  "release": "5.18",
+  "firstPatch": "2021-11-14",
+  "versions": 2,
+  "replies": 2,
   "landedWith": []
  },
  "Svade": {
@@ -237,6 +370,14 @@
   "replies": 29,
   "landedWith": []
  },
+ "Svukte": {
+  "pending": {
+   "title": "riscv: add Svukte extension",
+   "versions": 4,
+   "lastPosted": "2024-12-13",
+   "merged": false
+  }
+ },
  "Svvptc": {
   "release": "6.12",
   "firstPatch": "2024-01-31",
@@ -254,8 +395,8 @@
  "Za64rs": {
   "release": "7.3",
   "firstPatch": "2026-02-06",
-  "versions": 5,
-  "replies": 38,
+  "versions": 4,
+  "replies": 46,
   "landedWith": [
    "Ziccamoa",
    "Ziccif"
@@ -326,27 +467,69 @@
  "Zbc": {
   "release": "6.8",
   "firstPatch": "2022-12-20",
-  "versions": 2,
-  "replies": 10,
+  "versions": 4,
+  "replies": 46,
   "landedWith": []
  },
  "Zbkb": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkc",
+   "Zbkx",
+   "Zk",
+   "Zkn",
+   "Zknd",
+   "Zkne",
+   "Zknh",
+   "Zkr",
+   "Zks",
+   "Zksed",
+   "Zksh",
+   "Zkt"
+  ]
  },
  "Zbkc": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkx",
+   "Zk",
+   "Zkn",
+   "Zknd",
+   "Zkne",
+   "Zknh",
+   "Zkr",
+   "Zks",
+   "Zksed",
+   "Zksh",
+   "Zkt"
+  ]
  },
  "Zbkx": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkc",
+   "Zk",
+   "Zkn",
+   "Zknd",
+   "Zkne",
+   "Zknh",
+   "Zkr",
+   "Zks",
+   "Zksed",
+   "Zksh",
+   "Zkt"
+  ]
  },
  "Zbs": {
   "release": "6.5",
@@ -358,28 +541,48 @@
   ]
  },
  "Zca": {
-  "listed": {
-   "release": "6.11",
-   "others": 5
-  }
+  "release": "6.11",
+  "firstPatch": "2024-04-10",
+  "versions": 7,
+  "replies": 51,
+  "landedWith": [
+   "Zcb",
+   "Zcd",
+   "Zcf"
+  ]
  },
  "Zcb": {
-  "listed": {
-   "release": "6.11",
-   "others": 5
-  }
+  "release": "6.11",
+  "firstPatch": "2024-04-10",
+  "versions": 7,
+  "replies": 51,
+  "landedWith": [
+   "Zca",
+   "Zcd",
+   "Zcf"
+  ]
  },
  "Zcd": {
-  "listed": {
-   "release": "6.11",
-   "others": 5
-  }
+  "release": "6.11",
+  "firstPatch": "2024-04-10",
+  "versions": 7,
+  "replies": 51,
+  "landedWith": [
+   "Zca",
+   "Zcb",
+   "Zcf"
+  ]
  },
  "Zcf": {
-  "listed": {
-   "release": "6.11",
-   "others": 5
-  }
+  "release": "6.11",
+  "firstPatch": "2024-04-10",
+  "versions": 7,
+  "replies": 51,
+  "landedWith": [
+   "Zca",
+   "Zcb",
+   "Zcd"
+  ]
  },
  "Zclsd": {
   "release": "6.19",
@@ -399,9 +602,9 @@
  },
  "Zfa": {
   "release": "6.8",
-  "firstPatch": "2023-10-17",
-  "versions": 3,
-  "replies": 36,
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
   "landedWith": []
  },
  "Zfbfmin": {
@@ -432,6 +635,14 @@
    "Zfh"
   ]
  },
+ "Zic64b": {
+  "pending": {
+   "title": "riscv: cpufeature: Add Zic64b ISA extension support",
+   "versions": 1,
+   "lastPosted": "2026-05-28",
+   "merged": true
+  }
+ },
  "Zicbom": {
   "release": "6.0",
   "firstPatch": "2022-03-07",
@@ -456,18 +667,26 @@
  "Ziccamoa": {
   "release": "7.3",
   "firstPatch": "2026-02-06",
-  "versions": 5,
-  "replies": 38,
+  "versions": 4,
+  "replies": 46,
   "landedWith": [
    "Za64rs",
    "Ziccif"
   ]
  },
+ "Ziccid": {
+  "pending": {
+   "title": "riscv: add support for Ziccid",
+   "versions": 1,
+   "lastPosted": "2025-10-09",
+   "merged": false
+  }
+ },
  "Ziccif": {
   "release": "7.3",
   "firstPatch": "2026-02-06",
-  "versions": 5,
-  "replies": 38,
+  "versions": 4,
+  "replies": 46,
   "landedWith": [
    "Za64rs",
    "Ziccamoa"
@@ -476,22 +695,22 @@
  "Zicclsm": {
   "release": "7.3",
   "firstPatch": "2024-06-06",
-  "versions": 12,
-  "replies": 102,
+  "versions": 4,
+  "replies": 46,
   "landedWith": []
  },
  "Ziccrse": {
   "release": "6.13",
-  "firstPatch": "2024-07-17",
-  "versions": 4,
-  "replies": 67,
+  "firstPatch": "2024-05-28",
+  "versions": 6,
+  "replies": 107,
   "landedWith": []
  },
  "Zicfilp": {
   "release": "7.0",
   "firstPatch": "2024-01-25",
-  "versions": 27,
-  "replies": 226,
+  "versions": 26,
+  "replies": 225,
   "landedWith": [
    "Zicfiss"
   ]
@@ -499,17 +718,22 @@
  "Zicfiss": {
   "release": "7.0",
   "firstPatch": "2024-01-25",
-  "versions": 27,
-  "replies": 226,
+  "versions": 26,
+  "replies": 225,
   "landedWith": [
    "Zicfilp"
   ]
  },
  "Zicntr": {
-  "listed": {
-   "release": "6.5",
-   "others": 3
-  }
+  "release": "6.5",
+  "firstPatch": "2022-04-02",
+  "versions": 1,
+  "replies": 6,
+  "landedWith": [
+   "Zicsr",
+   "Zifencei",
+   "Zihpm"
+  ]
  },
  "Zicond": {
   "release": "6.7",
@@ -519,16 +743,26 @@
   "landedWith": []
  },
  "Zicsr": {
-  "listed": {
-   "release": "6.5",
-   "others": 3
-  }
+  "release": "6.5",
+  "firstPatch": "2022-04-02",
+  "versions": 1,
+  "replies": 6,
+  "landedWith": [
+   "Zicntr",
+   "Zifencei",
+   "Zihpm"
+  ]
  },
  "Zifencei": {
-  "listed": {
-   "release": "6.5",
-   "others": 3
-  }
+  "release": "6.5",
+  "firstPatch": "2022-04-02",
+  "versions": 1,
+  "replies": 6,
+  "landedWith": [
+   "Zicntr",
+   "Zicsr",
+   "Zihpm"
+  ]
  },
  "Zihintntl": {
   "release": "6.8",
@@ -545,10 +779,15 @@
   "landedWith": []
  },
  "Zihpm": {
-  "listed": {
-   "release": "6.5",
-   "others": 3
-  }
+  "release": "6.5",
+  "firstPatch": "2022-04-02",
+  "versions": 1,
+  "replies": 6,
+  "landedWith": [
+   "Zicntr",
+   "Zicsr",
+   "Zifencei"
+  ]
  },
  "Zilsd": {
   "release": "6.19",
@@ -562,69 +801,209 @@
  "Zimop": {
   "release": "6.11",
   "firstPatch": "2024-04-04",
-  "versions": 3,
-  "replies": 18,
+  "versions": 4,
+  "replies": 26,
   "landedWith": []
  },
  "Zk": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkc",
+   "Zbkx",
+   "Zkn",
+   "Zknd",
+   "Zkne",
+   "Zknh",
+   "Zkr",
+   "Zks",
+   "Zksed",
+   "Zksh",
+   "Zkt"
+  ]
  },
  "Zkn": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkc",
+   "Zbkx",
+   "Zk",
+   "Zknd",
+   "Zkne",
+   "Zknh",
+   "Zkr",
+   "Zks",
+   "Zksed",
+   "Zksh",
+   "Zkt"
+  ]
  },
  "Zknd": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkc",
+   "Zbkx",
+   "Zk",
+   "Zkn",
+   "Zkne",
+   "Zknh",
+   "Zkr",
+   "Zks",
+   "Zksed",
+   "Zksh",
+   "Zkt"
+  ]
  },
  "Zkne": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkc",
+   "Zbkx",
+   "Zk",
+   "Zkn",
+   "Zknd",
+   "Zknh",
+   "Zkr",
+   "Zks",
+   "Zksed",
+   "Zksh",
+   "Zkt"
+  ]
  },
  "Zknh": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkc",
+   "Zbkx",
+   "Zk",
+   "Zkn",
+   "Zknd",
+   "Zkne",
+   "Zkr",
+   "Zks",
+   "Zksed",
+   "Zksh",
+   "Zkt"
+  ]
  },
  "Zkr": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkc",
+   "Zbkx",
+   "Zk",
+   "Zkn",
+   "Zknd",
+   "Zkne",
+   "Zknh",
+   "Zks",
+   "Zksed",
+   "Zksh",
+   "Zkt"
+  ]
  },
  "Zks": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkc",
+   "Zbkx",
+   "Zk",
+   "Zkn",
+   "Zknd",
+   "Zkne",
+   "Zknh",
+   "Zkr",
+   "Zksed",
+   "Zksh",
+   "Zkt"
+  ]
  },
  "Zksed": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkc",
+   "Zbkx",
+   "Zk",
+   "Zkn",
+   "Zknd",
+   "Zkne",
+   "Zknh",
+   "Zkr",
+   "Zks",
+   "Zksh",
+   "Zkt"
+  ]
  },
  "Zksh": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkc",
+   "Zbkx",
+   "Zk",
+   "Zkn",
+   "Zknd",
+   "Zkne",
+   "Zknh",
+   "Zkr",
+   "Zks",
+   "Zksed",
+   "Zkt"
+  ]
  },
  "Zkt": {
-  "listed": {
-   "release": "6.8",
-   "others": 13
-  }
+  "release": "6.8",
+  "firstPatch": "2023-02-06",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zbkb",
+   "Zbkc",
+   "Zbkx",
+   "Zk",
+   "Zkn",
+   "Zknd",
+   "Zkne",
+   "Zknh",
+   "Zkr",
+   "Zks",
+   "Zksed",
+   "Zksh"
+  ]
  },
  "Ztso": {
   "release": "6.8",
@@ -634,46 +1013,110 @@
   "landedWith": []
  },
  "Zvbb": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvbc": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zve32f": {
-  "listed": {
-   "release": "6.11",
-   "others": 5
-  }
+  "release": "6.11",
+  "firstPatch": "2024-03-12",
+  "versions": 5,
+  "replies": 38,
+  "landedWith": [
+   "Zve32x",
+   "Zve64d",
+   "Zve64f",
+   "Zve64x"
+  ]
  },
  "Zve32x": {
-  "listed": {
-   "release": "6.11",
-   "others": 5
-  }
+  "release": "6.11",
+  "firstPatch": "2024-03-12",
+  "versions": 5,
+  "replies": 38,
+  "landedWith": [
+   "Zve32f",
+   "Zve64d",
+   "Zve64f",
+   "Zve64x"
+  ]
  },
  "Zve64d": {
-  "listed": {
-   "release": "6.11",
-   "others": 5
-  }
+  "release": "6.11",
+  "firstPatch": "2024-03-12",
+  "versions": 5,
+  "replies": 38,
+  "landedWith": [
+   "Zve32f",
+   "Zve32x",
+   "Zve64f",
+   "Zve64x"
+  ]
  },
  "Zve64f": {
-  "listed": {
-   "release": "6.11",
-   "others": 5
-  }
+  "release": "6.11",
+  "firstPatch": "2024-03-12",
+  "versions": 5,
+  "replies": 38,
+  "landedWith": [
+   "Zve32f",
+   "Zve32x",
+   "Zve64d",
+   "Zve64x"
+  ]
  },
  "Zve64x": {
-  "listed": {
-   "release": "6.11",
-   "others": 5
-  }
+  "release": "6.11",
+  "firstPatch": "2024-03-12",
+  "versions": 5,
+  "replies": 38,
+  "landedWith": [
+   "Zve32f",
+   "Zve32x",
+   "Zve64d",
+   "Zve64f"
+  ]
  },
  "Zvfbfmin": {
   "release": "6.15",
@@ -714,87 +1157,325 @@
   ]
  },
  "Zvkb": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvkg": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvkn": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvknc": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvkned": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvkng": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvknha": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvknhb": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvks": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvksc": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvksed": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksg",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvksg": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksh",
+   "Zvkt"
+  ]
  },
  "Zvksh": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvkt"
+  ]
  },
  "Zvkt": {
-  "listed": {
-   "release": "6.8",
-   "others": 16
-  }
+  "release": "6.8",
+  "firstPatch": "2023-10-11",
+  "versions": 4,
+  "replies": 46,
+  "landedWith": [
+   "Zvbb",
+   "Zvbc",
+   "Zvkb",
+   "Zvkg",
+   "Zvkn",
+   "Zvknc",
+   "Zvkned",
+   "Zvkng",
+   "Zvknha",
+   "Zvknhb",
+   "Zvks",
+   "Zvksc",
+   "Zvksed",
+   "Zvksg",
+   "Zvksh"
+  ]
  }
 }

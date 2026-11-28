@@ -10,9 +10,12 @@
 export const BOT = /kernel test robot|patchwork-bot|lkp@intel|syzbot|kernelci/i;
 
 /**
- * A commit that adds more than this many extensions to the kernel's table is
- * bookkeeping (the table catching up, as when 13 single letters were added
- * at once for 6.6), not the work that made any of them supported.
+ * A commit listing more than this many extensions at once, all single
+ * letters, is bookkeeping: the kernel's table catching up on extensions it
+ * supported long before (the 6.6 commit effc122ad176 listed 13 letters at
+ * once). A commit adding a family of multi-letter extensions together (the
+ * scalar or vector crypto sets, the Zve subsets, Zc*) is how they landed,
+ * and is an ordinary history they share (#665).
  */
 export const BULK = 3;
 
@@ -112,12 +115,20 @@ export function parseAtom(xml) {
 /** A reply or a forward, by its subject. */
 export const isReplySubject = (subject) => /^\s*(re|aw|fwd?|fw):/i.test(subject);
 
-/** A patch as posted: [PATCH ...] in the subject, not a reply or a forward. */
-export const isPosting = (subject) => /\[[^\]]*PATCH/i.test(subject) && !isReplySubject(subject);
+/**
+ * The bracket that marks a posted patch: [PATCH ...], [RFC ...], or a bare
+ * version or part number, as some series are tagged ("[v6 0/9] Improve
+ * RISC-V Perf support...", the Sscofpmf series; "[v2, 4/7]", Zve).
+ */
+const POSTING_TAG =
+  /\[(?:[^\]]*(?:PATCH|\bRFC\b)[^\]]*|\s*(?:RESEND\s+)?[vV]\d+(?:,?\s+\d+\/\d+)?\s*|\s*\d+\/\d+\s*)\]/i;
 
-/** The version in [PATCH v3 ...]; 1 when none is given. */
+/** A patch as posted: a posting tag in the subject, not a reply or a forward. */
+export const isPosting = (subject) => POSTING_TAG.test(subject) && !isReplySubject(subject);
+
+/** The version in [PATCH v3 ...] or [v3 0/9]; 1 when none is given. */
 export const version = (subject) =>
-  Number((subject.match(/\[[^\]]*PATCH[^\]]*?\b[vV](\d+)\b/) ?? [])[1] ?? 1);
+  Number(((subject.match(POSTING_TAG) ?? [''])[0].match(/\b[vV](\d+)\b/) ?? [])[1] ?? 1);
 
 /** [n, total] for "[PATCH v3 2/7]", [] for a single patch. */
 export const part = (subject) => (subject.match(/\b(\d+)\/(\d+)\]/) ?? []).slice(1).map(Number);
@@ -189,7 +200,8 @@ export function addedIds(files) {
   return [...ids].sort();
 }
 
-export const isBulk = (adds, curated = false) => !curated && adds.length > BULK;
+export const isBulk = (adds, curated = false) =>
+  !curated && adds.length > BULK && adds.every((id) => id.length === 1);
 
 /**
  * Drops replies that kept the patch subject without "Re:" (some mail clients
@@ -345,6 +357,42 @@ const CONSUMER = new RegExp(
  * series that landed, and not another subsystem's use of the extension (the
  * extension-name search also finds those). Later work is not an earlier attempt.
  */
+/**
+ * A series renamed between versions is still one series: every earlier
+ * version that carried the landing patch itself, from the same author, joins
+ * the series that landed ("...a few Zc* extensions as well as Zcmop" v1-v4
+ * became "...a few Zc* extensions, Zcmop and Zimop" v5-v7). Returns the
+ * joined series and the groups with the renamed ones folded in (#665).
+ */
+export function joinRenamed(groups, landed, commitSubject) {
+  const key = norm(title(commitSubject));
+  const authors = new Set(landed.postings.map((p) => p.author));
+  const start = landed.postings[0].date;
+  const renamed = groups.filter(
+    (g) =>
+      g !== landed &&
+      g.postings[0].date < start &&
+      g.postings.some((p) => p.titles.has(key) && authors.has(p.author)),
+  );
+  if (!renamed.length) return { groups, group: landed };
+  const carried = renamed.flatMap((g) =>
+    g.postings.filter((p) => p.titles.has(key) && authors.has(p.author)),
+  );
+  const group = {
+    ...landed,
+    postings: [...carried, ...landed.postings].sort((a, b) => a.date - b.date),
+  };
+  // What else a renamed group held (another author's attempt) stays an
+  // earlier attempt of its own.
+  const rest = renamed
+    .map((g) => ({ ...g, postings: g.postings.filter((p) => !carried.includes(p)) }))
+    .filter((g) => g.postings.length);
+  return {
+    group,
+    groups: [...groups.filter((g) => g !== landed && !renamed.includes(g)), ...rest, group],
+  };
+}
+
 export function earlierAttempts(groups, landed) {
   const start = landed.postings[0].date;
   return groups.filter(
@@ -444,6 +492,41 @@ export function reviewReplies(threads, authors) {
 
 /** "RFC v3" for a message, from its own subject; null when the subject has no [PATCH] tag. */
 export function versionLabel(subject) {
-  if (!/\[[^\]]*PATCH/i.test(subject)) return null;
+  if (!POSTING_TAG.test(subject)) return null;
   return `${isRfc(subject) ? 'RFC ' : ''}v${version(subject)}`;
+}
+
+/**
+ * The series working towards an extension Linux does not support yet: those
+ * whose own title, or one of whose patch titles, names the extension, that
+ * are not another subsystem's use of it, most recently posted first (#665).
+ */
+export function seriesFor(groups, id, aliases = []) {
+  const escape = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const byId = new RegExp(`\\b${id.replace(/[^\w]/g, '')}\\b`, 'i');
+  const byAlias = aliases.length ? new RegExp(aliases.map(escape).join('|'), 'i') : null;
+  const names = (g, re) =>
+    re.test(g.title) || g.postings.some((p) => [...p.titles].some((t) => re.test(t)));
+  // A hand-written alias names the work itself ("Control Transfer Records" is
+  // a perf driver), so the consumer rule applies only to the id search.
+  return groups
+    .filter((g) => (byAlias && names(g, byAlias)) || (names(g, byId) && !CONSUMER.test(g.title)))
+    .sort((a, b) => b.postings.at(-1).date - a.postings.at(-1).date);
+}
+
+/**
+ * The cover letter of the series a message belongs to: up the In-Reply-To
+ * chain from that message to the first [n 0/N] posting. A thread can hold
+ * several versions (v2 sent as a reply to v1), so the first cover in it is
+ * not necessarily this message's. Null when the message is not in the
+ * thread or answers no cover (a single patch).
+ */
+export function coverOf(messages, messageId) {
+  const byId = new Map(messages.map((m) => [m.messageId, m]));
+  let m = byId.get(messageId);
+  for (let hops = 0; m && hops < 50; hops += 1) {
+    if (isPosting(m.subject) && part(m.subject)[0] === 0) return m;
+    m = byId.get(m.inReplyTo);
+  }
+  return null;
 }
