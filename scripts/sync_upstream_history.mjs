@@ -415,14 +415,18 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
     // toolchain data can lag the kernel: Zvfbfwma landed in 6.15).
     if (supportedIds.has(id) || data.extensions[id] || CURATED[id] || id.length < 2) continue;
     if (wanted && !wanted.has(id.toLowerCase())) continue;
-    const before = data.pending[id];
+    // From the previous file: a full run starts from empty data.
+    const before = previous.pending?.[id];
     const p = await pendingHistory(id);
     if (p) {
       // Merged into the kernel's table, not in a release yet (Zic64b in 7.4-rc1).
       const landed = firstCommit.get(id.toLowerCase());
-      const merged = landed
-        ? { commit: landed.sha.slice(0, 12), applied: landed.commit.committer.date.slice(0, 10) }
-        : null;
+      if (landed && firstRelease(linux, landed.sha))
+        console.warn(`${id}: in a Linux release, but not in the toolchain data yet`);
+      const merged =
+        landed && !firstRelease(linux, landed.sha)
+          ? { commit: landed.sha.slice(0, 12), applied: landed.commit.committer.date.slice(0, 10) }
+          : null;
       data.pending[id] = { ...p, merged, ai: keptSummary(before, p) };
       report.pending.push(id);
     } else delete data.pending[id];

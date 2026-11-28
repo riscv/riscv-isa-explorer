@@ -85,6 +85,8 @@ test('subjects: postings, versions, parts, RFC and titles', () => {
   assert.equal(isPosting('[ANNOUNCE v3] something'), false);
   assert.equal(isPosting('[GIT PULL 0/2] x'), false);
   assert.equal(isPosting('[RESEND v2 1/3] riscv: x'), true);
+  assert.equal(isPosting('[v2, 4/7] riscv: cpufeature: add zve32[xf]'), true, 'patchwork style');
+  assert.equal(version('[v2, 4/7] riscv: x'), 2);
   assert.equal(version('[v6 0/9] Improve RISC-V Perf support'), 6);
   assert.equal(version('[PATCH 0/9] x [v2]'), 1, 'only the posting tag counts');
   assert.equal(version('[PATCH -next v18 00/20] riscv: Add vector ISA support'), 18);

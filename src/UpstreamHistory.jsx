@@ -65,6 +65,8 @@ function keyBelongsElsewhere(e) {
   return Boolean(kapa && (e.target === kapa || kapa.contains(e.target)));
 }
 const SECTION = 'text-[11px] uppercase tracking-widest font-semibold mb-2';
+// A series with no posting for a year is not "in review" any more.
+const dormant = (lastPosted) => Date.now() - Date.parse(lastPosted) > 365 * 24 * 3600 * 1000;
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 /** The line under the toolchain rows, with the button that opens the dialog. */
@@ -74,6 +76,8 @@ export function HistorySummary({ id, onOpen }) {
   let text;
   if (h.pending?.merged)
     text = `Merged for the next Linux release: ${h.pending.title} (${plural(h.pending.versions, 'version')})`;
+  else if (h.pending && dormant(h.pending.lastPosted))
+    text = `Not in Linux yet · last series: ${h.pending.title} (${plural(h.pending.versions, 'version')}, last posted ${month(h.pending.lastPosted)}, nothing since)`;
   else if (h.pending)
     text = `Not in Linux yet · in review: ${h.pending.title} (${plural(h.pending.versions, 'version')}, last posted ${month(h.pending.lastPosted)})`;
   else if (h.listed)
@@ -374,6 +378,9 @@ function Swatch({ style, cls = 'w-4 h-2 rounded', children }) {
   );
 }
 
+/** Where a lane's path ends: released, applied, or its last posting. */
+const laneEnd = (l) => l.s.release?.date ?? l.s.commit?.applied ?? l.s.lastPosted;
+
 /*
  * The progression on one time axis, a lane per series: the whole path from
  * first patch to release (grey, a dot for each earlier attempt), the series
@@ -418,7 +425,7 @@ function Progression({ ids, current, data, onPick }) {
   const H = top + lanes.length * laneH + 4;
   const axis = progressionAxis(
     lanes.map((l) => l.s.firstPatch),
-    lanes.map((l) => l.s.release?.date ?? l.s.lastPosted),
+    lanes.map(laneEnd),
     { width: W, left: labelColumn(lanes.map((l) => l.label)) },
   );
   const { x, xt } = axis;
@@ -514,7 +521,7 @@ function Lane({ lane, cy, laneH, width, x, selected, onPick }) {
   const landed = s.versions[0].date;
   // A series still in review has no applied or release mark: its path ends
   // at the last posting.
-  const end = s.release?.date ?? s.commit?.applied ?? s.lastPosted;
+  const end = laneEnd(lane);
   const appliedAt = s.commit?.applied ?? s.lastPosted;
   const dates = placeDates([
     {
@@ -1005,7 +1012,9 @@ function PendingBody({ p }) {
       >
         {p.merged
           ? `Merged on ${p.merged.applied} (${p.merged.commit}), not in a Linux release yet.`
-          : `Not in Linux yet. This series is working towards it and has not been merged; the last version was posted ${p.lastPosted}.`}
+          : dormant(p.lastPosted)
+            ? `Not in Linux yet. This series was posted for it and not merged; nothing has been posted since ${p.lastPosted}.`
+            : `Not in Linux yet. This series is working towards it and has not been merged; the last version was posted ${p.lastPosted}.`}
       </p>
       <div
         className="grid gap-2"

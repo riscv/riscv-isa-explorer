@@ -118,10 +118,10 @@ export const isReplySubject = (subject) => /^\s*(re|aw|fwd?|fw):/i.test(subject)
 /**
  * The bracket that marks a posted patch: [PATCH ...], [RFC ...], or a bare
  * version or part number, as some series are tagged ("[v6 0/9] Improve
- * RISC-V Perf support...", the Sscofpmf series).
+ * RISC-V Perf support...", the Sscofpmf series; "[v2, 4/7]", Zve).
  */
 const POSTING_TAG =
-  /\[(?:[^\]]*(?:PATCH|\bRFC\b)[^\]]*|\s*(?:RESEND\s+)?[vV]\d+(?:\s+\d+\/\d+)?\s*|\s*\d+\/\d+\s*)\]/i;
+  /\[(?:[^\]]*(?:PATCH|\bRFC\b)[^\]]*|\s*(?:RESEND\s+)?[vV]\d+(?:,?\s+\d+\/\d+)?\s*|\s*\d+\/\d+\s*)\]/i;
 
 /** A patch as posted: a posting tag in the subject, not a reply or a forward. */
 export const isPosting = (subject) => POSTING_TAG.test(subject) && !isReplySubject(subject);
