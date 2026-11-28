@@ -71660,10 +71660,10 @@
       "tags": [],
       "desc": "Enables Zicfiss shadow stacks in machine mode through mseccfg.MSSE, protecting firmware return addresses.",
       "use": "Machine-level shadow stack config",
-      "url": "https://github.com/riscv/riscv-isa-manual",
+      "url": "https://github.com/riscv/riscv-isa-manual/blob/cbcc8b699432b530dd63ddb8cca0c760a3275fd7/src/smcfiss.adoc?plain=1#L39",
       "instructions": {},
-      "state": "draft",
-      "version": "0.7.0"
+      "state": "frozen",
+      "version": "0.8.1"
     },
     {
       "id": "Zicfilp",
