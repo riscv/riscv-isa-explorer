@@ -25,6 +25,7 @@ import {
   parseMbox,
   part,
   personName,
+  coverOf,
   joinRenamed,
   selectLanded,
   seriesFor,
@@ -36,7 +37,13 @@ import {
 } from '../scripts/upstream-history-lib.mjs';
 import { CURATED, UNCOLLECTED } from '../scripts/upstream-curated.mjs';
 import { keptSummary, buildIndex } from '../scripts/sync_upstream_history.mjs';
-import { commitAt, firstRelease, splitDiff, tableCommits } from '../scripts/kernel-git.mjs';
+import {
+  tableIds,
+  commitAt,
+  firstRelease,
+  splitDiff,
+  tableCommits,
+} from '../scripts/kernel-git.mjs';
 import { execFileSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
@@ -481,6 +488,30 @@ test('patches whose cover the search missed stay one series', () => {
     [1, 2, 3],
     'all three versions',
   );
+});
+
+test('the table lists what the kernel names today, not what it once did', () => {
+  const ids = tableIds(`
+	__RISCV_ISA_EXT_DATA(v, RISCV_ISA_EXT_v),
+	__RISCV_ISA_EXT_SUPERSET(zicbom, RISCV_ISA_EXT_ZICBOM, riscv_xlinuxenvcfg_exts),
+	__RISCV_ISA_EXT_DATA_VALIDATE(zic64b, RISCV_ISA_EXT_ZIC64B, NULL, v),
+`);
+  assert.deepEqual([...ids], ['v', 'zicbom', 'zic64b']);
+});
+
+test("a Link finds its own version's cover, not the first cover in the thread", () => {
+  const msg = (messageId, inReplyTo, subject) => ({ messageId, inReplyTo, subject });
+  const thread = [
+    msg('v1-0', '', '[PATCH 0/2] Old name for the series'),
+    msg('v1-1', 'v1-0', '[PATCH 1/2] riscv: add Zfoo'),
+    msg('v2-0', 'v1-0', '[PATCH v2 0/2] New name for the series'),
+    msg('v2-1', 'v2-0', '[PATCH v2 1/2] riscv: add Zfoo'),
+    msg('r', 'v2-1', 'Re: [PATCH v2 1/2] riscv: add Zfoo'),
+  ];
+  assert.equal(coverOf(thread, 'v2-1').subject, '[PATCH v2 0/2] New name for the series');
+  assert.equal(coverOf(thread, 'v1-1').subject, '[PATCH 0/2] Old name for the series');
+  assert.equal(coverOf(thread, 'missing'), null);
+  assert.equal(coverOf([msg('s', '', '[PATCH] riscv: one patch')], 's'), null, 'a single patch');
 });
 
 test('a summary is kept only while its series has the same postings', () => {

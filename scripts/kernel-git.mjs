@@ -94,3 +94,15 @@ export function firstRelease(repo, sha) {
   );
   return { version: tags[0].slice(1), date: new Date(seconds * 1000).toISOString().slice(0, 10) };
 }
+
+/** The extensions a version of the table file lists (lower case). */
+export const tableIds = (text) =>
+  new Set([...text.matchAll(/__RISCV_ISA_EXT_\w+\(\s*(\w+)\s*,/g)].map((m) => m[1].toLowerCase()));
+
+/**
+ * What the kernel lists today: an extension added and later removed (P, J,
+ * K and B left the table after 6.6) is not supported because it was once there.
+ */
+export function currentTable(repo, ref = 'HEAD') {
+  return tableIds(git(repo, ['show', `${ref}:${TABLE_FILES[0]}`]));
+}

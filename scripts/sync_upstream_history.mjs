@@ -33,14 +33,14 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
-import { commitAt, firstRelease, tableCommits } from './kernel-git.mjs';
+import { commitAt, currentTable, firstRelease, tableCommits } from './kernel-git.mjs';
 import { CURATED, LISTED_NOTES, SERIES_ALIASES } from './upstream-curated.mjs';
 import {
   BOT,
+  coverOf,
   groupSeries,
   isBulk,
   joinRenamed,
-  isPosting,
   iso,
   loreId,
   parseAtom,
@@ -139,7 +139,7 @@ async function linkedCoverTitle(message) {
   const id = link?.match(/(?:lore\.kernel\.org\/[\w-]+|patch\.msgid\.link)\/([^\s/]+)/)?.[1];
   if (!id) return null;
   const messages = await thread(`https://lore.kernel.org/all/${id}/`);
-  const cover = messages.find((m) => isPosting(m.subject) && /\b0+\/\d+\]/.test(m.subject));
+  const cover = coverOf(messages, decodeURIComponent(id));
   return cover ? title(cover.subject) : null;
 }
 
@@ -341,6 +341,20 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
   const extra = Object.keys(CURATED)
     .filter((id) => !tokens.has(id.toLowerCase()))
     .map((id) => [id.toLowerCase(), { linux: { supported: true } }]);
+  // In a Linux release already, though the toolchain data (refreshed monthly)
+  // has not caught up: the kernel's own tags decide (#665).
+  const listedNow = currentTable(linux);
+  for (const [token, c] of firstCommit)
+    if (
+      !tokens.has(token) &&
+      listedNow.has(token) &&
+      !CURATED[ids.get(token)] &&
+      ids.has(token) &&
+      firstRelease(linux, c.sha)
+    ) {
+      console.warn(`${ids.get(token)}: released in Linux, not in the toolchain data yet`);
+      extra.push([token, { linux: { supported: true } }]);
+    }
   for (const [token, entry] of [...supported, ...extra]) {
     const id = ids.get(token);
     if (!id || (wanted && !wanted.has(token))) continue;
@@ -421,10 +435,8 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
     if (p) {
       // Merged into the kernel's table, not in a release yet (Zic64b in 7.4-rc1).
       const landed = firstCommit.get(id.toLowerCase());
-      if (landed && firstRelease(linux, landed.sha))
-        console.warn(`${id}: in a Linux release, but not in the toolchain data yet`);
       const merged =
-        landed && !firstRelease(linux, landed.sha)
+        landed && listedNow.has(id.toLowerCase()) && !firstRelease(linux, landed.sha)
           ? { commit: landed.sha.slice(0, 12), applied: landed.commit.committer.date.slice(0, 10) }
           : null;
       data.pending[id] = { ...p, merged, ai: keptSummary(before, p) };

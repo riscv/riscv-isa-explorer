@@ -513,3 +513,20 @@ export function seriesFor(groups, id, aliases = []) {
     .filter((g) => (byAlias && names(g, byAlias)) || (names(g, byId) && !CONSUMER.test(g.title)))
     .sort((a, b) => b.postings.at(-1).date - a.postings.at(-1).date);
 }
+
+/**
+ * The cover letter of the series a message belongs to: up the In-Reply-To
+ * chain from that message to the first [n 0/N] posting. A thread can hold
+ * several versions (v2 sent as a reply to v1), so the first cover in it is
+ * not necessarily this message's. Null when the message is not in the
+ * thread or answers no cover (a single patch).
+ */
+export function coverOf(messages, messageId) {
+  const byId = new Map(messages.map((m) => [m.messageId, m]));
+  let m = byId.get(messageId);
+  for (let hops = 0; m && hops < 50; hops += 1) {
+    if (isPosting(m.subject) && part(m.subject)[0] === 0) return m;
+    m = byId.get(m.inReplyTo);
+  }
+  return null;
+}
