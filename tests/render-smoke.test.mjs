@@ -1206,6 +1206,7 @@ test('an extension merged before a release shows it applied, not in review', asy
   assert.ok(dialog.textContent.includes(p.merged.commit));
   const label = dialog.querySelector('svg[role="img"]').getAttribute('aria-label');
   assert.match(label, /not in a release yet/);
+  assert.doesNotMatch(dialog.textContent, /Linux release(?! yet)/, 'no release in the legend');
   assert.deepEqual(realErrors(errors), []);
 });
 

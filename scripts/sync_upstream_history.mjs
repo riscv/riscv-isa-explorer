@@ -432,10 +432,11 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
     [...supported, ...extra].map(([token]) => ids.get(token)).filter(Boolean),
   );
   for (const id of [...new Set(ids.values())].sort()) {
-    // Supported, or given a history through a commit that added it (the
-    // toolchain data can lag the kernel: Zvfbfwma landed in 6.15).
-    if (supportedIds.has(id) || data.extensions[id] || CURATED[id] || id.length < 2) continue;
+    if (supportedIds.has(id) || CURATED[id] || id.length < 2) continue;
     if (wanted && !wanted.has(id.toLowerCase())) continue;
+    // Not supported (any more): a targeted run starts from the previous
+    // file, so drop whatever supported form it had there.
+    for (const key of ['extensions', 'listed', 'bundles']) delete data[key][id];
     // From the previous file: a full run starts from empty data.
     const before = previous.pending?.[id];
     const p = await pendingHistory(id);

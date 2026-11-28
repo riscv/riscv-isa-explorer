@@ -449,15 +449,15 @@ function Progression({ ids, current, data, onPick }) {
         <Swatch style={{ background: 'var(--riscv-gold)' }}>
           {inReview ? 'Series in review' : 'Series that landed'}, a tick per version
         </Swatch>
-        {!inReview && (
-          <>
-            <Swatch style={{ background: 'var(--riscv-violet)' }} cls="w-1 h-3">
-              Applied
-            </Swatch>
-            <Swatch style={{ background: 'var(--riscv-success)' }} cls="w-2 h-2 rounded-sm">
-              Linux release
-            </Swatch>
-          </>
+        {lanes.some((l) => l.s.commit) && (
+          <Swatch style={{ background: 'var(--riscv-violet)' }} cls="w-1 h-3">
+            Applied
+          </Swatch>
+        )}
+        {lanes.some((l) => l.s.release) && (
+          <Swatch style={{ background: 'var(--riscv-success)' }} cls="w-2 h-2 rounded-sm">
+            Linux release
+          </Swatch>
         )}
       </div>
       <div className="overflow-x-auto">
