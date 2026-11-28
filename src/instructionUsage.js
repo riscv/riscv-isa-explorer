@@ -309,9 +309,23 @@ export function instructionMarch({
   return buildMarchString(resolved).march;
 }
 
-/** Extensions an intrinsic's types need beyond the instruction's own. */
-export const intrinsicExtensions = (prototype) =>
-  /\bvfloat16|_Float16/.test(String(prototype || '')) ? ['Zvfh'] : [];
+/*
+ * Extensions an intrinsic's types need beyond the instruction's own. The
+ * intrinsic shown for vle32.v loads a vfloat32m1_t, which an instruction
+ * listed under Zve32x cannot hold: float32 elements need Zve32f, 64-bit ones
+ * Zve64x or Zve64d, and so does a fraction of a register (LMUL=1/n) that an
+ * ELEN of 32 cannot hold (vfloat32mf2_t, vint8mf8_t).
+ */
+export const intrinsicExtensions = (prototype) => {
+  const text = String(prototype || '');
+  const needed = new Set(/\bvfloat16|_Float16/.test(text) ? ['Zvfh'] : []);
+  for (const [, kind, sew, lmul] of text.matchAll(/\bv(u?int|float)(\d+)m(f?\d+)/g)) {
+    if (kind === 'float' && sew === '32') needed.add('Zve32f');
+    if (sew === '64') needed.add(kind === 'float' ? 'Zve64d' : 'Zve64x');
+    if (lmul.startsWith('f') && Number(sew) * Number(lmul.slice(1)) > 32) needed.add('Zve64x');
+  }
+  return [...needed];
+};
 
 /** The ABI that matches a -march string's floating-point registers. */
 export function abiForMarch(march) {
