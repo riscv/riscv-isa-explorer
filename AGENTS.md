@@ -347,11 +347,18 @@ Then `npm run sync` and `npm run check`.
   from a kernel clone with git, `scripts/kernel-git.mjs`, never GitHub's API,
   whose rate limits a weekly run hit), the patch
   series behind it on lore (grouped by `scripts/upstream-history-lib.mjs`), its
-  versions, review and release. A commit adding more than three extensions is
-  bookkeeping (`BULK`): the 6.6 commit listing 13 single letters dates none of
-  them, so those whose real history matters are named by hand in
-  `scripts/upstream-curated.mjs` (V, H and the base port), and the rest show as
-  listed only. A posting that answers someone else's message is a reply, even
+  versions, review and release. A commit adding more than three extensions,
+  all single letters, is bookkeeping (`BULK`): the 6.6 commit listing 13
+  letters dates none of them. A commit adding a family at once (scalar or
+  vector crypto, Zve, Zc) is how the family landed and is an ordinary shared
+  history (#665). Histories the table cannot give are named by hand in
+  `scripts/upstream-curated.mjs` (V, H, the base port with RV64I, RV32I's 4.18
+  build series, Sscofpmf, whose series title does not repeat its subject);
+  Q is listed only, with a note that Linux has no quad-precision support code
+  (`LISTED_NOTES`). For an extension Linux does not support, the sync records
+  the series posted for it that has not landed (`pending`, shown as "in
+  review"; `seriesFor`, consumer series left out, `SERIES_ALIASES` for series
+  titled by name rather than id). A posting that answers someone else's message is a reply, even
   without "Re:" (`dropDisguisedReplies`), or reviewers end up listed as
   authors. `scripts/summarize_upstream_history.mjs` then asks Claude Haiku 5.5
   on Bedrock for one paragraph per series, only when the series' messages

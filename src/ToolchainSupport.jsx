@@ -143,8 +143,23 @@ function StandingRow({ label, title, support, onOpen = {} }) {
 export function ExtensionToolchains({ id }) {
   const [historyOpen, setHistoryOpen] = useHistoryDialog(id);
   const build = extensionSupport(toolchainData, id, BUILD_TOOLS);
-  if (!build) return null;
   const openHistory = hasHistory(id) ? () => setHistoryOpen(true) : null;
+  // No -march spelling (Sdtrig, Sm), so no tool rows: the history of the
+  // work towards Linux support still has a place (#665).
+  if (!build && openHistory)
+    return (
+      <div>
+        <h3
+          className="text-[11px] uppercase tracking-widest font-semibold mb-1.5"
+          style={{ color: 'var(--riscv-text-3)' }}
+        >
+          Upstream
+        </h3>
+        <HistorySummary id={id} onOpen={openHistory} />
+        {historyOpen && <HistoryDialog id={id} onClose={() => setHistoryOpen(false)} />}
+      </div>
+    );
+  if (!build) return null;
   const run = extensionSupport(toolchainData, id, RUN_TOOLS);
   return (
     <div>

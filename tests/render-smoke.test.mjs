@@ -1164,6 +1164,24 @@ test('a bundle lists its parts, and extensions that landed together point at eac
   assert.deepEqual(realErrors(pair.errors), []);
 });
 
+test('an extension Linux does not support shows the series in review for it', async () => {
+  const historyData = JSON.parse(
+    fs.readFileSync(path.join(here, '..', 'src', 'upstream-history.json'), 'utf8'),
+  );
+  const [id, p] = Object.entries(historyData.pending).find(([, x]) => !x.merged);
+  const { dom: d, errors } = await mountAt(`https://example.test/?ext=${id}&history=linux`);
+  await waitFor(() => historyDialog(d));
+  await loadLazyChunks(d);
+  await waitFor(() => /Not in Linux yet/.test(historyDialog(d)?.textContent ?? ''));
+  const text = historyDialog(d).textContent;
+  assert.match(text, /Not in Linux yet/, 'the banner says it has not landed');
+  assert.match(text, /last posted/);
+  assert.doesNotMatch(text, /Applied by|Released in Linux/, 'no applied or released rows');
+  assert.ok(text.includes(p.authors[0]), 'the series author');
+  assert.ok(historyDialog(d).querySelector('svg[role="img"]'), 'the Progression lane');
+  assert.deepEqual(realErrors(errors), []);
+});
+
 const pasteSearch = (d, text) => {
   const input = d.window.document.querySelector('input[type="search"]');
   const setValue = Object.getOwnPropertyDescriptor(

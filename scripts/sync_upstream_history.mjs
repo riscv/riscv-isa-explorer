@@ -34,11 +34,13 @@ import path from 'node:path';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { commitAt, firstRelease, tableCommits } from './kernel-git.mjs';
-import { CURATED } from './upstream-curated.mjs';
+import { CURATED, LISTED_NOTES, SERIES_ALIASES } from './upstream-curated.mjs';
 import {
   BOT,
   groupSeries,
   isBulk,
+  joinRenamed,
+  isPosting,
   iso,
   loreId,
   parseAtom,
@@ -47,6 +49,7 @@ import {
   earlierAttempts,
   reviewReplies,
   selectLanded,
+  seriesFor,
   title,
   trailers,
 } from './upstream-history-lib.mjs';
@@ -125,6 +128,80 @@ async function postings(query, until, list = 'linux-riscv') {
   return out;
 }
 
+/**
+ * The cover-letter title of the series a commit came from, read from the
+ * thread its Link: trailer points at; null without a lore link.
+ */
+async function linkedCoverTitle(message) {
+  const link = trailers(message, 'Link').find((l) =>
+    /lore\.kernel\.org|patch\.msgid\.link/.test(l),
+  );
+  const id = link?.match(/(?:lore\.kernel\.org\/[\w-]+|patch\.msgid\.link)\/([^\s/]+)/)?.[1];
+  if (!id) return null;
+  const messages = await thread(`https://lore.kernel.org/all/${id}/`);
+  const cover = messages.find((m) => isPosting(m.subject) && /\b0+\/\d+\]/.test(m.subject));
+  return cover ? title(cover.subject) : null;
+}
+
+/**
+ * An extension Linux does not support yet: the series posted for it that has
+ * not landed, with its versions, authors and review (#665). Null when none
+ * was posted.
+ */
+async function pendingHistory(id) {
+  const now = new Date();
+  const aliases = SERIES_ALIASES[id] ?? [];
+  const pooled = new Map();
+  for (const q of [`s:${id}`, ...aliases.map((a) => `s:"${a}"`)])
+    for (const p of await postings(q, now)) pooled.set(p.href, p);
+  const posts = [...pooled.values()].sort((a, b) => a.date - b.date);
+  const groups = groupSeries(posts);
+  const [group, ...older] = seriesFor(groups, id, aliases);
+  if (!group) return null;
+  const authors = new Set(group.postings.map((p) => p.author));
+  const threads = [];
+  for (const p of group.postings) threads.push(await thread(p.href));
+  const replies = reviewReplies(threads, authors);
+  return {
+    title: group.title,
+    authors: [...authors],
+    versions: group.postings.map((p) => ({
+      version: `${p.rfc ? 'RFC ' : ''}v${p.version}`,
+      date: iso(p.date),
+      author: p.author,
+      resends: p.resends,
+      href: p.href,
+    })),
+    firstPatch: iso(
+      [group, ...older]
+        .flatMap((g) => g.postings.map((p) => p.date))
+        .reduce((a, b) => (a < b ? a : b)),
+    ),
+    lastPosted: iso(group.postings.at(-1).date),
+    review: {
+      replies: replies.length,
+      people: new Set(replies.map((m) => personName(m.from))).size,
+    },
+    earlier: older.map((g) => ({
+      date: iso(g.postings[0].date),
+      title: g.title,
+      authors: [...new Set(g.postings.map((p) => p.author))],
+      postings: g.postings.length,
+    })),
+  };
+}
+
+/**
+ * A summary written for a series is kept only while the series has the same
+ * postings: its citations number that series' messages, so on another set
+ * they would point at the wrong ones. The summarizer writes a new one.
+ */
+export function keptSummary(before, now) {
+  if (!before?.ai) return null;
+  const hrefs = (s) => JSON.stringify(s.versions.map((v) => v.href));
+  return hrefs(before) === hrefs(now) ? before.ai : null;
+}
+
 /** Catalogue id for each lower-case kernel/-march name. */
 function catalogueIds() {
   const catalogue = JSON.parse(
@@ -153,14 +230,35 @@ async function seriesHistory(commit, { curated = null, linux }) {
     .replace(/^\s*(riscv|risc-v)\s*:\s*/i, '')
     .replace(/"/g, '');
   add(await postings(`s:"${ownTitle}"`, applied, curated ? 'all' : 'linux-riscv'));
-  const posts = [...pooled.values()].sort((a, b) => a.date - b.date);
-  const groups = groupSeries(posts);
-  const landed = selectLanded(groups, subject, curated?.title);
+  // The Link: trailer points into the thread that was applied, so its cover
+  // letter names the series better than any search: a patch reposted inside a
+  // larger series (scalar crypto, in "riscv: report more ISA extensions
+  // through hwprobe") belongs to the series that carried it in (#665).
+  const cover = curated ? null : await linkedCoverTitle(message);
+  if (cover) add(await postings(`s:"${cover.replace(/"/g, '')}"`, applied));
+  let posts = [...pooled.values()].sort((a, b) => a.date - b.date);
+  let groups = groupSeries(posts);
+  const byCover = cover ? selectLanded(groups, subject, cover) : null;
+  let landed =
+    byCover && !byCover.partial ? byCover : selectLanded(groups, subject, curated?.title);
+  // Not found on linux-riscv: the series may have gone to another list (perf
+  // work goes to linux-perf-users and lkml). Search everywhere.
+  if (!landed && !curated) {
+    add(await postings(`s:"${ownTitle}"`, applied, 'all'));
+    if (cover) add(await postings(`s:"${cover.replace(/"/g, '')}"`, applied, 'all'));
+    posts = [...pooled.values()].sort((a, b) => a.date - b.date);
+    groups = groupSeries(posts);
+    const again = cover ? selectLanded(groups, subject, cover) : null;
+    landed = again && !again.partial ? again : selectLanded(groups, subject);
+  }
   if (!landed)
     return {
       missing: `no posted series found for "${subject}" (${posts.length} postings searched)`,
     };
-  const { group, partial } = landed;
+  const { partial } = landed;
+  const joined = joinRenamed(groups, landed.group, subject);
+  const group = joined.group;
+  groups = joined.groups;
 
   const authors = new Set(group.postings.map((p) => p.author));
   const threads = [];
@@ -223,19 +321,27 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
   const wanted = argv.length ? new Set(argv.map((a) => a.toLowerCase())) : null;
   const previous = fs.existsSync(DATA)
     ? JSON.parse(fs.readFileSync(DATA, 'utf8'))
-    : { series: {}, extensions: {}, listed: {}, bundles: {} };
-  const data = wanted ? previous : { series: {}, extensions: {}, listed: {}, bundles: {} };
-  for (const key of ['series', 'extensions', 'listed', 'bundles']) data[key] ??= {};
+    : { series: {}, extensions: {}, listed: {}, bundles: {}, pending: {} };
+  const data = wanted
+    ? previous
+    : { series: {}, extensions: {}, listed: {}, bundles: {}, pending: {} };
+  for (const key of ['series', 'extensions', 'listed', 'bundles', 'pending']) data[key] ??= {};
 
   const commits = tableCommits(linux);
   const firstCommit = new Map();
   for (const c of commits)
     for (const id of c.adds) if (!firstCommit.has(id)) firstCommit.set(id, c);
 
-  const report = { collected: [], listed: [], bundles: [], missing: [] };
+  const report = { collected: [], listed: [], bundles: [], missing: [], pending: [] };
   const doneThisRun = new Set();
   const failed = new Map(); // series key -> why it could not be collected
-  for (const [token, entry] of supported) {
+  // Hand-mapped extensions Linux supports without listing them in the table
+  // (paging modes, Supm) are collected too.
+  const tokens = new Set(supported.map(([token]) => token));
+  const extra = Object.keys(CURATED)
+    .filter((id) => !tokens.has(id.toLowerCase()))
+    .map((id) => [id.toLowerCase(), { linux: { supported: true } }]);
+  for (const [token, entry] of [...supported, ...extra]) {
     const id = ids.get(token);
     if (!id || (wanted && !wanted.has(token))) continue;
     // One form per extension: storing one removes the others, so a targeted
@@ -255,7 +361,14 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
       report.missing.push(id);
       continue;
     }
-    const adds = curated ? curated.adds : commit.adds.map((x) => ids.get(x) ?? x.toUpperCase());
+    // What this commit added first, and is in the catalogue: a commit that
+    // also touches V's or C's entry, or a macro parameter (_name), did not
+    // add those.
+    const adds = curated
+      ? curated.adds
+      : commit.adds
+          .filter((x) => ids.has(x) && firstCommit.get(x) === commit)
+          .map((x) => ids.get(x));
     if (isBulk(commit.adds ?? [], Boolean(curated))) {
       const release = firstRelease(linux, commit.sha);
       only('listed');
@@ -263,6 +376,7 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
         release,
         others: commit.adds.length - 1,
         commit: commit.sha.slice(0, 12),
+        ...(LISTED_NOTES[id] ? { note: LISTED_NOTES[id] } : {}),
       };
       delete data.extensions[id];
       report.listed.push(id);
@@ -277,7 +391,7 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
       doneThisRun.add(key);
       commit = {
         ...commit,
-        adds: curated ? curated.adds.map((x) => x.toLowerCase()) : commit.adds,
+        adds: adds.map((x) => x.toLowerCase()),
       };
       const h = await seriesHistory(commit, { curated, linux });
       if (h.missing) {
@@ -287,12 +401,32 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
       }
       // Keep a summary already written for this series; the summarizer
       // decides whether its input changed.
-      data.series[key] = { ...h, adds, ai: previous.series?.[key]?.ai ?? null };
+      data.series[key] = { ...h, adds, ai: keptSummary(previous.series?.[key], h) };
     }
     only('extensions');
     data.extensions[id] = { series: key, landedWith: adds.filter((x) => x !== id) };
     report.collected.push({ id, key });
   }
+  // Extensions Linux does not support: the series working towards them.
+  const supportedIds = new Set(supported.map(([token]) => ids.get(token)).filter(Boolean));
+  for (const id of [...new Set(ids.values())].sort()) {
+    // Supported, or given a history through a commit that added it (the
+    // toolchain data can lag the kernel: Zvfbfwma landed in 6.15).
+    if (supportedIds.has(id) || data.extensions[id] || CURATED[id] || id.length < 2) continue;
+    if (wanted && !wanted.has(id.toLowerCase())) continue;
+    const before = data.pending[id];
+    const p = await pendingHistory(id);
+    if (p) {
+      // Merged into the kernel's table, not in a release yet (Zic64b in 7.4-rc1).
+      const landed = firstCommit.get(id.toLowerCase());
+      const merged = landed
+        ? { commit: landed.sha.slice(0, 12), applied: landed.commit.committer.date.slice(0, 10) }
+        : null;
+      data.pending[id] = { ...p, merged, ai: keptSummary(before, p) };
+      report.pending.push(id);
+    } else delete data.pending[id];
+  }
+
   // "Landed with" names only extensions sharing this history: the 2024 commit
   // that added Zaamo and Zalrsc also re-listed A, whose history is the 2017 port.
   for (const e of Object.values(data.extensions))
@@ -308,7 +442,7 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
 
   writeData(data);
   console.log(
-    `collected ${report.collected.length}, listed only ${report.listed.length}, bundles ${report.bundles.length}, not found ${report.missing.length}${report.missing.length ? `: ${report.missing.join(', ')}` : ''}`,
+    `collected ${report.collected.length}, in review ${report.pending.length}, listed only ${report.listed.length}, bundles ${report.bundles.length}, not found ${report.missing.length}${report.missing.length ? `: ${report.missing.join(', ')}` : ''}`,
   );
   return report;
 }
@@ -334,9 +468,20 @@ export function buildIndex(data) {
     };
   }
   for (const [id, l] of Object.entries(data.listed))
-    index[id] = { listed: { release: l.release?.version ?? null, others: l.others } };
+    index[id] = {
+      listed: { release: l.release?.version ?? null, others: l.others, note: l.note ?? null },
+    };
   for (const [id, b] of Object.entries(data.bundles))
     if (b.parts.some((p) => data.extensions[p])) index[id] = { parts: b.parts };
+  for (const [id, p] of Object.entries(data.pending ?? {}))
+    index[id] = {
+      pending: {
+        title: p.title,
+        versions: p.versions.length,
+        lastPosted: p.lastPosted,
+        merged: Boolean(p.merged),
+      },
+    };
   return sortedKeys(index);
 }
 
@@ -347,6 +492,7 @@ export function writeData(data) {
     extensions: sortedKeys(data.extensions),
     listed: sortedKeys(data.listed),
     bundles: sortedKeys(data.bundles),
+    pending: sortedKeys(data.pending ?? {}),
   };
   fs.writeFileSync(DATA, `${JSON.stringify(out, null, 1)}\n`);
   fs.writeFileSync(INDEX, `${JSON.stringify(buildIndex(out), null, 1)}\n`);

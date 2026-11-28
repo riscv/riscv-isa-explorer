@@ -50,7 +50,7 @@ export const SYSTEM = `You summarise Linux kernel patch review threads for a pub
 
 export function instructions(extensions, series, scope = '') {
   return `Extensions: ${extensions.join(', ')}
-Patch series that landed: "${series.title}"
+${series.commit ? 'Patch series that landed' : 'Patch series under review, not merged yet'}: "${series.title}"
 Versions: ${series.versions.map((v) => `${v.version} ${v.date} (${v.author})`).join('; ')}
 ${scope}
 Below are the numbered messages from the review threads: cover letters and replies, with quoted text and diffs removed. Each begins "[n] date | author | version | subject".
@@ -233,8 +233,12 @@ export async function main(argv = process.argv.slice(2)) {
     members.get(e.series).push(id);
   }
   const totals = { written: 0, kept: 0, failed: [], input: 0, output: 0, calls: 0 };
-  for (const [key, series] of Object.entries(data.series)) {
-    const ids = members.get(key) ?? [];
+  // Series that landed, then series still in review (keyed by extension).
+  const work = [
+    ...Object.entries(data.series).map(([key, series]) => [members.get(key) ?? [], series]),
+    ...Object.entries(data.pending ?? {}).map(([id, series]) => [[id], series]),
+  ];
+  for (const [ids, series] of work) {
     if (only.size && !ids.some((id) => only.has(id))) continue;
     const messages = await messagesFor(series);
     const hash = inputHash(ids, series, messages);

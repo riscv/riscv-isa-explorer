@@ -31,7 +31,9 @@ get a dependency-resolved configuration with a valid `-march` string.
   details panel opens how the extension got there: the patch series that
   landed, its versions and earlier attempts, the people in its trailers, the
   release, a Progression chart, and an AI summary of the review that cites the
-  messages it rests on. `?history=linux` beside `?ext=` opens it directly.
+  messages it rests on. For an extension Linux does not support yet, it shows
+  the series in review for it instead. `?history=linux` beside `?ext=` opens
+  it directly.
 - **Share a view.** Selecting an extension puts `?ext=` in the address bar,
   opening one of its instructions adds `?insn=`, its upstream history adds `?history=linux` (`?insn=c.jal` works, and
   `?ext=Zca&insn=C.JAL` opens it under Zca), a highlighted profile puts `?profile=` there (`?profile=rva23.1` works), and

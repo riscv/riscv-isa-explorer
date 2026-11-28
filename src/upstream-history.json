@@ -1,5 +1,136 @@
 {
  "series": {
+  "011f09d12052": {
+   "commit": {
+    "sha": "011f09d12052",
+    "subject": "riscv: mm: Set sv57 on defaultly",
+    "applied": "2022-02-15",
+    "committer": "Palmer Dabbelt"
+   },
+   "release": {
+    "version": "5.18",
+    "date": "2022-05-22"
+   },
+   "title": "Add Sv57 page table support",
+   "partial": false,
+   "curated": true,
+   "people": {
+    "author": "Qinglin Pan",
+    "coDevelopedBy": [],
+    "reviewedBy": [],
+    "ackedBy": [],
+    "testedBy": [],
+    "seriesAuthors": [
+     "panqinglin2020"
+    ]
+   },
+   "versions": [
+    {
+     "version": "v1",
+     "date": "2021-11-14",
+     "author": "panqinglin2020",
+     "resends": 1,
+     "href": "https://lore.kernel.org/all/20211114070449.2891370-1-panqinglin2020@iscas.ac.cn/"
+    },
+    {
+     "version": "v2",
+     "date": "2022-01-27",
+     "author": "panqinglin2020",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20220127024844.2413385-1-panqinglin2020@iscas.ac.cn/"
+    }
+   ],
+   "review": {
+    "replies": 2,
+    "people": 2
+   },
+   "earlier": [],
+   "firstPatch": "2021-11-14",
+   "adds": [
+    "Sv57"
+   ],
+   "ai": null
+  },
+  "07edc32779e3": {
+   "commit": {
+    "sha": "07edc32779e3",
+    "subject": "RISC-V: always report presence of extensions formerly part of the base ISA",
+    "applied": "2023-06-21",
+    "committer": "Palmer Dabbelt"
+   },
+   "release": {
+    "version": "6.5",
+    "date": "2023-08-27"
+   },
+   "title": "ISA string parser cleanups",
+   "partial": false,
+   "curated": false,
+   "people": {
+    "author": "Conor Dooley",
+    "coDevelopedBy": [],
+    "reviewedBy": [],
+    "ackedBy": [],
+    "testedBy": [],
+    "seriesAuthors": [
+     "Conor Dooley"
+    ]
+   },
+   "versions": [
+    {
+     "version": "v3",
+     "date": "2023-06-07",
+     "author": "Conor Dooley",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20230607-audacity-overhaul-82bb867a825f@spud/"
+    }
+   ],
+   "review": {
+    "replies": 6,
+    "people": 3
+   },
+   "earlier": [
+    {
+     "date": "2022-04-02",
+     "title": "RISC-V: Add the Zicsr extension",
+     "authors": [
+      "Palmer Dabbelt"
+     ],
+     "postings": 1
+    },
+    {
+     "date": "2023-02-23",
+     "title": "RISC-V: move zicsr/zifencei spec version check to Kconfig",
+     "authors": [
+      "Conor Dooley"
+     ],
+     "postings": 1
+    },
+    {
+     "date": "2023-03-13",
+     "title": "riscv: Handle zicsr/zifencei issues between clang and binutils",
+     "authors": [
+      "Nathan Chancellor"
+     ],
+     "postings": 1
+    },
+    {
+     "date": "2023-05-04",
+     "title": "RISC-V: always report presence of Zicsr/Zifencei",
+     "authors": [
+      "Conor Dooley"
+     ],
+     "postings": 1
+    }
+   ],
+   "firstPatch": "2022-04-02",
+   "adds": [
+    "Zicntr",
+    "Zicsr",
+    "Zifencei",
+    "Zihpm"
+   ],
+   "ai": null
+  },
   "0ce0702f5ee6": {
    "commit": {
     "sha": "0ce0702f5ee6",
@@ -11,7 +142,7 @@
     "version": "7.3",
     "date": "2026-10-18"
    },
-   "title": "RISC-V: Add Smcsrind and Sscsrind ISA extension CSR definitions",
+   "title": "Add Counter delegation ISA extension support",
    "partial": false,
    "curated": false,
    "people": {
@@ -30,115 +161,179 @@
    },
    "versions": [
     {
+     "version": "RFC v1",
+     "date": "2024-02-17",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240217005738.3744121-1-atishp@rivosinc.com/"
+    },
+    {
+     "version": "v2",
+     "date": "2025-01-14",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20250114-counter_delegation-v2-0-8ba74cdb851b@rivosinc.com/"
+    },
+    {
+     "version": "v3",
+     "date": "2025-01-28",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20250127-counter_delegation-v3-0-64894d7e16d5@rivosinc.com/"
+    },
+    {
+     "version": "v4",
+     "date": "2025-02-06",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20250205-counter_delegation-v4-0-835cfa88e3b1@rivosinc.com/"
+    },
+    {
+     "version": "v5",
+     "date": "2025-03-27",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20250327-counter_delegation-v5-0-1ee538468d1b@rivosinc.com/"
+    },
+    {
+     "version": "v6",
+     "date": "2026-06-09",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20260608-counter_delegation-v6-0-285b72ed65a9@meta.com/"
+    },
+    {
+     "version": "v7",
+     "date": "2026-06-22",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20260622-counter_delegation-v7-0-0ba2fd34614e@meta.com/"
+    },
+    {
+     "version": "v8",
+     "date": "2026-07-01",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20260701-counter_delegation-v8-0-7909f863a645@meta.com/"
+    },
+    {
      "version": "v9",
      "date": "2026-08-07",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260807-counter_delegation-v9-2-58658104e487@meta.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260807-counter_delegation-v9-0-58658104e487@meta.com/"
     }
    ],
    "review": {
-    "replies": 14,
-    "people": 3
+    "replies": 122,
+    "people": 13
    },
    "earlier": [],
-   "firstPatch": "2026-08-07",
+   "firstPatch": "2024-02-17",
    "adds": [
     "Smcsrind",
     "Sscsrind"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "88e58981dbdd7bfa",
-    "summary": "This v9 series adds Counter delegation (Smcdeleg/Ssccfg) support, which depends on the indirect CSR extensions (Smcsrind/Sscsrind) and Smstateen, letting S-mode program hpmevent and hpmcounters directly instead of through SBI calls [1]. Reviewers raised a range of issues, mostly from the Sashiko AI review bot: the Ssccfg and Smcdeleg validation checks were flagged as depending on the wrong extensions, the indirect CSR helper macros were noted as able to shadow caller arguments, and the counter discovery code was criticised for omitting firmware counters from the main mask, using 32-bit bitmasks for up to 64 counters, and leaving delegation discovery as a stub [2, 3, 4]. Further bot comments covered probe-path cleanup, the handling of the HPMEVENT_OF bit and overflow interrupts, and the mapping of legacy and raw events onto fixed counters [5, 6, 9]. The author's v9 changelog records fixes for a panic on Ssccfg hardware without Smcntrpmf, a log message that only appears when neither event map is present, setting the SBI v3 flag inside the probe block, and rejecting config2 values above bit 31 [1]. Paul Walmsley accepted the first ten patches into riscv/for-next and deferred the rest to the later v7.4 period, which the author accepted [10, 11]. Anup Patel gave Reviewed-by tags on several patches, including the dt-bindings and restructuring changes [12, 13, 14, 15, 16].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2026-08-07",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20260807-counter_delegation-v9-0-58658104e487%40meta.com/"
-     },
-     {
-      "n": 2,
-      "date": "2026-08-07",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260807082501.9BBDB1F000E9%40smtp.kernel.org/"
-     },
-     {
-      "n": 3,
-      "date": "2026-08-07",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260807082748.18CB31F000E9%40smtp.kernel.org/"
-     },
-     {
-      "n": 4,
-      "date": "2026-08-07",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260807082925.D43111F000E9%40smtp.kernel.org/"
-     },
-     {
-      "n": 5,
-      "date": "2026-08-07",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260807083053.3904B1F000E9%40smtp.kernel.org/"
-     },
-     {
-      "n": 6,
-      "date": "2026-08-07",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260807083403.5833F1F000E9%40smtp.kernel.org/"
-     },
-     {
-      "n": 9,
-      "date": "2026-08-07",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260807084342.4DABF1F000E9%40smtp.kernel.org/"
-     },
-     {
-      "n": 10,
-      "date": "2026-08-08",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/42cea3ec-5f9d-7f47-bb8c-ab2789246918%40kernel.org/"
-     },
-     {
-      "n": 11,
-      "date": "2026-08-11",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/2b4e524a-cccc-47d1-9779-b40cc592e1cd%40linux.dev/"
-     },
-     {
-      "n": 12,
-      "date": "2026-10-23",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy3rxvq4X%3DAFx8ps9dSwKR6Rw6M7m8ra9PEbV42tH9o8Vg%40mail.gmail.com/"
-     },
-     {
-      "n": 13,
-      "date": "2026-10-23",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy0uq6AjzigiLSjTZEZ4JTOphcupx88Sf24kjBVDWB4new%40mail.gmail.com/"
-     },
-     {
-      "n": 14,
-      "date": "2026-10-23",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy1xGc0vD_5UPoXcHvGE8tq2R6ddUZ3O5NfjK-0AFWpAWQ%40mail.gmail.com/"
-     },
-     {
-      "n": 15,
-      "date": "2026-10-23",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy0PAGqhX2CaRDFKSVY45pQ-QAQ%2BOr8BWFY39N9bDBMmzA%40mail.gmail.com/"
-     },
-     {
-      "n": 16,
-      "date": "2026-10-23",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy1zHzqf0Ozgoz_nT81_tjg6ojsNgGQMUpeXNaJ6AN4yug%40mail.gmail.com/"
-     }
+   "ai": null
+  },
+  "0d8295ed975b": {
+   "commit": {
+    "sha": "0d8295ed975b",
+    "subject": "riscv: add ISA extension parsing for scalar crypto",
+    "applied": "2023-12-12",
+    "committer": "Palmer Dabbelt"
+   },
+   "release": {
+    "version": "6.8",
+    "date": "2024-03-10"
+   },
+   "title": "riscv: report more ISA extensions through hwprobe",
+   "partial": false,
+   "curated": false,
+   "people": {
+    "author": "Evan Green",
+    "coDevelopedBy": [
+     "Conor Dooley"
+    ],
+    "reviewedBy": [],
+    "ackedBy": [
+     "Conor Dooley"
+    ],
+    "testedBy": [],
+    "seriesAuthors": [
+     "Clément Léger"
     ]
-   }
+   },
+   "versions": [
+    {
+     "version": "v1",
+     "date": "2023-10-11",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231011111438.909552-1-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v2",
+     "date": "2023-10-17",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231017131456.2053396-1-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v3",
+     "date": "2023-11-07",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-1-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v4",
+     "date": "2023-11-14",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-1-cleger@rivosinc.com/"
+    }
+   ],
+   "review": {
+    "replies": 46,
+    "people": 5
+   },
+   "earlier": [
+    {
+     "date": "2023-02-06",
+     "title": "RISC-V: add Zbkb extension detection",
+     "authors": [
+      "Heiko Stuebner"
+     ],
+     "postings": 3
+    },
+    {
+     "date": "2023-06-27",
+     "title": "RISC-V: Implement archrandom when Zkr is available",
+     "authors": [
+      "Samuel Ortiz",
+      "Clément Léger"
+     ],
+     "postings": 6
+    }
+   ],
+   "firstPatch": "2023-02-06",
+   "adds": [
+    "Zbkb",
+    "Zbkc",
+    "Zbkx",
+    "Zk",
+    "Zkn",
+    "Zknd",
+    "Zkne",
+    "Zknh",
+    "Zkr",
+    "Zks",
+    "Zksed",
+    "Zksh",
+    "Zkt"
+   ],
+   "ai": null
   },
   "11e8e1ee2c22": {
    "commit": {
@@ -151,7 +346,7 @@
     "version": "6.8",
     "date": "2024-03-10"
    },
-   "title": "dt-bindings: riscv: add Zfh/Zfhmin ISA extensions description",
+   "title": "riscv: report more ISA extensions through hwprobe",
    "partial": false,
    "curated": false,
    "people": {
@@ -172,28 +367,28 @@
      "date": "2023-10-11",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231011111438.909552-8-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231011111438.909552-1-cleger@rivosinc.com/"
     },
     {
      "version": "v2",
      "date": "2023-10-17",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231017131456.2053396-11-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231017131456.2053396-1-cleger@rivosinc.com/"
     },
     {
      "version": "v3",
      "date": "2023-11-07",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-12-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-1-cleger@rivosinc.com/"
     },
     {
      "version": "v4",
      "date": "2023-11-14",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-12-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-1-cleger@rivosinc.com/"
     }
    ],
    "review": {
@@ -206,224 +401,7 @@
     "Zfh",
     "Zfhmin"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "b0376c5e8a25d95a",
-    "summary": "The series adds hwprobe reporting for Zfh[min], Zvfh[min], Zihintntl, Zbc, the vector and scalar crypto extensions, and Zfa, so userspace can detect them through the hwprobe syscall [1, 17, 67]. Reviewers raised several points: Conor Dooley questioned how to document Zv* extensions and their subsets, and asked for Link: tags rather than the Google Drive pointers used for ISA manual references, with Clément Léger acknowledging these and noting the RISC-V wiki was the only available reference [4, 5, 7, 8, 9, 10, 12]. The handling of bundled extensions like Zvks and Zvkn was debated, with Clément Léger laying out three options and Conor Dooley and Evan Green favouring exposing only the sub-extensions to userspace while keeping shorthands internally [6, 13, 14, 22, 37, 44]. Jerry Shih pointed out that Zvknha and Zvknhb are exclusive rather than a superset relationship, and Zvkb should be bundled with Zvbb, which Clément Léger accepted in later versions [18, 19, 45, 47, 61, 64]. Several reviewers also asked for clearer comments and typo fixes, which were addressed in the revisions [20, 24, 36, 38, 40, 50, 51, 53, 59, 60]. Across versions, the series grew from 13 patches in v1 to 20 in v4, adding Zfa, scalar crypto, and bundle handling, and dropping the explicit superset treatment of Zvknhb and the hwprobe mention in the dt-bindings text, while a Zkr privilege-level note was added [17, 55, 65, 66, 67].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2023-10-11",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231011111438.909552-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 4,
-      "date": "2023-10-12",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231012-clanking-imagines-150a7c05f3f8%40spud/"
-     },
-     {
-      "n": 5,
-      "date": "2023-10-12",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/8a4e0424-5bdb-4011-a7dc-8506c609384f%40rivosinc.com/"
-     },
-     {
-      "n": 6,
-      "date": "2023-10-12",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/b157edc4-a21f-40ac-8c9f-e989b34bb872%40rivosinc.com/"
-     },
-     {
-      "n": 7,
-      "date": "2023-10-12",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231012-job-charbroil-469c3e1d2982%40spud/"
-     },
-     {
-      "n": 8,
-      "date": "2023-10-12",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231012-destiny-saggy-52f9cd1fa1c1%40spud/"
-     },
-     {
-      "n": 9,
-      "date": "2023-10-12",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231012-ambiguity-angular-d8c69cc01535%40spud/"
-     },
-     {
-      "n": 10,
-      "date": "2023-10-12",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231012-persuader-trombone-ea184e2c996c%40spud/"
-     },
-     {
-      "n": 12,
-      "date": "2023-10-12",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/3f4784c7-a6a6-4567-bd80-7e3e82abed16%40rivosinc.com/"
-     },
-     {
-      "n": 13,
-      "date": "2023-10-12",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231012-darkness-neutron-fc1843ff05ff%40spud/"
-     },
-     {
-      "n": 14,
-      "date": "2023-10-12",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/7b71ff39-bbc0-4ba9-8b98-d36fa127316e%40rivosinc.com/"
-     },
-     {
-      "n": 17,
-      "date": "2023-10-17",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231017131456.2053396-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 18,
-      "date": "2023-10-18",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/DA8B4610-D514-4733-B875-C247FFCCC7AA%40sifive.com/"
-     },
-     {
-      "n": 19,
-      "date": "2023-10-18",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/af785f0f-9de7-4548-9cdb-f392cde1cc2b%40rivosinc.com/"
-     },
-     {
-      "n": 20,
-      "date": "2023-10-18",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HssL%3DwNwj9nRuZwpZhy1CB9p9-X%3DOqgwBw9zvgA7hA4fEg%40mail.gmail.com/"
-     },
-     {
-      "n": 22,
-      "date": "2023-10-18",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HstEBt-ntCcETa9YwS6On3nGyoEc2p7R-gaBLG9%2BaFJL5w%40mail.gmail.com/"
-     },
-     {
-      "n": 24,
-      "date": "2023-10-18",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HsvDtceutbdNXuBKtnTTKy_qZgzjKAi-XvwbYCYoLVRTxQ%40mail.gmail.com/"
-     },
-     {
-      "n": 36,
-      "date": "2023-10-19",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/844f6f35-3125-4014-852c-9ad7aee19ddc%40rivosinc.com/"
-     },
-     {
-      "n": 37,
-      "date": "2023-10-19",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/7626f978-e9ea-4f8f-b814-aeac02bd3712%40rivosinc.com/"
-     },
-     {
-      "n": 38,
-      "date": "2023-10-19",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/0b2cbc89-7892-4c43-898c-03757eaaf3b7%40rivosinc.com/"
-     },
-     {
-      "n": 40,
-      "date": "2023-10-19",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231019-smith-purging-627c50cfa3de%40spud/"
-     },
-     {
-      "n": 44,
-      "date": "2023-10-19",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HssWZyhnbo%3DErH%2BLEfMi4m04i39Cw3PGXP1WhCFfSP8G%3DA%40mail.gmail.com/"
-     },
-     {
-      "n": 45,
-      "date": "2023-10-20",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/E30E7352-1FB0-4DB5-94C3-2C6FC2A6F484%40sifive.com/"
-     },
-     {
-      "n": 47,
-      "date": "2023-10-23",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/c64d9ddb-edbd-4c8f-b56f-1b90d82100b7%40rivosinc.com/"
-     },
-     {
-      "n": 50,
-      "date": "2023-10-23",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HssmufWCKzaGy7BwWz4n4hfwV9NjjRD-O_JeupM-p%3DOv%2Bw%40mail.gmail.com/"
-     },
-     {
-      "n": 51,
-      "date": "2023-10-24",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/d0ea4996-5c48-47b4-99b0-f4211276e0b2%40rivosinc.com/"
-     },
-     {
-      "n": 53,
-      "date": "2023-10-24",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-Hsvy411MnHQXHLK8u4JmM%2BLO5R2tuCxY6zQco7BKJONqPA%40mail.gmail.com/"
-     },
-     {
-      "n": 55,
-      "date": "2023-11-07",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231107105556.517187-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 59,
-      "date": "2023-11-08",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231108-mystify-marshland-0e35c4524899%40spud/"
-     },
-     {
-      "n": 60,
-      "date": "2023-11-08",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HssQFQWDi%3DMM0gVaqc7GJg9gpp6oKc4%2B%3DG7mV12CFNQs1A%40mail.gmail.com/"
-     },
-     {
-      "n": 61,
-      "date": "2023-11-09",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/5EF129A2-195B-4207-A2F6-DBA1FBB9F65D%40sifive.com/"
-     },
-     {
-      "n": 64,
-      "date": "2023-11-09",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/F2C4CCA2-0513-4988-94C4-1ECEB9F1D578%40sifive.com/"
-     },
-     {
-      "n": 65,
-      "date": "2023-11-09",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/fd022864-f276-4c4c-84ea-0752b915a9b3%40rivosinc.com/"
-     },
-     {
-      "n": 66,
-      "date": "2023-11-09",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/5cb0a3ae-405c-4b07-adaa-0e3109e76c69%40rivosinc.com/"
-     },
-     {
-      "n": 67,
-      "date": "2023-11-14",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231114141256.126749-1-cleger%40rivosinc.com/"
-     }
-    ]
-   }
+   "ai": null
   },
   "122979aa26cd": {
    "commit": {
@@ -1505,6 +1483,84 @@
     ]
    }
   },
+  "1e7483542bf8": {
+   "commit": {
+    "sha": "1e7483542bf8",
+    "subject": "riscv: cpufeature: add zve32[xf] and zve64[xfd] isa detection",
+    "applied": "2024-05-30",
+    "committer": "Palmer Dabbelt"
+   },
+   "release": {
+    "version": "6.11",
+    "date": "2024-09-15"
+   },
+   "title": "Support Zve32[xf] and Zve64[xfd] Vector subextensions",
+   "partial": false,
+   "curated": false,
+   "people": {
+    "author": "Andy Chiu",
+    "coDevelopedBy": [],
+    "reviewedBy": [
+     "Conor Dooley"
+    ],
+    "ackedBy": [],
+    "testedBy": [],
+    "seriesAuthors": [
+     "Andy Chiu"
+    ]
+   },
+   "versions": [
+    {
+     "version": "v1",
+     "date": "2024-03-12",
+     "author": "Andy Chiu",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240312123627.9285-1-andy.chiu@sifive.com/"
+    },
+    {
+     "version": "v2",
+     "date": "2024-03-14",
+     "author": "Andy Chiu",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240314142542.19957-1-andy.chiu@sifive.com/"
+    },
+    {
+     "version": "v3",
+     "date": "2024-03-18",
+     "author": "Andy Chiu",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240318-zve-detection-v3-0-e12d42107fa8@sifive.com/"
+    },
+    {
+     "version": "v4",
+     "date": "2024-04-12",
+     "author": "Andy Chiu",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240412-zve-detection-v4-0-e0c45bb6b253@sifive.com/"
+    },
+    {
+     "version": "v5",
+     "date": "2024-05-09",
+     "author": "Andy Chiu",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240510-zve-detection-v5-0-0711bdd26c12@sifive.com/"
+    }
+   ],
+   "review": {
+    "replies": 38,
+    "people": 10
+   },
+   "earlier": [],
+   "firstPatch": "2024-03-12",
+   "adds": [
+    "Zve32f",
+    "Zve32x",
+    "Zve64d",
+    "Zve64f",
+    "Zve64x"
+   ],
+   "ai": null
+  },
   "1ec9f381e848": {
    "commit": {
     "sha": "1ec9f381e848",
@@ -1949,6 +2005,13 @@
    },
    "versions": [
     {
+     "version": "v1",
+     "date": "2024-04-04",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240404103254.1752834-1-cleger@rivosinc.com/"
+    },
+    {
      "version": "v5",
      "date": "2024-05-17",
      "author": "Clément Léger",
@@ -1971,97 +2034,15 @@
     }
    ],
    "review": {
-    "replies": 18,
-    "people": 5
+    "replies": 26,
+    "people": 7
    },
-   "earlier": [
-    {
-     "date": "2024-04-04",
-     "title": "Add parsing for Zimop ISA extension",
-     "authors": [
-      "Clément Léger"
-     ],
-     "postings": 1
-    }
-   ],
+   "earlier": [],
    "firstPatch": "2024-04-04",
    "adds": [
     "Zimop"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "2e8e9f190a8c8460",
-    "summary": "The series adds support for Zimop, Zcmop, Zca, Zcf, Zcd and Zcb across ISA string parsing, hwprobe and KVM, and changes ISA string parsing to a two-phase parse-then-validate scheme because C implies Zca, Zcf and Zcd [1, 21, 22]. Reviewers raised several points: Conor Dooley asked for the Zcf validate logic to be written out with early returns rather than nested ternaries [6], and Clément Léger replied that he would use a validate helper and IS_ENABLED() instead of #ifdef [7]. Charlie Jenkins noted a conflict with an xandespmu key and a KVM conflict with SSCOFPMF, and asked about a dependency on his xtheadvector work, which Clément said was not a true dependency since the series was based on riscv/for-next [8, 12, 13, 14, 15]. Ternary operators in the extension checks were replaced with if() statements in v6 [21], and a later review asked that a function named depends be renamed to validate for consistency, which Clément accepted in exchange for a review of a later patch [23, 24]. Across versions the series merged Zimop into itself to remove a dependency [1], was reworked around dependency resolution [1, 21], and was rebased on riscv/for-next in v6 and v7 to resolve conflicts [21, 22].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2024-05-17",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20240517145302.971019-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 7,
-      "date": "2024-05-22",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/de2c9064-bb01-42b2-9c0f-884dcabf7c40%40rivosinc.com/"
-     },
-     {
-      "n": 8,
-      "date": "2024-05-29",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/ZlenZ%2BNvXxOxvqEO%40ghost/"
-     },
-     {
-      "n": 12,
-      "date": "2024-05-29",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/ZlepVSNhhLzpM32y%40ghost/"
-     },
-     {
-      "n": 13,
-      "date": "2024-05-29",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/ZleqVUhDW%2BxgiTwu%40ghost/"
-     },
-     {
-      "n": 14,
-      "date": "2024-05-30",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/4d23f17e-cc1e-45e3-9ca2-a884baacf207%40rivosinc.com/"
-     },
-     {
-      "n": 15,
-      "date": "2024-05-30",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/ZliPL4yXBAir5pr2%40ghost/"
-     },
-     {
-      "n": 21,
-      "date": "2024-06-04",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20240604124550.3214710-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 22,
-      "date": "2024-06-19",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20240619113529.676940-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 23,
-      "date": "2024-06-23",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20240623-cornbread-preteen-4ec287aa165c%40spud/"
-     },
-     {
-      "n": 24,
-      "date": "2024-06-24",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/c59a8897-34a1-4dc3-b68b-35dddf55c937%40rivosinc.com/"
-     }
-    ]
-   }
+   "ai": null
   },
   "2d36fe89d872": {
    "commit": {
@@ -2074,7 +2055,7 @@
     "version": "6.13",
     "date": "2025-01-19"
    },
-   "title": "riscv: Add ISA extension parsing for Ziccrse",
+   "title": "Zacas/Zabha support and qspinlocks",
    "partial": false,
    "curated": false,
    "people": {
@@ -2092,147 +2073,58 @@
    },
    "versions": [
     {
+     "version": "v1",
+     "date": "2024-05-28",
+     "author": "Alexandre Ghiti",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240528151052.313031-1-alexghiti@rivosinc.com/"
+    },
+    {
+     "version": "v2",
+     "date": "2024-06-26",
+     "author": "Alexandre Ghiti",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240626130347.520750-1-alexghiti@rivosinc.com/"
+    },
+    {
      "version": "v3",
      "date": "2024-07-17",
      "author": "Alexandre Ghiti",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240717061957.140712-10-alexghiti@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240717061957.140712-1-alexghiti@rivosinc.com/"
     },
     {
      "version": "v4",
      "date": "2024-07-31",
      "author": "Alexandre Ghiti",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240731072405.197046-12-alexghiti@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240731072405.197046-1-alexghiti@rivosinc.com/"
     },
     {
      "version": "v5",
      "date": "2024-08-18",
      "author": "Alexandre Ghiti",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240818063538.6651-12-alexghiti@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240818063538.6651-1-alexghiti@rivosinc.com/"
     },
     {
      "version": "v6",
      "date": "2024-11-03",
      "author": "Alexandre Ghiti",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20241103145153.105097-12-alexghiti@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20241103145153.105097-1-alexghiti@rivosinc.com/"
     }
    ],
    "review": {
-    "replies": 67,
-    "people": 11
+    "replies": 107,
+    "people": 12
    },
    "earlier": [],
-   "firstPatch": "2024-07-17",
+   "firstPatch": "2024-05-28",
    "adds": [
     "Ziccrse"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "935c6faf1cab409a",
-    "summary": "The v3 series (2024-07-17) added Zacas/Zabha-based cmpxchg/xchg macros, Ziccrse ISA parsing, and qspinlock support on RISC-V, with combo spinlocks selecting qspinlocks or ticket spinlocks at runtime [1, 4]. Reviewers asked for the Zabha and Ziccrse dt-binding patches to be resent to the correct lists [2, 3], asked for a configuration option to choose ticket, queued or combo locks [1, 4], flagged build warnings from qspinlock's redefinitions against ticket-lock macros, which were resolved by a suggested diff [12, 19], and asked for the cmpxchg change to use an alternative rather than an asm goto, a suggestion that was rejected for the llvm case and then replaced by a static key [9, 11, 23, 29]. For the cpufeature header move and the Zawrs build fix, Andrew Jones asked for the BUILD_BUG to remain for sizes above 8 bytes, and the fallback was limited to byte and halfword sizes [37, 41]. Kernel size impact of combo spinlocks was measured in v4 and found to be small, around 0.09% in .text under the defconfig/Ubuntu comparison [58, 72]. Across versions, the series went from v3 to v4 with added NONPORTABLE dependency, use of riscv_has_extension_unlikely() in place of raw asm goto, and a rebase onto 6.11 [30, 46, 48], then to v5 with comment and macro cleanups, and to v6 rebased on 6.12-rc5 with a comment fix [61, 76]. After v6 was merged, a boot hang on the combo configuration in QEMU was traced to a deadlock during early jump-label patching, which occurs because the static key switch runs while the qspinlock is in use and was addressed by a temporary workaround posted in reply [82, 88, 95, 96].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2024-07-17",
-      "from": "Alexandre Ghiti",
-      "url": "https://lore.kernel.org/all/20240717061957.140712-1-alexghiti%40rivosinc.com/"
-     },
-     {
-      "n": 4,
-      "date": "2024-07-17",
-      "from": "Guo Ren",
-      "url": "https://lore.kernel.org/all/CAJF2gTQtT5KxpjjOs5QMcrxz6wEKTjHgxrgXZvXy1HbQ3AhhTQ%40mail.gmail.com/"
-     },
-     {
-      "n": 9,
-      "date": "2024-07-17",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/20240717-e7104dac172d9f2cbc25d9c6%40orel/"
-     },
-     {
-      "n": 11,
-      "date": "2024-07-17",
-      "from": "Alexandre Ghiti",
-      "url": "https://lore.kernel.org/all/f31da52a-55c4-472d-8056-b3e82feba4f8%40ghiti.fr/"
-     },
-     {
-      "n": 23,
-      "date": "2024-07-19",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/8de44944-62b4-44df-88e1-bcf7417fea6e%40sifive.com/"
-     },
-     {
-      "n": 29,
-      "date": "2024-07-19",
-      "from": "Alexandre Ghiti",
-      "url": "https://lore.kernel.org/all/CAHVXubimBAwvQ9Mg3o_BkqQmvmTZOHDV4q%3DekJjQie71yhFWUg%40mail.gmail.com/"
-     },
-     {
-      "n": 37,
-      "date": "2024-07-31",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/20240731-56ba72420d7f745dacb66fd8%40orel/"
-     },
-     {
-      "n": 41,
-      "date": "2024-07-31",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/20240731-676154f31336c78bafea57d0%40orel/"
-     },
-     {
-      "n": 58,
-      "date": "2024-08-15",
-      "from": "Alexandre Ghiti",
-      "url": "https://lore.kernel.org/all/6f1bcc9b-1812-4e8c-9050-a750bfadd008%40ghiti.fr/"
-     },
-     {
-      "n": 61,
-      "date": "2024-08-18",
-      "from": "Alexandre Ghiti",
-      "url": "https://lore.kernel.org/all/20240818063538.6651-1-alexghiti%40rivosinc.com/"
-     },
-     {
-      "n": 72,
-      "date": "2024-08-27",
-      "from": "Alexandre Ghiti",
-      "url": "https://lore.kernel.org/all/CAHVXubiy3%3DbEf29qpzGX0MoBXkjBy38p9Xhz7yRYN5Sr3qRw0g%40mail.gmail.com/"
-     },
-     {
-      "n": 76,
-      "date": "2024-11-03",
-      "from": "Alexandre Ghiti",
-      "url": "https://lore.kernel.org/all/20241103145153.105097-1-alexghiti%40rivosinc.com/"
-     },
-     {
-      "n": 82,
-      "date": "2024-11-28",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20241128-whoever-wildfire-2a3110c5fd46%40wendy/"
-     },
-     {
-      "n": 88,
-      "date": "2024-11-29",
-      "from": "Guo Ren",
-      "url": "https://lore.kernel.org/all/CAJF2gTRQg%3Dw3sGN0Sdzf%2B_adRo44z4H6Zd6%3DC6qXq%2BARR5BjSg%40mail.gmail.com/"
-     },
-     {
-      "n": 95,
-      "date": "2024-11-29",
-      "from": "Guo Ren",
-      "url": "https://lore.kernel.org/all/CAJF2gTQKS7F%2B_6F%2BzTLtHWcBQZxDUsuoP8%3DithxdAav6mhpz4Q%40mail.gmail.com/"
-     },
-     {
-      "n": 96,
-      "date": "2024-11-30",
-      "from": "Guo Ren",
-      "url": "https://lore.kernel.org/all/CAJF2gTQwYTGinBmCSgVUoPv0_q4EPt_%2BWiyfUA1HViAKgUzxAg%40mail.gmail.com/"
-     }
-    ]
-   }
+   "ai": null
   },
   "2e6f6ea452aa": {
    "commit": {
@@ -2245,7 +2137,7 @@
     "version": "6.13",
     "date": "2025-01-19"
    },
-   "title": "riscv: Add ISA extension parsing for pointer masking",
+   "title": "riscv: Userspace pointer masking and tagged address ABI",
    "partial": false,
    "curated": false,
    "people": {
@@ -2266,35 +2158,35 @@
      "date": "2024-03-19",
      "author": "Samuel Holland",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240319215915.832127-3-samuel.holland@sifive.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240319215915.832127-1-samuel.holland@sifive.com/"
     },
     {
      "version": "v2",
      "date": "2024-06-25",
      "author": "Samuel Holland",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240625210933.1620802-3-samuel.holland@sifive.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240625210933.1620802-1-samuel.holland@sifive.com/"
     },
     {
      "version": "v3",
      "date": "2024-08-14",
      "author": "Samuel Holland",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240814081437.956855-3-samuel.holland@sifive.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240814081437.956855-1-samuel.holland@sifive.com/"
     },
     {
      "version": "v4",
      "date": "2024-08-29",
      "author": "Samuel Holland",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240829010151.2813377-3-samuel.holland@sifive.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240829010151.2813377-1-samuel.holland@sifive.com/"
     },
     {
      "version": "v5",
      "date": "2024-10-16",
      "author": "Samuel Holland",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20241016202814.4061541-3-samuel.holland@sifive.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20241016202814.4061541-1-samuel.holland@sifive.com/"
     }
    ],
    "review": {
@@ -2308,146 +2200,7 @@
     "Smnpm",
     "Ssnpm"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "b4acf622dcb8d980",
-    "summary": "The series adds userspace pointer masking and a tagged address ABI for RISC-V, extending the arm64 PR_SET_TAGGED_ADDR_CTRL API to configure Smnpm or Ssnpm depending on the kernel's privilege mode, with PMLEN treated as a lower bound on tag width [1, 19]. Early discussion centred on the per-thread envcfg split from RFC v1, where Deepak Gupta favoured writing the CSR on trap return and Samuel Holland argued for writing it at task switch and other known change points to avoid per-exit cost [2, 3, 4, 9, 10]. Reviewers including Andrew Jones and Deepak Gupta debated whether per-hart extension asymmetry needed support, and the envcfg split was moved to a separate series, with the pointer masking series depending on it [11, 12, 13, 14, 15, 16, 19]. Other points were settled by changes: the Smnpm and Ssnpm KVM guest handling was agreed to keep Smnpm disable-able via ONE_REG only through a later SBI FWFT series, with KVM_RISCV_ISA_EXT_SMNPM added to the disable-not-allowed list for now [40, 41, 42, 43, 44, 45, 54, 60]. Across versions, v2 added the tagged address ABI, untagged_addr_remote support, and hwprobe/KVM exports [19, 23, 25]; v3 removed the per-thread pmlen field and merged untag helpers [26, 27, 28, 29, 31, 32, 33]; v4 restored #ifdef for riscv32 and was reviewed with a request for a generic prctl comment and documentation [34, 35, 36, 46, 50, 53]; and v5 updated the spec to 1.0 and added uabi documentation [58].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2024-03-19",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/20240319215915.832127-1-samuel.holland%40sifive.com/"
-     },
-     {
-      "n": 2,
-      "date": "2024-03-19",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/CAKC1njSg9-hJo6hibcM9a-%3DFUmMWyR39QUYqQ1uwiWhpBZQb9A%40mail.gmail.com/"
-     },
-     {
-      "n": 3,
-      "date": "2024-03-20",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/40ab1ce5-8700-4a63-b182-1e864f6c9225%40sifive.com/"
-     },
-     {
-      "n": 4,
-      "date": "2024-03-20",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/CAKC1njQYZHbQJ71mapeG1DEw%3DA%2BaGx77xsuQGecsNFpoJ%3DtzGQ%40mail.gmail.com/"
-     },
-     {
-      "n": 9,
-      "date": "2024-03-22",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/d9452ab4-a783-4bcf-ac25-40baa4f31fac%40sifive.com/"
-     },
-     {
-      "n": 10,
-      "date": "2024-03-22",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/5c8c01be-d847-48bd-aea8-bf40a2576372%40sifive.com/"
-     },
-     {
-      "n": 11,
-      "date": "2024-03-22",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/20240322-168f191eeb8479b2ea169a5e%40orel/"
-     },
-     {
-      "n": 12,
-      "date": "2024-03-22",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/20240322-3c32873c4021477383a15f7d%40orel/"
-     },
-     {
-      "n": 13,
-      "date": "2024-03-22",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/CAKC1njTGSMPekhvyRW0gz6%2BmY2S_%3D%3DvoCcspoLAyp38X-BcWcw%40mail.gmail.com/"
-     },
-     {
-      "n": 14,
-      "date": "2024-03-22",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/CAKC1njRBbzM%2BgWowg1LOjq5GzVn4q%2BvJP9JUswVYfWmEw%2ByHSg%40mail.gmail.com/"
-     },
-     {
-      "n": 15,
-      "date": "2024-03-23",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/20240323-28943722feb57a41fb0ff488%40orel/"
-     },
-     {
-      "n": 16,
-      "date": "2024-03-23",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/CAKC1njRqWYOsF9bQvWX99DhP8Ji_wDUc8J8N41%3DN6J_tncM3%3DA%40mail.gmail.com/"
-     },
-     {
-      "n": 19,
-      "date": "2024-06-25",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/20240625210933.1620802-1-samuel.holland%40sifive.com/"
-     },
-     {
-      "n": 40,
-      "date": "2024-09-04",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/b6de8769-7e4e-4a19-b239-a39fd424e0c8%40sifive.com/"
-     },
-     {
-      "n": 41,
-      "date": "2024-09-04",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy08SoDoZCii9R--BK7_NKLnRciW7V3mo2aQRKW1dbOgNg%40mail.gmail.com/"
-     },
-     {
-      "n": 42,
-      "date": "2024-09-04",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/20ab0fa2-d5dd-446d-9fff-a3ef82e8db35%40sifive.com/"
-     },
-     {
-      "n": 43,
-      "date": "2024-09-04",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy1pZcEfajg3OZUCaFf9JMYcMzpRVogCT5VL2FHx__vDdA%40mail.gmail.com/"
-     },
-     {
-      "n": 44,
-      "date": "2024-09-04",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/4c010cb1-b57c-427e-a241-1dd3ab15f2ce%40sifive.com/"
-     },
-     {
-      "n": 45,
-      "date": "2024-09-05",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy0kYUdgX8NUKuOdQa-69ET%3DcscduJvyz3z31kVeB-JaNw%40mail.gmail.com/"
-     },
-     {
-      "n": 54,
-      "date": "2024-09-14",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/8e474b14-e963-4d3e-8240-37f662e7bd8a%40sifive.com/"
-     },
-     {
-      "n": 58,
-      "date": "2024-10-16",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/20241016202814.4061541-1-samuel.holland%40sifive.com/"
-     },
-     {
-      "n": 60,
-      "date": "2024-10-20",
-      "from": "Anup Patel",
-      "url": "https://lore.kernel.org/all/CAAhSdy3FTjVUDBJtbsFwj6%2BDWjrQh3nWwvsm_1edDUO9SkXB2A%40mail.gmail.com/"
-     }
-    ]
-   }
+   "ai": null
   },
   "35173b666a16": {
    "commit": {
@@ -2491,7 +2244,6 @@
    "earlier": [],
    "firstPatch": "2024-06-19",
    "adds": [
-    "A",
     "Zaamo",
     "Zalrsc"
    ],
@@ -2958,6 +2710,78 @@
     ]
    }
   },
+  "3c2e0aff7b4f": {
+   "commit": {
+    "sha": "3c2e0aff7b4f",
+    "subject": "riscv: hwprobe: Export the Supm ISA extension",
+    "applied": "2024-10-24",
+    "committer": "Palmer Dabbelt"
+   },
+   "release": {
+    "version": "6.13",
+    "date": "2025-01-19"
+   },
+   "title": "riscv: Userspace pointer masking and tagged address ABI",
+   "partial": false,
+   "curated": true,
+   "people": {
+    "author": "Samuel Holland",
+    "coDevelopedBy": [],
+    "reviewedBy": [],
+    "ackedBy": [],
+    "testedBy": [],
+    "seriesAuthors": [
+     "Samuel Holland"
+    ]
+   },
+   "versions": [
+    {
+     "version": "RFC v1",
+     "date": "2024-03-19",
+     "author": "Samuel Holland",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20240319215915.832127-1-samuel.holland@sifive.com/"
+    },
+    {
+     "version": "v2",
+     "date": "2024-06-25",
+     "author": "Samuel Holland",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20240625210933.1620802-1-samuel.holland@sifive.com/"
+    },
+    {
+     "version": "v3",
+     "date": "2024-08-14",
+     "author": "Samuel Holland",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20240814081437.956855-1-samuel.holland@sifive.com/"
+    },
+    {
+     "version": "v4",
+     "date": "2024-08-29",
+     "author": "Samuel Holland",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20240829010151.2813377-1-samuel.holland@sifive.com/"
+    },
+    {
+     "version": "v5",
+     "date": "2024-10-16",
+     "author": "Samuel Holland",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20241016202814.4061541-1-samuel.holland@sifive.com/"
+    }
+   ],
+   "review": {
+    "replies": 39,
+    "people": 6
+   },
+   "earlier": [],
+   "firstPatch": "2024-03-19",
+   "adds": [
+    "Supm"
+   ],
+   "ai": null
+  },
   "3cd63bc30cda": {
    "commit": {
     "sha": "3cd63bc30cda",
@@ -2969,7 +2793,7 @@
     "version": "7.3",
     "date": "2026-10-18"
    },
-   "title": "RISC-V: Add Zicclsm to cpufeature and hwprobe",
+   "title": "riscv: hwprobe: Expose RVA23U64 base behavior",
    "partial": false,
    "curated": false,
    "people": {
@@ -2985,282 +2809,75 @@
      "Charlie Jenkins"
     ],
     "seriesAuthors": [
-     "Jesse Taube",
-     "Andrew Jones",
      "Guodong Xu"
     ]
    },
    "versions": [
     {
-     "version": "v1",
-     "date": "2024-06-06",
-     "author": "Jesse Taube",
-     "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240606183215.416829-1-jesse@rivosinc.com/"
-    },
-    {
-     "version": "v2",
-     "date": "2024-06-13",
-     "author": "Jesse Taube",
-     "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240613191616.2101821-2-jesse@rivosinc.com/"
-    },
-    {
-     "version": "v3",
-     "date": "2024-06-25",
-     "author": "Jesse Taube",
-     "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240625005001.37901-2-jesse@rivosinc.com/"
-    },
-    {
-     "version": "v4",
-     "date": "2024-07-11",
-     "author": "Jesse Taube",
-     "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240711215846.834365-2-jesse@rivosinc.com/"
-    },
-    {
-     "version": "v5",
-     "date": "2024-07-17",
-     "author": "Jesse Taube",
-     "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240717180727.4180475-2-jesse@rivosinc.com/"
-    },
-    {
-     "version": "v6",
-     "date": "2024-07-24",
-     "author": "Jesse Taube",
-     "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240724183605.4038597-2-jesse@rivosinc.com/"
-    },
-    {
-     "version": "v7",
-     "date": "2024-07-26",
-     "author": "Jesse Taube",
-     "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240726163719.1667923-2-jesse@rivosinc.com/"
-    },
-    {
-     "version": "RFC v1",
-     "date": "2026-02-06",
-     "author": "Andrew Jones",
-     "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260206002349.96740-3-andrew.jones@oss.qualcomm.com/"
-    },
-    {
      "version": "v2",
      "date": "2026-05-11",
      "author": "Guodong Xu",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260511-rva23u64-hwprobe-v2-v2-4-21c5a544f1dc@riscstar.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260511-rva23u64-hwprobe-v2-v2-0-21c5a544f1dc@riscstar.com/"
     },
     {
      "version": "v3",
      "date": "2026-06-02",
      "author": "Guodong Xu",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260603-rva23u64-hwprobe-v2-v3-4-5529a7b28384@gmail.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260603-rva23u64-hwprobe-v2-v3-0-5529a7b28384@gmail.com/"
     },
     {
      "version": "v4",
      "date": "2026-06-11",
      "author": "Guodong Xu",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260611-rva23u64-hwprobe-v2-v4-5-3f01a2449488@gmail.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260611-rva23u64-hwprobe-v2-v4-0-3f01a2449488@gmail.com/"
     },
     {
      "version": "v5",
      "date": "2026-07-01",
      "author": "Guodong Xu",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260701-rva23u64-hwprobe-v2-v5-5-2c61f94a695a@gmail.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260701-rva23u64-hwprobe-v2-v5-0-2c61f94a695a@gmail.com/"
     }
    ],
    "review": {
-    "replies": 102,
-    "people": 15
+    "replies": 46,
+    "people": 11
    },
-   "earlier": [],
+   "earlier": [
+    {
+     "date": "2024-06-06",
+     "title": "RISC-V: Add Zicclsm to cpufeature and hwprobe",
+     "authors": [
+      "Jesse Taube",
+      "Andrew Jones"
+     ],
+     "postings": 8
+    },
+    {
+     "date": "2024-08-09",
+     "title": "RISC-V: Add Zicclsm extension support",
+     "authors": [
+      "Jesse Taube"
+     ],
+     "postings": 1
+    },
+    {
+     "date": "2026-02-07",
+     "title": "riscv: cpufeature: Add parsing for Za64rs, Ziccamoa, Ziccif, and Zicclsm",
+     "authors": [
+      "Guodong Xu"
+     ],
+     "postings": 1
+    }
+   ],
    "firstPatch": "2024-06-06",
    "adds": [
     "Zicclsm"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "b1a1264f1ac4dc0a",
-    "summary": "The Zicclsm series, later reworked into a broader set, adds Zicclsm, Ziccamoa, Ziccif, Ziccrse, Za64rs, B, and Zic64b to the cpufeature parser and hwprobe, plus per-hart and host ISA base bitmaps that let RVA23U64 be reported through /proc/cpuinfo and hwprobe [1, 85, 151]. Reviewers repeatedly questioned the vector misaligned-access work: they asked for a vector counterpart to the scalar emulation and probing, for consistent naming with the scalar key, and for the kernel to report UNKNOWN rather than SLOW when speed is not measured, which Evan Green and Charlie Jenkins pressed on through v5 [2, 6, 8, 25, 70, 72, 74]. Conor Dooley and Charlie Jenkins argued that the CONFIG_RISCV_VECTOR_UNALIGNED_ACCESS_UNSUPPORTED option would break the uABI and that Zicclsm should not be used to infer speed, so the Zicclsm-based speed shortcut was dropped and the option was not carried forward [32, 33, 45, 46, 61, 62]. The series was then split, with the vector work moved to a separate series and the Zicclsm bindings remaining, as Jesse Taube and Charlie Jenkins noted in v4 and v5 [61, 66]. For the RVA23U64 work, Guodong Xu moved B and the Zba/Zbb/Zbs set into hwprobe, argued that RVA23U64 detection should rely on ISA extension bits rather than hwprobe bits, and added Zic64b with block-size validation, which Conor Dooley and Qingwei Hu reviewed [106, 36, 98, 100, 122, 126, 133, 147, 166]. Across versions the vector misaligned-access patches went from v1 through v7 with the Zicclsm shortcut and vector option removed, while the later RVA23U64 series progressed from RFC v1 through v5, with v5 rebased onto v7.2-rc1 and still raising open questions about KVM exposure and the B superset [85, 151, 152, 157].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2024-06-06",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20240606-acetone-whisking-af2ba796238f%40spud/"
-     },
-     {
-      "n": 2,
-      "date": "2024-06-06",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/ZmIqM3Cuui0HAwN1%40ghost/"
-     },
-     {
-      "n": 6,
-      "date": "2024-06-07",
-      "from": "Jesse Taube",
-      "url": "https://lore.kernel.org/all/a16ccf51-4b06-4c6d-94a1-cb43dc3f2945%40rivosinc.com/"
-     },
-     {
-      "n": 8,
-      "date": "2024-06-07",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/ZmN2U6BDAYRXxHEi%40ghost/"
-     },
-     {
-      "n": 25,
-      "date": "2024-06-18",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/ZnDsdzv4o%2FXz9kWm%40ghost/"
-     },
-     {
-      "n": 32,
-      "date": "2024-06-21",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20240621-reveler-underfed-37600a9f16d5%40wendy/"
-     },
-     {
-      "n": 33,
-      "date": "2024-06-21",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/ZnW130PqW56CnZT8%40ghost/"
-     },
-     {
-      "n": 36,
-      "date": "2024-06-21",
-      "from": "Jesse Taube",
-      "url": "https://lore.kernel.org/all/8c1167fb-9580-45bd-a798-f7d32477f1bd%40rivosinc.com/"
-     },
-     {
-      "n": 45,
-      "date": "2024-06-26",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20240626-yearling-amplify-42aafd44becd%40spud/"
-     },
-     {
-      "n": 46,
-      "date": "2024-06-27",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/Zn3XrLRl%2FyazsoZe%40ghost/"
-     },
-     {
-      "n": 61,
-      "date": "2024-07-11",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/ZpBdc9bCrAPWmhEz%40ghost/"
-     },
-     {
-      "n": 62,
-      "date": "2024-07-11",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/ZpBe8ECHxJ9QXVB2%40ghost/"
-     },
-     {
-      "n": 66,
-      "date": "2024-07-17",
-      "from": "Jesse Taube",
-      "url": "https://lore.kernel.org/all/20240717180727.4180475-1-jesse%40rivosinc.com/"
-     },
-     {
-      "n": 70,
-      "date": "2024-07-19",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-Hsuph7-1FmTqtH-395k84f5ZzkKu8PbX7VqU5JkshFr_3w%40mail.gmail.com/"
-     },
-     {
-      "n": 72,
-      "date": "2024-07-19",
-      "from": "Charlie Jenkins",
-      "url": "https://lore.kernel.org/all/Zprn8ctubWJxZjpX%40ghost/"
-     },
-     {
-      "n": 74,
-      "date": "2024-07-25",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-Hsvb0A411Dnd3ps%3DB4-oxM_vz0Bi1Dh1UgiHFYcnjA4v0Q%40mail.gmail.com/"
-     },
-     {
-      "n": 85,
-      "date": "2026-02-06",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/20260206002349.96740-1-andrew.jones%40oss.qualcomm.com/"
-     },
-     {
-      "n": 98,
-      "date": "2026-03-06",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/CAH1PCMaAEyZVioQmyJh7oFisnFnrxhnc_exJh5%3DvbZSvNcieJw%40mail.gmail.com/"
-     },
-     {
-      "n": 100,
-      "date": "2026-03-06",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/CAH1PCMbOcpQSjfLBOYvtB1Od7p8kYZKgwH1VusToKzuU_Z2hqA%40mail.gmail.com/"
-     },
-     {
-      "n": 106,
-      "date": "2026-03-06",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20260306-extradite-vexingly-707b5633ef03%40spud/"
-     },
-     {
-      "n": 122,
-      "date": "2026-06-04",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/CA%2BCk9FbKRM0wjJMg1fQpdwmow8cf_zTfir7V6%2BT%3DCRxU%2Bvomdg%40mail.gmail.com/"
-     },
-     {
-      "n": 126,
-      "date": "2026-06-04",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20260604-rice-protegee-3a0b8e4cb609%40spud/"
-     },
-     {
-      "n": 133,
-      "date": "2026-06-04",
-      "from": "Qingwei Hu",
-      "url": "https://lore.kernel.org/all/6940420B-C9C3-4D60-AB7F-7FBC4B93D855%40bytedance.com/"
-     },
-     {
-      "n": 147,
-      "date": "2026-06-12",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20260612-frays-feast-e631e3aa047d%40wendy/"
-     },
-     {
-      "n": 151,
-      "date": "2026-07-01",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/20260701-rva23u64-hwprobe-v2-v5-0-2c61f94a695a%40gmail.com/"
-     },
-     {
-      "n": 152,
-      "date": "2026-07-01",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260701132755.50D5A1F000E9%40smtp.kernel.org/"
-     },
-     {
-      "n": 157,
-      "date": "2026-07-01",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260701142230.A575F1F000E9%40smtp.kernel.org/"
-     },
-     {
-      "n": 166,
-      "date": "2026-08-12",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/78f9d28f841a9b7cc251675ed01a3864.guodong.xu%40oss.qualcomm.com/"
-     }
-    ]
-   }
+   "ai": null
   },
   "3f0cbfb8a107": {
    "commit": {
@@ -3991,6 +3608,80 @@
     ]
    }
   },
+  "4905ec2fb7e6": {
+   "commit": {
+    "sha": "4905ec2fb7e6",
+    "subject": "RISC-V: Add sscofpmf extension support",
+    "applied": "2022-03-21",
+    "committer": "Palmer Dabbelt"
+   },
+   "release": {
+    "version": "5.18",
+    "date": "2022-05-22"
+   },
+   "title": "Improve RISC-V Perf support using SBI PMU and sscofpmf extension",
+   "partial": false,
+   "curated": true,
+   "people": {
+    "author": "Atish Patra",
+    "coDevelopedBy": [],
+    "reviewedBy": [],
+    "ackedBy": [],
+    "testedBy": [],
+    "seriesAuthors": [
+     "Atish Patra"
+    ]
+   },
+   "versions": [
+    {
+     "version": "v3",
+     "date": "2021-09-10",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20210910192757.2309100-1-atish.patra@wdc.com/"
+    },
+    {
+     "version": "v4",
+     "date": "2021-10-25",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20211025195350.242914-1-atish.patra@wdc.com/"
+    },
+    {
+     "version": "v5",
+     "date": "2021-12-25",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20211225054027.1750075-1-atishp@rivosinc.com/"
+    },
+    {
+     "version": "v6",
+     "date": "2022-02-19",
+     "author": "Atish Patra",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20220219004700.1973682-1-atishp@rivosinc.com/"
+    }
+   ],
+   "review": {
+    "replies": 17,
+    "people": 5
+   },
+   "earlier": [
+    {
+     "date": "2021-09-09",
+     "title": "target/riscv: Add sscofpmf extension support",
+     "authors": [
+      "Atish Patra"
+     ],
+     "postings": 5
+    }
+   ],
+   "firstPatch": "2021-09-09",
+   "adds": [
+    "Sscofpmf"
+   ],
+   "ai": null
+  },
   "59f6acb4be02": {
    "commit": {
     "sha": "59f6acb4be02",
@@ -4660,7 +4351,9 @@
     "C",
     "D",
     "F",
-    "M"
+    "M",
+    "RV64I",
+    "Sv39"
    ],
    "ai": {
     "model": "Claude Haiku 5.5",
@@ -5389,6 +5082,60 @@
     ]
    }
   },
+  "8f79125d285d": {
+   "commit": {
+    "sha": "8f79125d285d",
+    "subject": "RISC-V: Select GENERIC_UCMPDI2 on RV32I",
+    "applied": "2018-07-04",
+    "committer": "Palmer Dabbelt"
+   },
+   "release": {
+    "version": "4.18",
+    "date": "2018-08-12"
+   },
+   "title": "Building for 32-bit RISC-V kernel",
+   "partial": false,
+   "curated": true,
+   "people": {
+    "author": "Zong Li",
+    "coDevelopedBy": [],
+    "reviewedBy": [
+     "Christoph Hellwig"
+    ],
+    "ackedBy": [],
+    "testedBy": [],
+    "seriesAuthors": [
+     "Zong Li"
+    ]
+   },
+   "versions": [
+    {
+     "version": "v1",
+     "date": "2018-06-21",
+     "author": "Zong Li",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/cover.1529506497.git.zong@andestech.com/"
+    },
+    {
+     "version": "v2",
+     "date": "2018-06-25",
+     "author": "Zong Li",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/cover.1529915117.git.zong@andestech.com/"
+    }
+   ],
+   "review": {
+    "replies": 12,
+    "people": 3
+   },
+   "earlier": [],
+   "firstPatch": "2018-06-21",
+   "adds": [
+    "RV32I",
+    "Sv32"
+   ],
+   "ai": null
+  },
   "8fe6f7e14c7e": {
    "commit": {
     "sha": "8fe6f7e14c7e",
@@ -5943,7 +5690,7 @@
     "version": "7.3",
     "date": "2026-10-18"
    },
-   "title": "RISC-V: Add Smcntrpmf extension parsing",
+   "title": "Add Counter delegation ISA extension support",
    "partial": false,
    "curated": false,
    "people": {
@@ -5967,63 +5714,63 @@
      "date": "2024-02-17",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240217005738.3744121-10-atishp@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240217005738.3744121-1-atishp@rivosinc.com/"
     },
     {
      "version": "v2",
      "date": "2025-01-14",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250114-counter_delegation-v2-9-8ba74cdb851b@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250114-counter_delegation-v2-0-8ba74cdb851b@rivosinc.com/"
     },
     {
      "version": "v3",
      "date": "2025-01-28",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250127-counter_delegation-v3-9-64894d7e16d5@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250127-counter_delegation-v3-0-64894d7e16d5@rivosinc.com/"
     },
     {
      "version": "v4",
      "date": "2025-02-06",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250205-counter_delegation-v4-6-835cfa88e3b1@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250205-counter_delegation-v4-0-835cfa88e3b1@rivosinc.com/"
     },
     {
      "version": "v5",
      "date": "2025-03-27",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250327-counter_delegation-v5-6-1ee538468d1b@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250327-counter_delegation-v5-0-1ee538468d1b@rivosinc.com/"
     },
     {
      "version": "v6",
      "date": "2026-06-09",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260608-counter_delegation-v6-5-285b72ed65a9@meta.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260608-counter_delegation-v6-0-285b72ed65a9@meta.com/"
     },
     {
      "version": "v7",
      "date": "2026-06-22",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260622-counter_delegation-v7-6-0ba2fd34614e@meta.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260622-counter_delegation-v7-0-0ba2fd34614e@meta.com/"
     },
     {
      "version": "v8",
      "date": "2026-07-01",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260701-counter_delegation-v8-6-7909f863a645@meta.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260701-counter_delegation-v8-0-7909f863a645@meta.com/"
     },
     {
      "version": "v9",
      "date": "2026-08-07",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260807-counter_delegation-v9-6-58658104e487@meta.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260807-counter_delegation-v9-0-58658104e487@meta.com/"
     }
    ],
    "review": {
@@ -6035,134 +5782,7 @@
    "adds": [
     "Smcntrpmf"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "9afebbcf859b1a34",
-    "summary": "The series adds Smcdeleg/Ssccfg counter delegation support, letting S-mode program hpmevent and hpmcounter registers directly instead of calling into M-mode via SBI, with the required indirect-CSR and Smcntrpmf prerequisites [1, 74, 90, 141]. Reviewers raised dependency and validation concerns for the Smcdeleg/Ssccfg extensions, missing bit-width and 32-bit correctness issues in the counter code, and disputes over whether the event-to-counter mapping should live in perf JSON, the driver, or the command line, and whether the perf-tool hooks were acceptable [4, 7, 8, 47, 58, 67, 77, 83]. Many of these were settled by changing the code in later versions, such as moving the event-to-counter mapping into a JSON CounterIDMask field and reverting the file and driver renames requested by Will Deacon [12, 34, 43, 36, 37, 74, 96, 98], while some points, including the choice of indirect CSR helpers as macros rather than functions, were settled by the maintainer's own revisions [120, 122, 123, 125, 132, 134, 150]. Between v1 and v9 the series was reorganised, with the SBI PMU code restructured and then restored and clarified after review, legacy-event encoding and vendor mapping added, and a Qemu virt event table included [1, 19, 43, 74, 90, 141], and by v9 the first prerequisite patches were taken into riscv for-next with the rest deferred to a later release [152].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2024-02-17",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20240217005738.3744121-1-atishp%40rivosinc.com/"
-     },
-     {
-      "n": 4,
-      "date": "2024-02-17",
-      "from": "Ian Rogers",
-      "url": "https://lore.kernel.org/all/CAP-5%3DfXh79aeHZ-M4CqP_GkfOHw0-7Cc1YLLGEyW5pT7t8eGHw%40mail.gmail.com/"
-     },
-     {
-      "n": 7,
-      "date": "2024-02-29",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/63d73f09-84e5-49e1-99f5-60f414b22d70%40rivosinc.com/"
-     },
-     {
-      "n": 8,
-      "date": "2025-01-14",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20250114-counter_delegation-v2-0-8ba74cdb851b%40rivosinc.com/"
-     },
-     {
-      "n": 47,
-      "date": "2026-06-09",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260609061405.1943F1F00893%40smtp.kernel.org/"
-     },
-     {
-      "n": 58,
-      "date": "2026-06-09",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260609062339.F223A1F00893%40smtp.kernel.org/"
-     },
-     {
-      "n": 67,
-      "date": "2026-06-20",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/389a9141-277d-4325-8099-de17eb4e19fa%40linux.dev/"
-     },
-     {
-      "n": 74,
-      "date": "2026-06-22",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20260622-counter_delegation-v7-0-0ba2fd34614e%40meta.com/"
-     },
-     {
-      "n": 77,
-      "date": "2026-06-22",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260622081837.8706D1F000E9%40smtp.kernel.org/"
-     },
-     {
-      "n": 83,
-      "date": "2026-06-22",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260622083345.F234B1F000E9%40smtp.kernel.org/"
-     },
-     {
-      "n": 90,
-      "date": "2026-07-01",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20260701-counter_delegation-v8-0-7909f863a645%40meta.com/"
-     },
-     {
-      "n": 120,
-      "date": "2026-08-04",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/3d1f698c-6b76-5252-4e8f-b61671e309c7%40kernel.org/"
-     },
-     {
-      "n": 122,
-      "date": "2026-08-04",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/f488451d-a8bf-f6d4-3f34-c820a0171019%40kernel.org/"
-     },
-     {
-      "n": 123,
-      "date": "2026-08-05",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/66661b25-5cef-6590-b885-31cf954a16ce%40kernel.org/"
-     },
-     {
-      "n": 125,
-      "date": "2026-08-05",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/13bd0f22-cc17-ea60-5081-89d42e80dd5f%40kernel.org/"
-     },
-     {
-      "n": 132,
-      "date": "2026-08-05",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/920aee80-5297-4d70-a1ea-616976db7f70%40linux.dev/"
-     },
-     {
-      "n": 134,
-      "date": "2026-08-05",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20260805080706.2895158-1-atish.patra%40linux.dev/"
-     },
-     {
-      "n": 141,
-      "date": "2026-08-07",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20260807-counter_delegation-v9-0-58658104e487%40meta.com/"
-     },
-     {
-      "n": 150,
-      "date": "2026-08-08",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/09a1260b-aa91-f993-e81e-0c636cfd7942%40kernel.org/"
-     },
-     {
-      "n": 152,
-      "date": "2026-08-08",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/42cea3ec-5f9d-7f47-bb8c-ab2789246918%40kernel.org/"
-     }
-    ]
-   }
+   "ai": null
   },
   "a6efe33cc594": {
    "commit": {
@@ -6362,6 +5982,86 @@
      }
     ]
    }
+  },
+  "aec3353963b8": {
+   "commit": {
+    "sha": "aec3353963b8",
+    "subject": "riscv: add ISA extension parsing for vector crypto",
+    "applied": "2023-12-12",
+    "committer": "Palmer Dabbelt"
+   },
+   "release": {
+    "version": "6.8",
+    "date": "2024-03-10"
+   },
+   "title": "riscv: report more ISA extensions through hwprobe",
+   "partial": false,
+   "curated": false,
+   "people": {
+    "author": "Clément Léger",
+    "coDevelopedBy": [],
+    "reviewedBy": [],
+    "ackedBy": [],
+    "testedBy": [],
+    "seriesAuthors": [
+     "Clément Léger"
+    ]
+   },
+   "versions": [
+    {
+     "version": "v1",
+     "date": "2023-10-11",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231011111438.909552-1-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v2",
+     "date": "2023-10-17",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231017131456.2053396-1-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v3",
+     "date": "2023-11-07",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-1-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v4",
+     "date": "2023-11-14",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-1-cleger@rivosinc.com/"
+    }
+   ],
+   "review": {
+    "replies": 46,
+    "people": 5
+   },
+   "earlier": [],
+   "firstPatch": "2023-10-11",
+   "adds": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ],
+   "ai": null
   },
   "b6fcdb191e36": {
    "commit": {
@@ -6814,6 +6514,97 @@
     ]
    }
   },
+  "ba4cd855839d": {
+   "commit": {
+    "sha": "ba4cd855839d",
+    "subject": "riscv: add ISA parsing for Zca, Zcf, Zcd and Zcb",
+    "applied": "2024-06-26",
+    "committer": "Palmer Dabbelt"
+   },
+   "release": {
+    "version": "6.11",
+    "date": "2024-09-15"
+   },
+   "title": "Add support for a few Zc* extensions, Zcmop and Zimop",
+   "partial": false,
+   "curated": false,
+   "people": {
+    "author": "Clément Léger",
+    "coDevelopedBy": [],
+    "reviewedBy": [
+     "Conor Dooley"
+    ],
+    "ackedBy": [],
+    "testedBy": [],
+    "seriesAuthors": [
+     "Clément Léger"
+    ]
+   },
+   "versions": [
+    {
+     "version": "v1",
+     "date": "2024-04-10",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240410091106.749233-2-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v2",
+     "date": "2024-04-18",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240418124300.1387978-2-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v3",
+     "date": "2024-04-23",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240423124326.2532796-2-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v4",
+     "date": "2024-04-29",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240429150553.625165-2-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v5",
+     "date": "2024-05-17",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240517145302.971019-1-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v6",
+     "date": "2024-06-04",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240604124550.3214710-1-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v7",
+     "date": "2024-06-19",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240619113529.676940-1-cleger@rivosinc.com/"
+    }
+   ],
+   "review": {
+    "replies": 51,
+    "people": 6
+   },
+   "earlier": [],
+   "firstPatch": "2024-04-10",
+   "adds": [
+    "Zca",
+    "Zcb",
+    "Zcd",
+    "Zcf"
+   ],
+   "ai": null
+  },
   "c6699baf1064": {
    "commit": {
     "sha": "c6699baf1064",
@@ -7181,7 +6972,7 @@
     "version": "7.0",
     "date": "2026-04-12"
    },
-   "title": "riscv: zicfiss/zicfilp extension csr and bit definitions",
+   "title": "riscv control-flow integrity for usermode",
    "partial": false,
    "curated": false,
    "people": {
@@ -7207,194 +6998,187 @@
      "date": "2024-01-25",
      "author": "debug",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240125062739.1339782-7-debug@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240125062739.1339782-1-debug@rivosinc.com/"
     },
     {
      "version": "v2",
      "date": "2024-03-29",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240329044459.3990638-6-debug@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240329044459.3990638-1-debug@rivosinc.com/"
     },
     {
      "version": "v3",
      "date": "2024-04-03",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240403234054.2020347-7-debug@rivosinc.com/"
-    },
-    {
-     "version": "RFC v1",
-     "date": "2024-04-09",
-     "author": "Deepak Gupta",
-     "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240409061043.3269676-2-debug@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240403234054.2020347-1-debug@rivosinc.com/"
     },
     {
      "version": "v4",
      "date": "2024-09-12",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240912231650.3740732-10-debug@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240912231650.3740732-1-debug@rivosinc.com/"
     },
     {
      "version": "v1",
      "date": "2024-10-01",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20241001-v5_user_cfi_series-v1-9-3ba65b6e550f@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20241001-v5_user_cfi_series-v1-0-3ba65b6e550f@rivosinc.com/"
     },
     {
      "version": "v6",
      "date": "2024-10-08",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20241008-v5_user_cfi_series-v6-9-60d9fe073f37@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20241008-v5_user_cfi_series-v6-0-60d9fe073f37@rivosinc.com/"
     },
     {
      "version": "v7",
-     "date": "2024-10-30",
+     "date": "2024-10-29",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20241029-v5_user_cfi_series-v7-8-2727ce9936cb@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20241029-v5_user_cfi_series-v7-0-2727ce9936cb@rivosinc.com/"
     },
     {
      "version": "v8",
      "date": "2024-11-11",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20241111-v5_user_cfi_series-v8-5-dce14aa30207@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20241111-v5_user_cfi_series-v8-0-dce14aa30207@rivosinc.com/"
     },
     {
      "version": "v9",
      "date": "2025-02-05",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250204-v5_user_cfi_series-v9-4-b37a49c5205c@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250204-v5_user_cfi_series-v9-0-b37a49c5205c@rivosinc.com/"
     },
     {
      "version": "v10",
      "date": "2025-02-10",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250210-v5_user_cfi_series-v10-4-163dcfa31c60@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250210-v5_user_cfi_series-v10-0-163dcfa31c60@rivosinc.com/"
     },
     {
      "version": "v11",
      "date": "2025-03-10",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250310-v5_user_cfi_series-v11-4-86b36cbfb910@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250310-v5_user_cfi_series-v11-0-86b36cbfb910@rivosinc.com/"
     },
     {
      "version": "v12",
      "date": "2025-03-14",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250314-v5_user_cfi_series-v12-4-e51202b53138@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250314-v5_user_cfi_series-v12-0-e51202b53138@rivosinc.com/"
     },
     {
      "version": "v13",
      "date": "2025-04-24",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250424-v5_user_cfi_series-v13-4-971437de586a@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250424-v5_user_cfi_series-v13-0-971437de586a@rivosinc.com/"
     },
     {
      "version": "v14",
      "date": "2025-04-30",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250429-v5_user_cfi_series-v14-4-5239410d012a@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250429-v5_user_cfi_series-v14-0-5239410d012a@rivosinc.com/"
     },
     {
      "version": "v15",
      "date": "2025-05-02",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250502-v5_user_cfi_series-v15-4-914966471885@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250502-v5_user_cfi_series-v15-0-914966471885@rivosinc.com/"
     },
     {
      "version": "v16",
      "date": "2025-05-23",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250522-v5_user_cfi_series-v16-4-64f61a35eee7@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250522-v5_user_cfi_series-v16-0-64f61a35eee7@rivosinc.com/"
     },
     {
      "version": "v17",
      "date": "2025-06-04",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250604-v5_user_cfi_series-v17-4-4565c2cf869f@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250604-v5_user_cfi_series-v17-0-4565c2cf869f@rivosinc.com/"
     },
     {
      "version": "v18",
      "date": "2025-07-11",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250711-v5_user_cfi_series-v18-4-a8ee62f9f38e@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250711-v5_user_cfi_series-v18-0-a8ee62f9f38e@rivosinc.com/"
     },
     {
      "version": "v19",
      "date": "2025-07-31",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250731-v5_user_cfi_series-v19-4-09b468d7beab@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250731-v5_user_cfi_series-v19-0-09b468d7beab@rivosinc.com/"
     },
     {
      "version": "v20",
      "date": "2025-10-13",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20251013-v5_user_cfi_series-v20-4-b9de4be9912e@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20251013-v5_user_cfi_series-v20-0-b9de4be9912e@rivosinc.com/"
     },
     {
      "version": "v21",
      "date": "2025-10-15",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20251015-v5_user_cfi_series-v21-4-6a07856e90e7@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20251015-v5_user_cfi_series-v21-0-6a07856e90e7@rivosinc.com/"
     },
     {
      "version": "v22",
      "date": "2025-10-20",
      "author": "Deepak Gupta",
-     "resends": 4,
-     "href": "https://lore.kernel.org/linux-riscv/20251020-v5_user_cfi_series-v22-4-66732256ad8f@rivosinc.com/"
+     "resends": 2,
+     "href": "https://lore.kernel.org/linux-riscv/20251020-v5_user_cfi_series-v22-0-66732256ad8f@rivosinc.com/"
     },
     {
      "version": "v23",
      "date": "2025-11-13",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20251112-v5_user_cfi_series-v23-4-b55691eacf4f@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20251112-v5_user_cfi_series-v23-0-b55691eacf4f@rivosinc.com/"
     },
     {
      "version": "v24",
      "date": "2025-12-04",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20251204-v5_user_cfi_series-v24-4-ada7a3ba14dc@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20251204-v5_user_cfi_series-v24-0-ada7a3ba14dc@rivosinc.com/"
     },
     {
      "version": "v25",
      "date": "2025-12-05",
      "author": "Deepak Gupta",
-     "resends": 1,
-     "href": "https://lore.kernel.org/linux-riscv/20251205-v5_user_cfi_series-v25-4-8a3570c3e145@rivosinc.com/"
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20251205-v5_user_cfi_series-v25-0-8a3570c3e145@rivosinc.com/"
     },
     {
      "version": "v26",
      "date": "2025-12-11",
      "author": "Deepak Gupta",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20251211-v5_user_cfi_series-v26-4-f0f419e81ac0@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20251211-v5_user_cfi_series-v26-0-f0f419e81ac0@rivosinc.com/"
     }
    ],
    "review": {
-    "replies": 226,
-    "people": 37
+    "replies": 225,
+    "people": 39
    },
    "earlier": [],
    "firstPatch": "2024-01-25",
@@ -7402,224 +7186,7 @@
     "Zicfilp",
     "Zicfiss"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "3950a7e7fe19312d",
-    "summary": "The Zicfilp (landing pad) and Zicfiss (shadow stack) series adds user-mode control-flow integrity to RISC-V Linux through a `CONFIG_RISCV_USER_CFI` option, arch-agnostic prctls to enable and lock the features per task, shadow stack allocation on clone and map_shadow_stack(), and signal-frame handling that places a token on the shadow stack [1, 133, 304, 313, 317]. Early RFC reviews asked for envcfg save/restore only on task switch, ALTERNATIVE-based patching of the envcfg CSR, and corrections to the DT binding and Kconfig select, which were addressed in later versions [2, 3, 11, 12, 14, 17]. Objections to the VM_SHADOW_STACK-as-VM_WRITE approach and the PROT_SHADOWSTACK design led to a 64-bit-only VM_SHADOW_STACK flag and a shared arch_is_shadow_stack/vma_is_shadow_stack helper [4, 5, 24, 27, 45, 46, 165]. Andy Chiu's concern that the signal sigcontext layout could break existing binaries was resolved by moving to a context-header scheme [103, 110, 116, 117], and Thomas Weißschuh's question on dual-vDSO selection was answered by Charles Mirabile, who noted that the instructions are emitted by the toolchain in C code, making alternatives impractical [338, 339]. Repeated full-series resends drew requests from Paul Walmsley and Darrick Wong to stop, and Andreas Korb and Valentin Haudiquet supplied Tested-by tags before Paul Walmsley queued the series after folding in fixes [315, 318, 319, 320, 351, 352, 357]. Across versions the series grew from RFC v1 with 28 patches to v20/v21 with 28 patches, the vDSO question was resolved in v20 by building two vDSOs and selecting one per hardware capability, and from v22 to v26 the changes centred on toolchain gating via -fcf-protection and MMU dependencies, relocation of the command-line parameter, and a corrected map_shadow_stack return value [291, 304, 305, 307, 312, 313, 316, 343, 345, 354].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2024-01-25",
-      "from": "debug@rivosinc.com",
-      "url": "https://lore.kernel.org/all/20240125062739.1339782-1-debug%40rivosinc.com/"
-     },
-     {
-      "n": 2,
-      "date": "2024-01-25",
-      "from": "Stefan O'Rear",
-      "url": "https://lore.kernel.org/all/23d023c0-27cf-44fa-be0a-000d1534ef86%40app.fastmail.com/"
-     },
-     {
-      "n": 3,
-      "date": "2024-01-25",
-      "from": "Stefan O'Rear",
-      "url": "https://lore.kernel.org/all/ab343d4b-d8b0-47fc-8040-83313a3d735e%40app.fastmail.com/"
-     },
-     {
-      "n": 4,
-      "date": "2024-01-25",
-      "from": "David Hildenbrand",
-      "url": "https://lore.kernel.org/all/a6f3ccf5-26a0-45f1-adaa-56a8df569548%40redhat.com/"
-     },
-     {
-      "n": 5,
-      "date": "2024-01-25",
-      "from": "David Hildenbrand",
-      "url": "https://lore.kernel.org/all/2f34f6aa-99fa-4545-b706-a1d50864f9e9%40redhat.com/"
-     },
-     {
-      "n": 11,
-      "date": "2024-01-25",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20240125-unscathed-coeditor-31f04e811489%40spud/"
-     },
-     {
-      "n": 12,
-      "date": "2024-01-25",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20240125-snitch-boogieman-5b4a0b142e61%40spud/"
-     },
-     {
-      "n": 14,
-      "date": "2024-01-25",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/ZbKny7ZAG5FWHwwF%40debug.ba.rivosinc.com/"
-     },
-     {
-      "n": 17,
-      "date": "2024-01-25",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/ZbK198Vovbw2CwrR%40debug.ba.rivosinc.com/"
-     },
-     {
-      "n": 24,
-      "date": "2024-02-09",
-      "from": "Edgecombe, Rick P",
-      "url": "https://lore.kernel.org/all/2914cf78e47010e195d963857b37807e8446e3be.camel%40intel.com/"
-     },
-     {
-      "n": 27,
-      "date": "2024-02-13",
-      "from": "David Hildenbrand",
-      "url": "https://lore.kernel.org/all/45d5b98c-bad8-471d-a285-47f47c5b50bb%40redhat.com/"
-     },
-     {
-      "n": 45,
-      "date": "2024-04-04",
-      "from": "David Hildenbrand",
-      "url": "https://lore.kernel.org/all/8fb37319-288c-4f77-9cd7-92f17bb567ee%40redhat.com/"
-     },
-     {
-      "n": 46,
-      "date": "2024-04-04",
-      "from": "David Hildenbrand",
-      "url": "https://lore.kernel.org/all/c438ea3a-24bc-470b-a2eb-6e7517bd4362%40redhat.com/"
-     },
-     {
-      "n": 133,
-      "date": "2024-10-08",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/20241008-v5_user_cfi_series-v6-0-60d9fe073f37%40rivosinc.com/"
-     },
-     {
-      "n": 165,
-      "date": "2025-02-07",
-      "from": "Vlastimil Babka",
-      "url": "https://lore.kernel.org/all/6543c6b6-da86-4c10-9b8c-e5fe6f6f7da9%40suse.cz/"
-     },
-     {
-      "n": 291,
-      "date": "2025-09-26",
-      "from": "Charles Mirabile",
-      "url": "https://lore.kernel.org/all/20250926192919.349578-1-cmirabil%40redhat.com/"
-     },
-     {
-      "n": 304,
-      "date": "2025-10-13",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/20251013-v5_user_cfi_series-v20-0-b9de4be9912e%40rivosinc.com/"
-     },
-     {
-      "n": 305,
-      "date": "2025-10-14",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/aO6CT9ktGkom6A9K%40debug.ba.rivosinc.com/"
-     },
-     {
-      "n": 307,
-      "date": "2025-10-15",
-      "from": "Charles Mirabile",
-      "url": "https://lore.kernel.org/all/20251015203611.2572538-1-cmirabil%40redhat.com/"
-     },
-     {
-      "n": 312,
-      "date": "2025-10-16",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/aPEQJTbADjH9AKUf%40debug.ba.rivosinc.com/"
-     },
-     {
-      "n": 313,
-      "date": "2025-10-20",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/20251020-v5_user_cfi_series-v22-0-66732256ad8f%40rivosinc.com/"
-     },
-     {
-      "n": 315,
-      "date": "2025-10-20",
-      "from": "Darrick J. Wong",
-      "url": "https://lore.kernel.org/all/20251020211342.GG6174%40frogsfrogsfrogs/"
-     },
-     {
-      "n": 316,
-      "date": "2025-11-13",
-      "from": "Deepak Gupta via B4 Relay",
-      "url": "https://lore.kernel.org/all/20251112-v5_user_cfi_series-v23-0-b55691eacf4f%40rivosinc.com/"
-     },
-     {
-      "n": 317,
-      "date": "2025-11-19",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/fe83a3cc-e8fb-e15b-4673-8caaf1ab39b8%40kernel.org/"
-     },
-     {
-      "n": 318,
-      "date": "2025-11-27",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/b82ffcca-3173-8c07-4a8a-c42d8d092a72%40kernel.org/"
-     },
-     {
-      "n": 319,
-      "date": "2025-12-03",
-      "from": "Valentin Haudiquet",
-      "url": "https://lore.kernel.org/all/6b25515b-c364-47f1-bd75-8b7dc16e3701%40canonical.com/"
-     },
-     {
-      "n": 320,
-      "date": "2025-12-04",
-      "from": "Andreas Korb",
-      "url": "https://lore.kernel.org/all/20251204141412.5895-1-andreas.korb%40aisec.fraunhofer.de/"
-     },
-     {
-      "n": 338,
-      "date": "2025-12-04",
-      "from": "Thomas Weißschuh",
-      "url": "https://lore.kernel.org/all/20251204175055-fefb76ff-2ff2-48b8-b92c-3d3ce33ec9f5%40linutronix.de/"
-     },
-     {
-      "n": 339,
-      "date": "2025-12-04",
-      "from": "Charles Mirabile",
-      "url": "https://lore.kernel.org/all/CABe3_aH6wRzKt%2Bf8RyG%2B0mN0Kyu2eASRn4URxgU4R-zEmdwBgA%40mail.gmail.com/"
-     },
-     {
-      "n": 343,
-      "date": "2025-12-05",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/20251205-v5_user_cfi_series-v25-0-8a3570c3e145%40rivosinc.com/"
-     },
-     {
-      "n": 345,
-      "date": "2025-12-11",
-      "from": "Deepak Gupta via B4 Relay",
-      "url": "https://lore.kernel.org/all/20251211-v5_user_cfi_series-v26-0-f0f419e81ac0%40rivosinc.com/"
-     },
-     {
-      "n": 351,
-      "date": "2026-01-15",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/68e1702e-f803-2db2-0e16-53ecef4d9eb6%40kernel.org/"
-     },
-     {
-      "n": 352,
-      "date": "2026-01-15",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/9b663e94-696c-4678-829a-6471e7022895%40kernel.org/"
-     },
-     {
-      "n": 354,
-      "date": "2026-01-26",
-      "from": "Deepak Gupta",
-      "url": "https://lore.kernel.org/all/aXfRPJvoSsOW8AwM%40debug.ba.rivosinc.com/"
-     },
-     {
-      "n": 357,
-      "date": "2026-01-29",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/190df1c1-feb2-ae5d-7fdc-dd0c3d780b21%40kernel.org/"
-     }
-    ]
-   }
+   "ai": null
   },
   "e186c28dda11": {
    "commit": {
@@ -7632,7 +7199,7 @@
     "version": "6.15",
     "date": "2025-05-25"
    },
-   "title": "riscv: add ISA extension parsing for bfloat16 ISA extension",
+   "title": "riscv: Add bfloat16 instruction support",
    "partial": false,
    "curated": false,
    "people": {
@@ -7653,28 +7220,28 @@
      "date": "2024-10-28",
      "author": "Inochi Amaoto",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20241028071746.869740-3-inochiama@gmail.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20241028071746.869740-1-inochiama@gmail.com/"
     },
     {
      "version": "v2",
      "date": "2024-11-03",
      "author": "Inochi Amaoto",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20241103074959.1135240-3-inochiama@gmail.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20241103074959.1135240-1-inochiama@gmail.com/"
     },
     {
      "version": "v3",
      "date": "2024-12-06",
      "author": "Inochi Amaoto",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20241206055829.1059293-3-inochiama@gmail.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20241206055829.1059293-1-inochiama@gmail.com/"
     },
     {
      "version": "v4",
      "date": "2025-02-13",
      "author": "Inochi Amaoto",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250213003849.147358-3-inochiama@gmail.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250213003849.147358-1-inochiama@gmail.com/"
     }
    ],
    "review": {
@@ -7688,128 +7255,7 @@
     "Zvfbfmin",
     "Zvfbfwma"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "538096e92f896ae5",
-    "summary": "The series adds Linux kernel support for the BFloat16 extensions Zfbfmin, Zvfbfmin and Zvfbfwma, covering the device-tree binding, ISA extension parsing in cpufeature.c, and hwprobe export [1, 4]. Clément Léger asked that the hwprobe change also be made in sys_hwprobe.c, which Inochi Amaoto accepted and added from v2 onward [2, 3, 4]. Reviewers raised a question about whether the series should wait for Conor Dooley's V/F validation work, and Conor said it should not be held up on his account [5, 6]. Conor also said the binding text was obvious and not worth a respin, then gave an Acked-by [7]. Clément suggested a validation callback so the extensions depend on the F extension, and Inochi proposed checks for Zvfbfmin and Zvfbfwma, which Conor said should key on CONFIG_RISCV_ISA_V rather than Zve32f and could be generalised for Zve32f or Zve64 minimums [16, 17, 18]. Clément then gave Reviewed-by and Inochi adopted the validation changes in v4 [16, 19, 20]. Yangyu Chen flagged a possible conflict with another series, which Conor said Palmer could resolve, and Jessica Clarke and Samuel Holland corrected the binding text that had described BF16 as \"brain\" floating point [10, 11, 12, 14, 15]. Across versions the series went from v1 to v4 by way of rebases, the hwprobe addition, and the validation callbacks, and Alexandre Ghiti said it was queued for the next kernel cycle [9, 20, 22].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2024-10-28",
-      "from": "Inochi Amaoto",
-      "url": "https://lore.kernel.org/all/20241028071746.869740-1-inochiama%40gmail.com/"
-     },
-     {
-      "n": 2,
-      "date": "2024-10-30",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/ca1cb4b8-e206-4bc3-adf3-3801fd05f8e8%40rivosinc.com/"
-     },
-     {
-      "n": 3,
-      "date": "2024-10-31",
-      "from": "Inochi Amaoto",
-      "url": "https://lore.kernel.org/all/prcy6rwydyjz55uaw6rorqbjv64kxu2ibaq2dy3xeno4nzfr6e%40akhf6btyc7lc/"
-     },
-     {
-      "n": 4,
-      "date": "2024-11-03",
-      "from": "Inochi Amaoto",
-      "url": "https://lore.kernel.org/all/20241103074959.1135240-1-inochiama%40gmail.com/"
-     },
-     {
-      "n": 5,
-      "date": "2024-11-04",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/2e775421-0c3e-48ef-8a8c-6734f7fcf298%40rivosinc.com/"
-     },
-     {
-      "n": 6,
-      "date": "2024-11-04",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20241104-number-recall-85e044c9b72d%40spud/"
-     },
-     {
-      "n": 7,
-      "date": "2024-11-04",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20241104-clean-osmosis-680d64616712%40spud/"
-     },
-     {
-      "n": 9,
-      "date": "2024-12-06",
-      "from": "Inochi Amaoto",
-      "url": "https://lore.kernel.org/all/20241206055829.1059293-1-inochiama%40gmail.com/"
-     },
-     {
-      "n": 10,
-      "date": "2024-12-16",
-      "from": "Yangyu Chen",
-      "url": "https://lore.kernel.org/all/tencent_8F35B6F07D09566A873982E0E2C76085280A%40qq.com/"
-     },
-     {
-      "n": 11,
-      "date": "2024-12-16",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/5e878b5b-b49d-4757-8f7e-4b323a4998b3%40sifive.com/"
-     },
-     {
-      "n": 12,
-      "date": "2024-12-16",
-      "from": "Jessica Clarke",
-      "url": "https://lore.kernel.org/all/F52E8856-7602-4E4B-8932-2B13AAA30822%40jrtc27.com/"
-     },
-     {
-      "n": 14,
-      "date": "2024-12-17",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20241217-fondue-candy-55e7efcf2a5e%40spud/"
-     },
-     {
-      "n": 15,
-      "date": "2024-12-19",
-      "from": "Samuel Holland",
-      "url": "https://lore.kernel.org/all/76505ca3-b5a7-4cb1-90ce-0c7951c0b3b6%40sifive.com/"
-     },
-     {
-      "n": 16,
-      "date": "2025-02-10",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/374d3b07-e16c-4468-828a-a2a542cd88ac%40rivosinc.com/"
-     },
-     {
-      "n": 17,
-      "date": "2025-02-11",
-      "from": "Inochi Amaoto",
-      "url": "https://lore.kernel.org/all/7qkfqzhytjq2qwo2wg3xtkoqu6id6wduckeeudbn2yt5p5p7xv%402gl5bcny26rk/"
-     },
-     {
-      "n": 18,
-      "date": "2025-02-11",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20250211-dizziness-eclair-2ef49cc5ad0e%40spud/"
-     },
-     {
-      "n": 19,
-      "date": "2025-02-11",
-      "from": "Inochi Amaoto",
-      "url": "https://lore.kernel.org/all/rjnohunxmhyz4sonz5atmirpprpfwihsv7uazgb74josjxghjm%40ju255opl6m6e/"
-     },
-     {
-      "n": 20,
-      "date": "2025-02-13",
-      "from": "Inochi Amaoto",
-      "url": "https://lore.kernel.org/all/20250213003849.147358-1-inochiama%40gmail.com/"
-     },
-     {
-      "n": 22,
-      "date": "2025-03-11",
-      "from": "Alexandre Ghiti",
-      "url": "https://lore.kernel.org/all/e72db46d-53b2-47f6-814f-9653d783e745%40ghiti.fr/"
-     }
-    ]
-   }
+   "ai": null
   },
   "e45f463a9b01": {
    "commit": {
@@ -7822,7 +7268,7 @@
     "version": "6.8",
     "date": "2024-03-10"
    },
-   "title": "riscv: hwprobe: export missing Zbc ISA extension",
+   "title": "riscv: report more ISA extensions through hwprobe",
    "partial": false,
    "curated": false,
    "people": {
@@ -7837,23 +7283,37 @@
    },
    "versions": [
     {
+     "version": "v1",
+     "date": "2023-10-11",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231011111438.909552-1-cleger@rivosinc.com/"
+    },
+    {
+     "version": "v2",
+     "date": "2023-10-17",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231017131456.2053396-1-cleger@rivosinc.com/"
+    },
+    {
      "version": "v3",
      "date": "2023-11-07",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-3-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-1-cleger@rivosinc.com/"
     },
     {
      "version": "v4",
      "date": "2023-11-14",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-3-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-1-cleger@rivosinc.com/"
     }
    ],
    "review": {
-    "replies": 10,
-    "people": 3
+    "replies": 46,
+    "people": 5
    },
    "earlier": [
     {
@@ -7885,62 +7345,79 @@
    "adds": [
     "Zbc"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "77f41f6f5ad600cd",
-    "summary": "The series, titled \"riscv: hwprobe: export missing Zbc ISA extension\" within the larger v3/v4 set of twenty patches by Clément Léger, extends the hwprobe syscall so userspace can discover many more RISC-V ISA extensions, including Zbc, scalar and vector crypto, Zfh[min], Zihintntl, Zvfh[min] and Zfa, and it adds a mechanism for \"bundled\" extensions whose sub-extensions alone are exposed [1]. Conor Dooley questioned whether the scalar crypto Zkr CSR should be documented as accessible at the privilege level the devicetree is provided to, and the v4 device-tree binding text was updated to say so [2, 13]. Reviewers also asked for a comment justifying the safety of the bundled-extension handling [5], and Jerry Shih pointed out that Zvknha and Zvknhb are exclusive rather than a superset relationship, which Léger accepted and which led v4 to stop representing Zvknhb as a superset [7, 11, 13]. Dooley noted that hwprobe does not belong in the dt-bindings text, and Léger removed that mention in v4 [3, 12, 13]. Evan Green's suggestion to use a pointer rather than a struct copy in the parsing code was applied in v4 [6, 13], and a v4 wording issue about \"only\" in the cover letter was flagged by Dooley as not matching the intended binding text [15].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2023-11-07",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231107105556.517187-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 2,
-      "date": "2023-11-08",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231108-grower-handwash-63526d449e9c%40spud/"
-     },
-     {
-      "n": 3,
-      "date": "2023-11-08",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231108-basics-delete-710d0682bf0e%40spud/"
-     },
-     {
-      "n": 7,
-      "date": "2023-11-09",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/5EF129A2-195B-4207-A2F6-DBA1FBB9F65D%40sifive.com/"
-     },
-     {
-      "n": 11,
-      "date": "2023-11-09",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/fd022864-f276-4c4c-84ea-0752b915a9b3%40rivosinc.com/"
-     },
-     {
-      "n": 12,
-      "date": "2023-11-09",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/5cb0a3ae-405c-4b07-adaa-0e3109e76c69%40rivosinc.com/"
-     },
-     {
-      "n": 13,
-      "date": "2023-11-14",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231114141256.126749-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 15,
-      "date": "2023-11-22",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231122-detection-antler-124b9460e893%40spud/"
-     }
+   "ai": null
+  },
+  "e8a62cc26ddf": {
+   "commit": {
+    "sha": "e8a62cc26ddf",
+    "subject": "riscv: Implement sv48 support",
+    "applied": "2022-01-20",
+    "committer": "Palmer Dabbelt"
+   },
+   "release": {
+    "version": "5.17",
+    "date": "2022-03-20"
+   },
+   "title": "Introduce sv48 support without relocatable kernel",
+   "partial": false,
+   "curated": true,
+   "people": {
+    "author": "Alexandre Ghiti",
+    "coDevelopedBy": [],
+    "reviewedBy": [],
+    "ackedBy": [],
+    "testedBy": [],
+    "seriesAuthors": [
+     "Alexandre Ghiti"
     ]
-   }
+   },
+   "versions": [
+    {
+     "version": "RFC v1",
+     "date": "2020-03-22",
+     "author": "Alexandre Ghiti",
+     "resends": 1,
+     "href": "https://lore.kernel.org/all/20200322110028.18279-5-alex@ghiti.fr/"
+    },
+    {
+     "version": "v1",
+     "date": "2020-05-24",
+     "author": "Alexandre Ghiti",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20200524091008.25587-6-alex@ghiti.fr/"
+    },
+    {
+     "version": "v2",
+     "date": "2020-06-03",
+     "author": "Alexandre Ghiti",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20200603081104.14004-6-alex@ghiti.fr/"
+    },
+    {
+     "version": "v2",
+     "date": "2021-09-29",
+     "author": "Alexandre Ghiti",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20210929145113.1935778-1-alexandre.ghiti@canonical.com/"
+    },
+    {
+     "version": "v3",
+     "date": "2021-12-06",
+     "author": "Alexandre Ghiti",
+     "resends": 0,
+     "href": "https://lore.kernel.org/all/20211206104657.433304-1-alexandre.ghiti@canonical.com/"
+    }
+   ],
+   "review": {
+    "replies": 61,
+    "people": 11
+   },
+   "earlier": [],
+   "firstPatch": "2020-03-22",
+   "adds": [
+    "Sv48"
+   ],
+   "ai": null
   },
   "ebdec8d2c156": {
    "commit": {
@@ -7953,7 +7430,7 @@
     "version": "7.3",
     "date": "2026-10-18"
    },
-   "title": "RISC-V: Add Ssccfg ISA extension definition and parsing",
+   "title": "Add Counter delegation ISA extension support",
    "partial": false,
    "curated": false,
    "people": {
@@ -7974,63 +7451,63 @@
      "date": "2024-02-17",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20240217005738.3744121-8-atishp@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20240217005738.3744121-1-atishp@rivosinc.com/"
     },
     {
      "version": "v2",
      "date": "2025-01-14",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250114-counter_delegation-v2-7-8ba74cdb851b@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250114-counter_delegation-v2-0-8ba74cdb851b@rivosinc.com/"
     },
     {
      "version": "v3",
      "date": "2025-01-28",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250127-counter_delegation-v3-7-64894d7e16d5@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250127-counter_delegation-v3-0-64894d7e16d5@rivosinc.com/"
     },
     {
      "version": "v4",
      "date": "2025-02-06",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250205-counter_delegation-v4-9-835cfa88e3b1@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250205-counter_delegation-v4-0-835cfa88e3b1@rivosinc.com/"
     },
     {
      "version": "v5",
      "date": "2025-03-27",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20250327-counter_delegation-v5-9-1ee538468d1b@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20250327-counter_delegation-v5-0-1ee538468d1b@rivosinc.com/"
     },
     {
      "version": "v6",
      "date": "2026-06-09",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260608-counter_delegation-v6-8-285b72ed65a9@meta.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260608-counter_delegation-v6-0-285b72ed65a9@meta.com/"
     },
     {
      "version": "v7",
      "date": "2026-06-22",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260622-counter_delegation-v7-9-0ba2fd34614e@meta.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260622-counter_delegation-v7-0-0ba2fd34614e@meta.com/"
     },
     {
      "version": "v8",
      "date": "2026-07-01",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260701-counter_delegation-v8-9-7909f863a645@meta.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260701-counter_delegation-v8-0-7909f863a645@meta.com/"
     },
     {
      "version": "v9",
      "date": "2026-08-07",
      "author": "Atish Patra",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260807-counter_delegation-v9-8-58658104e487@meta.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260807-counter_delegation-v9-0-58658104e487@meta.com/"
     }
    ],
    "review": {
@@ -8043,236 +7520,7 @@
     "Smcdeleg",
     "Ssccfg"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "36d4d1cecebe2aa2",
-    "summary": "The Ssccfg/Smcdeleg counter delegation series lets S-mode program hpmevent and hpmcounter registers directly, depending on the indirect CSR extensions (Smcsrind/Sscsrind), Smstateen, and Smcntrpmf, and adds perf tool support for per-event counter constraints via a CounterIDMask field passed through config2 [1, 8, 74, 141]. Reviewers asked for the dependency descriptions to be expressed in schema rather than text, flagged dt-binding YAML formatting and ordering problems, and objected to renaming the SBI PMU file and driver, which Atish reverted in v6 [2, 3, 5, 9, 16, 17, 36, 37, 43]. The question of how events map to hardware counters and how their encodings are discovered was settled by moving encodings into driver tables and json, with sysfs and config2 mechanisms added, after Ian Rogers laid out the perf event-discovery behaviour and Atish explained why a common architectural mapping was not feasible [4, 7, 8, 29, 30, 38, 39, 57, 58, 59]. Paul Walmsley queued the indirect CSR, Smcntrpmf and Ssccfg definition patches for v7.3, renaming them to official extension names and expanding the \"ind\" abbreviation, with the CSR helpers kept as macros because the CSR operand must be a literal token, and he put the first ten patches into riscv/for-next for the v9 series [120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 132, 134, 152]. Between v6 and v9 the series grew from 21 to 22 and then 20 patches, the do-not-upstream test patches were dropped, the qemu virt machine events were extended with the 0x42 arch ID, and a probe-cleanup fix was added as its own patch [43, 74, 90, 141, 145].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2024-02-17",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20240217005738.3744121-1-atishp%40rivosinc.com/"
-     },
-     {
-      "n": 2,
-      "date": "2024-02-17",
-      "from": "Rob Herring",
-      "url": "https://lore.kernel.org/all/170813721337.1034359.14079032178586114678.robh%40kernel.org/"
-     },
-     {
-      "n": 3,
-      "date": "2024-02-17",
-      "from": "Rob Herring",
-      "url": "https://lore.kernel.org/all/170813721439.1034411.7264728567495824984.robh%40kernel.org/"
-     },
-     {
-      "n": 4,
-      "date": "2024-02-17",
-      "from": "Ian Rogers",
-      "url": "https://lore.kernel.org/all/CAP-5%3DfXh79aeHZ-M4CqP_GkfOHw0-7Cc1YLLGEyW5pT7t8eGHw%40mail.gmail.com/"
-     },
-     {
-      "n": 5,
-      "date": "2024-02-18",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20240218-struggle-grumble-43efdfb9515d%40spud/"
-     },
-     {
-      "n": 7,
-      "date": "2024-02-29",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/63d73f09-84e5-49e1-99f5-60f414b22d70%40rivosinc.com/"
-     },
-     {
-      "n": 8,
-      "date": "2025-01-14",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20250114-counter_delegation-v2-0-8ba74cdb851b%40rivosinc.com/"
-     },
-     {
-      "n": 9,
-      "date": "2025-01-15",
-      "from": "Rob Herring (Arm)",
-      "url": "https://lore.kernel.org/all/173690237126.2063459.986002304235117552.robh%40kernel.org/"
-     },
-     {
-      "n": 16,
-      "date": "2025-01-28",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20250128-murky-shack-0ba8e6e65db6%40spud/"
-     },
-     {
-      "n": 17,
-      "date": "2025-01-28",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20250128-alkalize-gains-d7ff05cb8c71%40spud/"
-     },
-     {
-      "n": 29,
-      "date": "2025-02-07",
-      "from": "Atish Kumar Patra",
-      "url": "https://lore.kernel.org/all/CAHBxVyEtxoRHLO791r6uFzHnX0vAcpeWMOcS%2B0tbVN%2Bp6Oh2tQ%40mail.gmail.com/"
-     },
-     {
-      "n": 30,
-      "date": "2025-02-19",
-      "from": "Rob Herring (Arm)",
-      "url": "https://lore.kernel.org/all/173997415655.2409606.4528669810137132252.robh%40kernel.org/"
-     },
-     {
-      "n": 36,
-      "date": "2025-04-04",
-      "from": "Will Deacon",
-      "url": "https://lore.kernel.org/all/20250404134937.GA29394%40willie-the-truck/"
-     },
-     {
-      "n": 37,
-      "date": "2025-04-23",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/42e1d440-24a0-4bdb-b21f-fedf8b7be4fe%40linux.dev/"
-     },
-     {
-      "n": 38,
-      "date": "2025-04-23",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/0db3c7b9-6904-412f-b554-d6e48db66f36%40linux.dev/"
-     },
-     {
-      "n": 39,
-      "date": "2025-04-23",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/9d827020-ee6c-40c2-a83d-7eb9a00f8aa8%40linux.dev/"
-     },
-     {
-      "n": 43,
-      "date": "2026-06-09",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20260608-counter_delegation-v6-0-285b72ed65a9%40meta.com/"
-     },
-     {
-      "n": 57,
-      "date": "2026-06-09",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260609062312.E35D11F00898%40smtp.kernel.org/"
-     },
-     {
-      "n": 58,
-      "date": "2026-06-09",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260609062339.F223A1F00893%40smtp.kernel.org/"
-     },
-     {
-      "n": 59,
-      "date": "2026-06-09",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260609063329.66D801F00893%40smtp.kernel.org/"
-     },
-     {
-      "n": 74,
-      "date": "2026-06-22",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20260622-counter_delegation-v7-0-0ba2fd34614e%40meta.com/"
-     },
-     {
-      "n": 90,
-      "date": "2026-07-01",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20260701-counter_delegation-v8-0-7909f863a645%40meta.com/"
-     },
-     {
-      "n": 120,
-      "date": "2026-08-04",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/3d1f698c-6b76-5252-4e8f-b61671e309c7%40kernel.org/"
-     },
-     {
-      "n": 121,
-      "date": "2026-08-04",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/a890951f-e3e7-6d72-9e83-e4818cab552c%40kernel.org/"
-     },
-     {
-      "n": 122,
-      "date": "2026-08-04",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/f488451d-a8bf-f6d4-3f34-c820a0171019%40kernel.org/"
-     },
-     {
-      "n": 123,
-      "date": "2026-08-05",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/66661b25-5cef-6590-b885-31cf954a16ce%40kernel.org/"
-     },
-     {
-      "n": 124,
-      "date": "2026-08-05",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/1b20aa77-0f0f-08c7-9439-972983adf709%40kernel.org/"
-     },
-     {
-      "n": 125,
-      "date": "2026-08-05",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/13bd0f22-cc17-ea60-5081-89d42e80dd5f%40kernel.org/"
-     },
-     {
-      "n": 126,
-      "date": "2026-08-05",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/ef66e907-5049-57d1-d22b-0052085f8de3%40kernel.org/"
-     },
-     {
-      "n": 127,
-      "date": "2026-08-05",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/a2f138eb-480a-bd74-0a10-7c699d5f6e1c%40kernel.org/"
-     },
-     {
-      "n": 128,
-      "date": "2026-08-05",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/38d6a081-e05e-f5ea-6e71-540bd1c22761%40kernel.org/"
-     },
-     {
-      "n": 129,
-      "date": "2026-08-05",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/b5e736ec-1a61-95a0-970f-e9f4eb6b62a8%40kernel.org/"
-     },
-     {
-      "n": 132,
-      "date": "2026-08-05",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/920aee80-5297-4d70-a1ea-616976db7f70%40linux.dev/"
-     },
-     {
-      "n": 134,
-      "date": "2026-08-05",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20260805080706.2895158-1-atish.patra%40linux.dev/"
-     },
-     {
-      "n": 141,
-      "date": "2026-08-07",
-      "from": "Atish Patra",
-      "url": "https://lore.kernel.org/all/20260807-counter_delegation-v9-0-58658104e487%40meta.com/"
-     },
-     {
-      "n": 145,
-      "date": "2026-08-07",
-      "from": "sashiko-bot@kernel.org",
-      "url": "https://lore.kernel.org/all/20260807083053.3904B1F000E9%40smtp.kernel.org/"
-     },
-     {
-      "n": 152,
-      "date": "2026-08-08",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/42cea3ec-5f9d-7f47-bb8c-ab2789246918%40kernel.org/"
-     }
-    ]
-   }
+   "ai": null
   },
   "eddbfa0d849f": {
    "commit": {
@@ -8285,7 +7533,7 @@
     "version": "6.8",
     "date": "2024-03-10"
    },
-   "title": "dt-bindings: riscv: add Zihintntl ISA extension description",
+   "title": "riscv: report more ISA extensions through hwprobe",
    "partial": false,
    "curated": false,
    "people": {
@@ -8306,28 +7554,28 @@
      "date": "2023-10-11",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231011111438.909552-11-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231011111438.909552-1-cleger@rivosinc.com/"
     },
     {
      "version": "v2",
      "date": "2023-10-17",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231017131456.2053396-14-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231017131456.2053396-1-cleger@rivosinc.com/"
     },
     {
      "version": "v3",
      "date": "2023-11-07",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-15-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-1-cleger@rivosinc.com/"
     },
     {
      "version": "v4",
      "date": "2023-11-14",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-15-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-1-cleger@rivosinc.com/"
     }
    ],
    "review": {
@@ -8339,122 +7587,7 @@
    "adds": [
     "Zihintntl"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "42bfb34709e4f24f",
-    "summary": "The series adds parsing and hwprobe reporting for a long list of ISA extensions, including Zihintntl, so that userspace can query them through the hwprobe syscall [1]. Clément Léger's v1 treated the Zvks and Zvkn shorthands as needing a decision on whether to unfold them, and Conor Dooley responded that a bundle mechanism would work, which led to Conor and Evan Green's bundle approach being carried forward [6, 13, 14]. Zvbb and Zvknhb were handled as superset cases, with Jerry Shih pointing out that Zvkb is a subset of Zvbb and that Zvknha and Zvknhb are exclusive rather than nested, so the latter were not bundled together [18, 45, 61]. Reviewers asked for clearer wording on when the in-kernel extension-availability check is safe, and Evan Green and Clément agreed on a reworded comment [20, 34, 38]. The v2 to v4 revisions added Zfa and scalar crypto support, separated Zbc into its own patch, and in v4 dropped the zvknhb superset treatment, removed the hwprobe mention from the dt-bindings, and documented that a Zkr entry means the seed CSR is accessible at the privilege level the devicetree is provided to [17, 21, 53, 54, 61, 64, 67]. Conor Dooley asked for the Zkr binding to state the seed CSR privilege behaviour, and Acked or Reviewed tags were given on the dt-bindings patches across versions [56, 68].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2023-10-11",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231011111438.909552-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 6,
-      "date": "2023-10-12",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/b157edc4-a21f-40ac-8c9f-e989b34bb872%40rivosinc.com/"
-     },
-     {
-      "n": 13,
-      "date": "2023-10-12",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231012-darkness-neutron-fc1843ff05ff%40spud/"
-     },
-     {
-      "n": 14,
-      "date": "2023-10-12",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/7b71ff39-bbc0-4ba9-8b98-d36fa127316e%40rivosinc.com/"
-     },
-     {
-      "n": 17,
-      "date": "2023-10-17",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231017131456.2053396-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 18,
-      "date": "2023-10-18",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/DA8B4610-D514-4733-B875-C247FFCCC7AA%40sifive.com/"
-     },
-     {
-      "n": 20,
-      "date": "2023-10-18",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HssL%3DwNwj9nRuZwpZhy1CB9p9-X%3DOqgwBw9zvgA7hA4fEg%40mail.gmail.com/"
-     },
-     {
-      "n": 21,
-      "date": "2023-10-18",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HssE%3DdenuwBqH4KtCr1QqTzPb9rELW1ZXR5Cr-nqQQWQoA%40mail.gmail.com/"
-     },
-     {
-      "n": 34,
-      "date": "2023-10-18",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HsteDO0PvAKKQje7wU0f4z8w2V3f7WiHh5%2BLvQeVaSua1w%40mail.gmail.com/"
-     },
-     {
-      "n": 38,
-      "date": "2023-10-19",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/0b2cbc89-7892-4c43-898c-03757eaaf3b7%40rivosinc.com/"
-     },
-     {
-      "n": 45,
-      "date": "2023-10-20",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/E30E7352-1FB0-4DB5-94C3-2C6FC2A6F484%40sifive.com/"
-     },
-     {
-      "n": 53,
-      "date": "2023-10-24",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-Hsvy411MnHQXHLK8u4JmM%2BLO5R2tuCxY6zQco7BKJONqPA%40mail.gmail.com/"
-     },
-     {
-      "n": 54,
-      "date": "2023-10-24",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/3a5462f6-62d4-49e3-ae78-374fb5cbad5a%40rivosinc.com/"
-     },
-     {
-      "n": 56,
-      "date": "2023-11-08",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231108-grower-handwash-63526d449e9c%40spud/"
-     },
-     {
-      "n": 61,
-      "date": "2023-11-09",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/5EF129A2-195B-4207-A2F6-DBA1FBB9F65D%40sifive.com/"
-     },
-     {
-      "n": 64,
-      "date": "2023-11-09",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/F2C4CCA2-0513-4988-94C4-1ECEB9F1D578%40sifive.com/"
-     },
-     {
-      "n": 67,
-      "date": "2023-11-14",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231114141256.126749-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 68,
-      "date": "2023-11-22",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231122-bulginess-rash-08f811f54f0a%40spud/"
-     }
-    ]
-   }
+   "ai": null
   },
   "f4961b78c37b": {
    "commit": {
@@ -8467,7 +7600,7 @@
     "version": "6.8",
     "date": "2024-03-10"
    },
-   "title": "riscv: add ISA extension probing for Zvfh[min]",
+   "title": "riscv: report more ISA extensions through hwprobe",
    "partial": false,
    "curated": false,
    "people": {
@@ -8488,28 +7621,28 @@
      "date": "2023-10-11",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231011111438.909552-12-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231011111438.909552-1-cleger@rivosinc.com/"
     },
     {
      "version": "v2",
      "date": "2023-10-17",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231017131456.2053396-15-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231017131456.2053396-1-cleger@rivosinc.com/"
     },
     {
      "version": "v3",
      "date": "2023-11-07",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-16-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-1-cleger@rivosinc.com/"
     },
     {
      "version": "v4",
      "date": "2023-11-14",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-16-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-1-cleger@rivosinc.com/"
     }
    ],
    "review": {
@@ -8522,146 +7655,7 @@
     "Zvfh",
     "Zvfhmin"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "6234251b2c2b04c0",
-    "summary": "The series adds ISA extension parsing and hwprobe reporting for a large set of RISC-V extensions, including Zfh[min], Zvfh[min], Zihintntl, Zbc, the vector and scalar crypto families, and Zfa [1, 17, 55, 67]. Reviewers asked for the vector crypto bundles to be handled carefully: Conor Dooley and Evan Green agreed that bundles should be exposed as their sub-extensions, with Clément Léger later choosing to give superset extensions such as Zvbb their own ID alongside a subset list [14, 22, 42, 54]. Jerry Shih pointed out that Zvknha and Zvknhb are exclusive rather than a superset pair, so they are no longer bundled together [18, 45, 61, 64, 67]. Conor Dooley and Andrew Jones raised the lack of a kernel-side comment on when riscv_isa_extension_available() is safe to call, and Evan Green and Clément Léger settled the wording of the CHECK_ISA_EXT() comment to say that Kconfig gating is assumed to be handled elsewhere [11, 16, 20, 33, 34, 38, 41, 43]. Reviewers also asked for a comment explaining why the bundle check is safe [59], for the Zkr devicetree entry to document that the seed CSR is accessible at the privilege level the devicetree is provided to [56], and for the hwprobe mention to be removed from the dt-bindings text [57, 66]. Across versions the series grew from 13 patches in v1 to 19 in v2–v4, adding scalar crypto, Zfa, and Zbc support, and v3 and v4 carried the reviewer fixes listed above [1, 17, 55, 67].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2023-10-11",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231011111438.909552-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 11,
-      "date": "2023-10-12",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231012-matriarch-lunar-819c1d2d7996%40spud/"
-     },
-     {
-      "n": 14,
-      "date": "2023-10-12",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/7b71ff39-bbc0-4ba9-8b98-d36fa127316e%40rivosinc.com/"
-     },
-     {
-      "n": 16,
-      "date": "2023-10-12",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/20231012-8d049a0366f3333ff4a3223b%40orel/"
-     },
-     {
-      "n": 17,
-      "date": "2023-10-17",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231017131456.2053396-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 18,
-      "date": "2023-10-18",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/DA8B4610-D514-4733-B875-C247FFCCC7AA%40sifive.com/"
-     },
-     {
-      "n": 20,
-      "date": "2023-10-18",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HssL%3DwNwj9nRuZwpZhy1CB9p9-X%3DOqgwBw9zvgA7hA4fEg%40mail.gmail.com/"
-     },
-     {
-      "n": 22,
-      "date": "2023-10-18",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HstEBt-ntCcETa9YwS6On3nGyoEc2p7R-gaBLG9%2BaFJL5w%40mail.gmail.com/"
-     },
-     {
-      "n": 33,
-      "date": "2023-10-18",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231018-flagpole-footpad-07a6228485f3%40spud/"
-     },
-     {
-      "n": 34,
-      "date": "2023-10-18",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HsteDO0PvAKKQje7wU0f4z8w2V3f7WiHh5%2BLvQeVaSua1w%40mail.gmail.com/"
-     },
-     {
-      "n": 38,
-      "date": "2023-10-19",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/0b2cbc89-7892-4c43-898c-03757eaaf3b7%40rivosinc.com/"
-     },
-     {
-      "n": 41,
-      "date": "2023-10-19",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/acd4c737-49ee-4038-890b-b2eba29f6460%40rivosinc.com/"
-     },
-     {
-      "n": 42,
-      "date": "2023-10-19",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231019-nuclear-vista-ef3e0b9bef71%40spud/"
-     },
-     {
-      "n": 43,
-      "date": "2023-10-19",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-Hsv2HK7dtZRi9R4GH0vZnf2oU9xVhKfK153S7Y_txUceqA%40mail.gmail.com/"
-     },
-     {
-      "n": 45,
-      "date": "2023-10-20",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/E30E7352-1FB0-4DB5-94C3-2C6FC2A6F484%40sifive.com/"
-     },
-     {
-      "n": 54,
-      "date": "2023-10-24",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/3a5462f6-62d4-49e3-ae78-374fb5cbad5a%40rivosinc.com/"
-     },
-     {
-      "n": 55,
-      "date": "2023-11-07",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231107105556.517187-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 57,
-      "date": "2023-11-08",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231108-basics-delete-710d0682bf0e%40spud/"
-     },
-     {
-      "n": 61,
-      "date": "2023-11-09",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/5EF129A2-195B-4207-A2F6-DBA1FBB9F65D%40sifive.com/"
-     },
-     {
-      "n": 64,
-      "date": "2023-11-09",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/F2C4CCA2-0513-4988-94C4-1ECEB9F1D578%40sifive.com/"
-     },
-     {
-      "n": 66,
-      "date": "2023-11-09",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/5cb0a3ae-405c-4b07-adaa-0e3109e76c69%40rivosinc.com/"
-     },
-     {
-      "n": 67,
-      "date": "2023-11-14",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231114141256.126749-1-cleger%40rivosinc.com/"
-     }
-    ]
-   }
+   "ai": null
   },
   "f61959a3a8b5": {
    "commit": {
@@ -8674,7 +7668,7 @@
     "version": "7.3",
     "date": "2026-10-18"
    },
-   "title": "riscv: Add Ziccamoa, Ziccif, Ziccrse, and Za64rs to hwprobe",
+   "title": "riscv: hwprobe: Expose RVA23U64 base behavior",
    "partial": false,
    "curated": false,
    "people": {
@@ -8686,174 +7680,68 @@
     "ackedBy": [],
     "testedBy": [],
     "seriesAuthors": [
-     "Andrew Jones",
      "Guodong Xu"
     ]
    },
    "versions": [
     {
-     "version": "RFC v1",
-     "date": "2026-02-06",
-     "author": "Andrew Jones",
-     "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260206002349.96740-7-andrew.jones@oss.qualcomm.com/"
-    },
-    {
      "version": "v2",
      "date": "2026-05-11",
      "author": "Guodong Xu",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260511-rva23u64-hwprobe-v2-v2-5-21c5a544f1dc@riscstar.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260511-rva23u64-hwprobe-v2-v2-0-21c5a544f1dc@riscstar.com/"
     },
     {
      "version": "v3",
      "date": "2026-06-02",
      "author": "Guodong Xu",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260603-rva23u64-hwprobe-v2-v3-5-5529a7b28384@gmail.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260603-rva23u64-hwprobe-v2-v3-0-5529a7b28384@gmail.com/"
     },
     {
      "version": "v4",
      "date": "2026-06-11",
      "author": "Guodong Xu",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260611-rva23u64-hwprobe-v2-v4-6-3f01a2449488@gmail.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260611-rva23u64-hwprobe-v2-v4-0-3f01a2449488@gmail.com/"
     },
     {
      "version": "v5",
      "date": "2026-07-01",
      "author": "Guodong Xu",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20260701-rva23u64-hwprobe-v2-v5-6-2c61f94a695a@gmail.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20260701-rva23u64-hwprobe-v2-v5-0-2c61f94a695a@gmail.com/"
     }
    ],
    "review": {
-    "replies": 38,
+    "replies": 46,
     "people": 11
    },
-   "earlier": [],
+   "earlier": [
+    {
+     "date": "2026-02-06",
+     "title": "riscv: Add Ziccamoa, Ziccif, Ziccrse, and Za64rs to hwprobe",
+     "authors": [
+      "Andrew Jones"
+     ],
+     "postings": 1
+    },
+    {
+     "date": "2026-02-07",
+     "title": "riscv: cpufeature: Add parsing for Za64rs, Ziccamoa, Ziccif, and Zicclsm",
+     "authors": [
+      "Guodong Xu"
+     ],
+     "postings": 1
+    }
+   ],
    "firstPatch": "2026-02-06",
    "adds": [
     "Za64rs",
     "Ziccamoa",
     "Ziccif"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "4cc7d7a216535b0c",
-    "summary": "The series adds RVA23U64 base-behavior detection, exposed through /proc/cpuinfo and hwprobe, along with the per-extension parsing it depends on (Zicclsm, Ziccamoa/Ziccif/Ziccrse/Za64rs, B, Zic64b) [1, 24, 36, 67]. Reviewers asked whether bundle-style extensions like B should be exported through hwprobe at all, and the settled answer was to export B as a superset rather than a bundle so it can be reported through both hwcap and hwprobe, with comments documenting the choice [8, 14, 18]. Several review points were resolved by changing the code: Andrew Jones proposed exporting the user PMLEN support through a getter instead of bare externs [5, 10], Ziccamoa and Za64rs dependency validation was proposed and then dropped after Conor Dooley argued the kernel should not validate firmware-reported dependencies [4, 9, 60], and Zic64b's CBO block-size validation was narrowed to only the CBO extensions that are actually present [38, 50, 54]. Reviewers also disagreed about whether RVA23U64 detection should depend on hwprobe bits or on the kernel's ISA bitmap, and Guodong Xu argued for the latter so that profile conformance is independent of which extensions are exported [6, 16, 19, 20], while Conor Dooley and Andrew Jones debated how far the kernel should go in sanity-checking firmware-described extensions [43, 47]. Across versions the series grew from Andrew Jones's RFC v1 of eleven patches [1] to v2 with a shared per-hart and host isa_bases framework and RVA23U64 limited to IMA scope [24], to v3 with Zic64b added as a first-class extension with dt-binding and device-tree changes [36], to v4 with the multi-letter Z extensions sorted in the dt-binding and Zic64b validation narrowed [55], and to v5 rebased on v7.2-rc1 with a new requirement that block-size properties be present when the matching CBO extension is listed [67]. Several patches were then queued by Paul Walmsley for v7.2-rc or v7.3 [76, 77, 78, 79, 80, 81].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2026-02-06",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/20260206002349.96740-1-andrew.jones%40oss.qualcomm.com/"
-     },
-     {
-      "n": 8,
-      "date": "2026-02-24",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/wozbsfbvlhsqhvrvjsxyx2u5rpagwlnezythkutzqwikmzeoah%40lc3brdn5cu3t/"
-     },
-     {
-      "n": 14,
-      "date": "2026-03-06",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/CAH1PCMaAEyZVioQmyJh7oFisnFnrxhnc_exJh5%3DvbZSvNcieJw%40mail.gmail.com/"
-     },
-     {
-      "n": 18,
-      "date": "2026-03-06",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/z5bm4uoryuvz5cnsdl37pqmctkqrxw3kk7vqnb3vopnyg2mhl2%40ctwdfkgahjfk/"
-     },
-     {
-      "n": 24,
-      "date": "2026-05-12",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/20260511-rva23u64-hwprobe-v2-v2-0-21c5a544f1dc%40riscstar.com/"
-     },
-     {
-      "n": 36,
-      "date": "2026-06-03",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/20260603-rva23u64-hwprobe-v2-v3-0-5529a7b28384%40gmail.com/"
-     },
-     {
-      "n": 38,
-      "date": "2026-06-04",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/CA%2BCk9FbKRM0wjJMg1fQpdwmow8cf_zTfir7V6%2BT%3DCRxU%2Bvomdg%40mail.gmail.com/"
-     },
-     {
-      "n": 43,
-      "date": "2026-06-04",
-      "from": "Andrew Jones",
-      "url": "https://lore.kernel.org/all/ug2cipududshcbv24ruicqpugzinujnamvdcuy6pubkwh67bfp%402fysrplz3nr4/"
-     },
-     {
-      "n": 47,
-      "date": "2026-06-04",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20260604-decency-salaried-4cb69e1c9fa9%40spud/"
-     },
-     {
-      "n": 50,
-      "date": "2026-06-05",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/u52q565xhv5s7gz3wbh4heplhbm4pv732s5kqvf4deiw6ceb4t%40n4bnpzu5kabs/"
-     },
-     {
-      "n": 54,
-      "date": "2026-06-06",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/3kr2pj3za5skl2auqezmdh32ctyw5uhswvro4jr6fqtyznp6lx%402sslriot2zcv/"
-     },
-     {
-      "n": 67,
-      "date": "2026-07-01",
-      "from": "Guodong Xu",
-      "url": "https://lore.kernel.org/all/20260701-rva23u64-hwprobe-v2-v5-0-2c61f94a695a%40gmail.com/"
-     },
-     {
-      "n": 76,
-      "date": "2026-07-08",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/a9f1aaa4-aca9-64fa-bf1c-100297a42d22%40kernel.org/"
-     },
-     {
-      "n": 77,
-      "date": "2026-07-08",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/a8c7d654-703b-4e2f-575f-32ef035f1117%40kernel.org/"
-     },
-     {
-      "n": 78,
-      "date": "2026-07-08",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/e9d78a59-12d8-8969-37bb-583a1a6951c9%40kernel.org/"
-     },
-     {
-      "n": 79,
-      "date": "2026-08-06",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/59f93f2b-db1d-f7ff-d893-05dbca87b549%40kernel.org/"
-     },
-     {
-      "n": 80,
-      "date": "2026-08-06",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/3cb41566-deea-689b-c445-2226d7f3f25a%40kernel.org/"
-     },
-     {
-      "n": 81,
-      "date": "2026-08-06",
-      "from": "Paul Walmsley",
-      "url": "https://lore.kernel.org/all/6aa9b348-931b-e358-6005-7e38f97092ef%40kernel.org/"
-     }
-    ]
-   }
+   "ai": null
   },
   "fe987e84b012": {
    "commit": {
@@ -8866,7 +7754,7 @@
     "version": "6.8",
     "date": "2024-03-10"
    },
-   "title": "riscv: add ISA extension parsing for Zfa",
+   "title": "riscv: report more ISA extensions through hwprobe",
    "partial": false,
    "curated": false,
    "people": {
@@ -8883,92 +7771,44 @@
    },
    "versions": [
     {
+     "version": "v1",
+     "date": "2023-10-11",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231011111438.909552-1-cleger@rivosinc.com/"
+    },
+    {
      "version": "v2",
      "date": "2023-10-17",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231017131456.2053396-18-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231017131456.2053396-1-cleger@rivosinc.com/"
     },
     {
      "version": "v3",
      "date": "2023-11-07",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-19-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231107105556.517187-1-cleger@rivosinc.com/"
     },
     {
      "version": "v4",
      "date": "2023-11-14",
      "author": "Clément Léger",
      "resends": 0,
-     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-19-cleger@rivosinc.com/"
+     "href": "https://lore.kernel.org/linux-riscv/20231114141256.126749-1-cleger@rivosinc.com/"
     }
    ],
    "review": {
-    "replies": 36,
-    "people": 4
+    "replies": 46,
+    "people": 5
    },
    "earlier": [],
-   "firstPatch": "2023-10-17",
+   "firstPatch": "2023-10-11",
    "adds": [
     "Zfa"
    ],
-   "ai": {
-    "model": "Claude Haiku 5.5",
-    "generated": "2026-11-27",
-    "inputHash": "62c99f9ebd4f77e4",
-    "summary": "The Zfa series, posted as \"riscv: report more ISA extensions through hwprobe\" across v2 to v4 by Clément Léger, extends hwprobe reporting to a long list of extensions including Zfh[min], Zvfh[min], Zihintntl, the scalar and vector crypto families, and Zfa, with bundled extensions reported only through their component \"sub\" extensions [1]. Reviewers questioned how superset and bundle relationships should be handled: Jerry Shih noted that Zvkb is a subset of Zvbb [2], and Evan Green argued that bundles which are pure lassos work with the existing mechanism while supersets carrying extra bits need different treatment [6]. Zvknha and Zvknhb were found to be exclusive rather than superset-related, which was then acknowledged and resolved in favour of not bundling them [29, 45, 49]. Conor Dooley questioned the Zkr dt-binding meaning and it was addressed by documenting its privilege-level implication [40, 42], and a wording mismatch in the v4 cover letter was flagged after the fact [53]. Across versions, the series moved from v2 to v3 with renamed bundle fields, an explicit invalid id for pure lasso extensions, and separated Zbc support [1, 39], then in v4 dropped the superset treatment of Zvknhb, removed hwprobe mentions from the dt-bindings, and added the Zkr text [51, 50].",
-    "sources": [
-     {
-      "n": 1,
-      "date": "2023-10-17",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231017131456.2053396-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 6,
-      "date": "2023-10-18",
-      "from": "Evan Green",
-      "url": "https://lore.kernel.org/all/CALs-HstEBt-ntCcETa9YwS6On3nGyoEc2p7R-gaBLG9%2BaFJL5w%40mail.gmail.com/"
-     },
-     {
-      "n": 29,
-      "date": "2023-10-20",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/E30E7352-1FB0-4DB5-94C3-2C6FC2A6F484%40sifive.com/"
-     },
-     {
-      "n": 45,
-      "date": "2023-11-09",
-      "from": "Jerry Shih",
-      "url": "https://lore.kernel.org/all/5EF129A2-195B-4207-A2F6-DBA1FBB9F65D%40sifive.com/"
-     },
-     {
-      "n": 49,
-      "date": "2023-11-09",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/fd022864-f276-4c4c-84ea-0752b915a9b3%40rivosinc.com/"
-     },
-     {
-      "n": 50,
-      "date": "2023-11-09",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/5cb0a3ae-405c-4b07-adaa-0e3109e76c69%40rivosinc.com/"
-     },
-     {
-      "n": 51,
-      "date": "2023-11-14",
-      "from": "Clément Léger",
-      "url": "https://lore.kernel.org/all/20231114141256.126749-1-cleger%40rivosinc.com/"
-     },
-     {
-      "n": 53,
-      "date": "2023-11-22",
-      "from": "Conor Dooley",
-      "url": "https://lore.kernel.org/all/20231122-detection-antler-124b9460e893%40spud/"
-     }
-    ]
-   }
+   "ai": null
   },
   "ff689fd21cb1": {
    "commit": {
@@ -9212,7 +8052,9 @@
     "C",
     "D",
     "F",
-    "M"
+    "M",
+    "RV64I",
+    "Sv39"
    ]
   },
   "C": {
@@ -9221,7 +8063,9 @@
     "A",
     "D",
     "F",
-    "M"
+    "M",
+    "RV64I",
+    "Sv39"
    ]
   },
   "D": {
@@ -9230,7 +8074,9 @@
     "A",
     "C",
     "F",
-    "M"
+    "M",
+    "RV64I",
+    "Sv39"
    ]
   },
   "F": {
@@ -9239,7 +8085,9 @@
     "A",
     "C",
     "D",
-    "M"
+    "M",
+    "RV64I",
+    "Sv39"
    ]
   },
   "H": {
@@ -9252,7 +8100,26 @@
     "A",
     "C",
     "D",
-    "F"
+    "F",
+    "RV64I",
+    "Sv39"
+   ]
+  },
+  "RV32I": {
+   "series": "8f79125d285d",
+   "landedWith": [
+    "Sv32"
+   ]
+  },
+  "RV64I": {
+   "series": "76d2a0493a17",
+   "landedWith": [
+    "A",
+    "C",
+    "D",
+    "F",
+    "M",
+    "Sv39"
    ]
   },
   "Smaia": {
@@ -9307,6 +8174,10 @@
     "Smcdeleg"
    ]
   },
+  "Sscofpmf": {
+   "series": "4905ec2fb7e6",
+   "landedWith": []
+  },
   "Sscsrind": {
    "series": "0ce0702f5ee6",
    "landedWith": [
@@ -9326,6 +8197,35 @@
   },
   "Sstc": {
    "series": "464b0187ff94",
+   "landedWith": []
+  },
+  "Supm": {
+   "series": "3c2e0aff7b4f",
+   "landedWith": []
+  },
+  "Sv32": {
+   "series": "8f79125d285d",
+   "landedWith": [
+    "RV32I"
+   ]
+  },
+  "Sv39": {
+   "series": "76d2a0493a17",
+   "landedWith": [
+    "A",
+    "C",
+    "D",
+    "F",
+    "M",
+    "RV64I"
+   ]
+  },
+  "Sv48": {
+   "series": "e8a62cc26ddf",
+   "landedWith": []
+  },
+  "Sv57": {
+   "series": "011f09d12052",
    "landedWith": []
   },
   "Svade": {
@@ -9413,10 +8313,93 @@
    "series": "e45f463a9b01",
    "landedWith": []
   },
+  "Zbkb": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkc",
+    "Zbkx",
+    "Zk",
+    "Zkn",
+    "Zknd",
+    "Zkne",
+    "Zknh",
+    "Zkr",
+    "Zks",
+    "Zksed",
+    "Zksh",
+    "Zkt"
+   ]
+  },
+  "Zbkc": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkx",
+    "Zk",
+    "Zkn",
+    "Zknd",
+    "Zkne",
+    "Zknh",
+    "Zkr",
+    "Zks",
+    "Zksed",
+    "Zksh",
+    "Zkt"
+   ]
+  },
+  "Zbkx": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkc",
+    "Zk",
+    "Zkn",
+    "Zknd",
+    "Zkne",
+    "Zknh",
+    "Zkr",
+    "Zks",
+    "Zksed",
+    "Zksh",
+    "Zkt"
+   ]
+  },
   "Zbs": {
    "series": "c6699baf1064",
    "landedWith": [
     "Zba"
+   ]
+  },
+  "Zca": {
+   "series": "ba4cd855839d",
+   "landedWith": [
+    "Zcb",
+    "Zcd",
+    "Zcf"
+   ]
+  },
+  "Zcb": {
+   "series": "ba4cd855839d",
+   "landedWith": [
+    "Zca",
+    "Zcd",
+    "Zcf"
+   ]
+  },
+  "Zcd": {
+   "series": "ba4cd855839d",
+   "landedWith": [
+    "Zca",
+    "Zcb",
+    "Zcf"
+   ]
+  },
+  "Zcf": {
+   "series": "ba4cd855839d",
+   "landedWith": [
+    "Zca",
+    "Zcb",
+    "Zcd"
    ]
   },
   "Zclsd": {
@@ -9498,9 +8481,33 @@
     "Zicfilp"
    ]
   },
+  "Zicntr": {
+   "series": "07edc32779e3",
+   "landedWith": [
+    "Zicsr",
+    "Zifencei",
+    "Zihpm"
+   ]
+  },
   "Zicond": {
    "series": "662a601aa355",
    "landedWith": []
+  },
+  "Zicsr": {
+   "series": "07edc32779e3",
+   "landedWith": [
+    "Zicntr",
+    "Zifencei",
+    "Zihpm"
+   ]
+  },
+  "Zifencei": {
+   "series": "07edc32779e3",
+   "landedWith": [
+    "Zicntr",
+    "Zicsr",
+    "Zihpm"
+   ]
   },
   "Zihintntl": {
    "series": "eddbfa0d849f",
@@ -9509,6 +8516,14 @@
   "Zihintpause": {
    "series": "8eb060e10185",
    "landedWith": []
+  },
+  "Zihpm": {
+   "series": "07edc32779e3",
+   "landedWith": [
+    "Zicntr",
+    "Zicsr",
+    "Zifencei"
+   ]
   },
   "Zilsd": {
    "series": "3f0cbfb8a107",
@@ -9520,9 +8535,264 @@
    "series": "2467c2104f1f",
    "landedWith": []
   },
+  "Zk": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkc",
+    "Zbkx",
+    "Zkn",
+    "Zknd",
+    "Zkne",
+    "Zknh",
+    "Zkr",
+    "Zks",
+    "Zksed",
+    "Zksh",
+    "Zkt"
+   ]
+  },
+  "Zkn": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkc",
+    "Zbkx",
+    "Zk",
+    "Zknd",
+    "Zkne",
+    "Zknh",
+    "Zkr",
+    "Zks",
+    "Zksed",
+    "Zksh",
+    "Zkt"
+   ]
+  },
+  "Zknd": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkc",
+    "Zbkx",
+    "Zk",
+    "Zkn",
+    "Zkne",
+    "Zknh",
+    "Zkr",
+    "Zks",
+    "Zksed",
+    "Zksh",
+    "Zkt"
+   ]
+  },
+  "Zkne": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkc",
+    "Zbkx",
+    "Zk",
+    "Zkn",
+    "Zknd",
+    "Zknh",
+    "Zkr",
+    "Zks",
+    "Zksed",
+    "Zksh",
+    "Zkt"
+   ]
+  },
+  "Zknh": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkc",
+    "Zbkx",
+    "Zk",
+    "Zkn",
+    "Zknd",
+    "Zkne",
+    "Zkr",
+    "Zks",
+    "Zksed",
+    "Zksh",
+    "Zkt"
+   ]
+  },
+  "Zkr": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkc",
+    "Zbkx",
+    "Zk",
+    "Zkn",
+    "Zknd",
+    "Zkne",
+    "Zknh",
+    "Zks",
+    "Zksed",
+    "Zksh",
+    "Zkt"
+   ]
+  },
+  "Zks": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkc",
+    "Zbkx",
+    "Zk",
+    "Zkn",
+    "Zknd",
+    "Zkne",
+    "Zknh",
+    "Zkr",
+    "Zksed",
+    "Zksh",
+    "Zkt"
+   ]
+  },
+  "Zksed": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkc",
+    "Zbkx",
+    "Zk",
+    "Zkn",
+    "Zknd",
+    "Zkne",
+    "Zknh",
+    "Zkr",
+    "Zks",
+    "Zksh",
+    "Zkt"
+   ]
+  },
+  "Zksh": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkc",
+    "Zbkx",
+    "Zk",
+    "Zkn",
+    "Zknd",
+    "Zkne",
+    "Zknh",
+    "Zkr",
+    "Zks",
+    "Zksed",
+    "Zkt"
+   ]
+  },
+  "Zkt": {
+   "series": "0d8295ed975b",
+   "landedWith": [
+    "Zbkb",
+    "Zbkc",
+    "Zbkx",
+    "Zk",
+    "Zkn",
+    "Zknd",
+    "Zkne",
+    "Zknh",
+    "Zkr",
+    "Zks",
+    "Zksed",
+    "Zksh"
+   ]
+  },
   "Ztso": {
    "series": "1ec9f381e848",
    "landedWith": []
+  },
+  "Zvbb": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvbc": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zve32f": {
+   "series": "1e7483542bf8",
+   "landedWith": [
+    "Zve32x",
+    "Zve64d",
+    "Zve64f",
+    "Zve64x"
+   ]
+  },
+  "Zve32x": {
+   "series": "1e7483542bf8",
+   "landedWith": [
+    "Zve32f",
+    "Zve64d",
+    "Zve64f",
+    "Zve64x"
+   ]
+  },
+  "Zve64d": {
+   "series": "1e7483542bf8",
+   "landedWith": [
+    "Zve32f",
+    "Zve32x",
+    "Zve64f",
+    "Zve64x"
+   ]
+  },
+  "Zve64f": {
+   "series": "1e7483542bf8",
+   "landedWith": [
+    "Zve32f",
+    "Zve32x",
+    "Zve64d",
+    "Zve64x"
+   ]
+  },
+  "Zve64x": {
+   "series": "1e7483542bf8",
+   "landedWith": [
+    "Zve32f",
+    "Zve32x",
+    "Zve64d",
+    "Zve64f"
+   ]
   },
   "Zvfbfmin": {
    "series": "e186c28dda11",
@@ -9549,6 +8819,286 @@
    "landedWith": [
     "Zvfh"
    ]
+  },
+  "Zvkb": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvkg": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvkn": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvknc": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvkned": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvkng": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvknha": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvknhb": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvks": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvksc": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvksed": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksg",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvksg": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksh",
+    "Zvkt"
+   ]
+  },
+  "Zvksh": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvkt"
+   ]
+  },
+  "Zvkt": {
+   "series": "aec3353963b8",
+   "landedWith": [
+    "Zvbb",
+    "Zvbc",
+    "Zvkb",
+    "Zvkg",
+    "Zvkn",
+    "Zvknc",
+    "Zvkned",
+    "Zvkng",
+    "Zvknha",
+    "Zvknhb",
+    "Zvks",
+    "Zvksc",
+    "Zvksed",
+    "Zvksg",
+    "Zvksh"
+   ]
   }
  },
  "listed": {
@@ -9558,343 +9108,8 @@
     "date": "2023-10-30"
    },
    "others": 12,
-   "commit": "effc122ad176"
-  },
-  "Zbkb": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zbkc": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zbkx": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zca": {
-   "release": {
-    "version": "6.11",
-    "date": "2024-09-15"
-   },
-   "others": 5,
-   "commit": "ba4cd855839d"
-  },
-  "Zcb": {
-   "release": {
-    "version": "6.11",
-    "date": "2024-09-15"
-   },
-   "others": 5,
-   "commit": "ba4cd855839d"
-  },
-  "Zcd": {
-   "release": {
-    "version": "6.11",
-    "date": "2024-09-15"
-   },
-   "others": 5,
-   "commit": "ba4cd855839d"
-  },
-  "Zcf": {
-   "release": {
-    "version": "6.11",
-    "date": "2024-09-15"
-   },
-   "others": 5,
-   "commit": "ba4cd855839d"
-  },
-  "Zicntr": {
-   "release": {
-    "version": "6.5",
-    "date": "2023-08-27"
-   },
-   "others": 3,
-   "commit": "07edc32779e3"
-  },
-  "Zicsr": {
-   "release": {
-    "version": "6.5",
-    "date": "2023-08-27"
-   },
-   "others": 3,
-   "commit": "07edc32779e3"
-  },
-  "Zifencei": {
-   "release": {
-    "version": "6.5",
-    "date": "2023-08-27"
-   },
-   "others": 3,
-   "commit": "07edc32779e3"
-  },
-  "Zihpm": {
-   "release": {
-    "version": "6.5",
-    "date": "2023-08-27"
-   },
-   "others": 3,
-   "commit": "07edc32779e3"
-  },
-  "Zk": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zkn": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zknd": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zkne": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zknh": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zkr": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zks": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zksed": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zksh": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zkt": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 13,
-   "commit": "0d8295ed975b"
-  },
-  "Zvbb": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvbc": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zve32f": {
-   "release": {
-    "version": "6.11",
-    "date": "2024-09-15"
-   },
-   "others": 5,
-   "commit": "1e7483542bf8"
-  },
-  "Zve32x": {
-   "release": {
-    "version": "6.11",
-    "date": "2024-09-15"
-   },
-   "others": 5,
-   "commit": "1e7483542bf8"
-  },
-  "Zve64d": {
-   "release": {
-    "version": "6.11",
-    "date": "2024-09-15"
-   },
-   "others": 5,
-   "commit": "1e7483542bf8"
-  },
-  "Zve64f": {
-   "release": {
-    "version": "6.11",
-    "date": "2024-09-15"
-   },
-   "others": 5,
-   "commit": "1e7483542bf8"
-  },
-  "Zve64x": {
-   "release": {
-    "version": "6.11",
-    "date": "2024-09-15"
-   },
-   "others": 5,
-   "commit": "1e7483542bf8"
-  },
-  "Zvkb": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvkg": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvkn": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvknc": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvkned": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvkng": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvknha": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvknhb": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvks": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvksc": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvksed": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvksg": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvksh": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
-  },
-  "Zvkt": {
-   "release": {
-    "version": "6.8",
-    "date": "2024-03-10"
-   },
-   "others": 16,
-   "commit": "aec3353963b8"
+   "commit": "effc122ad176",
+   "note": "Linux parses Q in ISA strings, but has no quad-precision support code: the FP context it saves is 64-bit."
   }
  },
  "bundles": {
@@ -9904,6 +9119,328 @@
     "Zbb",
     "Zbs"
    ]
+  }
+ },
+ "pending": {
+  "Sdtrig": {
+   "title": "riscv: support Sdtrig extension hcontext/scontext CSRs",
+   "authors": [
+    "Max Hsu"
+   ],
+   "versions": [
+    {
+     "version": "RFC v1",
+     "date": "2024-03-29",
+     "author": "Max Hsu",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240329-dev-maxh-lin-452-6-9-v1-0-1534f93b94a7@sifive.com/"
+    }
+   ],
+   "firstPatch": "2024-03-29",
+   "lastPosted": "2024-03-29",
+   "review": {
+    "replies": 5,
+    "people": 3
+   },
+   "earlier": [],
+   "merged": null,
+   "ai": null
+  },
+  "Sm": {
+   "title": "riscv: Add ISA extension parsing for Sm and Ss",
+   "authors": [
+    "Samuel Holland"
+   ],
+   "versions": [
+    {
+     "version": "v2",
+     "date": "2024-02-13",
+     "author": "Samuel Holland",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240213033744.4069020-4-samuel.holland@sifive.com/"
+    }
+   ],
+   "firstPatch": "2024-02-13",
+   "lastPosted": "2024-02-13",
+   "review": {
+    "replies": 15,
+    "people": 4
+   },
+   "earlier": [],
+   "merged": null,
+   "ai": null
+  },
+  "Smctr": {
+   "title": "riscv: perf: Add support for Control Transfer Records Ext.",
+   "authors": [
+    "Rajnesh Kanwal",
+    "Vikram Singh"
+   ],
+   "versions": [
+    {
+     "version": "RFC v1",
+     "date": "2024-05-29",
+     "author": "Rajnesh Kanwal",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240529185337.182722-1-rkanwal@rivosinc.com/"
+    },
+    {
+     "version": "v2",
+     "date": "2025-01-16",
+     "author": "Rajnesh Kanwal",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20250116230955.867152-1-rkanwal@rivosinc.com/"
+    },
+    {
+     "version": "v3",
+     "date": "2025-05-22",
+     "author": "Rajnesh Kanwal",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20250523-b4-ctr_upstream_v3-v3-0-ad355304ba1c@rivosinc.com/"
+    },
+    {
+     "version": "v4",
+     "date": "2026-11-06",
+     "author": "Vikram Singh",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20261106173942.3175069-1-vikram.singh3@oss.qualcomm.com/"
+    },
+    {
+     "version": "v5",
+     "date": "2026-11-18",
+     "author": "Vikram Singh",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20261118095053.3871267-1-vikram.singh3@oss.qualcomm.com/"
+    },
+    {
+     "version": "v6",
+     "date": "2026-11-25",
+     "author": "Vikram Singh",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20261125083942.3695072-1-vikram.singh3@oss.qualcomm.com/"
+    }
+   ],
+   "firstPatch": "2024-05-29",
+   "lastPosted": "2026-11-25",
+   "review": {
+    "replies": 32,
+    "people": 9
+   },
+   "earlier": [],
+   "merged": null,
+   "ai": null
+  },
+  "Ssctr": {
+   "title": "riscv: perf: Add support for Control Transfer Records Ext.",
+   "authors": [
+    "Rajnesh Kanwal",
+    "Vikram Singh"
+   ],
+   "versions": [
+    {
+     "version": "RFC v1",
+     "date": "2024-05-29",
+     "author": "Rajnesh Kanwal",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240529185337.182722-1-rkanwal@rivosinc.com/"
+    },
+    {
+     "version": "v2",
+     "date": "2025-01-16",
+     "author": "Rajnesh Kanwal",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20250116230955.867152-1-rkanwal@rivosinc.com/"
+    },
+    {
+     "version": "v3",
+     "date": "2025-05-22",
+     "author": "Rajnesh Kanwal",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20250523-b4-ctr_upstream_v3-v3-0-ad355304ba1c@rivosinc.com/"
+    },
+    {
+     "version": "v4",
+     "date": "2026-11-06",
+     "author": "Vikram Singh",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20261106173942.3175069-1-vikram.singh3@oss.qualcomm.com/"
+    },
+    {
+     "version": "v5",
+     "date": "2026-11-18",
+     "author": "Vikram Singh",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20261118095053.3871267-1-vikram.singh3@oss.qualcomm.com/"
+    },
+    {
+     "version": "v6",
+     "date": "2026-11-25",
+     "author": "Vikram Singh",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20261125083942.3695072-1-vikram.singh3@oss.qualcomm.com/"
+    }
+   ],
+   "firstPatch": "2024-05-29",
+   "lastPosted": "2026-11-25",
+   "review": {
+    "replies": 32,
+    "people": 9
+   },
+   "earlier": [],
+   "merged": null,
+   "ai": null
+  },
+  "Ssdbltrp": {
+   "title": "riscv: Add support for Ssdbltrp extension",
+   "authors": [
+    "Clément Léger"
+   ],
+   "versions": [
+    {
+     "version": "RFC v1",
+     "date": "2024-04-18",
+     "author": "Clément Léger",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240418142701.1493091-1-cleger@rivosinc.com/"
+    }
+   ],
+   "firstPatch": "2024-04-18",
+   "lastPosted": "2024-04-18",
+   "review": {
+    "replies": 12,
+    "people": 3
+   },
+   "earlier": [],
+   "merged": null,
+   "ai": null
+  },
+  "Ssdtso": {
+   "title": "RISC-V: Expose Ssdtso via hwprobe API",
+   "authors": [
+    "Christoph Muellner",
+    "Christoph Müllner"
+   ],
+   "versions": [
+    {
+     "version": "RFC v1",
+     "date": "2023-11-24",
+     "author": "Christoph Muellner",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20231124072142.2786653-3-christoph.muellner@vrull.eu/"
+    },
+    {
+     "version": "RFC v2",
+     "date": "2024-02-09",
+     "author": "Christoph Müllner",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240209064050.2746540-6-christoph.muellner@vrull.eu/"
+    }
+   ],
+   "firstPatch": "2023-11-24",
+   "lastPosted": "2024-02-09",
+   "review": {
+    "replies": 14,
+    "people": 9
+   },
+   "earlier": [],
+   "merged": null,
+   "ai": null
+  },
+  "Svukte": {
+   "title": "riscv: add Svukte extension",
+   "authors": [
+    "Max Hsu"
+   ],
+   "versions": [
+    {
+     "version": "RFC v1",
+     "date": "2024-09-20",
+     "author": "Max Hsu",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240920-dev-maxh-svukte-rebase-v1-0-7864a88a62bd@sifive.com/"
+    },
+    {
+     "version": "RFC v2",
+     "date": "2024-09-27",
+     "author": "Max Hsu",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20240927-dev-maxh-svukte-rebase-2-v2-0-9afe57c33aee@sifive.com/"
+    },
+    {
+     "version": "RFC v3",
+     "date": "2024-11-20",
+     "author": "Max Hsu",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20241120-dev-maxh-svukte-v3-v3-0-1e533d41ae15@sifive.com/"
+    },
+    {
+     "version": "RFC v4",
+     "date": "2024-12-13",
+     "author": "Max Hsu",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20241213-dev-maxh-svukte-v4-v4-0-92762c67f743@sifive.com/"
+    }
+   ],
+   "firstPatch": "2024-09-20",
+   "lastPosted": "2024-12-13",
+   "review": {
+    "replies": 10,
+    "people": 5
+   },
+   "earlier": [],
+   "merged": null,
+   "ai": null
+  },
+  "Zic64b": {
+   "title": "riscv: cpufeature: Add Zic64b ISA extension support",
+   "authors": [
+    "Qingwei Hu"
+   ],
+   "versions": [
+    {
+     "version": "v1",
+     "date": "2026-05-28",
+     "author": "Qingwei Hu",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20260528141630.2741710-1-qingwei.hu@bytedance.com/"
+    }
+   ],
+   "firstPatch": "2026-05-28",
+   "lastPosted": "2026-05-28",
+   "review": {
+    "replies": 3,
+    "people": 2
+   },
+   "earlier": [],
+   "merged": {
+    "commit": "7493567982b0",
+    "applied": "2026-10-08"
+   },
+   "ai": null
+  },
+  "Ziccid": {
+   "title": "riscv: add support for Ziccid",
+   "authors": [
+    "Yunhui Cui"
+   ],
+   "versions": [
+    {
+     "version": "RFC v1",
+     "date": "2025-10-09",
+     "author": "Yunhui Cui",
+     "resends": 0,
+     "href": "https://lore.kernel.org/linux-riscv/20251009134514.8549-1-cuiyunhui@bytedance.com/"
+    }
+   ],
+   "firstPatch": "2025-10-09",
+   "lastPosted": "2025-10-09",
+   "review": {
+    "replies": 5,
+    "people": 5
+   },
+   "earlier": [],
+   "merged": null,
+   "ai": null
   }
  }
 }
