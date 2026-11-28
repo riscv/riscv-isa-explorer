@@ -71629,6 +71629,7 @@
       "desc": "Batched dot products of one vector against eight others, accumulating eight results for tiled matrix multiply.",
       "use": "BF16 dot-product accumulate",
       "url": "https://github.com/riscv/riscv-isa-manual/blob/570e32e43ecc2a9ffe2e6d7cb2888841d0d877de/src/zvdota.adoc?plain=1#L151",
+      "state": "frozen",
       "instructions": {}
     },
     {
@@ -71639,6 +71640,7 @@
       "desc": "Reduces two vector register groups to one accumulated dot-product scalar, over integer, BF16, or FP8 data.",
       "use": "Generic FP dot-product accumulate",
       "url": "https://github.com/riscv/riscv-isa-manual/blob/570e32e43ecc2a9ffe2e6d7cb2888841d0d877de/src/zvdota.adoc?plain=1#L21",
+      "state": "frozen",
       "instructions": {}
     },
     {
@@ -74850,6 +74852,7 @@
       "desc": "Carryless multiply on 32-bit vector elements, bringing GCM and CRC acceleration to ELEN=32 embedded cores.",
       "use": "Carry-less multiply on 32-bit elements",
       "url": "https://github.com/riscv/riscv-isa-manual/blob/7cb19f057163c5d4b46c1dc9e905c2294517da7f/src/vector-crypto.adoc?plain=1#L545",
+      "state": "frozen",
       "instructions": {}
     },
     {
@@ -75058,6 +75061,7 @@
       "desc": "Vector-scalar forms of the GHASH instructions, letting one hash key drive many blocks of GCM at once.",
       "use": "Profile-specific GCM subset",
       "url": "https://github.com/riscv/riscv-isa-manual/blob/7cb19f057163c5d4b46c1dc9e905c2294517da7f/src/vector-crypto.adoc?plain=1#L604",
+      "state": "frozen",
       "instructions": {}
     },
     {
