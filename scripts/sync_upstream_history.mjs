@@ -423,7 +423,12 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
     report.collected.push({ id, key });
   }
   // Extensions Linux does not support: the series working towards them.
-  const supportedIds = new Set(supported.map(([token]) => ids.get(token)).filter(Boolean));
+  // Everything collected as supported above, the kernel's own released table
+  // entries included: one whose series could not be found is reported missing,
+  // never shown as not in Linux.
+  const supportedIds = new Set(
+    [...supported, ...extra].map(([token]) => ids.get(token)).filter(Boolean),
+  );
   for (const id of [...new Set(ids.values())].sort()) {
     // Supported, or given a history through a commit that added it (the
     // toolchain data can lag the kernel: Zvfbfwma landed in 6.15).
