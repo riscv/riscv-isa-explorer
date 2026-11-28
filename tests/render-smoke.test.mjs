@@ -1168,7 +1168,10 @@ test('an extension Linux does not support shows the series in review for it', as
   const historyData = JSON.parse(
     fs.readFileSync(path.join(here, '..', 'src', 'upstream-history.json'), 'utf8'),
   );
-  const [id, p] = Object.entries(historyData.pending).find(([, x]) => !x.merged);
+  // One with earlier attempts, so the timeline names the series' state.
+  const [id, p] = Object.entries(historyData.pending)
+    .filter(([, x]) => !x.merged)
+    .sort(([, a], [, b]) => b.earlier.length - a.earlier.length)[0];
   const { dom: d, errors } = await mountAt(`https://example.test/?ext=${id}&history=linux`);
   await waitFor(() => historyDialog(d));
   await loadLazyChunks(d);
@@ -1177,6 +1180,10 @@ test('an extension Linux does not support shows the series in review for it', as
   assert.match(text, /Not in Linux yet/, 'the banner says it has not landed');
   assert.match(text, /last posted/);
   assert.doesNotMatch(text, /Applied by|Released in Linux/, 'no applied or released rows');
+  if (p.earlier.length) {
+    assert.match(text, /The series in review: /);
+    assert.doesNotMatch(text, /The series that landed/);
+  }
   assert.ok(text.includes(p.authors[0]), 'the series author');
   assert.ok(historyDialog(d).querySelector('svg[role="img"]'), 'the Progression lane');
   assert.deepEqual(realErrors(errors), []);

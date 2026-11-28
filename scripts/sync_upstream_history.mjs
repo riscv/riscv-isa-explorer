@@ -358,6 +358,8 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
   for (const [token, entry] of [...supported, ...extra]) {
     const id = ids.get(token);
     if (!id || (wanted && !wanted.has(token))) continue;
+    // Supported now: whatever happens below, it is no longer in review.
+    delete data.pending[id];
     // One form per extension: storing one removes the others, so a targeted
     // refresh cannot leave an extension both collected and a bundle.
     const only = (form) => {

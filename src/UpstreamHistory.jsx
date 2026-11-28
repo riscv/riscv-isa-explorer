@@ -749,7 +749,12 @@ function Timeline({ h }) {
             className="text-[11px] -mt-1 mb-2 pl-6"
             style={{ color: 'var(--riscv-text-3)' }}
           >
-            The series that landed: {h.title}
+            {h.commit
+              ? 'The series that landed'
+              : h.merged
+                ? 'The series that was merged'
+                : 'The series in review'}
+            : {h.title}
           </li>,
         );
     }
