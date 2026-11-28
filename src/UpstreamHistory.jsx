@@ -396,7 +396,16 @@ function Progression({ ids, current, data, onPick }) {
   // An extension still in review: one lane, ending at its last posting.
   if (!lanes.length && data.pending?.[current])
     lanes.push({
-      s: { ...data.pending[current], pending: true },
+      // Merged but not released (Zic64b in an -rc): applied, no release yet.
+      s: data.pending[current].merged
+        ? {
+            ...data.pending[current],
+            commit: {
+              applied: data.pending[current].merged.applied,
+              sha: data.pending[current].merged.commit,
+            },
+          }
+        : { ...data.pending[current], pending: true },
       members: [current],
       id: current,
       label: laneLabel([current]),
@@ -454,7 +463,7 @@ function Progression({ ids, current, data, onPick }) {
             .map((l) =>
               l.s.pending
                 ? `${l.members.join(', ')}: first patch ${l.s.firstPatch}, last posted ${l.s.lastPosted}, not merged`
-                : `${l.members.join(', ')}: first patch ${l.s.firstPatch}, applied ${l.s.commit.applied}, Linux ${l.s.release.version}`,
+                : `${l.members.join(', ')}: first patch ${l.s.firstPatch}, applied ${l.s.commit.applied}, ${l.s.release ? `Linux ${l.s.release.version}` : 'not in a release yet'}`,
             )
             .join('; ')}
         >
@@ -505,16 +514,20 @@ function Lane({ lane, cy, laneH, width, x, selected, onPick }) {
   const landed = s.versions[0].date;
   // A series still in review has no applied or release mark: its path ends
   // at the last posting.
-  const end = s.release?.date ?? s.lastPosted;
+  const end = s.release?.date ?? s.commit?.applied ?? s.lastPosted;
   const appliedAt = s.commit?.applied ?? s.lastPosted;
   const dates = placeDates([
     {
       at: x(end),
       text: month(end),
-      fill: s.pending ? 'var(--riscv-gold)' : 'var(--riscv-success)',
+      fill: s.release
+        ? 'var(--riscv-success)'
+        : s.commit
+          ? 'var(--riscv-violet)'
+          : 'var(--riscv-gold)',
       anchor: 'middle',
     },
-    ...(s.pending
+    ...(!s.release || !s.commit
       ? []
       : [
           {
@@ -580,7 +593,7 @@ function Lane({ lane, cy, laneH, width, x, selected, onPick }) {
         rx="4"
         fill="var(--riscv-gold)"
       >
-        <title>{`${s.title}: ${landed} to ${appliedAt}${s.pending ? ', still in review' : ''}`}</title>
+        <title>{`${s.title}: ${landed} to ${appliedAt}${s.pending ? ', still in review' : s.release ? '' : ', not in a release yet'}`}</title>
       </rect>
       {s.versions.map((v) => (
         <rect
@@ -595,15 +608,17 @@ function Lane({ lane, cy, laneH, width, x, selected, onPick }) {
           <title>{`${v.version} · ${v.date} · ${v.author}`}</title>
         </rect>
       ))}
-      {!s.pending && (
+      {s.commit && (
+        <rect
+          x={x(s.commit.applied) - 1.5}
+          y={cy - 11}
+          width="3"
+          height="22"
+          fill="var(--riscv-violet)"
+        />
+      )}
+      {s.release && (
         <>
-          <rect
-            x={x(s.commit.applied) - 1.5}
-            y={cy - 11}
-            width="3"
-            height="22"
-            fill="var(--riscv-violet)"
-          />
           <rect
             x={x(s.release.date) - 4.5}
             y={cy - 4.5}

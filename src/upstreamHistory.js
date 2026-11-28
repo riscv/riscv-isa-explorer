@@ -71,7 +71,16 @@ export function timelineItems(series) {
             sub: series.commit.sha,
           },
         ]
-      : []),
+      : series.merged
+        ? [
+            {
+              kind: 'applied',
+              date: series.merged.applied,
+              text: 'Merged, not in a Linux release yet',
+              sub: series.merged.commit,
+            },
+          ]
+        : []),
     ...(series.release
       ? [
           {

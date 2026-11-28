@@ -347,7 +347,8 @@ export async function main([linux, ...argv] = process.argv.slice(2)) {
     // One form per extension: storing one removes the others, so a targeted
     // refresh cannot leave an extension both collected and a bundle.
     const only = (form) => {
-      for (const key of ['extensions', 'listed', 'bundles']) if (key !== form) delete data[key][id];
+      for (const key of ['extensions', 'listed', 'bundles', 'pending'])
+        if (key !== form) delete data[key][id];
     };
     if (entry.linux.through) {
       only('bundles');

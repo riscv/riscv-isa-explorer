@@ -1182,6 +1182,26 @@ test('an extension Linux does not support shows the series in review for it', as
   assert.deepEqual(realErrors(errors), []);
 });
 
+test('an extension merged before a release shows it applied, not in review', async () => {
+  const historyData = JSON.parse(
+    fs.readFileSync(path.join(here, '..', 'src', 'upstream-history.json'), 'utf8'),
+  );
+  const found = Object.entries(historyData.pending).find(([, x]) => x.merged);
+  if (!found) return; // nothing is between merge and release this week
+  const [id, p] = found;
+  const { dom: d, errors } = await mountAt(`https://example.test/?ext=${id}&history=linux`);
+  await waitFor(() => historyDialog(d));
+  await loadLazyChunks(d);
+  await waitFor(() => /Merged on/.test(historyDialog(d)?.textContent ?? ''));
+  const dialog = historyDialog(d);
+  assert.match(dialog.textContent, /Merged, not in a Linux release yet/, 'the applied row');
+  assert.doesNotMatch(dialog.textContent, /Not in Linux yet|still in review/);
+  assert.ok(dialog.textContent.includes(p.merged.commit));
+  const label = dialog.querySelector('svg[role="img"]').getAttribute('aria-label');
+  assert.match(label, /not in a release yet/);
+  assert.deepEqual(realErrors(errors), []);
+});
+
 const pasteSearch = (d, text) => {
   const input = d.window.document.querySelector('input[type="search"]');
   const setValue = Object.getOwnPropertyDescriptor(

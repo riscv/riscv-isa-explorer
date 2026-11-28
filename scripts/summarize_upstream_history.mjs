@@ -50,7 +50,7 @@ export const SYSTEM = `You summarise Linux kernel patch review threads for a pub
 
 export function instructions(extensions, series, scope = '') {
   return `Extensions: ${extensions.join(', ')}
-${series.commit ? 'Patch series that landed' : 'Patch series under review, not merged yet'}: "${series.title}"
+${series.commit ? 'Patch series that landed' : series.merged ? 'Patch series merged, not in a Linux release yet' : 'Patch series under review, not merged yet'}: "${series.title}"
 Versions: ${series.versions.map((v) => `${v.version} ${v.date} (${v.author})`).join('; ')}
 ${scope}
 Below are the numbered messages from the review threads: cover letters and replies, with quoted text and diffs removed. Each begins "[n] date | author | version | subject".

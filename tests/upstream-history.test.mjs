@@ -81,6 +81,10 @@ test('subjects: postings, versions, parts, RFC and titles', () => {
   assert.equal(isPosting('[RFC 1/3] riscv: x'), true);
   assert.equal(isPosting('Re: [v6 0/9] Improve RISC-V Perf support'), false);
   assert.equal(isPosting('[GIT PULL] RISC-V fixes for 6.1'), false);
+  assert.equal(isPosting('[GIT PULL v2] riscv: Zfoo support'), false, 'a versioned pull request');
+  assert.equal(isPosting('[ANNOUNCE v3] something'), false);
+  assert.equal(isPosting('[GIT PULL 0/2] x'), false);
+  assert.equal(isPosting('[RESEND v2 1/3] riscv: x'), true);
   assert.equal(version('[v6 0/9] Improve RISC-V Perf support'), 6);
   assert.equal(version('[PATCH 0/9] x [v2]'), 1, 'only the posting tag counts');
   assert.equal(version('[PATCH -next v18 00/20] riscv: Add vector ISA support'), 18);
@@ -951,6 +955,16 @@ test('the timeline orders attempts, versions, applied and released', () => {
     pending.map((i) => i.kind),
     ['landed'],
     'a series in review has no applied or released row',
+  );
+  const merged = timelineItems({
+    earlier: [],
+    versions: [{ version: 'v1', date: '2026-05-28', author: 'X', resends: 0, href: 'h' }],
+    merged: { commit: '7493567982b0', applied: '2026-10-08' },
+  });
+  assert.deepEqual(
+    merged.map((i) => i.kind),
+    ['landed', 'applied'],
+    'merged before a release: applied, not released',
   );
   assert.equal(items[0].sub, 'A, 2 postings');
 });
